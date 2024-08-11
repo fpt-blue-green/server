@@ -1,0 +1,43 @@
+# Binaries
+bin/
+obj/
+
+# Visual Studio specific
+.vs/
+*.user
+*.suo
+
+# Rider specific
+.idea/
+*.sln.iml
+
+# Auto-generated files
+*.g.cs
+*.g.i.cs
+*.generated.cs
+
+# User-specific files
+*.rsuser
+*.csproj.user
+
+# Logs
+*.log
+*.tlg
+
+# Packages
+*.nupkg
+*.snupkg
+
+# Rider specific
+.idea/
+
+# ReSharper specific
+_ReSharper*/
+*.DotSettings.user
+
+# Azure Function artifacts
+.local.settings.json
+**local.settings.json
+
+# Docker files
+docker-compose.override.yml
