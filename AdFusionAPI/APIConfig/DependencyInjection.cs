@@ -9,6 +9,7 @@ namespace AdFusionAPI
         public static void AddProjectServices(this IServiceCollection services)
         {
             services.AddScoped<ISecurityService, SecurityService>();
+            services.AddSingleton<IUtilityService, UtilityService>();
             services.AddScoped<ConfigManager>();
         }
     }
