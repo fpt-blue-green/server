@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessObjects", "BusinessObjects\BusinessObjects.csproj", "{9AC6B7FA-B9C9-4800-AE40-3DBC1E3B404C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessObjects", "BusinessObjects\BusinessObjects.csproj", "{9AC6B7FA-B9C9-4800-AE40-3DBC1E3B404C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositories\Repositories.csproj", "{D2DC3406-3388-430C-9334-049543CAB95B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{D2DC3406-3388-430C-9334-049543CAB95B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.csproj", "{642AE575-4E15-4A6A-8A93-5D15109CB802}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{642AE575-4E15-4A6A-8A93-5D15109CB802}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdFusionAPI", "AdFusionAPI\AdFusionAPI.csproj", "{D628F76E-5A7F-4B43-B391-4CFDD67CC65F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdFusionAPI", "AdFusionAPI\AdFusionAPI.csproj", "{D628F76E-5A7F-4B43-B391-4CFDD67CC65F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
