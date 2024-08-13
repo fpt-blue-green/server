@@ -39,5 +39,16 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
+        [HttpGet("tiktok/video/info/{url}")]
+        public async Task<IActionResult> GetVideoTikTokInformation(string url)
+        {
+            var info = await _utilityService.GetVideoTikTokInformation(url);
+            if(info == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(info);
+        }
     }
 }
