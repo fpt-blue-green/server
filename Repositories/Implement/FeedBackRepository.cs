@@ -9,48 +9,16 @@ using System.Threading.Tasks;
 
 namespace Repositories.Implement
 {
-    public class InfluencerRepository : IInfluencerRepository
+    public class FeedBackRepository : IFeedBackRepository
     {
-        public InfluencerRepository() { }
-        public async Task<IEnumerable<Influencer>> GetAlls()
-        {
-            var influencers = new List<Influencer>();
-            try
-            {
-                using (var context = new PostgresContext())
-                {
-                    influencers = await context.Influencers.ToListAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return influencers;
-        }
-        public async Task<Influencer> GetById(Guid id)
-        {
-            var influencer = new Influencer();
-            try
-            {
-                using (var context = new PostgresContext())
-                {
-                    influencer = await context.Influencers.SingleOrDefaultAsync(i => i.Id == id);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return influencer;
-        }
-        public async Task Create(Influencer influencer)
+        public FeedBackRepository() { }
+        public async Task Create(Feedback feedback)
         {
             try
             {
                 using (var context = new PostgresContext())
                 {
-                    await context.Influencers.AddAsync(influencer);
+                    await context.Feedbacks.AddAsync(feedback);
                     await context.SaveChangesAsync();
                 }
             }
@@ -59,29 +27,66 @@ namespace Repositories.Implement
                 throw new Exception(ex.Message);
             }
         }
-        public async Task Update(Influencer influencer)
-        {
-            try
-            {
-                using (var context = new PostgresContext())
-                {
-                    context.Entry<Influencer>(influencer).State = EntityState.Modified;
-                    await context.SaveChangesAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+
         public async Task Delete(Guid id)
         {
             try
             {
                 using (var context = new PostgresContext())
                 {
-                    var influencer = await context.Influencers.SingleOrDefaultAsync(i => i.Id == id);
-                    context.Influencers.Remove(influencer);
+                    var feedback = await context.Feedbacks.SingleOrDefaultAsync(i => i.Id == id);
+                    context.Feedbacks.Remove(feedback);
+                    await context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<Feedback>> GetAlls()
+        {
+            var feedbacks = new List<Feedback>();
+            try
+            {
+                using (var context = new PostgresContext())
+                {
+                    feedbacks = await context.Feedbacks.ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return feedbacks;
+        }
+
+        public async Task<Feedback> GetById(Guid id)
+        {
+
+            var feedback = new Feedback();
+            try
+            {
+                using (var context = new PostgresContext())
+                {
+                    feedback = await context.Feedbacks.SingleOrDefaultAsync(i => i.Id == id);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return feedback;
+        }
+
+        public async Task Update(Feedback feedback)
+        {
+            try
+            {
+                using (var context = new PostgresContext())
+                {
+                    context.Entry<Feedback>(feedback).State = EntityState.Modified;
                     await context.SaveChangesAsync();
                 }
             }

@@ -27,6 +27,8 @@ public partial class Influencer
 
     public bool? IsDeleted { get; set; }
 
+    public decimal? RateAverage { get; set; }
+
     public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
     public virtual ICollection<Deal> Deals { get; set; } = new List<Deal>();

@@ -10,10 +10,14 @@ namespace Service.Interface
 {
     public interface IInfluencerService
     {
-        public Task<IEnumerable<Influencer>> GetAllInfluencers();
-        public Task<Influencer> GetInfluencerById(Guid id);
-        public Task CreateInfluencer(Influencer influencer);
-        public Task UpdateInfluencer(Influencer influencer);
-        public Task DeleteInfluencer(Guid id);
+        Task<IEnumerable<Influencer>> GetAllInfluencers();
+        Task<Influencer> GetInfluencerById(Guid id);
+        Task<IEnumerable<Influencer>> GetTopInfluencer();
+        Task<IEnumerable<Influencer>> GetTopInstagramInfluencer();
+        Task<IEnumerable<Influencer>> GetTopTiktokInfluencer();
+        Task<IEnumerable<Influencer>> GetTopYoutubeInfluencer();
+        Task CreateInfluencer(Influencer influencer);
+        Task UpdateInfluencer(Influencer influencer);
+        Task DeleteInfluencer(Guid id);
     }
 }
