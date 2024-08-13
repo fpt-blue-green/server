@@ -17,5 +17,11 @@ public partial class Image
 
     public DateTime? ModifiedAt { get; set; }
 
+    public short? ImageType { get; set; }
+
+    public Guid? BrandId { get; set; }
+
+    public virtual Brand? Brand { get; set; }
+
     public virtual Influencer? Influencer { get; set; }
 }

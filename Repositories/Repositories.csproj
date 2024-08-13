@@ -10,9 +10,4 @@
     <ProjectReference Include="..\BusinessObjects\BusinessObjects.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Implement\" />
-    <Folder Include="Interface\" />
-  </ItemGroup>
-
 </Project>
