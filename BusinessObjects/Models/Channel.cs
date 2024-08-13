@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusinessObjects.Enum;
+using System;
 using System.Collections.Generic;
 
 namespace BusinessObjects.Models;
@@ -19,7 +20,7 @@ public partial class Channel
 
     public int? PostsCount { get; set; }
 
-    public int? Type { get; set; }
+    public CChannelType? Type { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

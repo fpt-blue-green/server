@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Repositories.Interface
 {
-    public interface IInfluencerRepository
+    public interface IFeedBackRepository
     {
-        Task<IEnumerable<Influencer>> GetAlls();
-        Task<Influencer> GetById(Guid id);
-        Task Create(Influencer influencer);
-        Task Update(Influencer influencer);
+        Task<IEnumerable<Feedback>> GetAlls();
+        Task<Feedback> GetById(Guid id);
+        Task Create(Feedback feedback);
+        Task Update(Feedback feedback);
         Task Delete(Guid id);
     }
 }

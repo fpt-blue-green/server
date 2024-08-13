@@ -21,6 +21,8 @@ public partial class Brand
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 
+    public virtual ICollection<Image> Images { get; set; } = new List<Image>();
+
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     public virtual User? User { get; set; }
