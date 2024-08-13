@@ -1,4 +1,8 @@
 using AdFusionAPI;
+using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
+using Service.Implement;
+using Service.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +12,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddProjectServices();
+builder.Services.AddDbContext<PostgresContext>(op => op.UseNpgsql(builder.Configuration.GetConnectionString("AdFusionConnection")));
 
+builder.Services.AddProjectServices();
 
 builder.Services.AddAuthorization(options =>
 {
@@ -25,8 +30,9 @@ builder.Services.AddControllers()
 
 // Add services to the container.
 var serviceProvider = builder.Services.BuildServiceProvider();
-
-var key = "JWTKey";
+var systemSetting = serviceProvider.GetRequiredService<ISystemSettingService>();
+var jwtSettings = systemSetting.GetJWTSystemSetting();
+var key = jwtSettings.Result.KeyValue;
 builder.Services.AddJwtAuthentication(key!);
 
 
