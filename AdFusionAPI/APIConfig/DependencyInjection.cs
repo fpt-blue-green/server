@@ -11,8 +11,8 @@ namespace AdFusionAPI
         {
             services.AddScoped<IAuthenService, AuthenService>();
             services.AddScoped<IUtilityService, UtilityService>();
-            services.AddSingleton<IInfluencerService, InfluencerService>();
-            services.AddSingleton<IFeedBackService, FeedBackService>();
+            services.AddScoped<IInfluencerService, InfluencerService>();
+            services.AddScoped<IFeedBackService, FeedBackService>();
             services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISystemSettingService, SystemSettingService>();

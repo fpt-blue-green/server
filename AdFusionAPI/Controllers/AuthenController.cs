@@ -26,5 +26,19 @@ namespace AdFusionAPI.Controllers
             var result = await _authenService.Login(loginDTO);
             return StatusCode((int)result.StatusCode, result);
         }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDTO userDTO)
+        {
+            var result = await _authenService.Register(userDTO);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpGet("validateAuthen")]
+        public async Task<IActionResult> ValidateAuthen([FromQuery] string token, [FromQuery] int action)
+        {
+            var result = await _authenService.ValidateAuthen(action, token);
+            return result == true ? Redirect("https://localhost:7244/swagger/index.html") : Redirect("https://localhost:7244/swagger/index.html");
+        }
     }
 }
