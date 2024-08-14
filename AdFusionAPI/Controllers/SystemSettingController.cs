@@ -5,8 +5,8 @@ using Service.Interface;
 
 namespace AdFusionAPI.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class SystemSettingController : Controller
     {
         private readonly ISystemSettingService systemSettingService;

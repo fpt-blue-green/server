@@ -1,8 +1,13 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Repositories.Implement;
+using Repositories.Interface;
 using Service.Domain;
 using Service.Interface;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Service.Implement
@@ -10,10 +15,12 @@ namespace Service.Implement
     public class SecurityService : ISecurityService
     {
         private static ConfigManager _configManager = new ConfigManager();
+        private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
         public async Task<string> GenerateJwtToken(string data, bool isAdmin)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("JWTKey");
+            var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
+            var key = Encoding.ASCII.GetBytes(jwtSetting.KeyValue!);
             var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, data)
@@ -36,7 +43,8 @@ namespace Service.Implement
         public async Task<string> ValidateJwtToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("JWTKey");
+            var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
+            var key = Encoding.ASCII.GetBytes(jwtSetting.KeyValue!);
 
             try
             {
@@ -57,6 +65,21 @@ namespace Service.Implement
             catch (Exception ex)
             {
                 return null!;
+            }
+        }
+
+        public string ComputeSha256Hash(string rawData)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
     }
