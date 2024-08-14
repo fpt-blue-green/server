@@ -43,5 +43,5 @@ public partial class Influencer
 
     public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
 
-    public virtual User? User { get; set; }
+    public virtual User User { get; set; } = null!;
 }

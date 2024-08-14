@@ -1,5 +1,4 @@
-﻿using BusinessObjects.Enum;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace BusinessObjects.Models;
@@ -8,7 +7,7 @@ public partial class Channel
 {
     public Guid Id { get; set; }
 
-    public Guid? InfluencerId { get; set; }
+    public Guid InfluencerId { get; set; }
 
     public string? UserName { get; set; }
 
@@ -20,11 +19,11 @@ public partial class Channel
 
     public int? PostsCount { get; set; }
 
-    public CChannelType? Type { get; set; }
-
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
 
-    public virtual Influencer? Influencer { get; set; }
+    public short Type { get; set; }
+
+    public virtual Influencer Influencer { get; set; } = null!;
 }

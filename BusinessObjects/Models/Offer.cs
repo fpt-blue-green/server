@@ -7,7 +7,7 @@ public partial class Offer
 {
     public Guid Id { get; set; }
 
-    public Guid? JobId { get; set; }
+    public Guid JobId { get; set; }
 
     public string? Title { get; set; }
 
@@ -19,5 +19,5 @@ public partial class Offer
 
     public DateTime? CreatedAt { get; set; }
 
-    public virtual Job? Job { get; set; }
+    public virtual Job Job { get; set; } = null!;
 }
