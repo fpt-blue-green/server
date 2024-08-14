@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Service.Domain;
+﻿using Service.Domain;
 using Service.Implement;
 using Service.Interface;
+using System.ComponentModel.Design;
 
 namespace AdFusionAPI
 {
@@ -10,12 +9,13 @@ namespace AdFusionAPI
     {
         public static void AddProjectServices(this IServiceCollection services)
         {
-			services.AddScoped<ISecurityService, SecurityService>();
-            services.AddSingleton<IUtilityService, UtilityService>();
+            services.AddScoped<IAuthenService, AuthenService>();
+            services.AddScoped<IUtilityService, UtilityService>();
+            services.AddSingleton<IInfluencerService, InfluencerService>();
+            services.AddSingleton<IFeedBackService, FeedBackService>();
+            services.AddScoped<ISecurityService, SecurityService>();
+            services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISystemSettingService, SystemSettingService>();
-			services.AddSingleton<IInfluencerService, InfluencerService>();
-			services.AddSingleton<IFeedBackService, FeedBackService>();
-			services.AddSingleton<IUtilityService, UtilityService>();
             services.AddScoped<ConfigManager>();
         }
     }
