@@ -19,6 +19,10 @@ public partial class User
 
     public bool? IsDeleted { get; set; }
 
+    public bool? IsBanned { get; set; }
+
+    public string? DisplayName { get; set; }
+
     public virtual ICollection<AdminAction> AdminActions { get; set; } = new List<AdminAction>();
 
     public virtual ICollection<BannedUser> BannedUserBannedBies { get; set; } = new List<BannedUser>();

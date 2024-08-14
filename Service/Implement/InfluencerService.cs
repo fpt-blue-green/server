@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Enum;
 using BusinessObjects.Models;
+using BusinessObjects.ModelsDTO;
 using Repositories.Implement;
 using Repositories.Interface;
 using Service.Interface;
@@ -22,30 +23,47 @@ namespace Service.Implement
         }
         public async Task<IEnumerable<Influencer>> GetTopInstagramInfluencer()
         {
-            var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == CChannelType.Instagram))
+            try
+            {
+                var topInflus = (await _repository.GetAlls())
+                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Instagram))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
-
-            return topInflus.ToList();
+                return topInflus.ToList();
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         public async Task<IEnumerable<Influencer>> GetTopTiktokInfluencer()
         {
-            var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == CChannelType.Tiktok))
+            try
+            {
+                var topInflus = (await _repository.GetAlls())
+                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Tiktok))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
-
-            return topInflus.ToList();
+                return topInflus.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         public async Task<IEnumerable<Influencer>> GetTopYoutubeInfluencer()
         {
-            var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == CChannelType.Youtube))
+            try
+            {
+                var topInflus = (await _repository.GetAlls())
+                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Youtube))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
-
-            return topInflus.ToList();
+                return topInflus.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         public async Task CreateInfluencer(Influencer influencer)
         {

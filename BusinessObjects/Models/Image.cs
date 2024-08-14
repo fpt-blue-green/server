@@ -7,7 +7,7 @@ public partial class Image
 {
     public Guid Id { get; set; }
 
-    public Guid? InfluencerId { get; set; }
+    public Guid InfluencerId { get; set; }
 
     public string Url { get; set; } = null!;
 
@@ -17,11 +17,11 @@ public partial class Image
 
     public DateTime? ModifiedAt { get; set; }
 
-    public short? ImageType { get; set; }
+    public int? ImageType { get; set; }
 
-    public Guid? BrandId { get; set; }
+    public Guid BrandId { get; set; }
 
-    public virtual Brand? Brand { get; set; }
+    public virtual Brand Brand { get; set; } = null!;
 
-    public virtual Influencer? Influencer { get; set; }
+    public virtual Influencer Influencer { get; set; } = null!;
 }

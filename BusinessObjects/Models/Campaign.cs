@@ -7,9 +7,9 @@ public partial class Campaign
 {
     public Guid Id { get; set; }
 
-    public Guid? BrandId { get; set; }
+    public Guid BrandId { get; set; }
 
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public string? Description { get; set; }
 
@@ -19,7 +19,7 @@ public partial class Campaign
 
     public decimal? Budget { get; set; }
 
-    public int? Status { get; set; }
+    public short? Status { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -29,7 +29,7 @@ public partial class Campaign
 
     public virtual ICollection<AdsCampaign> AdsCampaigns { get; set; } = new List<AdsCampaign>();
 
-    public virtual Brand? Brand { get; set; }
+    public virtual Brand Brand { get; set; } = null!;
 
     public virtual ICollection<CampaignTag> CampaignTags { get; set; } = new List<CampaignTag>();
 

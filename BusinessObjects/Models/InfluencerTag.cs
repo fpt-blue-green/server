@@ -7,11 +7,11 @@ public partial class InfluencerTag
 {
     public Guid Id { get; set; }
 
-    public Guid? InfluencerId { get; set; }
+    public Guid InfluencerId { get; set; }
 
-    public Guid? TagId { get; set; }
+    public Guid TagId { get; set; }
 
-    public virtual Influencer? Influencer { get; set; }
+    public virtual Influencer Influencer { get; set; } = null!;
 
-    public virtual Tag? Tag { get; set; }
+    public virtual Tag Tag { get; set; } = null!;
 }

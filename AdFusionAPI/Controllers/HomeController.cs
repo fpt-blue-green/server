@@ -14,31 +14,55 @@ namespace AdFusionAPI.Controllers
         public HomeController(IInfluencerService influencerService)
         {
 			_influencerRepository = influencerService;
-
 		}
-        [HttpGet("home/topInfluencer")]
+        [HttpGet("topInfluencer")]
 		public async Task<ActionResult<IEnumerable<Influencer>>> GetTopInfluencer()
 		{
-			var topInflue = await _influencerRepository.GetTopInfluencer();
-			return Ok(topInflue);
-		}
-		[HttpGet("home/topInfluencerInstagram")]
+			try
+			{
+                var topInflue = await _influencerRepository.GetTopInfluencer();
+                return Ok(topInflue);
+
+            }catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+        }
+		[HttpGet("topInfluencerInstagram")]
 		public async Task<ActionResult<IEnumerable<Influencer>>> GetTopInstagramInfluencer()
 		{
-			var topInflue = await _influencerRepository.GetTopInstagramInfluencer();
-			return Ok(topInflue);
+			try
+			{
+                var topInflue = await _influencerRepository.GetTopInstagramInfluencer();
+                return Ok(topInflue);
+            }catch(Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
 		}
-		[HttpGet("home/topInfluencerTiktok")]
+		[HttpGet("topInfluencerTiktok")]
 		public async Task<ActionResult<IEnumerable<Influencer>>> GetTopTiktokInfluencer()
 		{
-			var topInflue = await _influencerRepository.GetTopTiktokInfluencer();
-			return Ok(topInflue);
-		}
-		[HttpGet("home/topInfluencerYoutube")]
+			try
+			{
+                var topInflue = await _influencerRepository.GetTopTiktokInfluencer();
+                return Ok(topInflue);
+            }catch( Exception ex) { 
+				return BadRequest(ex.Message);
+            }
+        }
+		[HttpGet("topInfluencerYoutube")]
 		public async Task<ActionResult<IEnumerable<Influencer>>> GetTopYoutubeInfluencer()
 		{
-			var topInflue = await _influencerRepository.GetTopYoutubeInfluencer();
-			return Ok(topInflue);
+			try
+			{
+                var topInflue = await _influencerRepository.GetTopYoutubeInfluencer();
+                return Ok(topInflue);
+            }catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			
 		}
 	}
 }

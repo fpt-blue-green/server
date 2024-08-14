@@ -57,11 +57,12 @@ public partial class PostgresContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("User Id=postgres.irjktobnibxfmjarpmxj;Password=rNK67MXUaWgviJdz;Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=6543;Database=postgres;");
+        => optionsBuilder.UseNpgsql("User Id=postgres.irjktobnibxfmjarpmxj;Password=rNK67MXUaWgviJdz;Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
+            .HasPostgresEnum("CChannelType", new[] { "None", "Tiktok", "Instagram", "Youtube" })
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
             .HasPostgresEnum("auth", "factor_status", new[] { "unverified", "verified" })
@@ -86,13 +87,10 @@ public partial class PostgresContext : DbContext
             entity.ToTable("AdminAction");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.ActionDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            entity.Property(e => e.ActionType).HasMaxLength(100);
 
-            entity.HasOne(d => d.Admin).WithMany(p => p.AdminActions)
-                .HasForeignKey(d => d.AdminId)
+            entity.HasOne(d => d.User).WithMany(p => p.AdminActions)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("AdminAction_AdminId_fkey");
         });
 
@@ -103,11 +101,10 @@ public partial class PostgresContext : DbContext
             entity.ToTable("AdsCampaign");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.EndDate).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.StartDate).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.AdsCampaigns)
                 .HasForeignKey(d => d.CampaignId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("AdsCampaign_CampaignId_fkey");
         });
 
@@ -116,17 +113,15 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("BannedUsers_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.BanDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            entity.Property(e => e.UnbanDate).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.BannedBy).WithMany(p => p.BannedUserBannedBies)
                 .HasForeignKey(d => d.BannedById)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("BannedUsers_BannedById_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.BannedUserUsers)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("BannedUsers_UserId_fkey");
         });
 
@@ -135,16 +130,11 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Brands_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
             entity.Property(e => e.IsPremium).HasDefaultValueSql("false");
-            entity.Property(e => e.ModifiedAt).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.Name).HasMaxLength(50);
 
             entity.HasOne(d => d.User).WithMany(p => p.Brands)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Brands_UserId_fkey");
         });
 
@@ -154,17 +144,11 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Budget).HasPrecision(18, 2);
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            entity.Property(e => e.EndDate).HasColumnType("timestamp without time zone");
             entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
-            entity.Property(e => e.ModifiedAt).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.Name).HasMaxLength(50);
-            entity.Property(e => e.StartDate).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Campaigns)
                 .HasForeignKey(d => d.BrandId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Campaigns_BrandId_fkey");
         });
 
@@ -176,10 +160,12 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignTags)
                 .HasForeignKey(d => d.CampaignId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("CampaignTags_CampaignId_fkey");
 
             entity.HasOne(d => d.Tag).WithMany(p => p.CampaignTags)
                 .HasForeignKey(d => d.TagId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("CampaignTags_TagId_fkey");
         });
 
@@ -188,14 +174,11 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Channels_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            entity.Property(e => e.ModifiedAt).HasColumnType("timestamp without time zone");
             entity.Property(e => e.UserName).HasMaxLength(255);
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Channels)
                 .HasForeignKey(d => d.InfluencerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Channels_InfluencerId_fkey");
         });
 
@@ -206,14 +189,12 @@ public partial class PostgresContext : DbContext
             entity.ToTable("Deal");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.Title).HasMaxLength(255);
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Deals)
                 .HasForeignKey(d => d.InfluencerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Deal_InfluencerId_fkey");
         });
 
@@ -222,16 +203,15 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Feedbacks_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.InfluencerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Feedbacks_InfluencerId_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Feedbacks_UserId_fkey");
         });
 
@@ -240,19 +220,15 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Images_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.ModifiedAt).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.Url).HasMaxLength(255);
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Images)
                 .HasForeignKey(d => d.BrandId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Images_BrandId_fkey");
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Images)
                 .HasForeignKey(d => d.InfluencerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Images_InfluencerId_fkey");
         });
 
@@ -261,19 +237,13 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Influencers_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
             entity.Property(e => e.IsPublish).HasDefaultValueSql("true");
-            entity.Property(e => e.ModifiedAt).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.NickName).HasMaxLength(100);
-            entity.Property(e => e.Phone).HasMaxLength(10);
             entity.Property(e => e.RateAverage).HasDefaultValueSql("'0'::numeric");
 
             entity.HasOne(d => d.User).WithMany(p => p.Influencers)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Influencers_UserId_fkey");
         });
 
@@ -282,20 +252,20 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("InfluencerJobHistories_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CompletionDate).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.EndDate).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.StartDate).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.InfluencerJobHistories)
                 .HasForeignKey(d => d.CampaignId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("InfluencerJobHistories_CampaignId_fkey");
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.InfluencerJobHistories)
                 .HasForeignKey(d => d.InfluencerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("InfluencerJobHistories_InfluencerId_fkey");
 
             entity.HasOne(d => d.Job).WithMany(p => p.InfluencerJobHistories)
                 .HasForeignKey(d => d.JobId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("InfluencerJobHistories_JobId_fkey");
         });
 
@@ -307,10 +277,12 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.InfluencerTags)
                 .HasForeignKey(d => d.InfluencerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("InfluencerTags_InfluencerId_fkey");
 
             entity.HasOne(d => d.Tag).WithMany(p => p.InfluencerTags)
                 .HasForeignKey(d => d.TagId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("InfluencerTags_TagId_fkey");
         });
 
@@ -322,10 +294,12 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.CampaignId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Jobs_CampaignId_fkey");
 
             entity.HasOne(d => d.Package).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.PackageId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Jobs_PackageId_fkey");
         });
 
@@ -336,14 +310,10 @@ public partial class PostgresContext : DbContext
             entity.ToTable("Offer");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.Title).HasMaxLength(255);
 
             entity.HasOne(d => d.Job).WithMany(p => p.Offers)
                 .HasForeignKey(d => d.JobId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Offer_JobId_fkey");
         });
 
@@ -352,11 +322,10 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Packages_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.Title).HasMaxLength(255);
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Packages)
                 .HasForeignKey(d => d.InfluencerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Packages_InfluencerId_fkey");
         });
 
@@ -378,9 +347,6 @@ public partial class PostgresContext : DbContext
             entity.ToTable("SystemSetting");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.KeyName).HasMaxLength(50);
-            entity.Property(e => e.KeyValue).HasMaxLength(50);
-            entity.Property(e => e.ModifiedAt).HasColumnType("timestamp without time zone");
         });
 
         modelBuilder.Entity<Tag>(entity =>
@@ -390,7 +356,7 @@ public partial class PostgresContext : DbContext
             entity.HasIndex(e => e.TagName, "Tags_TagName_key").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.TagName).HasMaxLength(100);
+            entity.Property(e => e.IsPremiumTag).HasDefaultValueSql("false");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -398,12 +364,10 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Users_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.IsBanned).HasDefaultValueSql("false");
             entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
-            entity.Property(e => e.ModifiedAt).HasColumnType("timestamp without time zone");
             entity.Property(e => e.Password).HasMaxLength(100);
         });
 

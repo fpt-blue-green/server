@@ -7,11 +7,11 @@ public partial class InfluencerJobHistory
 {
     public Guid Id { get; set; }
 
-    public Guid? JobId { get; set; }
+    public Guid JobId { get; set; }
 
-    public Guid? InfluencerId { get; set; }
+    public Guid InfluencerId { get; set; }
 
-    public Guid? CampaignId { get; set; }
+    public Guid CampaignId { get; set; }
 
     public DateTime? StartDate { get; set; }
 
@@ -21,9 +21,9 @@ public partial class InfluencerJobHistory
 
     public DateTime? CompletionDate { get; set; }
 
-    public virtual Campaign? Campaign { get; set; }
+    public virtual Campaign Campaign { get; set; } = null!;
 
-    public virtual Influencer? Influencer { get; set; }
+    public virtual Influencer Influencer { get; set; } = null!;
 
-    public virtual Job? Job { get; set; }
+    public virtual Job Job { get; set; } = null!;
 }

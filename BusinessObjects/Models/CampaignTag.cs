@@ -7,11 +7,11 @@ public partial class CampaignTag
 {
     public Guid Id { get; set; }
 
-    public Guid? CampaignId { get; set; }
+    public Guid CampaignId { get; set; }
 
-    public Guid? TagId { get; set; }
+    public Guid TagId { get; set; }
 
-    public virtual Campaign? Campaign { get; set; }
+    public virtual Campaign Campaign { get; set; } = null!;
 
-    public virtual Tag? Tag { get; set; }
+    public virtual Tag Tag { get; set; } = null!;
 }
