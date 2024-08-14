@@ -7,7 +7,7 @@ public partial class Influencer
 {
     public Guid Id { get; set; }
 
-    public Guid? UserId { get; set; }
+    public Guid UserId { get; set; }
 
     public bool? IsPublish { get; set; }
 
