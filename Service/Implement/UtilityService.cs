@@ -63,7 +63,7 @@ namespace Service.Implement
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-            
+
             string decodedUrl = HttpUtility.UrlDecode(url);
             var response = await client.GetStringAsync(decodedUrl);
 
@@ -78,11 +78,37 @@ namespace Service.Implement
 
                 var jsonObj = JObject.Parse(jsonContent);
 
-                var followerCount = jsonObj["__DEFAULT_SCOPE__"]["webapp.user-detail"]["userInfo"].ToString();
-                return followerCount;
+                var accountInfo = jsonObj["__DEFAULT_SCOPE__"]["webapp.user-detail"]["userInfo"].ToString();
+                return accountInfo;
             }
 
-            return null;
+            return string.Empty;
+        }
+
+        public async Task<string> GetVideoTikTokInformation(string url)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+            string decodedUrl = HttpUtility.UrlDecode(url);
+            var response = await client.GetStringAsync(decodedUrl);
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(response);
+
+            var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
+
+            if (followerNode != null)
+            {
+                string jsonContent = followerNode.InnerText;
+
+                var jsonObj = JObject.Parse(jsonContent);
+
+                var videoInfo = jsonObj["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"].ToString();
+                return videoInfo;
+            }
+
+            return string.Empty;
         }
     }
 }
