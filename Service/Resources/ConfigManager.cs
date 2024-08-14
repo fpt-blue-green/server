@@ -10,6 +10,6 @@
         public readonly string FirebaseStorageBucket = "bluegreen2.appspot.com";
         public readonly string YoutubeAPIKey = "YoutubeAPIKey";
         public readonly string WebBaseUrl = "http://127.0.0.1:5500";
-        public readonly string WebApiBaseUrl = "https://localhost:7244/api";
+        public readonly string WebApiBaseUrl = "https://localhost:7073/api";
     }
 }

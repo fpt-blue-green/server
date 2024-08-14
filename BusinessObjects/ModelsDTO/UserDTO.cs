@@ -12,7 +12,8 @@ namespace BusinessObjects.ModelsDTO
         public DateTime? CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
         public bool? IsDeleted { get; set; }
-
+        public bool? IsBanned { get; set; }
+        public string? DisplayName { get; set; }
         public virtual ICollection<Influencer> Influencers { get; set; } = new List<Influencer>();
 
         public UserDTO() { }
@@ -26,6 +27,8 @@ namespace BusinessObjects.ModelsDTO
             CreatedAt = user.CreatedAt;
             ModifiedAt = user.ModifiedAt;
             IsDeleted = user.IsDeleted;
+            IsBanned = user.IsBanned;
+            DisplayName = user.DisplayName;
             Influencers = user.Influencers;
         }
     }
