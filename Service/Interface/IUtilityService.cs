@@ -7,5 +7,7 @@
         Task<string> GetTikTokInformation(string url);
 
         Task<string> GetVideoTikTokInformation(string url);
+
+        Task<string> GetVideoInstagramInformation(string url);
     }
 }

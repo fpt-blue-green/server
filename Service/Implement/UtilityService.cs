@@ -123,5 +123,36 @@ namespace Service.Implement
                 return string.Empty;
             }
         }
+
+        public async Task<string> GetVideoInstagramInformation(string url)
+        {
+            try
+            {
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+                string decodedUrl = HttpUtility.UrlDecode(url);
+                var response = await client.GetStringAsync(decodedUrl);
+
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(response);
+
+                var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+
+                if (followersNode != null)
+                {
+                    string content = followersNode.GetAttributeValue("content", "");
+                    string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                    string followersCount = parts[0];
+                    return content;
+                }
+            }catch(Exception ex)
+            {
+                throw new Exception();
+            }
+            
+
+            return string.Empty;
+        }
     }
 }

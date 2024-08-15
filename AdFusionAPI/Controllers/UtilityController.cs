@@ -51,5 +51,17 @@ namespace AdFusionAPI.Controllers
 
             return Ok(info);
         }
+
+        [HttpGet("Instagram/video/info/{url}")]
+        public async Task<IActionResult> GetVideoInstagramInformation(string url)
+        {
+            var info = await _utilityService.GetVideoInstagramInformation(url);
+            if (info.IsNullOrEmpty())
+            {
+                return NotFound();
+            }
+
+            return Ok(info);
+        }
     }
 }
