@@ -28,7 +28,6 @@ namespace Service.Implement
         {
             try
             {
-                throw new NotImplementedException();
                 // Bước 1: Mã hóa mật khẩu của người dùng trước khi kiểm tra
                 loginDTO.Password = _securityService.ComputeSha256Hash(loginDTO.Password);
 
