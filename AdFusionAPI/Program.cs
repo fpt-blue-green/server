@@ -3,6 +3,8 @@ using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Service.Implement;
 using Service.Interface;
+using Newtonsoft.Json;
+using Repositories.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,7 @@ var jwtSettings = systemSetting.GetJWTSystemSetting();
 var key = jwtSettings.Result.KeyValue;
 builder.Services.AddJwtAuthentication(key!);
 
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 // Configure CORS
 builder.Services.AddCors(options =>

@@ -87,6 +87,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("AdminAction");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.ActionDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.User).WithMany(p => p.AdminActions)
                 .HasForeignKey(d => d.UserId)
@@ -113,6 +114,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("BannedUsers_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.BanDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.BannedBy).WithMany(p => p.BannedUserBannedBies)
                 .HasForeignKey(d => d.BannedById)
@@ -130,6 +132,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Brands_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.IsPremium).HasDefaultValueSql("false");
 
             entity.HasOne(d => d.User).WithMany(p => p.Brands)
@@ -144,6 +147,7 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Budget).HasPrecision(18, 2);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Campaigns)
@@ -174,6 +178,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Channels_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.UserName).HasMaxLength(255);
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Channels)
@@ -189,6 +194,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("Deal");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.Title).HasMaxLength(255);
 
@@ -203,6 +209,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Feedbacks_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.InfluencerId)
@@ -220,15 +227,14 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Images_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Images)
                 .HasForeignKey(d => d.BrandId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Images_BrandId_fkey");
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Images)
                 .HasForeignKey(d => d.InfluencerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Images_InfluencerId_fkey");
         });
 
@@ -237,6 +243,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Influencers_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
             entity.Property(e => e.IsPublish).HasDefaultValueSql("true");
             entity.Property(e => e.RateAverage).HasDefaultValueSql("'0'::numeric");
@@ -310,6 +317,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("Offer");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.Job).WithMany(p => p.Offers)
                 .HasForeignKey(d => d.JobId)
@@ -334,6 +342,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("Payments_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.PaymentDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.BrandId)
@@ -347,6 +356,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("SystemSetting");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.ModifiedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
         modelBuilder.Entity<Tag>(entity =>

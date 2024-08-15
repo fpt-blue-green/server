@@ -3,6 +3,7 @@ using BusinessObjects.Models;
 using BusinessObjects.ModelsDTO;
 using Repositories.Implement;
 using Repositories.Interface;
+using Serilog;
 using Service.Interface;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,9 @@ namespace Service.Implement
     public class InfluencerService : IInfluencerService
     {
         private static readonly IInfluencerRepository _repository = new InfluencerRepository();
-        public InfluencerService() { }
+		private static ILogger _loggerService = new LoggerService().GetLogger();
+
+		public InfluencerService() { }
         public async Task<IEnumerable<Influencer>> GetTopInfluencer()
         {
             var topInflus = (await _repository.GetAlls()).OrderBy(s=> s.RateAverage).Take(10);
@@ -32,7 +35,8 @@ namespace Service.Implement
                 return topInflus.ToList();
             }catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+				_loggerService.Error(ex.ToString());
+				throw new Exception(ex.Message);
             }
         }
         public async Task<IEnumerable<Influencer>> GetTopTiktokInfluencer()
@@ -47,7 +51,8 @@ namespace Service.Implement
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+				_loggerService.Error(ex.ToString());
+				throw new Exception(ex.Message);
             }
         }
         public async Task<IEnumerable<Influencer>> GetTopYoutubeInfluencer()
@@ -62,7 +67,8 @@ namespace Service.Implement
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+				_loggerService.Error(ex.ToString());
+				throw new Exception(ex.Message);
             }
         }
         public async Task CreateInfluencer(Influencer influencer)
