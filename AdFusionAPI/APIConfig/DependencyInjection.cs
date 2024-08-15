@@ -17,6 +17,8 @@ namespace AdFusionAPI
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISystemSettingService, SystemSettingService>();
             services.AddScoped<ConfigManager>();
-        }
-    }
+			services.AddScoped<ITagService, TagService>();
+
+		}
+	}
 }
