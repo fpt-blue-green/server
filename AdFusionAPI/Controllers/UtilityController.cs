@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Service.Interface;
 
 namespace AdFusionAPI.Controllers
@@ -15,7 +16,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("location/{keyName}")]
-        public async Task<IActionResult> GetLocation(string keyName)
+        public IActionResult GetLocation(string keyName)
         {
             var cities = _utilityService.GetCitiesWithCountry(keyName);
 
@@ -31,7 +32,7 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> GetTikTokInformation(string url)
         {
             var info = await _utilityService.GetTikTokInformation(url);
-            if (info == null)
+            if (info.IsNullOrEmpty())
             {
                 return NotFound();
             }
@@ -43,7 +44,7 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> GetVideoTikTokInformation(string url)
         {
             var info = await _utilityService.GetVideoTikTokInformation(url);
-            if(info == null)
+            if (info.IsNullOrEmpty())
             {
                 return NotFound();
             }
