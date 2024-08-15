@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.ModelsDTO;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Service.Domain;
 using Service.Interface;
@@ -83,7 +84,8 @@ namespace Service.Implement
                     var accountInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?.ToString();
                     return accountInfo ?? string.Empty;
                 }
-                throw new Exception("Không tìm thấy thông tin tài.");
+
+                throw new Exception("Không tìm thấy thông tin tài khoản.");
             }
             catch (Exception ex)
             {
@@ -116,11 +118,66 @@ namespace Service.Implement
                     return videoInfo ?? string.Empty;
                 }
 
-                throw new Exception("Không tìm thấy thông tin tài khoản.");
+                throw new Exception("Không tìm thấy thông tin video.");
             }
             catch (Exception ex)
             {
                 return string.Empty;
+            }
+        }
+
+        public async Task<string> GetVideoInstagramInformation(string url)
+        {
+            try
+            {
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+                string decodedUrl = HttpUtility.UrlDecode(url);
+                var response = await client.GetStringAsync(decodedUrl);
+
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(response);
+
+                var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+
+                if (followersNode != null)
+                {
+                    string content = followersNode.GetAttributeValue("content", "");
+                    string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                    var data = new
+                    {
+                        likeCount = ConvertToNumber(parts[0]),
+                        commentCount = ConvertToNumber(parts[2]),
+                        actor = parts[5],
+                        date = parts[7] + " " + parts[8] + " " + parts[9],
+                    };
+                    return JsonConvert.SerializeObject(data) ?? string.Empty;
+                }
+
+                throw new Exception("Không tìm thấy thông tin video.");
+            }
+            catch(Exception ex)
+            {
+                return string.Empty;
+            }
+        }
+
+        public static long ConvertToNumber(string input)
+        {
+            char lastChar = input[input.Length - 1];
+
+            string numberPart = input.Substring(0, input.Length - 1);
+            double number = double.Parse(numberPart);
+
+            switch (lastChar)
+            {
+                case 'M':
+                    return (long)(number * 1_000_000);
+                case 'K':
+                    return (long)(number * 1_000);
+                default:
+                    return long.Parse(input);
             }
         }
     }
