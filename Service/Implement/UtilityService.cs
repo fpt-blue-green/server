@@ -35,12 +35,12 @@ namespace Service.Implement
                 }
                 else
                 {
-                    throw new Exception("Không tìm thấy thành phố phù hợp");
+                    throw new Exception("Không tìm thấy thành phố phù hợp.");
                 }
             }
             catch (Exception ex)
             {
-                return null;
+                return null!;
             }
         }
 
@@ -61,54 +61,67 @@ namespace Service.Implement
 
         public async Task<string> GetTikTokInformation(string url)
         {
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
-            string decodedUrl = HttpUtility.UrlDecode(url);
-            var response = await client.GetStringAsync(decodedUrl);
-
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(response);
-
-            var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
-
-            if (followerNode != null)
+            try
             {
-                string jsonContent = followerNode.InnerText;
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
-                var jsonObj = JObject.Parse(jsonContent);
+                string decodedUrl = HttpUtility.UrlDecode(url);
+                var response = await client.GetStringAsync(decodedUrl);
 
-                var accountInfo = jsonObj["__DEFAULT_SCOPE__"]["webapp.user-detail"]["userInfo"].ToString();
-                return accountInfo;
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(response);
+
+                var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
+
+                if (followerNode != null)
+                {
+                    string jsonContent = followerNode.InnerText;
+
+                    var jsonObj = JObject.Parse(jsonContent);
+
+                    var accountInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?.ToString();
+                    return accountInfo ?? string.Empty;
+                }
+                throw new Exception("Không tìm thấy thông tin tài.");
             }
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
         }
 
         public async Task<string> GetVideoTikTokInformation(string url)
         {
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
-            string decodedUrl = HttpUtility.UrlDecode(url);
-            var response = await client.GetStringAsync(decodedUrl);
-
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(response);
-
-            var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
-
-            if (followerNode != null)
+            try
             {
-                string jsonContent = followerNode.InnerText;
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
-                var jsonObj = JObject.Parse(jsonContent);
+                string decodedUrl = HttpUtility.UrlDecode(url);
+                var response = await client.GetStringAsync(decodedUrl);
 
-                var videoInfo = jsonObj["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"].ToString();
-                return videoInfo;
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(response);
+
+                var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
+
+                if (followerNode != null)
+                {
+                    string jsonContent = followerNode.InnerText;
+
+                    var jsonObj = JObject.Parse(jsonContent);
+
+                    var videoInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.video-detail"]?["itemInfo"]?.ToString();
+                    return videoInfo ?? string.Empty;
+                }
+
+                throw new Exception("Không tìm thấy thông tin tài khoản.");
             }
-
-            return string.Empty;
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
         }
     }
 }
