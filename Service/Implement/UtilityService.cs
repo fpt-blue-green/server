@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.ModelsDTO;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Service.Domain;
 using Service.Interface;
@@ -83,7 +84,8 @@ namespace Service.Implement
                     var accountInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?.ToString();
                     return accountInfo ?? string.Empty;
                 }
-                throw new Exception("Không tìm thấy thông tin tài.");
+
+                throw new Exception("Không tìm thấy thông tin tài khoản.");
             }
             catch (Exception ex)
             {
@@ -116,7 +118,7 @@ namespace Service.Implement
                     return videoInfo ?? string.Empty;
                 }
 
-                throw new Exception("Không tìm thấy thông tin tài khoản.");
+                throw new Exception("Không tìm thấy thông tin video.");
             }
             catch (Exception ex)
             {
@@ -143,16 +145,40 @@ namespace Service.Implement
                 {
                     string content = followersNode.GetAttributeValue("content", "");
                     string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                    string followersCount = parts[0];
-                    return content;
+                    var data = new
+                    {
+                        likeCount = ConvertToNumber(parts[0]),
+                        commentCount = ConvertToNumber(parts[2]),
+                        actor = parts[5],
+                        date = parts[7] + " " + parts[8] + " " + parts[9],
+                    };
+                    return JsonConvert.SerializeObject(data) ?? string.Empty;
                 }
-            }catch(Exception ex)
-            {
-                throw new Exception();
-            }
-            
 
-            return string.Empty;
+                throw new Exception("Không tìm thấy thông tin video.");
+            }
+            catch(Exception ex)
+            {
+                return string.Empty;
+            }
+        }
+
+        public static long ConvertToNumber(string input)
+        {
+            char lastChar = input[input.Length - 1];
+
+            string numberPart = input.Substring(0, input.Length - 1);
+            double number = double.Parse(numberPart);
+
+            switch (lastChar)
+            {
+                case 'M':
+                    return (long)(number * 1_000_000);
+                case 'K':
+                    return (long)(number * 1_000);
+                default:
+                    return long.Parse(input);
+            }
         }
     }
 }
