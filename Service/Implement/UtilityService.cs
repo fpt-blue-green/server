@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using Service.Domain;
 using Service.Interface;
 using System.Globalization;
@@ -12,11 +13,13 @@ namespace Service.Implement
     public class UtilityService : IUtilityService
     {
         private static ConfigManager _configManager = new ConfigManager();
+        private static ILogger _loggerService = new LoggerService().GetLogger();
 
         public IEnumerable<string> GetCitiesWithCountry(string keyword)
         {
             try
             {
+                _loggerService.Information("Start to get City: ");
                 var cities = new List<string>();
                 string inputFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "cities.json").Replace("AdFusionAPI", "Service");
 
@@ -41,6 +44,7 @@ namespace Service.Implement
             }
             catch (Exception ex)
             {
+                _loggerService.Information(ex.ToString());
                 return null!;
             }
         }
@@ -48,6 +52,7 @@ namespace Service.Implement
         static IEnumerable<CityResult> SearchCities(JArray countriesArray, string searchTerm)
         {
             // Tìm kiếm thành phố dựa trên chuỗi đầu vào với phương thức StartsWith cho phép so sánh không phân biệt chữ hoa chữ thường và hỗ trợ tiếng Việt
+            _loggerService.Information("Start to search City: ");
             var results = countriesArray
                 .SelectMany(country => country["cities"]!
                     .Select(city => new CityResult
@@ -64,6 +69,7 @@ namespace Service.Implement
         {
             try
             {
+                _loggerService.Information("Start to get TikTok Account information: ");
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
@@ -89,6 +95,7 @@ namespace Service.Implement
             }
             catch (Exception ex)
             {
+                _loggerService.Error(ex.ToString());
                 return string.Empty;
             }
         }
@@ -97,6 +104,7 @@ namespace Service.Implement
         {
             try
             {
+                _loggerService.Information("Start to get video TikTok information: ");
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
@@ -122,6 +130,7 @@ namespace Service.Implement
             }
             catch (Exception ex)
             {
+                _loggerService.Error(ex.ToString());
                 return string.Empty;
             }
         }
@@ -130,6 +139,7 @@ namespace Service.Implement
         {
             try
             {
+                _loggerService.Information("Start to get video Instagram information: ");
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
@@ -159,12 +169,18 @@ namespace Service.Implement
             }
             catch(Exception ex)
             {
+                _loggerService.Error(ex.ToString());
                 return string.Empty;
             }
         }
 
         public static long ConvertToNumber(string input)
         {
+            if (input == "0")
+            {
+                return 0;
+            }
+
             char lastChar = input[input.Length - 1];
 
             string numberPart = input.Substring(0, input.Length - 1);
@@ -178,6 +194,44 @@ namespace Service.Implement
                     return (long)(number * 1_000);
                 default:
                     return long.Parse(input);
+            }
+        }
+
+        public async Task<string> GetInstagramInformation(string url)
+        {
+            try
+            {
+                _loggerService.Information("Start to get Instagram Account information: ");
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+                string decodedUrl = HttpUtility.UrlDecode(url);
+                var response = await client.GetStringAsync(decodedUrl);
+
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(response);
+
+                var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+
+                if (followersNode != null)
+                {
+                    string content = followersNode.GetAttributeValue("content", "");
+                    string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                    var data = new
+                    {
+                        followers = ConvertToNumber(parts[0]),
+                        following = ConvertToNumber(parts[2]),
+                        posts = ConvertToNumber(parts[4]),
+                    };
+                    return JsonConvert.SerializeObject(data) ?? string.Empty;
+                }
+
+                throw new Exception("Không tìm thấy thông tin account.");
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error(ex.ToString());
+                return string.Empty;
             }
         }
     }
