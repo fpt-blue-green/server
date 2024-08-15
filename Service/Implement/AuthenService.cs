@@ -5,6 +5,7 @@ using BusinessObjects.ModelsDTO.AuthenDTO;
 using Newtonsoft.Json;
 using Repositories.Implement;
 using Repositories.Interface;
+using Serilog;
 using Service.Domain;
 using Service.Interface;
 using Service.Resources;
@@ -16,10 +17,12 @@ namespace Service.Implement
     public class AuthenService : IAuthenService
     {
         private static IAuthenRepository _authenRepository = new AuthenRepository();
+        private static ILogger _loggerService = new LoggerService().GetLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static IEmailService _emailService = new EmailService();
         private static ConfigManager _configManager = new ConfigManager();
         private static EmailTemplate _emailTempalte = new EmailTemplate();
+
 
         public async Task<ApiResponse<string>> Login(LoginDTO loginDTO)
         {
@@ -84,6 +87,7 @@ namespace Service.Implement
             catch (Exception ex)
             {
                 // Bước 10: Xử lý ngoại lệ và trả về lỗi máy chủ nội bộ
+                _loggerService.Information(ex.ToString());
                 return new ApiResponse<string>
                 {
                     StatusCode = HttpStatusCode.InternalServerError,
@@ -181,7 +185,7 @@ namespace Service.Implement
                 var user = new User
                 {
                     Id = Guid.NewGuid(),
-                    Email = registerDTO.Email,
+                    Email = registerDTO!.Email,
                     Password = _securityService.ComputeSha256Hash(registerDTO.Password),
                     IsBanned = false,
                     DisplayName = registerDTO.Displayname,
