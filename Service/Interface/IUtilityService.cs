@@ -9,5 +9,7 @@
         Task<string> GetVideoTikTokInformation(string url);
 
         Task<string> GetVideoInstagramInformation(string url);
+
+        Task<string> GetInstagramInformation(string url);
     }
 }
