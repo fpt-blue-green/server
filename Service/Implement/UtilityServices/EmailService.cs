@@ -1,7 +1,7 @@
 ﻿using Repositories.Implement;
 using Repositories.Interface;
 using Service.Domain;
-using Service.Interface;
+using Service.Interface.UtilityServices;
 using System.Net.Mail;
 
 public class EmailService : IEmailService

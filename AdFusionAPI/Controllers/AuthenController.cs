@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Service.Domain;
 using Service.Interface;
+using Service.Interface.UtilityServices;
 
 namespace AdFusionAPI.Controllers
 {

@@ -11,8 +11,6 @@ namespace BusinessObjects.ModelsDTO.InfluencerDTO
     {
         public Guid Id { get; set; }
 
-        public Guid InfluencerId { get; set; }
-
         public string? Title { get; set; }
 
         public string? Description { get; set; }
@@ -24,6 +22,5 @@ namespace BusinessObjects.ModelsDTO.InfluencerDTO
         public int? Quantity { get; set; }
 
         public short? Status { get; set; }
-        public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
     }
 }

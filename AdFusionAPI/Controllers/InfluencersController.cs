@@ -10,11 +10,11 @@ namespace AdFusionAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HomeController : Controller
+    public class InfluencersController : Controller
     {
         private readonly IInfluencerService _influencerRepository;
         private readonly IMapper _mapper;
-        public HomeController(IInfluencerService influencerService, IMapper mapper)
+        public InfluencersController(IInfluencerService influencerService, IMapper mapper)
         {
             _influencerRepository = influencerService;
             _mapper = mapper;
@@ -25,14 +25,7 @@ namespace AdFusionAPI.Controllers
             var result = new List<InfluencerDTO>();
             try
             {
-                var topInflue = await _influencerRepository.GetTopInfluencer();
-                if (topInflue.Any())
-                {
-                    foreach (var item in topInflue)
-                    {
-                        result = _mapper.Map<List<InfluencerDTO>>(topInflue);
-                    }
-                }
+                result = await _influencerRepository.GetTopInfluencer();
             }
             catch (Exception ex)
             {
@@ -46,14 +39,7 @@ namespace AdFusionAPI.Controllers
             var result = new List<InfluencerDTO>();
             try
             {
-                var topInflue = await _influencerRepository.GetTopInstagramInfluencer();
-                if (topInflue.Any())
-                {
-                    foreach (var item in topInflue)
-                    {
-                        result = _mapper.Map<List<InfluencerDTO>>(topInflue);
-                    }
-                }
+                result = await _influencerRepository.GetTopInstagramInfluencer();
             }
             catch (Exception ex)
             {
@@ -67,14 +53,7 @@ namespace AdFusionAPI.Controllers
             var result = new List<InfluencerDTO>();
             try
             {
-                var topInflue = await _influencerRepository.GetTopTiktokInfluencer();
-                if (topInflue.Any())
-                {
-                    foreach (var item in topInflue)
-                    {
-                        result = _mapper.Map<List<InfluencerDTO>>(topInflue);
-                    }
-                }
+                 result = await _influencerRepository.GetTopTiktokInfluencer();
             }
             catch (Exception ex)
             {
@@ -88,14 +67,7 @@ namespace AdFusionAPI.Controllers
             var result = new List<InfluencerDTO>();
             try
             {
-                var topInflue = await _influencerRepository.GetTopYoutubeInfluencer();
-                if (topInflue.Any())
-                {
-                    foreach (var item in topInflue)
-                    {
-                        result = _mapper.Map<List<InfluencerDTO>>(topInflue);
-                    }
-                }
+                 result = await _influencerRepository.GetTopYoutubeInfluencer();
             }
             catch (Exception ex)
             {
@@ -103,6 +75,21 @@ namespace AdFusionAPI.Controllers
             }
             return Ok(result);
 
+        }
+
+        [HttpGet("paging/influencers")]
+        public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetExploreInfluencer([FromQuery] InfluencerFilterDTO filterDTO)
+        {
+            var result = new List<InfluencerDTO>();
+            try
+            {
+                 result = await _influencerRepository.GetAllInfluencers(filterDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok(result);
         }
     }
 }

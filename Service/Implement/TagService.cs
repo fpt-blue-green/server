@@ -1,4 +1,7 @@
-﻿using BusinessObjects.Models;
+﻿using AutoMapper;
+using BusinessObjects.Models;
+using BusinessObjects.ModelsDTO;
+using BusinessObjects.ModelsDTO.InfluencerDTO;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
@@ -15,10 +18,15 @@ namespace Service.Implement
 	{
 		private static readonly ITagRepository _repository = new TagRepository();
 		private static ILogger _loggerService = new LoggerService().GetLogger();
-		public async Task<IEnumerable<Tag>> GetAllTags()
+        private readonly IMapper _mapper;
+        public TagService(IMapper mapper)
+        {
+			_mapper = mapper;
+        }
+        public async Task<IEnumerable<TagDTO>> GetAllTags()
 		{
-			var topInflus = await _repository.GetAlls();
-			return topInflus.ToList();
+			var tags = await _repository.GetAlls();
+            return _mapper.Map<List<TagDTO>>(tags); 
 		}
 
 	}

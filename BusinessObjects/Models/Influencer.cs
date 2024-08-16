@@ -29,13 +29,13 @@ public partial class Influencer
 
     public decimal? RateAverage { get; set; }
 
+    public decimal AveragePrice { get; set; }
+
     public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
     public virtual ICollection<Deal> Deals { get; set; } = new List<Deal>();
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-
-    public virtual ICollection<Image> Images { get; set; } = new List<Image>();
 
     public virtual ICollection<InfluencerJobHistory> InfluencerJobHistories { get; set; } = new List<InfluencerJobHistory>();
 

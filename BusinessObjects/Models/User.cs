@@ -33,5 +33,7 @@ public partial class User
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
+    public virtual ICollection<Image> Images { get; set; } = new List<Image>();
+
     public virtual ICollection<Influencer> Influencers { get; set; } = new List<Influencer>();
 }

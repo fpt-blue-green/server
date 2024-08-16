@@ -19,7 +19,6 @@ namespace Repositories.Implement
 			try
 			{
 				influencers = await context.Influencers
-					.Include(i => i.Images)
 					.Include(i => i.Channels)
 					.Include(i => i.InfluencerTags)
 					.Include(i => i.Packages)

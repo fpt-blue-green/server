@@ -4,11 +4,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using Service.Domain;
-using Service.Interface;
+using Service.Interface.UtilityServices;
 using System.Globalization;
 using System.Web;
 
-namespace Service.Implement
+namespace Service.Implement.UtilityServices
 {
     public class UtilityService : IUtilityService
     {
@@ -167,7 +167,7 @@ namespace Service.Implement
 
                 throw new Exception("Không tìm thấy thông tin video.");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _loggerService.Error(ex.ToString());
                 return string.Empty;

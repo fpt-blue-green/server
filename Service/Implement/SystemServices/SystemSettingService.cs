@@ -4,9 +4,9 @@ using BusinessObjects.ModelsDTO;
 using Repositories.Implement;
 using Repositories.Interface;
 using Service.Domain;
-using Service.Interface;
+using Service.Interface.SystemServices;
 
-namespace Service.Implement
+namespace Service.Implement.SystemService
 {
 
     public class SystemSettingService : ISystemSettingService

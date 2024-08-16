@@ -3,14 +3,14 @@ using Microsoft.IdentityModel.Tokens;
 using Repositories.Implement;
 using Repositories.Interface;
 using Service.Domain;
-using Service.Interface;
+using Service.Interface.HelperService;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Service.Implement
+namespace Service.Implement.SystemService
 {
     public class SecurityService : ISecurityService
     {

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
 using BusinessObjects.ModelsDTO;
 using BusinessObjects.ModelsDTO.InfluencerDTO;
 using Microsoft.AspNetCore.Mvc;
@@ -8,14 +9,17 @@ namespace AdFusionAPI.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
-	public class ExploreController : Controller
+	public class TagsController : Controller
 	{
 		private readonly ITagService _tagRepository;
-		private readonly IMapper _mapper;
-		public ExploreController(ITagService tagRepository , IMapper mapper)
+        private readonly IInfluencerService _influencerRepository;
+
+        private readonly IMapper _mapper;
+		public TagsController(ITagService tagRepository , IMapper mapper, IInfluencerService influencerRepository)
         {
             _mapper = mapper;
 			_tagRepository = tagRepository;	
+			_influencerRepository = influencerRepository;
         }
 		[HttpGet("listTag")]
 		public async Task<ActionResult<IEnumerable<TagDTO>>> GetListTag()
@@ -38,5 +42,6 @@ namespace AdFusionAPI.Controllers
 			}
 			return Ok(result);
 		}
-	}
+       
+    }
 }
