@@ -7,7 +7,7 @@ public partial class Image
 {
     public Guid Id { get; set; }
 
-    public Guid? InfluencerId { get; set; }
+    public Guid UserId { get; set; }
 
     public string Url { get; set; } = null!;
 
@@ -19,9 +19,5 @@ public partial class Image
 
     public int? ImageType { get; set; }
 
-    public Guid? BrandId { get; set; }
-
-    public virtual Brand? Brand { get; set; }
-
-    public virtual Influencer? Influencer { get; set; }
+    public virtual User User { get; set; } = null!;
 }

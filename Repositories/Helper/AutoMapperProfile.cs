@@ -2,6 +2,7 @@
 using BusinessObjects.Models;
 using BusinessObjects.ModelsDTO;
 using BusinessObjects.ModelsDTO.InfluencerDTO;
+using BusinessObjects.ModelsDTO.UserDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,6 @@ namespace Repositories.Helper
 			#region Influencer
 			CreateMap<Influencer, InfluencerDTO>()
                 .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.Channels))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
                 .ForMember(dest => dest.InfluencerTags, opt => opt.MapFrom(src => src.InfluencerTags))
                 .ForMember(dest => dest.Packages, opt => opt.MapFrom(src => src.Packages));
 

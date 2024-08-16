@@ -10,8 +10,6 @@ namespace BusinessObjects.ModelsDTO.InfluencerDTO
     {
         public Guid Id { get; set; }
 
-        public Guid InfluencerId { get; set; }
-
         public string? UserName { get; set; }
 
         public int? FollowersCount { get; set; }

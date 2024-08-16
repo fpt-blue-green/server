@@ -229,13 +229,10 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
-            entity.HasOne(d => d.Brand).WithMany(p => p.Images)
-                .HasForeignKey(d => d.BrandId)
-                .HasConstraintName("Images_BrandId_fkey");
-
-            entity.HasOne(d => d.Influencer).WithMany(p => p.Images)
-                .HasForeignKey(d => d.InfluencerId)
-                .HasConstraintName("Images_InfluencerId_fkey");
+            entity.HasOne(d => d.User).WithMany(p => p.Images)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Images_UserId_fkey");
         });
 
         modelBuilder.Entity<Influencer>(entity =>

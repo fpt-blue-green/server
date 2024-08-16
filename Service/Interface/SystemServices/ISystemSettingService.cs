@@ -1,7 +1,7 @@
 ﻿using BusinessObjects.Models;
 using BusinessObjects.ModelsDTO;
 
-namespace Service.Interface
+namespace Service.Interface.SystemServices
 {
     public interface ISystemSettingService
     {

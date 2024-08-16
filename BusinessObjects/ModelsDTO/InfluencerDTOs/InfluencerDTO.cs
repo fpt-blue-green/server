@@ -11,7 +11,7 @@ namespace BusinessObjects.ModelsDTO.InfluencerDTO
     {
         public Guid Id { get; set; }
 
-        public Guid UserId { get; set; }
+       /* public Guid UserId { get; set; }*/
 
         public string FullName { get; set; } = null!;
 
@@ -28,13 +28,10 @@ namespace BusinessObjects.ModelsDTO.InfluencerDTO
         public DateTime? ModifiedAt { get; set; }
 
         public decimal? RateAverage { get; set; }
+        public decimal? AveragePrice { get; set; }
 
         public virtual ICollection<ChannelDTO> Channels { get; set; } = new List<ChannelDTO>();
-
-        public virtual ICollection<ImagesDTO> Images { get; set; } = new List<ImagesDTO>();
-
         public virtual ICollection<InfluencerTagDTO> InfluencerTags { get; set; } = new List<InfluencerTagDTO>();
-
         public virtual ICollection<PackageDTO> Packages { get; set; } = new List<PackageDTO>();
     }
 }

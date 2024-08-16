@@ -10,10 +10,6 @@ namespace BusinessObjects.ModelsDTO.InfluencerDTO
     public class InfluencerTagDTO
     {
         public Guid Id { get; set; }
-
-        public Guid InfluencerId { get; set; }
-
-        public Guid TagId { get; set; }
-        public virtual Tag Tag { get; set; } = null!;
+        public virtual TagDTO Tag { get; set; } = null!;
     }
 }
