@@ -6,7 +6,6 @@ using Service.Interface;
 using Service.Interface.HelperService;
 using Service.Interface.SystemServices;
 using Service.Interface.UtilityServices;
-using System.ComponentModel.Design;
 
 namespace AdFusionAPI
 {
@@ -14,16 +13,15 @@ namespace AdFusionAPI
     {
         public static void AddProjectServices(this IServiceCollection services)
         {
-            services.AddScoped<IAuthenService, AuthenService>();
-            services.AddScoped<IUtilityService, UtilityService>();
+            services.AddScoped<ISystemSettingService, SystemSettingService>();
             services.AddScoped<IInfluencerService, InfluencerService>();
             services.AddScoped<IFeedBackService, FeedBackService>();
             services.AddScoped<ISecurityService, SecurityService>();
+            services.AddScoped<IUtilityService, UtilityService>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<ISystemSettingService, SystemSettingService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ITagService, TagService>();
             services.AddScoped<ConfigManager>();
-			services.AddScoped<ITagService, TagService>();
-
-		}
-	}
+        }
+    }
 }

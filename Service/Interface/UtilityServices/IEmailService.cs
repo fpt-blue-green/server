@@ -1,7 +1,10 @@
-﻿namespace Service.Interface.UtilityServices
+﻿
+namespace Service.Interface.UtilityServices
 {
     public interface IEmailService
     {
-        Task SendEmail(string toAddress, string subject, string body);
+        Task SendEmail(List<string> toAddresses, string subject, string body);
     }
 }
+
+

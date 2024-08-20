@@ -9,7 +9,11 @@
         public readonly string EmailConfig = "EmailConfig";
         public readonly string FirebaseStorageBucket = "bluegreen2.appspot.com";
         public readonly string YoutubeAPIKey = "YoutubeAPIKey";
+
         public readonly string WebBaseUrl = "http://127.0.0.1:5500";
         public readonly string WebApiBaseUrl = "https://localhost:7073/api";
+
+        public readonly List<string> AdminEmails = new List<string> { "nguyenhoang062017@gmail.com" };
+        public readonly string LogLink = "https://supabase.com/dashboard/project/uucyeumznprpthpykxwv/editor";
     }
 }

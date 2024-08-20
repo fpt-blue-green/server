@@ -24,7 +24,7 @@ namespace Service.Implement.SystemService
             var data = await _systemSettingRepository.GetSystemSetting(keyName);
             return new ApiResponse<SystemSetting>
             {
-                StatusCode = data != null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
+                StatusCode = data != null ? EHttpStatusCode.OK : EHttpStatusCode.NotFound,
                 Message = data != null ? "Truy vấn thông tin cài đặt hệ thống thành công." : "KeyName không tồn tại trong hệ thống.",
                 Data = data
             };
@@ -40,7 +40,7 @@ namespace Service.Implement.SystemService
                 {
                     return new ApiResponse<string>
                     {
-                        StatusCode = HttpStatusCode.NotFound,
+                        StatusCode = EHttpStatusCode.NotFound,
                         Message = "KeyName không tồn tại trong hệ thống.",
                         Data = null
                     };
@@ -49,7 +49,7 @@ namespace Service.Implement.SystemService
                 await _systemSettingRepository.UpdateSystemSetingKeyValue(systemSetting);
                 return new ApiResponse<string>
                 {
-                    StatusCode = HttpStatusCode.OK,
+                    StatusCode = EHttpStatusCode.OK,
                     Message = "Cập nhập cài đặt hệ thông thành công.",
                     Data = null
                 };
@@ -58,7 +58,7 @@ namespace Service.Implement.SystemService
             {
                 return new ApiResponse<string>
                 {
-                    StatusCode = HttpStatusCode.InternalServerError,
+                    StatusCode = EHttpStatusCode.InternalServerError,
                     Message = _configManager.SeverErrorMessage,
                     Data = null
                 };

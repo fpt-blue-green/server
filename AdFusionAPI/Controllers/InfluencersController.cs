@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
-using BusinessObjects.Models;
 using BusinessObjects.ModelsDTO.InfluencerDTO;
 using Microsoft.AspNetCore.Mvc;
-using Repositories.Implement;
 using Service.Interface;
-using System.Net;
 
 namespace AdFusionAPI.Controllers
 {
@@ -53,7 +50,7 @@ namespace AdFusionAPI.Controllers
             var result = new List<InfluencerDTO>();
             try
             {
-                 result = await _influencerRepository.GetTopTiktokInfluencer();
+                result = await _influencerRepository.GetTopTiktokInfluencer();
             }
             catch (Exception ex)
             {
@@ -67,7 +64,7 @@ namespace AdFusionAPI.Controllers
             var result = new List<InfluencerDTO>();
             try
             {
-                 result = await _influencerRepository.GetTopYoutubeInfluencer();
+                result = await _influencerRepository.GetTopYoutubeInfluencer();
             }
             catch (Exception ex)
             {
@@ -83,7 +80,7 @@ namespace AdFusionAPI.Controllers
             var result = new List<InfluencerDTO>();
             try
             {
-                 result = await _influencerRepository.GetAllInfluencers(filterDTO);
+                result = await _influencerRepository.GetAllInfluencers(filterDTO);
             }
             catch (Exception ex)
             {

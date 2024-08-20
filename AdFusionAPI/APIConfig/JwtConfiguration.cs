@@ -1,13 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Service.Interface.SystemServices;
 using System.Text;
 
 namespace AdFusionAPI
 {
     public static class JwtConfiguration
     {
-        public static void AddJwtAuthentication(this IServiceCollection services, string key)
+        public static void AddJwtAuthentication(this IServiceCollection services)
         {
+            var serviceProvider = services.BuildServiceProvider();
+            var systemSetting = serviceProvider.GetRequiredService<ISystemSettingService>();
+            var jwtSettings = systemSetting.GetJWTSystemSetting();
+            var key = jwtSettings.Result.KeyValue ?? null;
+
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -20,7 +27,7 @@ namespace AdFusionAPI
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key!)),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
