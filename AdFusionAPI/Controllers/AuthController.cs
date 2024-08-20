@@ -1,4 +1,4 @@
-﻿using BusinessObjects.ModelsDTO.AuthenDTO;
+﻿using BusinessObjects.ModelsDTO.AuthDTO;
 using Microsoft.AspNetCore.Mvc;
 using Service.Domain;
 using Service.Interface;
@@ -7,16 +7,14 @@ namespace AdFusionAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthenController : Controller
+    public class AuthController : Controller
     {
-        private readonly IAuthenService _authenService;
-        private readonly IEmailService _emailService;
+        private readonly IAuthService _authenService;
         private readonly ConfigManager _config;
 
-        public AuthenController(IAuthenService authenService, IEmailService emailService, ConfigManager config)
+        public AuthController(IAuthService authenService, ConfigManager config)
         {
             _authenService = authenService;
-            _emailService = emailService;
             this._config = config;
         }
 
@@ -31,6 +29,21 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterDTO userDTO)
         {
             var result = await _authenService.Register(userDTO);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPut("changePass")]
+        public async Task<IActionResult> ChangePass([FromBody] ChangePassDTO userDTO)
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _authenService.ChangePassword(userDTO, token);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPut("forgotPass")]
+        public async Task<IActionResult> ForgotPass([FromBody] ForgotPasswordDTO userDTO)
+        {
+            var result = await _authenService.ForgotPassword(userDTO);
             return StatusCode((int)result.StatusCode, result);
         }
 

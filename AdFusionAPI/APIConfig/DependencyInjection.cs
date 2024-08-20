@@ -1,7 +1,11 @@
 ﻿using Service.Domain;
 using Service.Implement;
+using Service.Implement.SystemService;
+using Service.Implement.UtilityServices;
 using Service.Interface;
-using System.ComponentModel.Design;
+using Service.Interface.HelperService;
+using Service.Interface.SystemServices;
+using Service.Interface.UtilityServices;
 
 namespace AdFusionAPI
 {
@@ -9,13 +13,14 @@ namespace AdFusionAPI
     {
         public static void AddProjectServices(this IServiceCollection services)
         {
-            services.AddScoped<IAuthenService, AuthenService>();
-            services.AddScoped<IUtilityService, UtilityService>();
+            services.AddScoped<ISystemSettingService, SystemSettingService>();
             services.AddScoped<IInfluencerService, InfluencerService>();
             services.AddScoped<IFeedBackService, FeedBackService>();
             services.AddScoped<ISecurityService, SecurityService>();
+            services.AddScoped<IUtilityService, UtilityService>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<ISystemSettingService, SystemSettingService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ITagService, TagService>();
             services.AddScoped<ConfigManager>();
         }
     }

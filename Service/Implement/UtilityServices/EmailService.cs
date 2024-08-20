@@ -1,7 +1,7 @@
 ﻿using Repositories.Implement;
 using Repositories.Interface;
 using Service.Domain;
-using Service.Interface;
+using Service.Interface.UtilityServices;
 using System.Net.Mail;
 
 public class EmailService : IEmailService
@@ -26,7 +26,7 @@ public class EmailService : IEmailService
         return settingsDictionary;
     }
 
-    public async Task SendEmail(string toAddress, string subject, string body)
+    public async Task SendEmail(List<string> toAddresses, string subject, string body)
     {
         try
         {
@@ -47,7 +47,11 @@ public class EmailService : IEmailService
                 Body = body,
                 IsBodyHtml = true
             };
-            mailMessage.To.Add(toAddress);
+
+            foreach (var toAddress in toAddresses)
+            {
+                mailMessage.To.Add(toAddress);
+            }
 
             using (var client = new SmtpClient(smtpServer, smtpPort))
             {
@@ -62,4 +66,5 @@ public class EmailService : IEmailService
             throw new Exception(ex.ToString());
         }
     }
+
 }

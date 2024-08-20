@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Service.Interface;
+using Service.Interface.UtilityServices;
 
 namespace AdFusionAPI.Controllers
 {
@@ -44,6 +44,30 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> GetVideoTikTokInformation(string url)
         {
             var info = await _utilityService.GetVideoTikTokInformation(url);
+            if (info.IsNullOrEmpty())
+            {
+                return NotFound();
+            }
+
+            return Ok(info);
+        }
+
+        [HttpGet("instagram/video/info/{url}")]
+        public async Task<IActionResult> GetVideoInstagramInformation(string url)
+        {
+            var info = await _utilityService.GetVideoInstagramInformation(url);
+            if (info.IsNullOrEmpty())
+            {
+                return NotFound();
+            }
+
+            return Ok(info);
+        }
+
+        [HttpGet("instagram/info/{url}")]
+        public async Task<IActionResult> GetInstagramInformation(string url)
+        {
+            var info = await _utilityService.GetInstagramInformation(url);
             if (info.IsNullOrEmpty())
             {
                 return NotFound();

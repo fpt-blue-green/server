@@ -1,7 +1,7 @@
 ﻿using BusinessObjects.ModelsDTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.Interface;
+using Service.Interface.SystemServices;
 
 namespace AdFusionAPI.Controllers
 {

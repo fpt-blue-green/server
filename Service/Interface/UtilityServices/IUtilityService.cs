@@ -1,4 +1,4 @@
-﻿namespace Service.Interface
+﻿namespace Service.Interface.UtilityServices
 {
     public interface IUtilityService
     {
@@ -7,5 +7,9 @@
         Task<string> GetTikTokInformation(string url);
 
         Task<string> GetVideoTikTokInformation(string url);
+
+        Task<string> GetVideoInstagramInformation(string url);
+
+        Task<string> GetInstagramInformation(string url);
     }
 }

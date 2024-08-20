@@ -19,7 +19,10 @@ namespace Repositories.Implement
 			try
 			{
 				influencers = await context.Influencers
-					.Include(i=>i.Channels).ToListAsync();
+					.Include(i => i.Channels)
+					.Include(i => i.InfluencerTags)
+					.Include(i => i.Packages)
+					.ToListAsync();
 			}
 			catch (Exception ex)
 			{

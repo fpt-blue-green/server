@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using BusinessObjects.ModelsDTO.InfluencerDTO;
 using Repositories.Interface;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,13 @@ namespace Service.Interface
 {
     public interface IInfluencerService
     {
-        Task<IEnumerable<Influencer>> GetAllInfluencers();
-        Task<Influencer> GetInfluencerById(Guid id);
-        Task<IEnumerable<Influencer>> GetTopInfluencer();
-        Task<IEnumerable<Influencer>> GetTopInstagramInfluencer();
-        Task<IEnumerable<Influencer>> GetTopTiktokInfluencer();
-        Task<IEnumerable<Influencer>> GetTopYoutubeInfluencer();
+        Task<List<InfluencerDTO>> GetAllInfluencers();
+        Task<List<InfluencerDTO>> GetAllInfluencers(InfluencerFilterDTO filter);
+        Task<InfluencerDTO> GetInfluencerById(Guid id);
+        Task<List<InfluencerDTO>> GetTopInfluencer();
+        Task<List<InfluencerDTO>> GetTopInstagramInfluencer();
+        Task<List<InfluencerDTO>> GetTopTiktokInfluencer();
+        Task<List<InfluencerDTO>> GetTopYoutubeInfluencer();
         Task CreateInfluencer(Influencer influencer);
         Task UpdateInfluencer(Influencer influencer);
         Task DeleteInfluencer(Guid id);
