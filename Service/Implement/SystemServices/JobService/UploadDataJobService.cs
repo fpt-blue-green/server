@@ -1,5 +1,5 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
+using BusinessObjects.DTOs;
 using Newtonsoft.Json;
 using Quartz;
 using Repositories.Implement;

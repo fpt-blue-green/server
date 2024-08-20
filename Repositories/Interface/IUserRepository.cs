@@ -1,5 +1,5 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO.AuthDTO;
+using BusinessObjects.DTOs.AuthDTO;
 
 namespace Repositories.Interface
 {

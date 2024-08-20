@@ -1,4 +1,4 @@
-﻿using BusinessObjects.ModelsDTO.AuthDTO;
+﻿using BusinessObjects.DTOs.AuthDTO;
 using Microsoft.AspNetCore.Mvc;
 using Service.Domain;
 using Service.Interface;
@@ -16,7 +16,7 @@ namespace AdFusionAPI.Controllers
         public AuthController(IAuthService authenService, ConfigManager config)
         {
             _authenService = authenService;
-            this._config = config;
+            _config = config;
         }
 
         [HttpPost("login")]
@@ -48,10 +48,10 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpGet("validateAuthen")]
-        public async Task<IActionResult> ValidateAuthen([FromQuery] string token, [FromQuery] int action)
+        [HttpGet("verify")]
+        public async Task<IActionResult> Verify([FromQuery] string token, [FromQuery] int action)
         {
-            var result = await _authenService.ValidateAuthen(action, token);
+            var result = await _authenService.Verify(action, token);
             return result == true ? Redirect("https://localhost:7244/swagger/index.html") : Redirect("https://localhost:7244/swagger/index.html");
         }
     }

@@ -1,18 +1,11 @@
 ﻿using AutoMapper;
+using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.InfluencerDTO;
-using Newtonsoft.Json.Linq;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
 using Service.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Service.Implement
 {
@@ -21,7 +14,8 @@ namespace Service.Implement
         private static readonly IInfluencerRepository _repository = new InfluencerRepository();
         private static ILogger _loggerService = new LoggerService().GetLogger();
         private readonly IMapper _mapper;
-        public InfluencerService(IMapper mapper) {
+        public InfluencerService(IMapper mapper)
+        {
             _mapper = mapper;
         }
         public async Task<List<InfluencerDTO>> GetTopInfluencer()
@@ -49,7 +43,7 @@ namespace Service.Implement
             try
             {
                 var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Instagram))
+                .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Instagram))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
                 if (topInflus.Any())
@@ -111,7 +105,7 @@ namespace Service.Implement
                 #endregion
 
                 #region Sort
-                
+
                 if (filter.IsSortAcsPrice.HasValue && filter.IsSortAcsPrice.Value)
                 {
                     allInfluencers = allInfluencers.OrderBy(i => i.AveragePrice).ToList();
@@ -152,7 +146,7 @@ namespace Service.Implement
             try
             {
                 var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Tiktok))
+                .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Tiktok))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
                 return _mapper.Map<List<InfluencerDTO>>(topInflus);
@@ -168,7 +162,7 @@ namespace Service.Implement
             try
             {
                 var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Youtube))
+                .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Youtube))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
                 return _mapper.Map<List<InfluencerDTO>>(topInflus);
@@ -192,14 +186,14 @@ namespace Service.Implement
 
         public async Task<List<InfluencerDTO>> GetAllInfluencers()
         {
-            var result =  await _repository.GetAlls();
+            var result = await _repository.GetAlls();
             return _mapper.Map<List<InfluencerDTO>>(result);
 
         }
 
         public async Task<InfluencerDTO> GetInfluencerById(Guid id)
         {
-            var result =  await _repository.GetById(id);
+            var result = await _repository.GetById(id);
             return _mapper.Map<InfluencerDTO>(result);
         }
 

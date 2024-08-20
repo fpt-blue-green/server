@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BusinessObjects.Enum;
 
-namespace BusinessObjects.ModelsDTO.InfluencerDTO
+namespace BusinessObjects.DTOs.InfluencerDTO
 {
     public class ChannelDTO
     {
@@ -20,6 +16,6 @@ namespace BusinessObjects.ModelsDTO.InfluencerDTO
 
         public int? PostsCount { get; set; }
 
-        public int Type { get; set; }
+        public EPlatform Platform { get; set; }
     }
 }

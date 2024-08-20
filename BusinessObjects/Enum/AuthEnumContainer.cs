@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Enum
 {
-    public class AuthenEnumContainer
+    public static class AuthEnumContainer
     {
         public enum EAuthAction
         {

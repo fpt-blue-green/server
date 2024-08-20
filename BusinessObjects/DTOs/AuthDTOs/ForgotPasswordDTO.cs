@@ -1,4 +1,4 @@
-﻿namespace BusinessObjects.ModelsDTO.AuthDTO
+﻿namespace BusinessObjects.DTOs.AuthDTO
 {
     public class ForgotPasswordDTO
     {

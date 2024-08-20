@@ -1,5 +1,5 @@
-﻿using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.AuthDTO;
+﻿using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.AuthDTO;
 
 namespace Service.Interface
 {
@@ -8,7 +8,7 @@ namespace Service.Interface
         Task<ApiResponse<string>> Login(LoginDTO loginDTO);
         Task<ApiResponse<string>> Register(RegisterDTO registerDTO);
         Task<ApiResponse<string>> ChangePassword(ChangePassDTO changePassDTO, string token);
-        Task<bool> ValidateAuthen(int action, string token);
+        Task<bool> Verify(int action, string token);
         Task<ApiResponse<string>> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO);
     }
 }

@@ -1,11 +1,5 @@
-﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO.InfluencerDTO;
-using Repositories.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BusinessObjects.DTOs.InfluencerDTO;
+using BusinessObjects.Models;
 
 namespace Service.Interface
 {

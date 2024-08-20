@@ -1,17 +1,10 @@
-﻿using BusinessObjects.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessObjects.ModelsDTO.InfluencerDTO
+﻿namespace BusinessObjects.DTOs.InfluencerDTO
 {
     public class InfluencerDTO
     {
         public Guid Id { get; set; }
 
-       /* public Guid UserId { get; set; }*/
+        /* public Guid UserId { get; set; }*/
 
         public string FullName { get; set; } = null!;
 
@@ -31,7 +24,7 @@ namespace BusinessObjects.ModelsDTO.InfluencerDTO
         public decimal? AveragePrice { get; set; }
 
         public virtual ICollection<ChannelDTO> Channels { get; set; } = new List<ChannelDTO>();
-        public virtual ICollection<InfluencerTagDTO> InfluencerTags { get; set; } = new List<InfluencerTagDTO>();
+        public virtual ICollection<TagDTO> InfluencerTags { get; set; } = new List<TagDTO>();
         public virtual ICollection<PackageDTO> Packages { get; set; } = new List<PackageDTO>();
     }
 }

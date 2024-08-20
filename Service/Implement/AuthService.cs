@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.AuthDTO;
-using BusinessObjects.ModelsDTO.UserDTOs;
+using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.AuthDTO;
+using BusinessObjects.DTOs.UserDTOs;
 using Newtonsoft.Json;
 using Repositories.Implement;
 using Repositories.Interface;
@@ -14,7 +14,7 @@ using Service.Interface;
 using Service.Interface.HelperService;
 using Service.Interface.UtilityServices;
 using Service.Resources;
-using static BusinessObjects.Enum.AuthenEnumContainer;
+using static BusinessObjects.Enum.AuthEnumContainer;
 
 namespace Service.Implement
 {
@@ -260,7 +260,7 @@ namespace Service.Implement
             }
         }
 
-        public async Task<bool> ValidateAuthen(int action, string token)
+        public async Task<bool> Verify(int action, string token)
         {
             try
             {
@@ -282,7 +282,7 @@ namespace Service.Implement
             }
             catch (Exception ex)
             {
-                _loggerService.Error("ValidateAuthen: " + ex.ToString());
+                _loggerService.Error("Verify: " + ex.ToString());
                 return false;
             }
         }
@@ -305,7 +305,7 @@ namespace Service.Implement
                     Email = registerDTO!.Email,
                     Password = _securityService.ComputeSha256Hash(registerDTO.Password),
                     IsBanned = false,
-                    DisplayName = registerDTO.Displayname,
+                    DisplayName = registerDTO.DisplayName,
                     IsDeleted = false,
                     Role = (int)ERole.Influencer,
                     CreatedAt = DateTime.UtcNow,

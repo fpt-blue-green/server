@@ -1,4 +1,4 @@
-﻿using BusinessObjects.ModelsDTO;
+﻿using BusinessObjects.DTOs;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

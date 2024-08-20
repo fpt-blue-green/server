@@ -1,7 +1,7 @@
 ﻿using AdFusionAPI;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Helper;
+using Service.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 

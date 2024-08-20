@@ -1,5 +1,5 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
+using BusinessObjects.DTOs;
 
 namespace Service.Interface.SystemServices
 {

@@ -62,7 +62,7 @@ public partial class PostgresContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .HasPostgresEnum("CChannelType", new[] { "None", "Tiktok", "Instagram", "Youtube" })
+            .HasPostgresEnum("EPlatform", new[] { "None", "Tiktok", "Instagram", "Youtube" })
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
             .HasPostgresEnum("auth", "factor_status", new[] { "unverified", "verified" })
