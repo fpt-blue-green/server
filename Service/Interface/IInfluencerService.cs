@@ -1,5 +1,5 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO.InfluencerDTO;
+using BusinessObjects.DTOs.InfluencerDTO;
 using Repositories.Interface;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using BusinessObjects.ModelsDTO.AuthenDTO;
+﻿using BusinessObjects.DTOs.AuthDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service.Domain;
 using Service.Interface;
@@ -8,17 +8,17 @@ namespace AdFusionAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthenController : Controller
+    public class AuthController : Controller
     {
-        private readonly IAuthenService _authenService;
+        private readonly IAuthService _authenService;
         private readonly IEmailService _emailService;
         private readonly ConfigManager _config;
 
-        public AuthenController(IAuthenService authenService, IEmailService emailService, ConfigManager config)
+        public AuthController(IAuthService authenService, IEmailService emailService, ConfigManager config)
         {
             _authenService = authenService;
             _emailService = emailService;
-            this._config = config;
+            _config = config;
         }
 
         [HttpPost("login")]
@@ -35,10 +35,10 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpGet("validateAuthen")]
-        public async Task<IActionResult> ValidateAuthen([FromQuery] string token, [FromQuery] int action)
+        [HttpGet("verify")]
+        public async Task<IActionResult> Verify([FromQuery] string token, [FromQuery] int action)
         {
-            var result = await _authenService.ValidateAuthen(action, token);
+            var result = await _authenService.Verify(action, token);
             return result == true ? Redirect("https://localhost:7244/swagger/index.html") : Redirect("https://localhost:7244/swagger/index.html");
         }
     }

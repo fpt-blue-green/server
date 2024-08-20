@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.InfluencerDTO;
+using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.InfluencerDTO;
 using Newtonsoft.Json.Linq;
 using Repositories.Implement;
 using Repositories.Interface;
@@ -49,7 +49,7 @@ namespace Service.Implement
             try
             {
                 var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Instagram))
+                .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Instagram))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
                 if (topInflus.Any())
@@ -152,7 +152,7 @@ namespace Service.Implement
             try
             {
                 var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Tiktok))
+                .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Tiktok))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
                 return _mapper.Map<List<InfluencerDTO>>(topInflus);
@@ -168,7 +168,7 @@ namespace Service.Implement
             try
             {
                 var topInflus = (await _repository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Type == (int)CChannelType.Youtube))
+                .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Youtube))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
                 return _mapper.Map<List<InfluencerDTO>>(topInflus);

@@ -1,6 +1,6 @@
 ﻿using BusinessObjects.Enum;
 using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
+using BusinessObjects.DTOs;
 using Repositories.Implement;
 using Repositories.Interface;
 using Service.Domain;

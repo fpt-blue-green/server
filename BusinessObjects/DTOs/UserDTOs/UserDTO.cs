@@ -1,7 +1,6 @@
 ﻿using BusinessObjects.Models;
-using System.Text.Json.Serialization;
 
-namespace BusinessObjects.ModelsDTO.UserDTOs
+namespace BusinessObjects.DTOs.UserDTOs
 {
     public class UserDTO
     {

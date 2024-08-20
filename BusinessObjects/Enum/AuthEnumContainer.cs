@@ -1,15 +1,15 @@
 ﻿namespace BusinessObjects.Enum
 {
-    public class AuthenEnumContainer
+    public class AuthEnumContainer
     {
-        public enum AuthenAction
+        public enum EAuthAction
         {
             Register = 1,
             ChangePass = 2,
             ForgotPassword = 3
         }
 
-        public enum Role
+        public enum ERole
         {
             Admin = 1,
             Influencer = 2,

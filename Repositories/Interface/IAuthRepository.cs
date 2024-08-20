@@ -1,9 +1,9 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO.AuthenDTO;
+using BusinessObjects.DTOs.AuthDTOs;
 
 namespace Repositories.Interface
 {
-    public interface IAuthenRepository
+    public interface IAuthRepository
     {
         Task<List<User>> GetUsers();
         Task<User> GetUserById(Guid userId);

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.InfluencerDTO;
+using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.InfluencerDTO;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;

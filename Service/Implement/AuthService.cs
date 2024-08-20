@@ -1,8 +1,8 @@
 ﻿using BusinessObjects.Enum;
 using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.AuthenDTO;
-using BusinessObjects.ModelsDTO.UserDTOs;
+using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.AuthDTOs;
+using BusinessObjects.DTOs.UserDTOs;
 using Newtonsoft.Json;
 using Repositories.Implement;
 using Repositories.Interface;
@@ -13,14 +13,13 @@ using Service.Interface;
 using Service.Interface.HelperService;
 using Service.Interface.UtilityServices;
 using Service.Resources;
-using System.Runtime.CompilerServices;
-using static BusinessObjects.Enum.AuthenEnumContainer;
+using static BusinessObjects.Enum.AuthEnumContainer;
 
 namespace Service.Implement
 {
-    public class AuthenService : IAuthenService
+    public class AuthService : IAuthService
     {
-        private static IAuthenRepository _authenRepository = new AuthenRepository();
+        private static IAuthRepository _authenRepository = new AuthRepository();
         private static ILogger _loggerService = new LoggerService().GetLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static IEmailService _emailService = new EmailService();
@@ -78,7 +77,7 @@ namespace Service.Implement
 
                 // Bước 8: Tạo DTO cho người dùng và sinh JWT token
                 UserDTO userDTO = new UserDTO(user);
-                var token = await _securityService.GenerateJwtToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == (int)Role.Admin);
+                var token = await _securityService.GenerateJwtToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == (int)ERole.Admin);
 
                 // Bước 9: Trả về phản hồi đăng nhập thành công kèm theo token
                 return new ApiResponse<string>
@@ -123,7 +122,7 @@ namespace Service.Implement
                 var token = await _securityService.GenerateJwtToken(JsonConvert.SerializeObject(registerDTO), false);
 
                 // 4. Tạo liên kết xác nhận email với token đã tạo.
-                var confirmationUrl = $"{_configManager.WebApiBaseUrl}/Authen/validateAuthen?action={(int)AuthenAction.Register}&token={token}";
+                var confirmationUrl = $"{_configManager.WebApiBaseUrl}/Authen/validateAuthen?action={(int)EAuthAction.Register}&token={token}";
 
                 var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Đăng ký tài khoản mới").Replace("{confirmLink}", confirmationUrl);
 
@@ -150,18 +149,18 @@ namespace Service.Implement
             }
         }
 
-        public async Task<bool> ValidateAuthen(int action, string token)
+        public async Task<bool> Verify(int action, string token)
         {
             try
             {
                 switch (action)
                 {
-                    case (int)AuthenAction.Register:
+                    case (int)EAuthAction.Register:
                         await ValidateRegister(token);
                         break;
-                    case (int)AuthenAction.ChangePass:
+                    case (int)EAuthAction.ChangePass:
                         break;
-                    case (int)AuthenAction.ForgotPassword:
+                    case (int)EAuthAction.ForgotPassword:
                         break;
                     default:
                         return false;
@@ -192,9 +191,9 @@ namespace Service.Implement
                     Email = registerDTO!.Email,
                     Password = _securityService.ComputeSha256Hash(registerDTO.Password),
                     IsBanned = false,
-                    DisplayName = registerDTO.Displayname,
+                    DisplayName = registerDTO.DisplayName,
                     IsDeleted = false,
-                    Role = (int)Role.Influencer,
+                    Role = (int)ERole.Influencer,
                     CreatedAt = DateTime.UtcNow,
                 };
 

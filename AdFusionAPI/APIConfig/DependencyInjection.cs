@@ -14,7 +14,7 @@ namespace AdFusionAPI
     {
         public static void AddProjectServices(this IServiceCollection services)
         {
-            services.AddScoped<IAuthenService, AuthenService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUtilityService, UtilityService>();
             services.AddScoped<IInfluencerService, InfluencerService>();
             services.AddScoped<IFeedBackService, FeedBackService>();

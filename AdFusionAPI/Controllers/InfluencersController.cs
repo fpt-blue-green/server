@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO.InfluencerDTO;
+using BusinessObjects.DTOs.InfluencerDTO;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.Implement;
 using Service.Interface;
@@ -19,7 +19,7 @@ namespace AdFusionAPI.Controllers
             _influencerRepository = influencerService;
             _mapper = mapper;
         }
-        [HttpGet("topInfluencer")]
+        [HttpGet("top")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopInfluencer()
         {
             var result = new List<InfluencerDTO>();
@@ -33,7 +33,7 @@ namespace AdFusionAPI.Controllers
             }
             return Ok(result);
         }
-        [HttpGet("topInfluencerInstagram")]
+        [HttpGet("top/instagram")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopInstagramInfluencer()
         {
             var result = new List<InfluencerDTO>();
@@ -47,7 +47,7 @@ namespace AdFusionAPI.Controllers
             }
             return Ok(result);
         }
-        [HttpGet("topInfluencerTiktok")]
+        [HttpGet("top/tiktok")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopTiktokInfluencer()
         {
             var result = new List<InfluencerDTO>();
@@ -61,7 +61,7 @@ namespace AdFusionAPI.Controllers
             }
             return Ok(result);
         }
-        [HttpGet("topInfluencerYoutube")]
+        [HttpGet("top/youtube")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopYoutubeInfluencer()
         {
             var result = new List<InfluencerDTO>();
@@ -77,7 +77,7 @@ namespace AdFusionAPI.Controllers
 
         }
 
-        [HttpGet("paging/influencers")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetExploreInfluencer([FromQuery] InfluencerFilterDTO filterDTO)
         {
             var result = new List<InfluencerDTO>();

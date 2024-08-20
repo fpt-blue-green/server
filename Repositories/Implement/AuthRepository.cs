@@ -1,14 +1,14 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO.AuthenDTO;
+using BusinessObjects.DTOs.AuthDTOs;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Helper;
 using Repositories.Interface;
 
 namespace Repositories.Implement
 {
-    public class AuthenRepository : SingletonBase<AuthenRepository>, IAuthenRepository
+    public class AuthRepository : SingletonBase<AuthRepository>, IAuthRepository
     {
-        public AuthenRepository() { }
+        public AuthRepository() { }
         public async Task<List<User>> GetUsers()
         {
             try
