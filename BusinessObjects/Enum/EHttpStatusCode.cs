@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Enum
 {
-    public enum HttpStatusCode
+    public enum EHttpStatusCode
     {
         // 1xx: Informational
         Continue = 100,

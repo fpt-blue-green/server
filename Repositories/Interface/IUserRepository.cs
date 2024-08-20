@@ -1,11 +1,11 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO.AuthenDTO;
+using BusinessObjects.ModelsDTO.AuthDTO;
 
 namespace Repositories.Interface
 {
-    public interface IAuthenRepository
+    public interface IUserRepository
     {
-        Task<List<User>> GetUsers();
+        Task<IEnumerable<User>> GetUsers();
         Task<User> GetUserById(Guid userId);
         Task<User> GetUserByEmail(string email);
         Task<User> GetUserByLoginDTO(LoginDTO loginDTO);

@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using Repositories.Implement;
 using Repositories.Interface;
 using Service.Domain;
 using Service.Interface.HelperService;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -60,11 +58,11 @@ namespace Service.Implement.SystemService
 
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
-                return principal.Identity?.Name!;
+                return principal.Identity?.Name! ?? null!;
             }
             catch (Exception ex)
             {
-                return null!;
+                throw new Exception(ex.ToString());
             }
         }
 

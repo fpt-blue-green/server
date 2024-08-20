@@ -28,8 +28,10 @@ namespace Repositories.Helper
 			#endregion
 			#region Tag
 			CreateMap<Tag, TagDTO>();
-			#endregion
-
-		}
-	}
+            #endregion
+            #region User
+            CreateMap<User, UserTokenDTO>();
+            #endregion
+        }
+    }
 }

@@ -1,45 +1,41 @@
 ﻿using AdFusionAPI;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Service.Implement;
-using Newtonsoft.Json;
 using Repositories.Helper;
-using Service.Interface.SystemServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// 1. Đăng ký các dịch vụ cơ bản và thiết lập cấu hình mặc định
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<PostgresContext>(op => op.UseNpgsql(builder.Configuration.GetConnectionString("AdFusionConnection")));
+builder.Services.AddDbContext<PostgresContext>(op =>
+    op.UseNpgsql(builder.Configuration.GetConnectionString("AdFusionConnection")));
 
+// 2. Đăng ký các dịch vụ tùy chỉnh cho dự án
 builder.Services.AddProjectServices();
+builder.Services.AddQuartzServices();
+builder.Services.AddJwtAuthentication();
 
+// 3. Thiết lập chính sách ủy quyền (Authorization Policy)
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("AdminPolicy", policy =>
+        policy.RequireRole("Admin"));
 });
 
+// 4. Cấu hình JSON để bỏ qua các vòng tham chiếu và các thuộc tính chỉ đọc
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
     });
-
-// Add services to the container.
-var serviceProvider = builder.Services.BuildServiceProvider();
-var systemSetting = serviceProvider.GetRequiredService<ISystemSettingService>();
-var jwtSettings = systemSetting.GetJWTSystemSetting();
-var key = jwtSettings.Result.KeyValue;
-builder.Services.AddJwtAuthentication(key!);
-
+// 5. Đăng ký AutoMapper với profile được định nghĩa sẵn
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
-// Configure CORS
+// 6. Cấu hình chính sách CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -50,9 +46,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+// 7. Xây dựng ứng dụng (Application)
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 8. Cấu hình middleware cho môi trường phát triển
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -60,16 +57,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// 9. Kích hoạt CORS, định tuyến, và middleware xác thực
 app.UseCors("AllowAll");
 app.UseRouting();
 
-// Use Authentication and Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+// 10. Map các controller để xử lý các yêu cầu API
+app.MapControllers();
 
+// 11. Chạy ứng dụng
 app.Run();

@@ -1,15 +1,15 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO.AuthenDTO;
+using BusinessObjects.ModelsDTO.AuthDTO;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Helper;
 using Repositories.Interface;
 
 namespace Repositories.Implement
 {
-    public class AuthenRepository : SingletonBase<AuthenRepository>, IAuthenRepository
+    public class UserRepository : SingletonBase<UserRepository>, IUserRepository
     {
-        public AuthenRepository() { }
-        public async Task<List<User>> GetUsers()
+        public UserRepository() { }
+        public async Task<IEnumerable<User>> GetUsers()
         {
             try
             {
@@ -27,7 +27,7 @@ namespace Repositories.Implement
             try
             {
                 var user = await context.Users.SingleOrDefaultAsync(u => u.Id == userId);
-                return user;
+                return user!;
             }
             catch (Exception ex)
             {
@@ -40,7 +40,7 @@ namespace Repositories.Implement
             try
             {
                 var user = await context.Users.SingleOrDefaultAsync(u => u.Email == email);
-                    return user;
+                    return user!;
             }
             catch (Exception ex)
             {
@@ -56,7 +56,7 @@ namespace Repositories.Implement
                                     .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
                                     .Where(u => u.Email == loginDTO.Email && u.Password == loginDTO.Password)
                                     .FirstOrDefaultAsync();
-                return user;
+                return user!;
             }
             catch (Exception ex)
             {
@@ -80,7 +80,15 @@ namespace Repositories.Implement
         {
             try
             {
-                context.Entry<User>(user).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                var localUser = context.Set<User>()
+                                       .Local
+                                       .FirstOrDefault(entry => entry.Id.Equals(user.Id));
+                if (localUser != null)
+                {
+                    context.Entry(localUser).State = EntityState.Detached;
+                }
+
+                context.Entry(user).State = EntityState.Modified;
                 await context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -88,5 +96,6 @@ namespace Repositories.Implement
                 throw new Exception(ex.Message);
             }
         }
+
     }
 }

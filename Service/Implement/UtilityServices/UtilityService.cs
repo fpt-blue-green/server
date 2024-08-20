@@ -44,7 +44,7 @@ namespace Service.Implement.UtilityServices
             }
             catch (Exception ex)
             {
-                _loggerService.Information(ex.ToString());
+                _loggerService.Error(ex.ToString());
                 return null!;
             }
         }
@@ -52,7 +52,7 @@ namespace Service.Implement.UtilityServices
         static IEnumerable<CityResult> SearchCities(JArray countriesArray, string searchTerm)
         {
             // Tìm kiếm thành phố dựa trên chuỗi đầu vào với phương thức StartsWith cho phép so sánh không phân biệt chữ hoa chữ thường và hỗ trợ tiếng Việt
-            _loggerService.Information("Start to search City: ");
+            _loggerService.Information("Start to search City: " + searchTerm);
             var results = countriesArray
                 .SelectMany(country => country["cities"]!
                     .Select(city => new CityResult
@@ -69,7 +69,7 @@ namespace Service.Implement.UtilityServices
         {
             try
             {
-                _loggerService.Information("Start to get TikTok Account information: ");
+                _loggerService.Information("Start to get TikTok Account information: " + url);
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
@@ -104,7 +104,7 @@ namespace Service.Implement.UtilityServices
         {
             try
             {
-                _loggerService.Information("Start to get video TikTok information: ");
+                _loggerService.Information("Start to get video TikTok information: " + url);
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 

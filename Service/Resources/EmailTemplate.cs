@@ -101,12 +101,106 @@
                     "<p>Trân trọng,<br><br>{projectName}</p>" +
                     "</div>" +
                     "<div class=\"copyright\">" +
-                    "<p>© 2024 {projectName}. All rights reserved.</p>" +
+                    "<p>© 2024 Bản quyền thuộc về {projectName}.</p>" +
                     "</div>" +
                     "</div>" +
                     "</div>" +
                     "</body>" +
                     "</html>";
+        #endregion
+
+        #region uploadDataErrorTemplate
+        public string uploadDataErrorTemplate = @"
+                <!DOCTYPE html>
+                <html lang=""vi"">
+                <head>
+                    <meta charset=""UTF-8"">
+                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                    <title>Thông Báo Lỗi Job</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            background-color: #f4f4f4;
+                            color: #333;
+                            margin: 0;
+                            padding: 20px;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            background-color: #ffffff;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            overflow: hidden;
+                        }
+                        .header {
+                            background-color: #ff7081;
+                            padding: 20px;
+                            text-align: center;
+                            color: #ffffff;
+                        }
+                        .content {
+                            padding: 20px;
+                        }
+                        .footer {
+                            font-size: 14px;
+                            color: #888;
+                            border-top: 1px solid #ddd;
+                            text-align: center;
+                            margin-left: 20px; /* Thêm margin-left ở đây */
+                        }
+                        .footer p {
+                            margin: 15px 0;
+                        }
+                        .footer .signature {
+                            text-align: left;
+                            margin-bottom: 20px;
+                        }
+                        .footer .copyright {
+                            font-size: 12px;
+                            color: #999;
+                        }
+                        .button-container {
+                            text-align: center;
+                            margin: 10px 0 15px 0;
+                        }
+                        .button {
+                            display: inline-block;
+                            padding: 10px 20px;
+                            background-color: #ff7081;
+                            color: #ffffff !important;
+                            text-decoration: none;
+                            border-radius: 5px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class=""container"">
+                        <div class=""header"">
+                            <h1>Thông Báo Lỗi</h1>
+                        </div>
+                        <div class=""content"">
+                            <p>Xin chào Admin,</p>
+                            <p>Job <strong>cập nhật dữ liệu hệ thống hằng ngày</strong> đã gặp lỗi trong quá trình thực thi.</p>
+                            <p><strong>Thời gian:</strong> {timeHappend}</p>
+                            <p>Vui lòng kiểm tra chi tiết lỗi trong <strong>Logs Database</strong> bằng cách truy cập vào link dưới đây:</p>
+                            <div class=""button-container"">
+                                <a href=""{logLink}"" class=""button"">Xem Logs</a>
+                            </div>
+                            <p>Và sử dụng câu lệnh này để truy vấn: SELECT * FROM ""logs"" WHERE ""message"" LIKE '%{keyWord}%';</p>
+                        </div>
+                        <div class=""footer"">
+                            <div class=""signature"">
+                                <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với đội ngũ kỹ thuật.</p>
+                                <p>Trân trọng,<br><br>{projectName}</p>
+                            </div>
+                            <div class=""copyright"">
+                                <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>";
         #endregion
     }
 }

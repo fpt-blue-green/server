@@ -1,12 +1,14 @@
 ﻿using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.AuthenDTO;
+using BusinessObjects.ModelsDTO.AuthDTO;
 
 namespace Service.Interface
 {
-    public interface IAuthenService
+    public interface IAuthService
     {
         Task<ApiResponse<string>> Login(LoginDTO loginDTO);
         Task<ApiResponse<string>> Register(RegisterDTO registerDTO);
+        Task<ApiResponse<string>> ChangePassword(ChangePassDTO changePassDTO, string token);
         Task<bool> ValidateAuthen(int action, string token);
+        Task<ApiResponse<string>> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO);
     }
 }
