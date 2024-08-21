@@ -3,9 +3,6 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Service.Interface;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Service.Implement
 {

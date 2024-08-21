@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.InfluencerDTO;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 

@@ -1,17 +1,6 @@
-<<<<<<< HEAD
-﻿using BusinessObjects.DTOs.InfluencerDTO;
+﻿using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.Models;
-=======
-﻿using BusinessObjects.Models;
-using BusinessObjects.ModelsDTO;
-using BusinessObjects.ModelsDTO.InfluencerDTO;
-using Repositories.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
->>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
 
 namespace Service.Interface
 {

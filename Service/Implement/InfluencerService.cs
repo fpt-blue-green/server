@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
@@ -189,7 +190,7 @@ namespace Service.Implement
                 await _repository.Create(entity);
                 return new ApiResponse<Influencer>
                 {
-                    StatusCode = HttpStatusCode.OK,
+                    StatusCode = EHttpStatusCode.OK,
                     Message = "Tạo tài khoản thành công.",
                     Data = _mapper.Map<Influencer>(entity)
                 };
@@ -199,7 +200,7 @@ namespace Service.Implement
                 _loggerService.Error("Create New Influencer: " + ex.ToString());
                 return new ApiResponse<Influencer>
                 {
-                    StatusCode = HttpStatusCode.InternalServerError,
+                    StatusCode = EHttpStatusCode.InternalServerError,
                     Message = _config.SeverErrorMessage,
                     Data = null
                 };
