@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Đăng ký các dịch vụ cơ bản và thiết lập cấu hình mặc định
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<CloudinaryStorageService>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PostgresContext>(op =>
     op.UseNpgsql(builder.Configuration.GetConnectionString("AdFusionConnection")));

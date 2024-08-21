@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+=======
+    <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
+>>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
     <PackageReference Include="HtmlAgilityPack" Version="1.11.62" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.11" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

@@ -5,6 +5,7 @@ using BusinessObjects.Models;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
+using Service.Domain;
 using Service.Interface;
 
 namespace Service.Implement
@@ -14,6 +15,11 @@ namespace Service.Implement
         private static readonly IInfluencerRepository _repository = new InfluencerRepository();
         private static ILogger _loggerService = new LoggerService().GetLogger();
         private readonly IMapper _mapper;
+<<<<<<< HEAD
+=======
+        private readonly ConfigManager _config;
+
+>>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
         public InfluencerService(IMapper mapper)
         {
             _mapper = mapper;
@@ -174,9 +180,33 @@ namespace Service.Implement
                 throw new Exception(ex.Message);
             }
         }
-        public async Task CreateInfluencer(Influencer influencer)
+
+        public async Task<ApiResponse<Influencer>> CreateInfluencer(Influencer influencer)
         {
-            await _repository.Create(influencer);
+            try
+            {
+                var entity = _mapper.Map<Influencer>(influencer);
+                entity.CreatedAt = DateTime.UtcNow;
+                entity.ModifiedAt = DateTime.UtcNow;
+
+                await _repository.Create(entity);
+                return new ApiResponse<Influencer>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Tạo tài khoản thành công.",
+                    Data = _mapper.Map<Influencer>(entity)
+                };
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Create New Influencer: " + ex.ToString());
+                return new ApiResponse<Influencer>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Message = _config.SeverErrorMessage,
+                    Data = null
+                };
+            }
         }
 
         public async Task DeleteInfluencer(Guid id)

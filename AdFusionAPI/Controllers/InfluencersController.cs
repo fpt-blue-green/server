@@ -1,5 +1,11 @@
 ﻿using AutoMapper;
+<<<<<<< HEAD
 using BusinessObjects.DTOs.InfluencerDTO;
+=======
+using BusinessObjects.Models;
+using BusinessObjects.ModelsDTO;
+using BusinessObjects.ModelsDTO.InfluencerDTO;
+>>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 
@@ -11,15 +17,21 @@ namespace AdFusionAPI.Controllers
     {
         private readonly IInfluencerService _influencerRepository;
         private readonly IMapper _mapper;
+        private List<InfluencerDTO> result = new();
+
         public InfluencersController(IInfluencerService influencerService, IMapper mapper)
         {
             _influencerRepository = influencerService;
             _mapper = mapper;
         }
+<<<<<<< HEAD
         [HttpGet("top")]
+=======
+
+        [HttpGet("topInfluencer")]
+>>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopInfluencer()
         {
-            var result = new List<InfluencerDTO>();
             try
             {
                 result = await _influencerRepository.GetTopInfluencer();
@@ -28,12 +40,17 @@ namespace AdFusionAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
             return Ok(result);
         }
+<<<<<<< HEAD
         [HttpGet("top/instagram")]
+=======
+
+        [HttpGet("topInfluencerInstagram")]
+>>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopInstagramInfluencer()
         {
-            var result = new List<InfluencerDTO>();
             try
             {
                 result = await _influencerRepository.GetTopInstagramInfluencer();
@@ -42,12 +59,17 @@ namespace AdFusionAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
             return Ok(result);
         }
+<<<<<<< HEAD
         [HttpGet("top/tiktok")]
+=======
+
+        [HttpGet("topInfluencerTiktok")]
+>>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopTiktokInfluencer()
         {
-            var result = new List<InfluencerDTO>();
             try
             {
                 result = await _influencerRepository.GetTopTiktokInfluencer();
@@ -56,12 +78,17 @@ namespace AdFusionAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
             return Ok(result);
         }
+<<<<<<< HEAD
         [HttpGet("top/youtube")]
+=======
+
+        [HttpGet("topInfluencerYoutube")]
+>>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopYoutubeInfluencer()
         {
-            var result = new List<InfluencerDTO>();
             try
             {
                 result = await _influencerRepository.GetTopYoutubeInfluencer();
@@ -70,6 +97,7 @@ namespace AdFusionAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
             return Ok(result);
 
         }
@@ -77,7 +105,6 @@ namespace AdFusionAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetExploreInfluencer([FromQuery] InfluencerFilterDTO filterDTO)
         {
-            var result = new List<InfluencerDTO>();
             try
             {
                 result = await _influencerRepository.GetAllInfluencers(filterDTO);
@@ -86,7 +113,15 @@ namespace AdFusionAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
             return Ok(result);
+        }
+
+        [HttpPost("create/influencer")]
+        public async Task<IActionResult> CreateNewInfluencer([FromBody] Influencer influencer)
+        {
+            var result = await _influencerRepository.CreateInfluencer(influencer);
+            return StatusCode((int)result.StatusCode, result);
         }
     }
 }
