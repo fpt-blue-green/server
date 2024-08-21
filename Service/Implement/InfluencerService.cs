@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.InfluencerDTO;
+using BusinessObjects.DTOs.InfluencerDTOs;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
 using Repositories.Implement;
@@ -179,13 +180,27 @@ namespace Service.Implement
             }
         }
 
-        public async Task<ApiResponse<Influencer>> CreateInfluencer(Influencer influencer)
+        public async Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO)
         {
             try
             {
-                var entity = _mapper.Map<Influencer>(influencer);
-                entity.CreatedAt = DateTime.UtcNow;
-                entity.ModifiedAt = DateTime.UtcNow;
+                var entity = new Influencer()
+                {
+                    UserId = Guid.Parse("01a675f6-a02b-4e97-9266-ab8d3e054864"),
+                    FullName = influencerRequestDTO.FullName,
+                    NickName = influencerRequestDTO.NickName,
+                    Phone = influencerRequestDTO.Phone,
+                    AveragePrice = influencerRequestDTO.AveragePrice,
+                    Channels = new List<Channel>(),
+                    Deals = new List<Deal>(),
+                    Feedbacks = new List<Feedback>(),
+                    InfluencerJobHistories = new List<InfluencerJobHistory>(),
+                    InfluencerTags = new List<InfluencerTag>(),
+                    Packages = new List<Package>(),
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow
+                };
+
 
                 await _repository.Create(entity);
                 return new ApiResponse<Influencer>

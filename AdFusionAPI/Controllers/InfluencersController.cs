@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects.DTOs.InfluencerDTO;
+using BusinessObjects.DTOs.InfluencerDTOs;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
@@ -95,11 +96,11 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost("create/influencer")]
-        public async Task<IActionResult> CreateNewInfluencer([FromBody] Influencer influencer)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateNewInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
         {
-            var result = await _influencerRepository.CreateInfluencer(influencer);
-            return StatusCode((int)result.StatusCode, result);
+            var newInflu = await _influencerRepository.CreateInfluencer(influencerRequestDTO);
+            return StatusCode((int)newInflu.StatusCode, newInflu);
         }
     }
 }
