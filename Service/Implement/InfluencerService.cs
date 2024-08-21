@@ -15,11 +15,8 @@ namespace Service.Implement
         private static readonly IInfluencerRepository _repository = new InfluencerRepository();
         private static ILogger _loggerService = new LoggerService().GetLogger();
         private readonly IMapper _mapper;
-<<<<<<< HEAD
-=======
         private readonly ConfigManager _config;
 
->>>>>>> 22856a3 (update logic uploadImage & Api Influencer)
         public InfluencerService(IMapper mapper)
         {
             _mapper = mapper;
