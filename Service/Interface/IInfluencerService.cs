@@ -1,4 +1,6 @@
-﻿using BusinessObjects.DTOs.InfluencerDTO;
+﻿using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.InfluencerDTO;
+using BusinessObjects.DTOs.InfluencerDTOs;
 using BusinessObjects.Models;
 
 namespace Service.Interface
@@ -12,7 +14,7 @@ namespace Service.Interface
         Task<List<InfluencerDTO>> GetTopInstagramInfluencer();
         Task<List<InfluencerDTO>> GetTopTiktokInfluencer();
         Task<List<InfluencerDTO>> GetTopYoutubeInfluencer();
-        Task CreateInfluencer(Influencer influencer);
+        Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO);
         Task UpdateInfluencer(Influencer influencer);
         Task DeleteInfluencer(Guid id);
     }

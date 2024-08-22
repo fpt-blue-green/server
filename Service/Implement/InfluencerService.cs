@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.InfluencerDTO;
+using BusinessObjects.DTOs.InfluencerDTOs;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
+using Service.Domain;
 using Service.Interface;
 
 namespace Service.Implement
@@ -14,6 +17,8 @@ namespace Service.Implement
         private static readonly IInfluencerRepository _repository = new InfluencerRepository();
         private static ILogger _loggerService = new LoggerService().GetLogger();
         private readonly IMapper _mapper;
+        private readonly ConfigManager _config;
+
         public InfluencerService(IMapper mapper)
         {
             _mapper = mapper;
@@ -174,9 +179,47 @@ namespace Service.Implement
                 throw new Exception(ex.Message);
             }
         }
-        public async Task CreateInfluencer(Influencer influencer)
+
+        public async Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO)
         {
-            await _repository.Create(influencer);
+            try
+            {
+                var entity = new Influencer()
+                {
+                    UserId = Guid.Parse("01a675f6-a02b-4e97-9266-ab8d3e054864"),
+                    FullName = influencerRequestDTO.FullName,
+                    NickName = influencerRequestDTO.NickName,
+                    Phone = influencerRequestDTO.Phone,
+                    AveragePrice = influencerRequestDTO.AveragePrice,
+                    Channels = new List<Channel>(),
+                    Deals = new List<Deal>(),
+                    Feedbacks = new List<Feedback>(),
+                    InfluencerJobHistories = new List<InfluencerJobHistory>(),
+                    InfluencerTags = new List<InfluencerTag>(),
+                    Packages = new List<Package>(),
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow
+                };
+
+
+                await _repository.Create(entity);
+                return new ApiResponse<Influencer>
+                {
+                    StatusCode = EHttpStatusCode.OK,
+                    Message = "Tạo tài khoản thành công.",
+                    Data = _mapper.Map<Influencer>(entity)
+                };
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Create New Influencer: " + ex.ToString());
+                return new ApiResponse<Influencer>
+                {
+                    StatusCode = EHttpStatusCode.InternalServerError,
+                    Message = _config.SeverErrorMessage,
+                    Data = null
+                };
+            }
         }
 
         public async Task DeleteInfluencer(Guid id)
