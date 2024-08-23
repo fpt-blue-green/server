@@ -13,6 +13,7 @@ namespace AdFusionAPI
     {
         public static void AddProjectServices(this IServiceCollection services)
         {
+            services.AddScoped<ICloudinaryStorageService, CloudinaryStorageService>();
             services.AddScoped<ISystemSettingService, SystemSettingService>();
             services.AddScoped<IInfluencerService, InfluencerService>();
             services.AddScoped<IFeedBackService, FeedBackService>();

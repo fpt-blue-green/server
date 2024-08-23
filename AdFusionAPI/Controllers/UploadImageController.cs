@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Service.Implement;
+using Microsoft.IdentityModel.Tokens;
+using Service.Interface;
 
 namespace AdFusionAPI.Controllers
 {
@@ -7,23 +8,36 @@ namespace AdFusionAPI.Controllers
     [ApiController]
     public class UploadController : ControllerBase
     {
-        private readonly CloudinaryStorageService _storageService;
+        private readonly ICloudinaryStorageService _storageService;
 
-        public UploadController(CloudinaryStorageService storageService)
+        public UploadController(ICloudinaryStorageService storageService)
         {
             _storageService = storageService;
         }
 
-        [HttpPost()]
-        public async Task<IActionResult> Upload(IFormFile file)
+        [HttpPost("image")]
+        public async Task<IActionResult> UploadImage(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest("No file uploaded.");
-            }
-
             var fileUrl = await _storageService.UploadImageAsync(file, "AdFusionImage");
-            return Ok(fileUrl);
+
+            return fileUrl.IsNullOrEmpty() ? BadRequest() : Ok(fileUrl);
+        }
+
+        [HttpPost("images")]
+        public async Task<IActionResult> UploadListImage(IFormFile avatar,  List<IFormFile> images)
+        {
+            var fileUrl = await _storageService.UploadListImageAndAvatar(avatar, images);
+
+            return fileUrl.IsNullOrEmpty() ? BadRequest() : Ok(fileUrl);
+        }
+
+        [HttpDelete("image/{publicId}")]
+
+        public async Task<IActionResult> DeleteFile(string publicId)
+        {
+            bool isDeleted = await _storageService.DeleteFileAsync(publicId);
+
+            return isDeleted ? Ok(new { message = "File deleted successfully." }) : StatusCode(StatusCodes.Status500InternalServerError, "Failed to delete the file.");
         }
     }
 
