@@ -35,6 +35,19 @@ namespace Repositories.Implement
             }
         }
 
+        public async Task<User> GetUserByRefreshToken(string refreshToken)
+        {
+            try
+            {
+                var user = await context.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
+                return user!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<User> GetUserByEmail(string email)
         {
             try

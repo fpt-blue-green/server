@@ -14,7 +14,7 @@ namespace Service.Implement.SystemServices.JobService
     public class UploadDataJobService : IJob
     {
         private static readonly IInfluencerRepository _influRepository = new InfluencerRepository();
-        private static ILogger _loggerService = new LoggerService().GetLogger();
+        private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static IEmailService _emailService = new EmailService();
         private static ConfigManager _configManager = new ConfigManager();
         private static EmailTemplate _emailTempalte = new EmailTemplate();

@@ -14,7 +14,7 @@ namespace Service.Implement.SystemService
     {
         private static ConfigManager _configManager = new ConfigManager();
         private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
-        public async Task<string> GenerateJwtToken(string data, bool isAdmin)
+        public async Task<string> GenerateAuthenToken(string data, bool isAdmin)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
@@ -31,7 +31,31 @@ namespace Service.Implement.SystemService
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.AddMinutes(45),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<string> GenerateRefreshToken(string data, bool isAdmin)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
+            var key = Encoding.ASCII.GetBytes(jwtSetting.KeyValue!);
+            var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, data)
+                };
+
+            if (isAdmin)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            }
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddDays(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

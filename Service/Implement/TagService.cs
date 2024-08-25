@@ -10,7 +10,7 @@ namespace Service.Implement
     public class TagService : ITagService
     {
         private static readonly ITagRepository _repository = new TagRepository();
-        private static ILogger _loggerService = new LoggerService().GetLogger();
+        private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private readonly IMapper _mapper;
         public TagService(IMapper mapper)
         {

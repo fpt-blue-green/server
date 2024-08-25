@@ -13,7 +13,7 @@ namespace Service.Implement.UtilityServices
     public class UtilityService : IUtilityService
     {
         private static ConfigManager _configManager = new ConfigManager();
-        private static ILogger _loggerService = new LoggerService().GetLogger();
+        private static ILogger _loggerService = new LoggerService().GetDbLogger();
 
         public IEnumerable<string> GetCitiesWithCountry(string keyword)
         {

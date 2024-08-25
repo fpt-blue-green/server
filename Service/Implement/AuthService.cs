@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
-using BusinessObjects.Enum;
-using BusinessObjects.Models;
 using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.AuthDTO;
+using BusinessObjects.DTOs.AuthDTOs;
 using BusinessObjects.DTOs.UserDTOs;
+using BusinessObjects.Enum;
+using BusinessObjects.Models;
 using Newtonsoft.Json;
 using Repositories.Implement;
 using Repositories.Interface;
@@ -21,7 +22,7 @@ namespace Service.Implement
     public class AuthService : IAuthService
     {
         private static IUserRepository _userRepository = new UserRepository();
-        private static ILogger _loggerService = new LoggerService().GetLogger();
+        private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static IEmailService _emailService = new EmailService();
         private static ConfigManager _configManager = new ConfigManager();
@@ -32,7 +33,7 @@ namespace Service.Implement
             _mapper = mapper;
         }
 
-        public async Task<ApiResponse<string>> Login(LoginDTO loginDTO)
+        public async Task<ApiResponse<TokenResponse>> Login(LoginDTO loginDTO)
         {
             try
             {
@@ -43,7 +44,7 @@ namespace Service.Implement
                 if (user == null)
                 {
                     _loggerService.Warning($"Login: User with email {loginDTO.Email} input wrong email/password.");
-                    return new ApiResponse<string>
+                    return new ApiResponse<TokenResponse>
                     {
                         StatusCode = EHttpStatusCode.Unauthorized,
                         Message = "Email hoặc mật khẩu không hợp lệ.",
@@ -59,7 +60,7 @@ namespace Service.Implement
                     if (bannedEntry != null)
                     {
                         _loggerService.Warning($"Login: User with email {loginDTO.Email} has been banned.");
-                        return new ApiResponse<string>
+                        return new ApiResponse<TokenResponse>
                         {
                             StatusCode = EHttpStatusCode.Forbidden,
                             Message = "Người dùng đã bị cấm. Vui lòng liên hệ bộ phận hỗ trợ nếu có sự nhầm lẫn.",
@@ -73,28 +74,123 @@ namespace Service.Implement
                     }
                 }
 
-                await _userRepository.UpdateUser(user);
 
                 UserTokenDTO userDTO = _mapper.Map<UserTokenDTO>(user);
-                var token = await _securityService.GenerateJwtToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
+                var authenToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
+                var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
+
+                var tokenResponse = new TokenResponse
+                {
+                    AccessToken = authenToken,
+                    RefreshToken = refreshToken
+                };
+
+                user.RefreshToken = refreshToken;
+                await _userRepository.UpdateUser(user);
 
                 _loggerService.Information($"Login: User with email {loginDTO.Email} login sucessfully.");
-                return new ApiResponse<string>
+                return new ApiResponse<TokenResponse>
                 {
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Đăng nhập thành công.",
-                    Data = token
+                    Data = tokenResponse
                 };
             }
             catch (Exception ex)
             {
                 _loggerService.Error("Login: " + ex.ToString());
-                return new ApiResponse<string>
+                return new ApiResponse<TokenResponse>
                 {
                     StatusCode = EHttpStatusCode.InternalServerError,
                     Message = _configManager.SeverErrorMessage,
                     Data = null
                 };
+            }
+        }
+
+        public async Task<ApiResponse<TokenResponse>> RefreshToken(RefreshTokenDTO tokenDTO)
+        {
+            try
+            {
+                var data = await _securityService.ValidateJwtToken(tokenDTO.Token);
+
+                if (data == null)
+                {
+                    _loggerService.Warning($"RefreshToken:  Refresh token Failed {tokenDTO.Token}.");
+
+                    return new ApiResponse<TokenResponse>
+                    {
+                        StatusCode = EHttpStatusCode.BadRequest,
+                        Message = _configManager.TokenInvalidErrorMessage,
+                        Data = null
+                    };
+                }
+
+                var user = await _userRepository.GetUserByRefreshToken(tokenDTO.Token!);
+
+                if (user == null)
+                {
+                    _loggerService.Warning($"RefreshToken:  Refresh token Failed {tokenDTO.Token}.");
+
+                    return new ApiResponse<TokenResponse>
+                    {
+                        StatusCode = EHttpStatusCode.BadRequest,
+                        Message = _configManager.TokenInvalidErrorMessage,
+                        Data = null
+                    };
+                }
+
+                UserTokenDTO userDTO = _mapper.Map<UserTokenDTO>(user);
+                var authenToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
+                var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
+
+                user.RefreshToken = refreshToken;
+                await _userRepository.UpdateUser(user);
+
+                var tokenResponse = new TokenResponse
+                {
+                    AccessToken = authenToken,
+                    RefreshToken = refreshToken
+                };
+
+                _loggerService.Information($"RefreshToken: User with email {user.Email} refresh token sucessfully.");
+                return new ApiResponse<TokenResponse>
+                {
+                    StatusCode = EHttpStatusCode.OK,
+                    Message = "Cập nhập token mới thành công.",
+                    Data = tokenResponse
+                };
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("RefreshToken: " + ex.ToString());
+                return new ApiResponse<TokenResponse>
+                {
+                    StatusCode = EHttpStatusCode.InternalServerError,
+                    Message = _configManager.SeverErrorMessage,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task Logout(string token)
+        {
+            try
+            {
+                var user = await _userRepository.GetUserByRefreshToken(token);
+
+                if (user == null)
+                {
+                    _loggerService.Warning($"Logout:  Refresh token Failed {token}.");
+                }
+
+                user.RefreshToken = null;
+
+                await _userRepository.UpdateUser(user);
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Logout: " + ex.ToString());
             }
         }
 
@@ -114,7 +210,7 @@ namespace Service.Implement
                     };
                 }
 
-                var token = await _securityService.GenerateJwtToken(JsonConvert.SerializeObject(registerDTO), false);
+                var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(registerDTO), false);
 
                 var confirmationUrl = $"{_configManager.WebApiBaseUrl}/Auth/validateAuthen?action={(int)EAuthAction.Register}&token={token}";
 
@@ -152,7 +248,7 @@ namespace Service.Implement
                     return new ApiResponse<string>
                     {
                         StatusCode = EHttpStatusCode.BadRequest,
-                        Message = "Lỗi thông tin người dùng. Vui lòng đăng nhập lại.",
+                        Message = _configManager.TokenInvalidErrorMessage,
                         Data = null
                     };
                 }
@@ -185,7 +281,7 @@ namespace Service.Implement
 
                 userGet.Password = newPasswordHash;
 
-                var tokenChangePass = await _securityService.GenerateJwtToken(JsonConvert.SerializeObject(userGet), false);
+                var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet), false);
 
                 var confirmationUrl = $"{_configManager.WebApiBaseUrl}/Auth/validateAuthen?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
 
@@ -232,7 +328,7 @@ namespace Service.Implement
 
                 userGet.Password = newPasswordHash;
 
-                var token = await _securityService.GenerateJwtToken(JsonConvert.SerializeObject(userGet), false);
+                var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet), false);
 
                 var confirmationUrl = $"{_configManager.WebApiBaseUrl}/Auth/validateAuthen?action={(int)EAuthAction.ForgotPassword}&token={token}";
 
@@ -307,7 +403,7 @@ namespace Service.Implement
                     IsBanned = false,
                     DisplayName = registerDTO.DisplayName,
                     IsDeleted = false,
-                    Role = (int)ERole.Influencer,
+                    Role = (int)registerDTO.Role,
                     CreatedAt = DateTime.UtcNow,
                 };
 
