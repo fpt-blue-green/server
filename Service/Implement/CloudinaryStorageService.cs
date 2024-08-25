@@ -10,7 +10,7 @@ namespace Service.Implement
     public class CloudinaryStorageService : ICloudinaryStorageService
     {
         private readonly Cloudinary _cloudinary;
-        private static ILogger _loggerService = new LoggerService().GetLogger();
+        private static ILogger _loggerService = new LoggerService().GetDbLogger();
 
         public CloudinaryStorageService(IConfiguration config)
         {

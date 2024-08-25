@@ -15,7 +15,7 @@ namespace Service.Implement
     public class InfluencerService : IInfluencerService
     {
         private static readonly IInfluencerRepository _repository = new InfluencerRepository();
-        private static ILogger _loggerService = new LoggerService().GetLogger();
+        private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private readonly IMapper _mapper;
         private readonly ConfigManager _config;
 

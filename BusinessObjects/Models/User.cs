@@ -13,6 +13,8 @@ public partial class User
 
     public int Role { get; set; }
 
+    public string? RefreshToken { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }

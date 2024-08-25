@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.DTOs.AuthDTO;
+using BusinessObjects.DTOs.AuthDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service.Domain;
 using Service.Interface;
@@ -22,6 +23,20 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
             var result = await _authenService.Login(loginDTO);
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenDTO tokenDTO)
+        {
+            await _authenService.Logout(tokenDTO.Token);
+            return Ok();
+        }
+
+        [HttpPost("refreshToken")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO tokenDTO)
+        {
+            var result = await _authenService.RefreshToken(tokenDTO);
             return StatusCode((int)result.StatusCode, result);
         }
 

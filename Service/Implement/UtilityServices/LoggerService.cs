@@ -3,7 +3,8 @@ using Serilog;
 
 public class LoggerService
 {
-    private static ILogger _logger;
+    private static ILogger _consoleLogger;
+    private static ILogger _Logger;
     private static bool isConfigured = false;
 
     public LoggerService()
@@ -21,7 +22,13 @@ public class LoggerService
             .AddJsonFile("Resources/appsettings.json")
             .Build();
 
-        _logger = new LoggerConfiguration()
+        // Logger cho console
+        _consoleLogger = new LoggerConfiguration()
+            .WriteTo.Console() // Log ra console
+            .CreateLogger();
+
+        // Logger cho cơ sở dữ liệu
+        _Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
             .CreateLogger();
 
@@ -29,17 +36,28 @@ public class LoggerService
         AppDomain.CurrentDomain.ProcessExit += (sender, args) => CloseAndFlush();
     }
 
-    public ILogger GetLogger()
+    public ILogger GetConsoleLogger()
     {
-        return _logger;
+        return _consoleLogger;
+    }
+
+    public ILogger GetDbLogger()
+    {
+        return _Logger;
     }
 
     public void CloseAndFlush()
     {
-        if (_logger != null)
+        if (_consoleLogger != null)
         {
             Log.CloseAndFlush();
-            _logger = null;
+            _consoleLogger = null;
+        }
+
+        if (_Logger != null)
+        {
+            Log.CloseAndFlush();
+            _Logger = null;
         }
     }
 }
