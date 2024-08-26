@@ -11,6 +11,8 @@ public partial class Campaign
 
     public string Name { get; set; } = null!;
 
+    public string Title { get; set; } = null!;
+
     public string? Description { get; set; }
 
     public DateTime? StartDate { get; set; }
@@ -27,13 +29,13 @@ public partial class Campaign
 
     public bool? IsDeleted { get; set; }
 
-    public virtual ICollection<AdsCampaign> AdsCampaigns { get; set; } = new List<AdsCampaign>();
-
     public virtual Brand Brand { get; set; } = null!;
 
-    public virtual ICollection<CampaignTag> CampaignTags { get; set; } = new List<CampaignTag>();
-
-    public virtual ICollection<InfluencerJobHistory> InfluencerJobHistories { get; set; } = new List<InfluencerJobHistory>();
+    public virtual ICollection<CampaignImage> CampaignImages { get; set; } = new List<CampaignImage>();
 
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
+
+    public virtual ICollection<Requirement> Requirements { get; set; } = new List<Requirement>();
+
+    public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
 }

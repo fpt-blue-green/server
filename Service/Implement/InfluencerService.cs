@@ -71,12 +71,12 @@ namespace Service.Implement
 
                 #region Filter
 
-                if (filter.TagIds != null && filter.TagIds.Any())
+            /*    if (filter.TagIds != null && filter.TagIds.Any())
                 {
                     allInfluencers = allInfluencers.Where(i =>
                         i.InfluencerTags.Any(it => filter.TagIds.Contains(it.TagId))
                     ).ToList();
-                }
+                }*/
 
                 if (filter.Genders != null && filter.Genders.Any())
                 {
@@ -103,8 +103,8 @@ namespace Service.Implement
                 if (!string.IsNullOrEmpty(filter.SearchString))
                 {
                     allInfluencers = allInfluencers.Where(i =>
-                        i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase) ||
-                        i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
+                        i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase) 
+                       // ||   i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
                     ).ToList();
                 }
                 #endregion
@@ -188,14 +188,14 @@ namespace Service.Implement
                 {
                     UserId = Guid.Parse("01a675f6-a02b-4e97-9266-ab8d3e054864"),
                     FullName = influencerRequestDTO.FullName,
-                    NickName = influencerRequestDTO.NickName,
+                    //NickName = influencerRequestDTO.NickName,
                     Phone = influencerRequestDTO.Phone,
                     AveragePrice = influencerRequestDTO.AveragePrice,
                     Channels = new List<Channel>(),
-                    Deals = new List<Deal>(),
+                   // Deals = new List<Deal>(),
                     Feedbacks = new List<Feedback>(),
-                    InfluencerJobHistories = new List<InfluencerJobHistory>(),
-                    InfluencerTags = new List<InfluencerTag>(),
+                   // InfluencerJobHistories = new List<InfluencerJobHistory>(),
+                   // InfluencerTags = new List<InfluencerTag>(),
                     Packages = new List<Package>(),
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow
