@@ -28,7 +28,7 @@ builder.Services.AddAuthorization(options =>
 // 4. Đăng ký các dịch vụ tùy chỉnh cho dự án
 builder.Services.AddProjectServices();
 builder.Services.AddQuartzServices();
-builder.Services.AddJwtAuthentication();
+//builder.Services.AddJwtAuthentication();
 
 // 5. Cấu hình Swagger với JWT Bearer Authentication
 builder.Services.AddSwaggerGen(c =>

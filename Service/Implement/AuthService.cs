@@ -52,7 +52,7 @@ namespace Service.Implement
                     };
                 }
 
-                if (user.IsBanned == true)
+               /* if (user.IsBanned == true)
                 {
                     var bannedEntry = user.BannedUserUsers
                         .FirstOrDefault(b => b.UnbanDate == null || b.UnbanDate > DateTime.UtcNow);
@@ -72,7 +72,7 @@ namespace Service.Implement
                         user.IsBanned = false;
                         await _userRepository.UpdateUser(user);
                     }
-                }
+                }*/
 
 
                 UserTokenDTO userDTO = _mapper.Map<UserTokenDTO>(user);
@@ -400,7 +400,7 @@ namespace Service.Implement
                     Id = Guid.NewGuid(),
                     Email = registerDTO!.Email,
                     Password = _securityService.ComputeSha256Hash(registerDTO.Password),
-                    IsBanned = false,
+                   // IsBanned = false,
                     DisplayName = registerDTO.DisplayName,
                     IsDeleted = false,
                     Role = (int)registerDTO.Role,

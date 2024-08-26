@@ -11,6 +11,10 @@ public partial class Brand
 
     public string Name { get; set; } = null!;
 
+    public string Address { get; set; } = null!;
+
+    public string Description { get; set; } = null!;
+
     public bool? IsPremium { get; set; }
 
     public DateTime? CreatedAt { get; set; }
@@ -18,8 +22,6 @@ public partial class Brand
     public DateTime? ModifiedAt { get; set; }
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
-
-    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     public virtual User User { get; set; } = null!;
 }

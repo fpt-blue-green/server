@@ -9,9 +9,7 @@ public partial class Tag
 
     public string? TagName { get; set; }
 
-    public bool? IsPremiumTag { get; set; }
+    public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 
-    public virtual ICollection<CampaignTag> CampaignTags { get; set; } = new List<CampaignTag>();
-
-    public virtual ICollection<InfluencerTag> InfluencerTags { get; set; } = new List<InfluencerTag>();
+    public virtual ICollection<Influencer> Influencers { get; set; } = new List<Influencer>();
 }

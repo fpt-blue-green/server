@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace BusinessObjects.Models;
 
-public partial class Image
+public partial class InfluencerImage
 {
     public Guid Id { get; set; }
 
-    public Guid UserId { get; set; }
+    public Guid InfluencerId { get; set; }
 
     public string Url { get; set; } = null!;
 
@@ -17,7 +17,5 @@ public partial class Image
 
     public DateTime? ModifiedAt { get; set; }
 
-    public int? ImageType { get; set; }
-
-    public virtual User User { get; set; } = null!;
+    public virtual Influencer Influencer { get; set; } = null!;
 }
