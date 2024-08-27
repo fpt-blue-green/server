@@ -2,13 +2,19 @@
 using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.DTOs.InfluencerDTOs;
+using BusinessObjects.DTOs.UserDTOs;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
+using CloudinaryDotNet;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
 using Service.Domain;
+using Service.Implement.SystemService;
 using Service.Interface;
+using Service.Interface.HelperService;
 
 namespace Service.Implement
 {
@@ -16,12 +22,22 @@ namespace Service.Implement
     {
         private static readonly IInfluencerRepository _repository = new InfluencerRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
+        private static ISecurityService _securityService = new SecurityService();
+        private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
         private readonly ConfigManager _config;
+        private readonly Cloudinary _cloudinary;
 
-        public InfluencerService(IMapper mapper)
+        public InfluencerService(IMapper mapper, IConfiguration config)
         {
             _mapper = mapper;
+            // Initialize Cloudinary client using the configuration
+            var account = new Account(
+                config["Cloudinary:CloudName"],
+                config["Cloudinary:ApiKey"],
+                config["Cloudinary:ApiSecret"]
+            );
+            _cloudinary = new Cloudinary(account);
         }
         public async Task<List<InfluencerDTO>> GetTopInfluencer()
         {
@@ -71,12 +87,12 @@ namespace Service.Implement
 
                 #region Filter
 
-            /*    if (filter.TagIds != null && filter.TagIds.Any())
-                {
-                    allInfluencers = allInfluencers.Where(i =>
-                        i.InfluencerTags.Any(it => filter.TagIds.Contains(it.TagId))
-                    ).ToList();
-                }*/
+                /*    if (filter.TagIds != null && filter.TagIds.Any())
+                    {
+                        allInfluencers = allInfluencers.Where(i =>
+                            i.InfluencerTags.Any(it => filter.TagIds.Contains(it.TagId))
+                        ).ToList();
+                    }*/
 
                 if (filter.Genders != null && filter.Genders.Any())
                 {
@@ -103,8 +119,8 @@ namespace Service.Implement
                 if (!string.IsNullOrEmpty(filter.SearchString))
                 {
                     allInfluencers = allInfluencers.Where(i =>
-                        i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase) 
-                       // ||   i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
+                        i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
+                    // ||   i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
                     ).ToList();
                 }
                 #endregion
@@ -180,39 +196,91 @@ namespace Service.Implement
             }
         }
 
-        public async Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO)
+        public async Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO, string token)
         {
             try
             {
-                var entity = new Influencer()
+                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDescrypt == null)
                 {
-                    UserId = Guid.Parse("01a675f6-a02b-4e97-9266-ab8d3e054864"),
-                    FullName = influencerRequestDTO.FullName,
-                    //NickName = influencerRequestDTO.NickName,
-                    Phone = influencerRequestDTO.Phone,
-                    AveragePrice = influencerRequestDTO.AveragePrice,
-                    Channels = new List<Channel>(),
-                   // Deals = new List<Deal>(),
-                    Feedbacks = new List<Feedback>(),
-                   // InfluencerJobHistories = new List<InfluencerJobHistory>(),
-                   // InfluencerTags = new List<InfluencerTag>(),
-                    Packages = new List<Package>(),
-                    CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = DateTime.UtcNow
-                };
+                    return new ApiResponse<Influencer>
+                    {
+                        StatusCode = EHttpStatusCode.BadRequest,
+                        Message = _configManager.TokenInvalidErrorMessage,
+                        Data = null
+                    };
+                }
 
+                var user = JsonConvert.DeserializeObject<UserTokenDTO>(tokenDescrypt);
 
-                await _repository.Create(entity);
+                var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
+                newInfluencer.Id = Guid.NewGuid();
+                newInfluencer.UserId = user.Id;
+                newInfluencer.IsPublish = true;
+                newInfluencer.CreatedAt = DateTime.UtcNow;
+
+                await _repository.Create(newInfluencer);
+
                 return new ApiResponse<Influencer>
                 {
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Tạo tài khoản thành công.",
-                    Data = _mapper.Map<Influencer>(entity)
+                    Data = _mapper.Map<Influencer>(newInfluencer)
                 };
             }
             catch (Exception ex)
             {
                 _loggerService.Error("Create New Influencer: " + ex.ToString());
+                return new ApiResponse<Influencer>
+                {
+                    StatusCode = EHttpStatusCode.InternalServerError,
+                    Message = _config.SeverErrorMessage,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ApiResponse<Influencer>> UpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, string token)
+        {
+            try
+            {
+                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDescrypt == null)
+                {
+                    return new ApiResponse<Influencer>
+                    {
+                        StatusCode = EHttpStatusCode.BadRequest,
+                        Message = _configManager.TokenInvalidErrorMessage,
+                        Data = null
+                    };
+                }
+
+                var user = JsonConvert.DeserializeObject<UserTokenDTO>(tokenDescrypt);
+
+                var influencer = GetInfluencerByUserId(user.Id);
+                if (influencer == null)
+                {
+                    return new ApiResponse<Influencer>
+                    {
+                        StatusCode = EHttpStatusCode.BadRequest,
+                        Message = _configManager.InvalidInfluencer,
+                        Data = null
+                    };
+                }
+
+                var influencerUpdated = _mapper.Map<Influencer>(influencerRequestDTO);
+                await _repository.Update(influencerUpdated);
+
+                return new ApiResponse<Influencer>
+                {
+                    StatusCode = EHttpStatusCode.OK,
+                    Message = "Update influencer thành công.",
+                    Data = _mapper.Map<Influencer>(influencer)
+                };
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Update Influencer: " + ex.ToString());
                 return new ApiResponse<Influencer>
                 {
                     StatusCode = EHttpStatusCode.InternalServerError,
@@ -240,6 +308,11 @@ namespace Service.Implement
             return _mapper.Map<InfluencerDTO>(result);
         }
 
+        public async Task<InfluencerDTO> GetInfluencerByUserId(Guid userId)
+        {
+            var result = await _repository.GetByUserId(userId);
+            return _mapper.Map<InfluencerDTO>(result);
+        }
 
         public async Task UpdateInfluencer(Influencer influencer)
         {

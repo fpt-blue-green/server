@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.DTOs.InfluencerDTOs;
+using BusinessObjects.Models;
 
 namespace Repositories.Interface
 {
@@ -6,6 +7,7 @@ namespace Repositories.Interface
     {
         Task<IEnumerable<Influencer>> GetAlls();
         Task<Influencer> GetById(Guid id);
+        Task<Influencer> GetByUserId(Guid userId);
         Task Create(Influencer influencer);
         Task Update(Influencer influencer);
         Task Delete(Guid id);

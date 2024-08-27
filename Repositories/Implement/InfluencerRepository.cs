@@ -40,6 +40,21 @@ namespace Repositories.Implement
             }
             return influencer;
         }
+
+        public async Task<Influencer> GetByUserId(Guid userId)
+        {
+            var influencer = new Influencer();
+            try
+            {
+                influencer = await context.Influencers.SingleOrDefaultAsync(s => s.UserId == userId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return influencer;
+        }
+
         public async Task Create(Influencer influencer)
         {
             try
