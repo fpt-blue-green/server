@@ -4,20 +4,26 @@ using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.DTOs.InfluencerDTOs;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
+using Newtonsoft.Json;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
 using Service.Domain;
+using Service.Implement.SystemService;
 using Service.Interface;
+using Service.Interface.HelperService;
 
 namespace Service.Implement
 {
     public class InfluencerService : IInfluencerService
     {
-        private static readonly IInfluencerRepository _repository = new InfluencerRepository();
+        private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
+        private static readonly ITagRepository _tagRepository = new TagRepository();
+
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private readonly IMapper _mapper;
         private readonly ConfigManager _config;
+        private static ISecurityService _securityService = new SecurityService();
 
         public InfluencerService(IMapper mapper)
         {
@@ -28,7 +34,7 @@ namespace Service.Implement
             var result = new List<InfluencerDTO>();
             try
             {
-                var topInflus = (await _repository.GetAlls()).OrderBy(s => s.RateAverage).Take(10);
+                var topInflus = (await _influencerRepository.GetAlls()).OrderBy(s => s.RateAverage).Take(10);
 
                 if (topInflus.Any())
                 {
@@ -47,7 +53,7 @@ namespace Service.Implement
             var result = new List<InfluencerDTO>();
             try
             {
-                var topInflus = (await _repository.GetAlls())
+                var topInflus = (await _influencerRepository.GetAlls())
                 .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Instagram))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
@@ -67,7 +73,7 @@ namespace Service.Implement
         {
             try
             {
-                var allInfluencers = await _repository.GetAlls();
+                var allInfluencers = await _influencerRepository.GetAlls();
 
                 #region Filter
 
@@ -150,7 +156,7 @@ namespace Service.Implement
         {
             try
             {
-                var topInflus = (await _repository.GetAlls())
+                var topInflus = (await _influencerRepository.GetAlls())
                 .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Tiktok))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
@@ -166,12 +172,11 @@ namespace Service.Implement
         {
             try
             {
-                var topInflus = (await _repository.GetAlls())
+                var topInflus = (await _influencerRepository.GetAlls())
                 .Where(i => i.Channels.Any(c => c.Type == (int)EPlatform.Youtube))
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
                 return _mapper.Map<List<InfluencerDTO>>(topInflus);
-
             }
             catch (Exception ex)
             {
@@ -202,7 +207,7 @@ namespace Service.Implement
                 };
 
 
-                await _repository.Create(entity);
+                await _influencerRepository.Create(entity);
                 return new ApiResponse<Influencer>
                 {
                     StatusCode = EHttpStatusCode.OK,
@@ -221,29 +226,155 @@ namespace Service.Implement
                 };
             }
         }
-
         public async Task DeleteInfluencer(Guid id)
         {
-            await _repository.Delete(id);
+            await _influencerRepository.Delete(id);
         }
 
         public async Task<List<InfluencerDTO>> GetAllInfluencers()
         {
-            var result = await _repository.GetAlls();
+            var result = await _influencerRepository.GetAlls();
             return _mapper.Map<List<InfluencerDTO>>(result);
-
         }
 
         public async Task<InfluencerDTO> GetInfluencerById(Guid id)
         {
-            var result = await _repository.GetById(id);
+            var result = await _influencerRepository.GetById(id);
             return _mapper.Map<InfluencerDTO>(result);
         }
-
-
         public async Task UpdateInfluencer(Influencer influencer)
         {
-            await _repository.Update(influencer);
+            await _influencerRepository.Update(influencer);
+        }
+
+        public async Task<List<TagDTO>> GetTagsByInfluencer(string token)
+        {
+            var user = await getUserByTokenAsync(token);
+            if (user != null)
+            {
+                var influencer = await _influencerRepository.GetByUserId(user.Id);
+                if (influencer != null)
+                {
+                    var listTags =  await _influencerRepository.GetTagsByInfluencer(influencer.Id);
+                    if(listTags != null && listTags.Any())
+                    {
+						var listTagsRes = _mapper.Map<List<TagDTO>>(listTags);
+						return listTagsRes;
+                    }
+                }
+            }
+            return new List<TagDTO>();
+        }
+
+        public async Task<ApiResponse<object>> AddTagToInfluencer(string token, List<Guid> tagIds)
+        {
+            try
+            {
+				var duplicateTagIds = tagIds.GroupBy(t => t)
+									.Where(g => g.Count() > 1)
+									.Select(g => g.Key)
+									.ToList();
+				if (duplicateTagIds.Any())
+				{
+					return new ApiResponse<object>
+					{
+						Data = null,
+						Message = "Tag không được trùng lặp.",
+						StatusCode = EHttpStatusCode.BadRequest,
+					};
+				}
+
+				var user = await getUserByTokenAsync(token);
+                if (user != null)
+                {
+                    var influencer = await _influencerRepository.GetByUserId(user.Id);
+                    if (influencer != null)
+                    {
+						var influencerId = influencer.Id;
+						var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
+						var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
+						if (!newTags.Any())
+						{
+							return new ApiResponse<object>
+							{
+								Data = null,
+								Message = "Tất cả các tag trong danh sách đã tồn tại.",
+								StatusCode = EHttpStatusCode.BadRequest,
+							};
+						}
+						foreach (var tagId in newTags)
+                        {
+                            await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
+                        }
+                        return new ApiResponse<object>
+                        {
+                            Data = null,
+                            Message = "Tạo tag thành công",
+                            StatusCode = EHttpStatusCode.OK,
+                        };
+                    }
+                }
+            }catch{
+            }
+            return new ApiResponse<object>
+            {
+                Data = null,
+                Message = "Tạo tag thành công",
+                StatusCode = EHttpStatusCode.OK,
+            };
+        }
+        public async Task<User> getUserByTokenAsync(string token)
+        {
+            var tokenDescrypt = await _securityService.ValidateJwtToken(token);
+            if (tokenDescrypt == null)
+            {
+                throw new Exception("Invalid token.");
+            }
+            var user = JsonConvert.DeserializeObject<User>(tokenDescrypt);
+            return user;
+        }
+
+        public async Task<ApiResponse<object>> UpdateTagsForInfluencer(string token, List<Guid> tagIds)
+        {
+            try
+            {
+				var duplicateTagIds = tagIds.GroupBy(t => t)
+									.Where(g => g.Count() > 1)
+									.Select(g => g.Key)
+									.ToList();
+				if (duplicateTagIds.Any())
+				{
+					return new ApiResponse<object>
+					{
+						Data = null,
+						Message = "Tag không được trùng lặp.",
+						StatusCode = EHttpStatusCode.BadRequest,
+					};
+				}
+				var user = await getUserByTokenAsync(token);
+                if (user != null)
+                {
+                    var influencer = await _influencerRepository.GetByUserId(user.Id);
+                    if (influencer != null)
+                    {
+                        await _influencerRepository.UpdateTagsForInfluencer(influencer.Id, tagIds);
+                        return new ApiResponse<object>
+                        {
+                            Data = null,
+                            Message = "Cập nhật thành công",
+                            StatusCode = EHttpStatusCode.OK,
+                        };
+                    }
+                }
+            }catch 
+            {
+            }
+            return new ApiResponse<object>
+            {
+                Data = null,
+                Message = "Cập nhật thất bại ",
+                StatusCode = EHttpStatusCode.BadRequest,
+            };
         }
     }
 }

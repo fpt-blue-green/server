@@ -7,7 +7,9 @@ public partial class Tag
 {
     public Guid Id { get; set; }
 
-    public string? TagName { get; set; }
+    public string? Name { get; set; }
+
+    public bool? IsPremium { get; set; }
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 

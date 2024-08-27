@@ -26,7 +26,7 @@ namespace BusinessObjects.DTOs.InfluencerDTOs
         public decimal? AveragePrice { get; set; }
 
         public virtual ICollection<ChannelDTO> Channels { get; set; } = new List<ChannelDTO>();
-        public virtual ICollection<TagRequestDTO> InfluencerTags { get; set; } = new List<TagRequestDTO>();
+        public virtual ICollection<TagDTO> Tags { get; set; } = new List<TagDTO>();
         public virtual ICollection<PackageDTO> Packages { get; set; } = new List<PackageDTO>();
     }
 }

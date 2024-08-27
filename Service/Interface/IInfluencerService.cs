@@ -10,6 +10,9 @@ namespace Service.Interface
         Task<List<InfluencerDTO>> GetAllInfluencers();
         Task<List<InfluencerDTO>> GetAllInfluencers(InfluencerFilterDTO filter);
         Task<InfluencerDTO> GetInfluencerById(Guid id);
+        Task<List<TagDTO>> GetTagsByInfluencer(string token);
+		Task<ApiResponse<object>> AddTagToInfluencer(string token, List<Guid> tagIds);
+		Task<ApiResponse<object>> UpdateTagsForInfluencer(string token, List<Guid> tagIds);
         Task<List<InfluencerDTO>> GetTopInfluencer();
         Task<List<InfluencerDTO>> GetTopInstagramInfluencer();
         Task<List<InfluencerDTO>> GetTopTiktokInfluencer();
