@@ -65,6 +65,8 @@ public partial class PostgresContext : DbContext
             .HasPostgresEnum("auth", "one_time_token_type", new[] { "confirmation_token", "reauthentication_token", "recovery_token", "email_change_token_new", "email_change_token_current", "phone_change_token" })
             .HasPostgresEnum("pgsodium", "key_status", new[] { "default", "valid", "invalid", "expired" })
             .HasPostgresEnum("pgsodium", "key_type", new[] { "aead-ietf", "aead-det", "hmacsha512", "hmacsha256", "auth", "shorthash", "generichash", "kdf", "secretbox", "secretstream", "stream_xchacha20" })
+            .HasPostgresEnum("realtime", "action", new[] { "INSERT", "UPDATE", "DELETE", "TRUNCATE", "ERROR" })
+            .HasPostgresEnum("realtime", "equality_op", new[] { "eq", "neq", "lt", "lte", "gt", "gte", "in" })
             .HasPostgresExtension("extensions", "pg_stat_statements")
             .HasPostgresExtension("extensions", "pgcrypto")
             .HasPostgresExtension("extensions", "pgjwt")
@@ -341,9 +343,10 @@ public partial class PostgresContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("tags_pkey");
 
-            entity.HasIndex(e => e.TagName, "tags_tagname_key").IsUnique();
+            entity.HasIndex(e => e.Name, "tags_tagname_key").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.IsPremium).HasDefaultValueSql("false");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -353,6 +356,7 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.IsBanned).HasDefaultValueSql("false");
             entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
             entity.Property(e => e.Password).HasMaxLength(100);
         });

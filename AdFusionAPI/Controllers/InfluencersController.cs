@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.DTOs.InfluencerDTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -103,12 +104,38 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)newInflu.StatusCode, newInflu);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
-        {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var influencer = await _influencerRepository.CreateInfluencer(influencerRequestDTO, token);
-            return StatusCode((int)influencer.StatusCode, influencer);
-        }
-    }
+		[HttpGet("influencerTags")]
+		public async Task<ActionResult<List<TagDTO>>> GetTagsByInfluencer()
+		{
+			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+			var result = new List<TagDTO>();
+			try
+			{
+				result = await _influencerRepository.GetTagsByInfluencer(token);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			return Ok(result);
+		}
+
+
+		[HttpPost("influencerTags/add")]
+		public async Task<IActionResult> CreateNewInfluencer([FromBody] List<Guid> listTags)
+		{
+			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+			var result = await _influencerRepository.AddTagToInfluencer(token, listTags);
+			return StatusCode((int)result.StatusCode, result);
+		}
+
+		[HttpPost("influencerTags/update")]
+		public async Task<IActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
+		{
+			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+			var result = await _influencerRepository.UpdateTagsForInfluencer(token, listTags);
+			return StatusCode((int)result.StatusCode, result);
+
+		}
+	}
 }

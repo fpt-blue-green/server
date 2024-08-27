@@ -15,7 +15,7 @@ namespace Repositories.Implement
             {
                 influencers = await context.Influencers
                     .Include(i => i.Channels)
-                  //  .Include(i => i.InfluencerTags)
+                    .Include(i => i.Tags)
                     .Include(i => i.Packages)
                     .ToListAsync();
             }
@@ -92,6 +92,75 @@ namespace Repositories.Implement
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Influencer> GetByUserId(Guid id)
+        {
+            var influencer = new Influencer();
+            try
+            {
+                influencer = await context.Influencers.FirstOrDefaultAsync(i => i.UserId == id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return influencer;
+        }
+
+        public async Task<List<Tag>> GetTagsByInfluencer(Guid influencerId)
+        {
+            var influencer = await context.Influencers.Include(i => i.Tags)
+                                                .FirstOrDefaultAsync(i => i.Id == influencerId);
+            return influencer?.Tags.ToList() ?? new List<Tag>();
+        }
+
+        public async Task AddTagToInfluencer(Guid influencerId, Guid tagId)
+        {
+            var influencer = await context.Influencers.Include(i => i.Tags) 
+                                              .FirstOrDefaultAsync(i => i.Id == influencerId);
+
+            var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == tagId);
+
+
+            if (influencer != null && tag != null)
+            {
+                influencer.Tags.Add(tag);
+                await context.SaveChangesAsync();
+            }
+        }
+/*
+        public async Task RemoveTagFromInfluencer(Guid influencerId, Guid tagId)
+        {
+            var influencer = await context.Influencers.Include(i => i.Tags)
+                                                .FirstOrDefaultAsync(i => i.Id == influencerId);
+
+            if (influencer != null)
+            {
+                var tagToRemove = influencer.Tags.FirstOrDefault(t => t.Id == tagId);
+
+                if (tagToRemove != null)
+                {
+                    influencer.Tags.Remove(tagToRemove);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }*/
+
+        public async Task UpdateTagsForInfluencer(Guid influencerId, List<Guid> tagIds)
+        {
+            var influencer = await context.Influencers.Include(i => i.Tags)
+                                                .FirstOrDefaultAsync(i => i.Id == influencerId);
+            if (influencer != null)
+            {
+                influencer.Tags.Clear();
+                var newTags = await context.Tags.Where(t => tagIds.Contains(t.Id)).ToListAsync();
+                foreach (var tag in newTags)
+                {
+                    influencer.Tags.Add(tag);
+                }
+                await context.SaveChangesAsync();
             }
         }
     }
