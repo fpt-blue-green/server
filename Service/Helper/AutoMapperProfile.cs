@@ -14,8 +14,9 @@ namespace Service.Helper
             #region Influencer
             CreateMap<Influencer, InfluencerDTO>()
                 .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.Channels))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags))
                 .ForMember(dest => dest.Packages, opt => opt.MapFrom(src => src.Packages));
+            CreateMap<InfluencerRequestDTO, InfluencerDTO>();
+            CreateMap<InfluencerDTO, Influencer>();
             CreateMap<InfluencerRequestDTO, Influencer>();
             CreateMap<Channel, ChannelDTO>();
             CreateMap<InfluencerImage, ImagesDTO>();

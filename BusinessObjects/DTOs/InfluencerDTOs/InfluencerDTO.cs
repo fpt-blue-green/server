@@ -12,6 +12,8 @@ namespace BusinessObjects.DTOs.InfluencerDTOs
 
         public string NickName { get; set; } = null!;
 
+        public string Slug {  get; set; }
+
         public int? Gender { get; set; }
         public string Summarise { get; set; }
         public string? Description { get; set; }

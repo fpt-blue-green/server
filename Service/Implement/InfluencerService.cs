@@ -3,6 +3,7 @@ using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.DTOs.InfluencerDTOs;
 using BusinessObjects.DTOs.UserDTOs;
+using BusinessObjects.DTOs.UserDTOs;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
 using CloudinaryDotNet;
@@ -26,6 +27,8 @@ namespace Service.Implement
         private static readonly ITagRepository _tagRepository = new TagRepository();
 
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
+        private static ISecurityService _securityService = new SecurityService();
+        private static ConfigManager _configManager = new ConfigManager();
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
@@ -88,6 +91,12 @@ namespace Service.Implement
                             i.InfluencerTags.Any(it => filter.TagIds.Contains(it.TagId))
                         ).ToList();
                     }*/
+                /*    if (filter.TagIds != null && filter.TagIds.Any())
+                    {
+                        allInfluencers = allInfluencers.Where(i =>
+                            i.InfluencerTags.Any(it => filter.TagIds.Contains(it.TagId))
+                        ).ToList();
+                    }*/
 
                 if (filter.Genders != null && filter.Genders.Any())
                 {
@@ -114,6 +123,8 @@ namespace Service.Implement
                 if (!string.IsNullOrEmpty(filter.SearchString))
                 {
                     allInfluencers = allInfluencers.Where(i =>
+                        i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
+                    // ||   i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
                         i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
                     // ||   i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
                     ).ToList();
@@ -191,6 +202,7 @@ namespace Service.Implement
         }
 
         public async Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO, string token)
+        public async Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO, string token)
         {
             try
             {
@@ -219,6 +231,7 @@ namespace Service.Implement
                 {
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Tạo tài khoản thành công.",
+                    Data = _mapper.Map<Influencer>(newInfluencer)
                     Data = _mapper.Map<Influencer>(newInfluencer)
                 };
             }
@@ -309,7 +322,8 @@ namespace Service.Implement
 
         public async Task UpdateInfluencer(Influencer influencer)
         {
-            await _influencerRepository.Update(influencer);
+            var result = await _influencerRepository.GetByUserId(userId);
+            return _mapper.Map<InfluencerDTO>(result);
         }
 
         public async Task<ApiResponse<List<TagDTO>>> GetTagsByInfluencer(string token)
