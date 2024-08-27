@@ -271,9 +271,9 @@ namespace Service.Implement
                     };
                 }
 
-                var email = JsonConvert.DeserializeObject<UserTokenDTO>(userData)!.Email;
+                var email = JsonConvert.DeserializeObject<UserDTO>(userData)!.Email;
 
-                var userGet = await _userRepository.GetUserByEmail(email);
+                var userGet = await _userRepository.GetUserByEmail(email!);
 
                 if (userGet == null)
                 {
