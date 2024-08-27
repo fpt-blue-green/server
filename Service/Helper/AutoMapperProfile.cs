@@ -24,7 +24,7 @@ namespace Service.Helper
             CreateMap<Tag, TagDTO>();
             #endregion
             #region User
-            CreateMap<User, UserTokenDTO>();
+            CreateMap<User, UserDTO>();
             #endregion
         }
     }

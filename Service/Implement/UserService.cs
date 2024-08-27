@@ -72,7 +72,11 @@ namespace Service.Implement
 
                 _loggerService.Information("End to upload image");
 
+<<<<<<< HEAD
                 var user = JsonConvert.DeserializeObject<UserTokenDTO>(tokenDescrypt);
+=======
+                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDescrypt);
+>>>>>>> 36665ee ([ADF-96] resolve conflict)
 
                 user.Avatar = uploadResult.SecureUrl.ToString();
                 var userUpdated = _mapper.Map<User>(user);

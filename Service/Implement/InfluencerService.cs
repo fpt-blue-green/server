@@ -26,6 +26,7 @@ namespace Service.Implement
         private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
         private readonly ConfigManager _config;
+<<<<<<< HEAD
         private readonly Cloudinary _cloudinary;
 
         public InfluencerService(IMapper mapper, IConfiguration config)
@@ -38,6 +39,12 @@ namespace Service.Implement
                 config["Cloudinary:ApiSecret"]
             );
             _cloudinary = new Cloudinary(account);
+=======
+        public InfluencerService(IMapper mapper)
+        {
+            _mapper = mapper;
+            
+>>>>>>> 36665ee ([ADF-96] resolve conflict)
         }
         public async Task<List<InfluencerDTO>> GetTopInfluencer()
         {
@@ -211,7 +218,11 @@ namespace Service.Implement
                     };
                 }
 
+<<<<<<< HEAD
                 var user = JsonConvert.DeserializeObject<UserTokenDTO>(tokenDescrypt);
+=======
+                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDescrypt);
+>>>>>>> 36665ee ([ADF-96] resolve conflict)
 
                 var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
                 newInfluencer.Id = Guid.NewGuid();
@@ -255,7 +266,11 @@ namespace Service.Implement
                     };
                 }
 
+<<<<<<< HEAD
                 var user = JsonConvert.DeserializeObject<UserTokenDTO>(tokenDescrypt);
+=======
+                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDescrypt);
+>>>>>>> 36665ee ([ADF-96] resolve conflict)
 
                 var influencer = GetInfluencerByUserId(user.Id);
                 if (influencer == null)

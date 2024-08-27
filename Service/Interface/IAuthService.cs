@@ -7,7 +7,7 @@ namespace Service.Interface
 {
     public interface IAuthService
     {
-        Task<ApiResponse<UserTokenDTO>> Login(LoginDTO loginDTO);
+        Task<ApiResponse<UserDTO>> Login(LoginDTO loginDTO);
         Task<ApiResponse<TokenResponse>> RefreshToken(RefreshTokenDTO tokenDTO);
         Task Logout(string token);
         Task<ApiResponse<string>> Register(RegisterDTO registerDTO);
