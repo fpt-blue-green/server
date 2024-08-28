@@ -46,7 +46,7 @@ namespace Repositories.Implement
             var influencer = new Influencer();
             try
             {
-                influencer = await context.Influencers.SingleOrDefaultAsync(s => s.UserId == userId);
+                influencer = await context.Influencers.FirstOrDefaultAsync(s => s.UserId == userId);
             }
             catch (Exception ex)
             {
@@ -71,16 +71,26 @@ namespace Repositories.Implement
         {
             try
             {
+                var existingEntity = context.Set<Influencer>().Local
+                    .FirstOrDefault(e => e.Id == influencer.Id);
 
-                context.Entry<Influencer>(influencer).State = EntityState.Modified;
+                if (existingEntity != null)
+                {
+                    context.Entry(existingEntity).CurrentValues.SetValues(influencer);
+                }
+                else
+                {
+                    context.Entry<Influencer>(influencer).State = EntityState.Modified;
+                }
+
                 await context.SaveChangesAsync();
-
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task Delete(Guid id)
         {
             try
@@ -93,20 +103,6 @@ namespace Repositories.Implement
             {
                 throw new Exception(ex.Message);
             }
-        }
-
-        public async Task<Influencer> GetByUserId(Guid id)
-        {
-            var influencer = new Influencer();
-            try
-            {
-                influencer = await context.Influencers.FirstOrDefaultAsync(i => i.UserId == id);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return influencer;
         }
 
         public async Task<List<Tag>> GetTagsByInfluencer(Guid influencerId)

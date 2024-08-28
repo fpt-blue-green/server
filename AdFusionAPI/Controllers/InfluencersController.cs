@@ -134,7 +134,7 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> UpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var influencer = await _influencerRepository.CreateInfluencer(influencerRequestDTO, token);
+            var influencer = await _influencerRepository.UpdateInfluencer(influencerRequestDTO, token);
             return StatusCode((int)influencer.StatusCode, influencer);
         }
     }

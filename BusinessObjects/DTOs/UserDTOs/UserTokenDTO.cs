@@ -12,5 +12,8 @@ namespace BusinessObjects.DTOs.UserDTOs
         public ERole Role { get; set; }
         public string? Avatar { get; set; }
         public string? DisplayName { get; set; }
+        public string? AccessToken { get; set; }
+        public string? refreshToken { get; set; }
+
     }
 }
