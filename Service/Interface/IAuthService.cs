@@ -2,6 +2,7 @@
 using BusinessObjects.DTOs.AuthDTO;
 using BusinessObjects.DTOs.AuthDTOs;
 using BusinessObjects.DTOs.UserDTOs;
+using BusinessObjects.DTOs.UserDTOs;
 
 namespace Service.Interface
 {

@@ -56,7 +56,37 @@ namespace Service.Implement
                  {
                      var bannedEntry = user.BannedUserUsers
                          .FirstOrDefault(b => b.UnbanDate == null || b.UnbanDate > DateTime.UtcNow);
+                /* if (user.IsBanned == true)
+                 {
+                     var bannedEntry = user.BannedUserUsers
+                         .FirstOrDefault(b => b.UnbanDate == null || b.UnbanDate > DateTime.UtcNow);
 
+                     if (bannedEntry != null)
+                     {
+                         _loggerService.Warning($"Login: User with email {loginDTO.Email} has been banned.");
+                         return new ApiResponse<TokenResponse>
+                         {
+                             StatusCode = EHttpStatusCode.Forbidden,
+                             Message = "Người dùng đã bị cấm. Vui lòng liên hệ bộ phận hỗ trợ nếu có sự nhầm lẫn.",
+                             Data = null
+                         };
+                     }
+                     else
+                     {
+                         user.IsBanned = false;
+                         await _userRepository.UpdateUser(user);
+                     }
+                 }*/
+                UserDTO userDTO = new UserDTO
+                {
+                    Id = user.Id,
+                    Name = user.DisplayName,
+                    Email = user.Email,
+                    Role = (ERole)user.Role,
+                    Image = user.Avatar
+                };
+
+                var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
                      if (bannedEntry != null)
                      {
                          _loggerService.Warning($"Login: User with email {loginDTO.Email} has been banned.");
@@ -104,6 +134,7 @@ namespace Service.Implement
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Đăng nhập thành công.",
                     Data = userToken
+                    Data = userToken
                 };
             }
             catch (Exception ex)
@@ -149,6 +180,15 @@ namespace Service.Implement
                         Data = null
                     };
                 }
+
+                UserDTO userDTO = new UserDTO
+                {
+                    Id = user.Id,
+                    Name = user.DisplayName,
+                    Email = user.Email,
+                    Role = (ERole)user.Role,
+                    Image = user.Avatar
+                };
 
                 UserDTO userDTO = new UserDTO
                 {
@@ -272,7 +312,9 @@ namespace Service.Implement
                 }
 
                 var email = JsonConvert.DeserializeObject<UserDTO>(userData)!.Email;
+                var email = JsonConvert.DeserializeObject<UserDTO>(userData)!.Email;
 
+                var userGet = await _userRepository.GetUserByEmail(email!);
                 var userGet = await _userRepository.GetUserByEmail(email!);
 
                 if (userGet == null)
@@ -405,13 +447,13 @@ namespace Service.Implement
         {
             try
             {
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     throw new Exception("Invalid token.");
                 }
 
-                var registerDTO = JsonConvert.DeserializeObject<RegisterDTO>(tokenDescrypt);
+                var registerDTO = JsonConvert.DeserializeObject<RegisterDTO>(tokenDecrypt);
 
                 var user = new User
                 {
@@ -437,13 +479,13 @@ namespace Service.Implement
         {
             try
             {
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     throw new Exception("Invalid token.");
                 }
 
-                var user = JsonConvert.DeserializeObject<User>(tokenDescrypt);
+                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
                 await _userRepository.UpdateUser(user!);
             }
             catch (Exception ex)
@@ -456,13 +498,13 @@ namespace Service.Implement
         {
             try
             {
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     throw new Exception("Invalid token.");
                 }
 
-                var user = JsonConvert.DeserializeObject<User>(tokenDescrypt);
+                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
                 await _userRepository.UpdateUser(user!);
             }
             catch (Exception ex)
