@@ -56,37 +56,7 @@ namespace Service.Implement
                  {
                      var bannedEntry = user.BannedUserUsers
                          .FirstOrDefault(b => b.UnbanDate == null || b.UnbanDate > DateTime.UtcNow);
-                /* if (user.IsBanned == true)
-                 {
-                     var bannedEntry = user.BannedUserUsers
-                         .FirstOrDefault(b => b.UnbanDate == null || b.UnbanDate > DateTime.UtcNow);
 
-                     if (bannedEntry != null)
-                     {
-                         _loggerService.Warning($"Login: User with email {loginDTO.Email} has been banned.");
-                         return new ApiResponse<TokenResponse>
-                         {
-                             StatusCode = EHttpStatusCode.Forbidden,
-                             Message = "Người dùng đã bị cấm. Vui lòng liên hệ bộ phận hỗ trợ nếu có sự nhầm lẫn.",
-                             Data = null
-                         };
-                     }
-                     else
-                     {
-                         user.IsBanned = false;
-                         await _userRepository.UpdateUser(user);
-                     }
-                 }*/
-                UserDTO userDTO = new UserDTO
-                {
-                    Id = user.Id,
-                    Name = user.DisplayName,
-                    Email = user.Email,
-                    Role = (ERole)user.Role,
-                    Image = user.Avatar
-                };
-
-                var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
                      if (bannedEntry != null)
                      {
                          _loggerService.Warning($"Login: User with email {loginDTO.Email} has been banned.");
@@ -134,7 +104,6 @@ namespace Service.Implement
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Đăng nhập thành công.",
                     Data = userToken
-                    Data = userToken
                 };
             }
             catch (Exception ex)
@@ -180,15 +149,6 @@ namespace Service.Implement
                         Data = null
                     };
                 }
-
-                UserDTO userDTO = new UserDTO
-                {
-                    Id = user.Id,
-                    Name = user.DisplayName,
-                    Email = user.Email,
-                    Role = (ERole)user.Role,
-                    Image = user.Avatar
-                };
 
                 UserDTO userDTO = new UserDTO
                 {
@@ -312,9 +272,7 @@ namespace Service.Implement
                 }
 
                 var email = JsonConvert.DeserializeObject<UserDTO>(userData)!.Email;
-                var email = JsonConvert.DeserializeObject<UserDTO>(userData)!.Email;
 
-                var userGet = await _userRepository.GetUserByEmail(email!);
                 var userGet = await _userRepository.GetUserByEmail(email!);
 
                 if (userGet == null)
@@ -460,7 +418,7 @@ namespace Service.Implement
                     Id = Guid.NewGuid(),
                     Email = registerDTO!.Email,
                     Password = _securityService.ComputeSha256Hash(registerDTO.Password),
-                   // IsBanned = false,
+                    // IsBanned = false,
                     DisplayName = registerDTO.DisplayName,
                     IsDeleted = false,
                     Role = (int)registerDTO.Role,

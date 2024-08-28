@@ -29,8 +29,6 @@ namespace Service.Implement
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
-        private static ISecurityService _securityService = new SecurityService();
-        private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
         private readonly ConfigManager _config;
         public InfluencerService(IMapper mapper)
@@ -125,8 +123,6 @@ namespace Service.Implement
                     allInfluencers = allInfluencers.Where(i =>
                         i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
                     // ||   i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
-                        i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
-                    // ||   i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
                     ).ToList();
                 }
                 #endregion
@@ -202,7 +198,6 @@ namespace Service.Implement
         }
 
         public async Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO, string token)
-        public async Task<ApiResponse<Influencer>> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO, string token)
         {
             try
             {
@@ -220,18 +215,14 @@ namespace Service.Implement
                 var user = JsonConvert.DeserializeObject<UserDTO>(tokenDescrypt);
 
                 var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
-                newInfluencer.Id = Guid.NewGuid();
                 newInfluencer.UserId = user.Id;
-                newInfluencer.IsPublish = true;
-                newInfluencer.CreatedAt = DateTime.UtcNow;
 
-                await _repository.Create(newInfluencer);
+                await _influencerRepository.Create(newInfluencer);
 
                 return new ApiResponse<Influencer>
                 {
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Tạo tài khoản thành công.",
-                    Data = _mapper.Map<Influencer>(newInfluencer)
                     Data = _mapper.Map<Influencer>(newInfluencer)
                 };
             }
@@ -264,8 +255,8 @@ namespace Service.Implement
 
                 var user = JsonConvert.DeserializeObject<UserDTO>(tokenDescrypt);
 
-                var influencer = GetInfluencerByUserId(user.Id);
-                if (influencer == null)
+                var influencerDTO = await GetInfluencerByUserId(user.Id);
+                if (influencerDTO == null)
                 {
                     return new ApiResponse<Influencer>
                     {
@@ -274,15 +265,15 @@ namespace Service.Implement
                         Data = null
                     };
                 }
-
-                var influencerUpdated = _mapper.Map<Influencer>(influencerRequestDTO);
-                await _repository.Update(influencerUpdated);
+                _mapper.Map(influencerRequestDTO, influencerDTO);
+                var influencerUpdated = _mapper.Map<Influencer>(influencerDTO);
+                await _influencerRepository.Update(influencerUpdated);
 
                 return new ApiResponse<Influencer>
                 {
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Update influencer thành công.",
-                    Data = _mapper.Map<Influencer>(influencer)
+                    Data = _mapper.Map<Influencer>(influencerUpdated)
                 };
             }
             catch (Exception ex)
@@ -315,12 +306,6 @@ namespace Service.Implement
         }
 
         public async Task<InfluencerDTO> GetInfluencerByUserId(Guid userId)
-        {
-            var result = await _repository.GetByUserId(userId);
-            return _mapper.Map<InfluencerDTO>(result);
-        }
-
-        public async Task UpdateInfluencer(Influencer influencer)
         {
             var result = await _influencerRepository.GetByUserId(userId);
             return _mapper.Map<InfluencerDTO>(result);
