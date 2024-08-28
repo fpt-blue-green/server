@@ -405,13 +405,13 @@ namespace Service.Implement
         {
             try
             {
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     throw new Exception("Invalid token.");
                 }
 
-                var registerDTO = JsonConvert.DeserializeObject<RegisterDTO>(tokenDescrypt);
+                var registerDTO = JsonConvert.DeserializeObject<RegisterDTO>(tokenDecrypt);
 
                 var user = new User
                 {
@@ -437,13 +437,13 @@ namespace Service.Implement
         {
             try
             {
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     throw new Exception("Invalid token.");
                 }
 
-                var user = JsonConvert.DeserializeObject<User>(tokenDescrypt);
+                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
                 await _userRepository.UpdateUser(user!);
             }
             catch (Exception ex)
@@ -456,13 +456,13 @@ namespace Service.Implement
         {
             try
             {
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     throw new Exception("Invalid token.");
                 }
 
-                var user = JsonConvert.DeserializeObject<User>(tokenDescrypt);
+                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
                 await _userRepository.UpdateUser(user!);
             }
             catch (Exception ex)
