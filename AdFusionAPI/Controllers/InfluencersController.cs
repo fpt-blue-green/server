@@ -107,32 +107,24 @@ namespace AdFusionAPI.Controllers
 		[HttpGet("influencerTags")]
 		public async Task<ActionResult<List<TagDTO>>> GetTagsByInfluencer()
 		{
-			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-			var result = new List<TagDTO>();
-			try
-			{
-				result = await _influencerRepository.GetTagsByInfluencer(token);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
-			return Ok(result);
-		}
+			var token = Request?.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
+			var result = await _influencerRepository.GetTagsByInfluencer(token);
+            return StatusCode((int)result.StatusCode, result);
+        }
 
 
-		[HttpPost("influencerTags/add")]
+		/*[HttpPost("influencerTags/add")]
 		public async Task<IActionResult> CreateNewInfluencer([FromBody] List<Guid> listTags)
 		{
 			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 			var result = await _influencerRepository.AddTagToInfluencer(token, listTags);
 			return StatusCode((int)result.StatusCode, result);
 		}
-
+*/
 		[HttpPost("influencerTags/update")]
 		public async Task<IActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
 		{
-			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+			var token = Request?.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
 			var result = await _influencerRepository.UpdateTagsForInfluencer(token, listTags);
 			return StatusCode((int)result.StatusCode, result);
 

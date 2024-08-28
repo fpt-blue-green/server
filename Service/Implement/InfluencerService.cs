@@ -247,26 +247,43 @@ namespace Service.Implement
             await _influencerRepository.Update(influencer);
         }
 
-        public async Task<List<TagDTO>> GetTagsByInfluencer(string token)
+        public async Task<ApiResponse<List<TagDTO>>> GetTagsByInfluencer(string token)
         {
-            var user = await getUserByTokenAsync(token);
-            if (user != null)
+            var listTagsRes = new List<TagDTO>();
+            try
             {
-                var influencer = await _influencerRepository.GetByUserId(user.Id);
-                if (influencer != null)
+                var user = await getUserByTokenAsync(token);
+                if (user != null)
                 {
-                    var listTags =  await _influencerRepository.GetTagsByInfluencer(influencer.Id);
-                    if(listTags != null && listTags.Any())
+                    var influencer = await _influencerRepository.GetByUserId(user.Id);
+                    if (influencer != null)
                     {
-						var listTagsRes = _mapper.Map<List<TagDTO>>(listTags);
-						return listTagsRes;
+                        var listTags = await _influencerRepository.GetTagsByInfluencer(influencer.Id);
+                        if (listTags != null && listTags.Any())
+                        {
+                            listTagsRes = _mapper.Map<List<TagDTO>>(listTags);
+                        }
                     }
                 }
             }
-            return new List<TagDTO>();
+            catch
+            {
+                return new ApiResponse<List<TagDTO>>()
+                {
+                    Data = null,
+                    Message = "Lấy danh sách thất bại",
+                    StatusCode = EHttpStatusCode.BadRequest,
+                };
+            }
+            return new ApiResponse<List<TagDTO>>()
+            {
+                Data = listTagsRes,
+                Message = "Lấy danh sách thành công",
+                StatusCode = EHttpStatusCode.OK,
+            };
         }
 
-        public async Task<ApiResponse<object>> AddTagToInfluencer(string token, List<Guid> tagIds)
+       /* public async Task<ApiResponse<object>> AddTagToInfluencer(string token, List<Guid> tagIds)
         {
             try
             {
@@ -322,16 +339,23 @@ namespace Service.Implement
                 Message = "Tạo tag thành công",
                 StatusCode = EHttpStatusCode.OK,
             };
-        }
+        }*/
         public async Task<User> getUserByTokenAsync(string token)
         {
-            var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-            if (tokenDescrypt == null)
+            try
             {
-                throw new Exception("Invalid token.");
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
+                {
+                    throw new Exception("Invalid token.");
+                }
+                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
+                return user;
+            }catch(Exception ex)
+            {
+                throw new Exception();
             }
-            var user = JsonConvert.DeserializeObject<User>(tokenDescrypt);
-            return user;
+           
         }
 
         public async Task<ApiResponse<object>> UpdateTagsForInfluencer(string token, List<Guid> tagIds)
