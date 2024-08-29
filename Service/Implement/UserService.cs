@@ -2,7 +2,6 @@
 using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.UserDTOs;
 using BusinessObjects.Enum;
-using BusinessObjects.Models;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +19,7 @@ namespace Service.Implement
 {
     public class UserService : IUserService
     {
-        private static readonly IUserRepository _repository = new UserRepository();
+        private static readonly IUserRepository _userRepository = new UserRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
@@ -31,7 +30,6 @@ namespace Service.Implement
         public UserService(IMapper mapper, IConfiguration config)
         {
             _mapper = mapper;
-            // Initialize Cloudinary client using the configuration
             var account = new Account(
                 config["Cloudinary:CloudName"],
                 config["Cloudinary:ApiKey"],
@@ -45,22 +43,27 @@ namespace Service.Implement
             try
             {
                 _loggerService.Information("Start to upload avatar: ");
+
                 if (file == null)
                 {
                     throw new Exception("Invalid File");
                 }
-
+                //Kiểm tra token, nếu hợp thế thì mã hóa
                 var tokenDecrypt = await _securityService.ValidateJwtToken(token);
                 if (tokenDecrypt == null)
                 {
-                    return new ApiResponse<string>
-                    {
-                        StatusCode = EHttpStatusCode.BadRequest,
-                        Message = _configManager.TokenInvalidErrorMessage,
-                        Data = null
-                    };
+                    throw new Exception($"Token Unvalid: {token}.");
+                }
+                var userDto = JsonConvert.DeserializeObject<UserDTO>(tokenDecrypt);
+
+                //Lấy user để update
+                var userGet = await _userRepository.GetUserById(userDto.Id);
+                if (userGet == null)
+                {
+                    throw new Exception($"Unvalid User ID {userDto.Id}.");
                 }
 
+                //Upload ảnh
                 var uploadParams = new ImageUploadParams()
                 {
                     File = new FileDescription(file.FileName, file.OpenReadStream()),
@@ -69,21 +72,16 @@ namespace Service.Implement
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
+                userGet.Avatar = uploadResult.SecureUrl.ToString();
                 _loggerService.Information("End to upload image");
 
-                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDecrypt);
-
-                user.Avatar = uploadResult.SecureUrl.ToString();
-                var userUpdated = _mapper.Map<User>(user);
-
-                await _repository.UpdateUser(userUpdated);
+                await _userRepository.UpdateUser(userGet);
 
                 return new ApiResponse<string>
                 {
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Upload avatar thành công.",
-                    Data = user.Avatar
+                    Data = userGet.Avatar
                 };
             }
             catch (Exception ex)

@@ -1,9 +1,12 @@
 ﻿using BusinessObjects.DTOs;
+using BusinessObjects.Enum;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using Service.Domain;
+using Service.Implement.SystemService;
+using Service.Interface.SystemServices;
 using Service.Interface.UtilityServices;
 using System.Globalization;
 using System.Web;
@@ -14,6 +17,7 @@ namespace Service.Implement.UtilityServices
     {
         private static ConfigManager _configManager = new ConfigManager();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
+        private static ISystemSettingService _systemSettingService = new SystemSettingService();
 
         public IEnumerable<string> GetCitiesWithCountry(string keyword)
         {
@@ -48,7 +52,6 @@ namespace Service.Implement.UtilityServices
                 return null!;
             }
         }
-
         static IEnumerable<CityResult> SearchCities(JArray countriesArray, string searchTerm)
         {
             // Tìm kiếm thành phố dựa trên chuỗi đầu vào với phương thức StartsWith cho phép so sánh không phân biệt chữ hoa chữ thường và hỗ trợ tiếng Việt
@@ -63,6 +66,28 @@ namespace Service.Implement.UtilityServices
                     .Where(cityResult => cityResult.Name.StartsWith(searchTerm, true, new CultureInfo("vi-VN"))));
 
             return results;
+        }
+        public async Task<string> GetChannelProfile(int platform, string channelId)
+        {
+            try
+            {
+                switch ((EPlatform)platform)
+                {
+                    case EPlatform.Tiktok:
+                        var tiktokUrl = _configManager.TikTokUrl + channelId;
+                        return await GetTikTokInformation(tiktokUrl);
+                    case EPlatform.Youtube:
+                        return await GetYoutubeInformation(channelId);
+                    case EPlatform.Instagram:
+                        var instagramUrl = _configManager.InstagramUrl + channelId;
+                        return await GetInstagramInformation(instagramUrl);
+                    default:
+                        throw new Exception("Abc");
+                }
+            }catch(Exception ex)
+            {
+                return string.Empty;
+            }
         }
 
         public async Task<string> GetTikTokInformation(string url)
@@ -99,7 +124,6 @@ namespace Service.Implement.UtilityServices
                 return string.Empty;
             }
         }
-
         public async Task<string> GetVideoTikTokInformation(string url)
         {
             try
@@ -134,7 +158,6 @@ namespace Service.Implement.UtilityServices
                 return string.Empty;
             }
         }
-
         public async Task<string> GetVideoInstagramInformation(string url)
         {
             try
@@ -173,7 +196,6 @@ namespace Service.Implement.UtilityServices
                 return string.Empty;
             }
         }
-
         public static long ConvertToNumber(string input)
         {
             if (input == "0")
@@ -196,7 +218,6 @@ namespace Service.Implement.UtilityServices
                     return long.Parse(input);
             }
         }
-
         public async Task<string> GetInstagramInformation(string url)
         {
             try
@@ -233,6 +254,38 @@ namespace Service.Implement.UtilityServices
                 _loggerService.Error(ex.ToString());
                 return string.Empty;
             }
+        }
+
+        public async Task<string> GetYoutubeInformation(string channelName)
+        {
+            try
+            {
+                var channelId = string.Empty;
+                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.Data.KeyValue;
+                var url = $"https://www.googleapis.com/youtube/v3/search?part=snippet&q={channelName}&type=channel&key={apiKey}";
+
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetStringAsync(url);
+                    var json = JObject.Parse(response);
+                    channelId = json["items"]?[0]?["id"]?["channelId"]?.ToString();
+                }
+
+                var informationUrl = $"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channelId}&key={apiKey}";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetStringAsync(informationUrl);
+                    var json = JObject.Parse(response);
+                    var subscriberCount = json["items"]?[0]?["statistics"]?.ToString();
+                    return subscriberCount!;
+                }
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error(ex.ToString());
+                return string.Empty;
+            }
+
         }
     }
 }
