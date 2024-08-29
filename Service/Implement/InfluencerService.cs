@@ -197,8 +197,8 @@ namespace Service.Implement
         {
             try
             {
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     return new ApiResponse<Influencer>
                     {
@@ -208,7 +208,7 @@ namespace Service.Implement
                     };
                 }
 
-                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDescrypt);
+                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDecrypt);
 
                 var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
                 newInfluencer.UserId = user.Id;
@@ -238,8 +238,8 @@ namespace Service.Implement
         {
             try
             {
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     return new ApiResponse<Influencer>
                     {
@@ -249,7 +249,7 @@ namespace Service.Implement
                     };
                 }
 
-                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDescrypt);
+                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDecrypt);
 
                 var influencerDTO = await GetInfluencerByUserId(user.Id);
                 if (influencerDTO == null)
@@ -349,64 +349,64 @@ namespace Service.Implement
             };
         }
 
-       /* public async Task<ApiResponse<object>> AddTagToInfluencer(string token, List<Guid> tagIds)
+    //    public async Task<ApiResponse<object>> AddTagToInfluencer(string token, List<Guid> tagIds)
 
-        {
-            try
-            {
-				var duplicateTagIds = tagIds.GroupBy(t => t)
-									.Where(g => g.Count() > 1)
-									.Select(g => g.Key)
-									.ToList();
-				if (duplicateTagIds.Any())
-				{
-					return new ApiResponse<object>
-					{
-						Data = null,
-						Message = "Tag không được trùng lặp.",
-						StatusCode = EHttpStatusCode.BadRequest,
-					};
-				}
+    //    {
+    //        try
+    //        {
+				//var duplicateTagIds = tagIds.GroupBy(t => t)
+				//					.Where(g => g.Count() > 1)
+				//					.Select(g => g.Key)
+				//					.ToList();
+				//if (duplicateTagIds.Any())
+				//{
+				//	return new ApiResponse<object>
+				//	{
+				//		Data = null,
+				//		Message = "Tag không được trùng lặp.",
+				//		StatusCode = EHttpStatusCode.BadRequest,
+				//	};
+				//}
 
-				var user = await getUserByTokenAsync(token);
-                if (user != null)
-                {
-                    var influencer = await _influencerRepository.GetByUserId(user.Id);
-                    if (influencer != null)
-                    {
-						var influencerId = influencer.Id;
-						var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
-						var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
-						if (!newTags.Any())
-						{
-							return new ApiResponse<object>
-							{
-								Data = null,
-								Message = "Tất cả các tag trong danh sách đã tồn tại.",
-								StatusCode = EHttpStatusCode.BadRequest,
-							};
-						}
-						foreach (var tagId in newTags)
-                        {
-                            await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
-                        }
-                        return new ApiResponse<object>
-                        {
-                            Data = null,
-                            Message = "Tạo tag thành công",
-                            StatusCode = EHttpStatusCode.OK,
-                        };
-                    }
-                }
-            }catch{
-            }
-            return new ApiResponse<object>
-            {
-                Data = null,
-                Message = "Tạo tag thành công",
-                StatusCode = EHttpStatusCode.OK,
-            };
-        }*/
+				//var user = await getUserByTokenAsync(token);
+    //            if (user != null)
+    //            {
+    //                var influencer = await _influencerRepository.GetByUserId(user.Id);
+    //                if (influencer != null)
+    //                {
+				//		var influencerId = influencer.Id;
+				//		var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
+				//		var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
+				//		if (!newTags.Any())
+				//		{
+				//			return new ApiResponse<object>
+				//			{
+				//				Data = null,
+				//				Message = "Tất cả các tag trong danh sách đã tồn tại.",
+				//				StatusCode = EHttpStatusCode.BadRequest,
+				//			};
+				//		}
+				//		foreach (var tagId in newTags)
+    //                    {
+    //                        await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
+    //                    }
+    //                    return new ApiResponse<object>
+    //                    {
+    //                        Data = null,
+    //                        Message = "Tạo tag thành công",
+    //                        StatusCode = EHttpStatusCode.OK,
+    //                    };
+    //                }
+    //            }
+    //        }catch{
+    //        }
+    //        return new ApiResponse<object>
+    //        {
+    //            Data = null,
+    //            Message = "Tạo tag thành công",
+    //            StatusCode = EHttpStatusCode.OK,
+    //        };
+    //    }
         public async Task<User> getUserByTokenAsync(string token)
         {
             try
@@ -430,40 +430,40 @@ namespace Service.Implement
         {
             try
             {
-				var duplicateTagIds = tagIds.GroupBy(t => t)
-									.Where(g => g.Count() > 1)
-									.Select(g => g.Key)
-									.ToList();
-				if (duplicateTagIds.Any())
-				{
-					return new ApiResponse<object>
-					{
-						Data = null,
-						Message = "Tag không được trùng lặp.",
-						StatusCode = EHttpStatusCode.BadRequest,
-					};
-				}
+                var duplicateTagIds = tagIds.GroupBy(t => t)
+                                    .Where(g => g.Count() > 1)
+                                    .Select(g => g.Key)
+                                    .ToList();
+                if (duplicateTagIds.Any())
+                {
+                    return new ApiResponse<object>
+                    {
+                        Data = null,
+                        Message = "Tag không được trùng lặp.",
+                        StatusCode = EHttpStatusCode.BadRequest,
+                    };
+                }
 
 
-				var user = await getUserByTokenAsync(token);
+                var user = await getUserByTokenAsync(token);
                 if (user != null)
                 {
                     var influencer = await _influencerRepository.GetByUserId(user.Id);
                     if (influencer != null)
                     {
-						var influencerId = influencer.Id;
-						var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
-						var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
-						if (!newTags.Any())
-						{
-							return new ApiResponse<object>
-							{
-								Data = null,
-								Message = "Tất cả các tag trong danh sách đã tồn tại.",
-								StatusCode = EHttpStatusCode.BadRequest,
-							};
-						}
-						foreach (var tagId in newTags)
+                        var influencerId = influencer.Id;
+                        var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
+                        var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
+                        if (!newTags.Any())
+                        {
+                            return new ApiResponse<object>
+                            {
+                                Data = null,
+                                Message = "Tất cả các tag trong danh sách đã tồn tại.",
+                                StatusCode = EHttpStatusCode.BadRequest,
+                            };
+                        }
+                        foreach (var tagId in newTags)
                         {
                             await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
                         }
@@ -475,7 +475,9 @@ namespace Service.Implement
                         };
                     }
                 }
-            }catch{
+            }
+            catch
+            {
             }
             return new ApiResponse<object>
             {
@@ -483,67 +485,67 @@ namespace Service.Implement
                 Message = "Tạo tag thành công",
                 StatusCode = EHttpStatusCode.OK,
             };
-        }*/
-        public async Task<User> getUserByTokenAsync(string token)
-        {
-            try
-            {
-                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDecrypt == null)
-                {
-                    throw new Exception("Invalid token.");
-                }
-                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
-                return user;
-            }catch(Exception ex)
-            {
-                throw new Exception();
-            }
-           
         }
+        //public async Task<User> getUserByTokenAsync(string token)
+        //{
+        //    try
+        //    {
+        //        var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+        //        if (tokenDecrypt == null)
+        //        {
+        //            throw new Exception("Invalid token.");
+        //        }
+        //        var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
+        //        return user;
+        //    }catch(Exception ex)
+        //    {
+        //        throw new Exception();
+        //    }
 
-        public async Task<ApiResponse<object>> UpdateTagsForInfluencer(string token, List<Guid> tagIds)
-        {
-            try
-            {
-				    var duplicateTagIds = tagIds.GroupBy(t => t)
-									.Where(g => g.Count() > 1)
-									.Select(g => g.Key)
-									.ToList();
-				if (duplicateTagIds.Any())
-				{
-					return new ApiResponse<object>
-					{
-						Data = null,
-						Message = "Tag không được trùng lặp.",
-						StatusCode = EHttpStatusCode.BadRequest,
-					};
-				}
+        //}
 
-				var user = await getUserByTokenAsync(token);
-                if (user != null)
-                {
-                    var influencer = await _influencerRepository.GetByUserId(user.Id);
-                    if (influencer != null)
-                    {
-                        await _influencerRepository.UpdateTagsForInfluencer(influencer.Id, tagIds);
-                        return new ApiResponse<object>
-                        {
-                            Data = null,
-                            Message = "Cập nhật thành công",
-                            StatusCode = EHttpStatusCode.OK,
-                        };
-                    }
-                }
-            }catch 
-            {
-            }
-            return new ApiResponse<object>
-            {
-                Data = null,
-                Message = "Cập nhật thất bại ",
-                StatusCode = EHttpStatusCode.BadRequest,
-            };
-        }
+        //    public async Task<ApiResponse<object>> UpdateTagsForInfluencer(string token, List<Guid> tagIds)
+        //    {
+        //        try
+        //        {
+        //    var duplicateTagIds = tagIds.GroupBy(t => t)
+        //					.Where(g => g.Count() > 1)
+        //					.Select(g => g.Key)
+        //					.ToList();
+        //if (duplicateTagIds.Any())
+        //{
+        //	return new ApiResponse<object>
+        //	{
+        //		Data = null,
+        //		Message = "Tag không được trùng lặp.",
+        //		StatusCode = EHttpStatusCode.BadRequest,
+        //	};
+        //}
+
+        //var user = await getUserByTokenAsync(token);
+        //            if (user != null)
+        //            {
+        //                var influencer = await _influencerRepository.GetByUserId(user.Id);
+        //                if (influencer != null)
+        //                {
+        //                    await _influencerRepository.UpdateTagsForInfluencer(influencer.Id, tagIds);
+        //                    return new ApiResponse<object>
+        //                    {
+        //                        Data = null,
+        //                        Message = "Cập nhật thành công",
+        //                        StatusCode = EHttpStatusCode.OK,
+        //                    };
+        //                }
+        //            }
+        //        }catch 
+        //        {
+        //        }
+        //        return new ApiResponse<object>
+        //        {
+        //            Data = null,
+        //            Message = "Cập nhật thất bại ",
+        //            StatusCode = EHttpStatusCode.BadRequest,
+        //        };
+        //    }
     }
 }

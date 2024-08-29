@@ -50,8 +50,8 @@ namespace Service.Implement
                     throw new Exception("Invalid File");
                 }
 
-                var tokenDescrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDescrypt == null)
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
                 {
                     return new ApiResponse<string>
                     {
@@ -72,7 +72,7 @@ namespace Service.Implement
 
                 _loggerService.Information("End to upload image");
 
-                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDescrypt);
+                var user = JsonConvert.DeserializeObject<UserDTO>(tokenDecrypt);
 
                 user.Avatar = uploadResult.SecureUrl.ToString();
                 var userUpdated = _mapper.Map<User>(user);

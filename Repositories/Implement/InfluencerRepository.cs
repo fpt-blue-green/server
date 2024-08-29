@@ -126,7 +126,7 @@ namespace Repositories.Implement
             return influencer?.Tags.ToList() ?? new List<Tag>();
         }
 
-        /*public async Task AddTagToInfluencer(Guid influencerId, Guid tagId)
+        public async Task AddTagToInfluencer(Guid influencerId, Guid tagId)
         {
             var influencer = await context.Influencers.Include(i => i.Tags) 
                                               .FirstOrDefaultAsync(i => i.Id == influencerId);
@@ -139,7 +139,7 @@ namespace Repositories.Implement
                 influencer.Tags.Add(tag);
                 await context.SaveChangesAsync();
             }
-        }*/
+        }
 /*
         public async Task RemoveTagFromInfluencer(Guid influencerId, Guid tagId)
         {
