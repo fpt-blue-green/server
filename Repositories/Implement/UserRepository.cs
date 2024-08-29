@@ -91,23 +91,17 @@ namespace Repositories.Implement
         }
         public async Task UpdateUser(User user)
         {
-            try
+            user.ModifiedAt = DateTime.UtcNow;
+            var localUser = context.Set<User>()
+                                   .Local
+                                   .FirstOrDefault(entry => entry.Id.Equals(user.Id));
+            if (localUser != null)
             {
-                var localUser = context.Set<User>()
-                                       .Local
-                                       .FirstOrDefault(entry => entry.Id.Equals(user.Id));
-                if (localUser != null)
-                {
-                    context.Entry(localUser).State = EntityState.Detached;
-                }
+                context.Entry(localUser).State = EntityState.Detached;
+            }
 
-                context.Entry(user).State = EntityState.Modified;
-                await context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            context.Entry(user).State = EntityState.Modified;
+            await context.SaveChangesAsync();
         }
 
     }

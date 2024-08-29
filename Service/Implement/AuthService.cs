@@ -33,155 +33,93 @@ namespace Service.Implement
             _mapper = mapper;
         }
 
-        public async Task<ApiResponse<UserTokenDTO>> Login(LoginDTO loginDTO)
+        public async Task<UserTokenDTO> Login(LoginDTO loginDTO)
         {
-            try
+            loginDTO.Password = _securityService.ComputeSha256Hash(loginDTO.Password);
+
+            var user = await _userRepository.GetUserByLoginDTO(loginDTO);
+
+            if (user == null)
             {
-                loginDTO.Password = _securityService.ComputeSha256Hash(loginDTO.Password);
-
-                var user = await _userRepository.GetUserByLoginDTO(loginDTO);
-
-                if (user == null)
-                {
-                    _loggerService.Warning($"Login: User with email {loginDTO.Email} input wrong email/password.");
-                    return new ApiResponse<UserTokenDTO>
-                    {
-                        StatusCode = EHttpStatusCode.Unauthorized,
-                        Message = "Email hoặc mật khẩu không hợp lệ.",
-                        Data = null
-                    };
-                }
-
-                if (user.IsBanned == true)
-                {
-                    var bannedEntry = user.BannedUserUsers
-                        .FirstOrDefault(b => b.UnbanDate == null || b.UnbanDate > DateTime.UtcNow);
-
-                    if (bannedEntry != null)
-                    {
-                        _loggerService.Warning($"Login: User with email {loginDTO.Email} has been banned.");
-                        return new ApiResponse<UserTokenDTO>
-                        {
-                            StatusCode = EHttpStatusCode.Forbidden,
-                            Message = "Người dùng đã bị cấm. Vui lòng liên hệ bộ phận hỗ trợ nếu có sự nhầm lẫn.",
-                            Data = null
-                        };
-                    }
-                    else
-                    {
-                        user.IsBanned = false;
-                        await _userRepository.UpdateUser(user);
-                    }
-                }
-                UserDTO userDTO = new UserDTO
-                {
-                    Id = user.Id,
-                    Name = user.DisplayName,
-                    Email = user.Email,
-                    Role = (ERole)user.Role,
-                    Image = user.Avatar
-                };
-
-                var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO));
-                var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
-
-                UserTokenDTO userToken = new UserTokenDTO
-                {
-                    Id = user.Id,
-                    Name = user.DisplayName,
-                    Email = user.Email,
-                    Role = (ERole)user.Role,
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken,
-                };
-
-                user.RefreshToken = refreshToken;
-                await _userRepository.UpdateUser(user);
-
-                _loggerService.Information($"Login: User with email {loginDTO.Email} login sucessfully.");
-                return new ApiResponse<UserTokenDTO>
-                {
-                    StatusCode = EHttpStatusCode.OK,
-                    Message = "Đăng nhập thành công.",
-                    Data = userToken
-                };
+                throw new InvalidOperationException("Email hoặc mật khẩu không hợp lệ.");
             }
-            catch (Exception ex)
+
+            if (user.IsBanned == true)
             {
-                _loggerService.Error("Login: " + ex.ToString());
-                return new ApiResponse<UserTokenDTO>
+                var bannedEntry = user.BannedUserUsers
+                    .FirstOrDefault(b => b.UnbanDate == null || b.UnbanDate > DateTime.UtcNow);
+
+                if (bannedEntry != null)
                 {
-                    StatusCode = EHttpStatusCode.InternalServerError,
-                    Message = _configManager.SeverErrorMessage,
-                    Data = null
-                };
+                    throw new InvalidOperationException("Người dùng đã bị cấm. Vui lòng liên hệ bộ phận hỗ trợ nếu có sự nhầm lẫn.");
+                }
+                else
+                {
+                    user.IsBanned = false;
+                    await _userRepository.UpdateUser(user);
+                }
             }
+            UserDTO userDTO = new UserDTO
+            {
+                Id = user.Id,
+                Name = user.DisplayName,
+                Email = user.Email,
+                Role = (ERole)user.Role,
+                Image = user.Avatar
+            };
+
+            var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO));
+            var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
+
+            UserTokenDTO userToken = new UserTokenDTO
+            {
+                Id = user.Id,
+                Name = user.DisplayName,
+                Email = user.Email,
+                Role = (ERole)user.Role,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+            };
+
+            user.RefreshToken = refreshToken;
+            await _userRepository.UpdateUser(user);
+
+            _loggerService.Information($"Login: User with email {loginDTO.Email} login sucessfully.");
+            return userToken;
         }
 
-        public async Task<ApiResponse<TokenResponse>> RefreshToken(RefreshTokenDTO tokenDTO)
+        public async Task<TokenResponse> RefreshToken(RefreshTokenDTO tokenDTO)
         {
-            try
+            var data = await _securityService.ValidateJwtToken(tokenDTO.Token);
+
+            if (data == null)
             {
-                var data = await _securityService.ValidateJwtToken(tokenDTO.Token);
-
-                if (data == null)
-                {
-                    throw new Exception($"Token Unvalid: {tokenDTO.Token}.");
-                }
-
-                var user = await _userRepository.GetUserByRefreshToken(tokenDTO.Token!);
-
-                if (user == null)
-                {
-                    _loggerService.Warning($"RefreshToken:  Refresh token Failed {tokenDTO.Token}.");
-
-                    return new ApiResponse<TokenResponse>
-                    {
-                        StatusCode = EHttpStatusCode.BadRequest,
-                        Message = _configManager.TokenInvalidErrorMessage,
-                        Data = null
-                    };
-                }
-
-                UserDTO userDTO = new UserDTO
-                {
-                    Id = user.Id,
-                    Name = user.DisplayName,
-                    Email = user.Email,
-                    Role = (ERole)user.Role,
-                    Image = user.Avatar
-                };
-
-                var authenToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO));
-                var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
-
-                user.RefreshToken = refreshToken;
-                await _userRepository.UpdateUser(user);
-
-                var tokenResponse = new TokenResponse
-                {
-                    AccessToken = authenToken,
-                    RefreshToken = refreshToken
-                };
-
-                _loggerService.Information($"RefreshToken: User with email {user.Email} refresh token sucessfully.");
-                return new ApiResponse<TokenResponse>
-                {
-                    StatusCode = EHttpStatusCode.OK,
-                    Message = "Cập nhập token mới thành công.",
-                    Data = tokenResponse
-                };
+                throw new UnauthorizedAccessException();
             }
-            catch (Exception ex)
+
+            var userDTO = JsonConvert.DeserializeObject<UserDTO>(data); 
+
+            var user = await _userRepository.GetUserByRefreshToken(tokenDTO.Token!);
+
+            if (user == null)
             {
-                _loggerService.Error("RefreshToken: " + ex.ToString());
-                return new ApiResponse<TokenResponse>
-                {
-                    StatusCode = EHttpStatusCode.InternalServerError,
-                    Message = _configManager.SeverErrorMessage,
-                    Data = null
-                };
+                throw new KeyNotFoundException();
             }
+
+            var authenToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO));
+            var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
+
+            user.RefreshToken = refreshToken;
+            await _userRepository.UpdateUser(user);
+
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = authenToken,
+                RefreshToken = refreshToken
+            };
+
+            _loggerService.Information($"RefreshToken: User with email {user.Email} refresh token sucessfully.");
+            return tokenResponse;
         }
 
         public async Task Logout(string token)

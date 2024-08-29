@@ -27,7 +27,7 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
             var result = await _authenService.Login(loginDTO);
-            return StatusCode((int)result.StatusCode, result);
+            return Ok(result);
         }
 
         [NoAuthRequired]
@@ -45,7 +45,7 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO tokenDTO)
         {
             var result = await _authenService.RefreshToken(tokenDTO);
-            return StatusCode((int)result.StatusCode, result);
+            return Ok(result);
         }
 
         [NoAuthRequired]
