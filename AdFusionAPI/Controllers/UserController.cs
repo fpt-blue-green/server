@@ -8,12 +8,12 @@ namespace AdFusionAPI.Controllers
     [ApiController]
     public class UserController : Controller
     {
-        private readonly IUserService _userRepository;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public UserController(IUserService _userRepository, IMapper mapper)
+        public UserController(IUserService userService, IMapper mapper)
         {
-            _userRepository = _userRepository;
+            _userService = userService;
             _mapper = mapper;
         }
 
@@ -21,7 +21,7 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> UpdateAvatar(IFormFile file)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var influencer = await _userRepository.UploadImageAsync(file, token);
+            var influencer = await _userService.UploadImageAsync(file, token);
             return StatusCode((int)influencer.StatusCode, influencer);
         }
     }

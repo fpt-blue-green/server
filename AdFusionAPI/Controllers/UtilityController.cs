@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AdFusionAPI.APIConfig;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Service.Interface.UtilityServices;
 
@@ -16,6 +17,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("location")]
+        [NoAuthRequired]
         public IActionResult GetLocation(string keyName)
         {
             var cities = _utilityService.GetCitiesWithCountry(keyName);
@@ -28,18 +30,7 @@ namespace AdFusionAPI.Controllers
             return Ok(cities);
         }
 
-        [HttpGet("tiktok/profile")]
-        public async Task<IActionResult> GetTikTokInformation(string url)
-        {
-            var info = await _utilityService.GetTikTokInformation(url);
-            if (info.IsNullOrEmpty())
-            {
-                return NotFound();
-            }
-
-            return Ok(info);
-        }
-
+        [NoAuthRequired]
         [HttpGet("tiktok/video")]
         public async Task<IActionResult> GetVideoTikTokInformation(string url)
         {
@@ -52,6 +43,7 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
+        [NoAuthRequired]
         [HttpGet("instagram/video")]
         public async Task<IActionResult> GetVideoInstagramInformation(string url)
         {
@@ -64,10 +56,11 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
-        [HttpGet("instagram/profile")]
-        public async Task<IActionResult> GetInstagramInformation(string url)
+        [NoAuthRequired]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetChannelProfile(int platform, string channelId)
         {
-            var info = await _utilityService.GetInstagramInformation(url);
+            var info = await _utilityService.GetChannelProfile(platform, channelId);
             if (info.IsNullOrEmpty())
             {
                 return NotFound();
