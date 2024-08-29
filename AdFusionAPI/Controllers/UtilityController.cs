@@ -15,7 +15,7 @@ namespace AdFusionAPI.Controllers
             this._utilityService = utilityService;
         }
 
-        [HttpGet("location/{keyName}")]
+        [HttpGet("location")]
         public IActionResult GetLocation(string keyName)
         {
             var cities = _utilityService.GetCitiesWithCountry(keyName);
@@ -28,7 +28,7 @@ namespace AdFusionAPI.Controllers
             return Ok(cities);
         }
 
-        [HttpGet("tiktok/profile/{url}")]
+        [HttpGet("tiktok/profile")]
         public async Task<IActionResult> GetTikTokInformation(string url)
         {
             var info = await _utilityService.GetTikTokInformation(url);
@@ -40,7 +40,7 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
-        [HttpGet("tiktok/video/{url}")]
+        [HttpGet("tiktok/video")]
         public async Task<IActionResult> GetVideoTikTokInformation(string url)
         {
             var info = await _utilityService.GetVideoTikTokInformation(url);
@@ -52,7 +52,7 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
-        [HttpGet("instagram/video/{url}")]
+        [HttpGet("instagram/video")]
         public async Task<IActionResult> GetVideoInstagramInformation(string url)
         {
             var info = await _utilityService.GetVideoInstagramInformation(url);
@@ -64,7 +64,7 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
-        [HttpGet("instagram/profile/{url}")]
+        [HttpGet("instagram/profile")]
         public async Task<IActionResult> GetInstagramInformation(string url)
         {
             var info = await _utilityService.GetInstagramInformation(url);

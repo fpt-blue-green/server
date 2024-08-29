@@ -31,7 +31,7 @@ namespace AdFusionAPI.Controllers
             return fileUrl.IsNullOrEmpty() ? BadRequest() : Ok(fileUrl);
         }
 
-        [HttpDelete("image/{publicId}")]
+        [HttpDelete("image")]
 
         public async Task<IActionResult> DeleteFile(string publicId)
         {

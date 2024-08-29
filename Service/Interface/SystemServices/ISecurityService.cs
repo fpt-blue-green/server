@@ -2,8 +2,8 @@
 {
     public interface ISecurityService
     {
-        Task<string> GenerateAuthenToken(string data, bool isAdmin);
-        Task<string> GenerateRefreshToken(string data, bool isAdmin);
+        Task<string> GenerateAuthenToken(string data);
+        Task<string> GenerateRefreshToken(string data);
         Task<string> ValidateJwtToken(string token);
         string ComputeSha256Hash(string rawData);
 

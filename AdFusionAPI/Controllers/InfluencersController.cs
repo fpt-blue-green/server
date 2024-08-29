@@ -125,7 +125,7 @@ namespace AdFusionAPI.Controllers
 		public async Task<IActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
 		{
 			var token = Request?.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
-			var result = await _influencerRepository.UpdateTagsForInfluencer(token, listTags);
+			var result = await _influencerRepository.UpdateTagsForInfluencer(token!, listTags);
 			return StatusCode((int)result.StatusCode, result);
 
 		}

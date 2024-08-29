@@ -14,7 +14,7 @@ namespace Service.Implement.SystemService
     {
         private static ConfigManager _configManager = new ConfigManager();
         private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
-        public async Task<string> GenerateAuthenToken(string data, bool isAdmin)
+        public async Task<string> GenerateAuthenToken(string data)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
@@ -23,11 +23,6 @@ namespace Service.Implement.SystemService
                 {
                     new Claim(ClaimTypes.Name, data)
                 };
-
-            if (isAdmin)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-            }
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -38,7 +33,7 @@ namespace Service.Implement.SystemService
             return tokenHandler.WriteToken(token);
         }
 
-        public async Task<string> GenerateRefreshToken(string data, bool isAdmin)
+        public async Task<string> GenerateRefreshToken(string data)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
@@ -47,11 +42,6 @@ namespace Service.Implement.SystemService
                 {
                     new Claim(ClaimTypes.Name, data)
                 };
-
-            if (isAdmin)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-            }
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -82,11 +72,11 @@ namespace Service.Implement.SystemService
 
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
-                return principal.Identity?.Name! ?? null!;
+                return principal.Identity?.Name!;
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception(ex.ToString());
+                return null!;
             }
         }
 
