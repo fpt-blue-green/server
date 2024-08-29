@@ -52,16 +52,8 @@ namespace AdFusionAPI.APIConfig
                 throw new UnauthorizedAccessException();
             }
 
-            // Đọc token và kiểm tra thời gian hết hạn
-            var jwtToken = new JwtSecurityTokenHandler().ReadToken(token) as JwtSecurityToken;
-            var expirationTime = jwtToken?.ValidTo;
-
             // Xác thực token
             var tokenData = await _securityService.ValidateJwtToken(token);
-            if (tokenData == null)
-            {
-                throw new UnauthorizedAccessException();
-            }
 
             // Thiết lập thông tin người dùng vào context
             var claims = new[]
