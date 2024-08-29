@@ -6,17 +6,13 @@ using BusinessObjects.DTOs.UserDTOs;
 using BusinessObjects.DTOs.UserDTOs;
 using BusinessObjects.Enum;
 using BusinessObjects.Models;
-using CloudinaryDotNet;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
 using Service.Domain;
 using Service.Implement.SystemService;
-using Service.Implement.SystemService;
 using Service.Interface;
-using Service.Interface.HelperService;
 using Service.Interface.HelperService;
 
 namespace Service.Implement
@@ -288,6 +284,7 @@ namespace Service.Implement
             }
         }
 
+
         public async Task DeleteInfluencer(Guid id)
         {
             await _influencerRepository.Delete(id);
@@ -309,6 +306,11 @@ namespace Service.Implement
         {
             var result = await _influencerRepository.GetByUserId(userId);
             return _mapper.Map<InfluencerDTO>(result);
+        }
+        
+        public async Task UpdateInfluencer(Influencer influencer)
+        {
+            await _influencerRepository.Update(influencer);
         }
 
         public async Task<ApiResponse<List<TagDTO>>> GetTagsByInfluencer(string token)
@@ -348,6 +350,7 @@ namespace Service.Implement
         }
 
        /* public async Task<ApiResponse<object>> AddTagToInfluencer(string token, List<Guid> tagIds)
+
         {
             try
             {
@@ -423,6 +426,7 @@ namespace Service.Implement
         }
 
         public async Task<ApiResponse<object>> UpdateTagsForInfluencer(string token, List<Guid> tagIds)
+
         {
             try
             {
@@ -439,6 +443,83 @@ namespace Service.Implement
 						StatusCode = EHttpStatusCode.BadRequest,
 					};
 				}
+
+
+				var user = await getUserByTokenAsync(token);
+                if (user != null)
+                {
+                    var influencer = await _influencerRepository.GetByUserId(user.Id);
+                    if (influencer != null)
+                    {
+						var influencerId = influencer.Id;
+						var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
+						var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
+						if (!newTags.Any())
+						{
+							return new ApiResponse<object>
+							{
+								Data = null,
+								Message = "Tất cả các tag trong danh sách đã tồn tại.",
+								StatusCode = EHttpStatusCode.BadRequest,
+							};
+						}
+						foreach (var tagId in newTags)
+                        {
+                            await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
+                        }
+                        return new ApiResponse<object>
+                        {
+                            Data = null,
+                            Message = "Tạo tag thành công",
+                            StatusCode = EHttpStatusCode.OK,
+                        };
+                    }
+                }
+            }catch{
+            }
+            return new ApiResponse<object>
+            {
+                Data = null,
+                Message = "Tạo tag thành công",
+                StatusCode = EHttpStatusCode.OK,
+            };
+        }*/
+        public async Task<User> getUserByTokenAsync(string token)
+        {
+            try
+            {
+                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                if (tokenDecrypt == null)
+                {
+                    throw new Exception("Invalid token.");
+                }
+                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
+                return user;
+            }catch(Exception ex)
+            {
+                throw new Exception();
+            }
+           
+        }
+
+        public async Task<ApiResponse<object>> UpdateTagsForInfluencer(string token, List<Guid> tagIds)
+        {
+            try
+            {
+				    var duplicateTagIds = tagIds.GroupBy(t => t)
+									.Where(g => g.Count() > 1)
+									.Select(g => g.Key)
+									.ToList();
+				if (duplicateTagIds.Any())
+				{
+					return new ApiResponse<object>
+					{
+						Data = null,
+						Message = "Tag không được trùng lặp.",
+						StatusCode = EHttpStatusCode.BadRequest,
+					};
+				}
+
 				var user = await getUserByTokenAsync(token);
                 if (user != null)
                 {

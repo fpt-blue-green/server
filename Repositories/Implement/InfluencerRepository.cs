@@ -105,6 +105,20 @@ namespace Repositories.Implement
             }
         }
 
+        public async Task<Influencer> GetByUserId(Guid id)
+        {
+            var influencer = new Influencer();
+            try
+            {
+                influencer = await context.Influencers.FirstOrDefaultAsync(i => i.UserId == id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return influencer;
+        }
+
         public async Task<List<Tag>> GetTagsByInfluencer(Guid influencerId)
         {
             var influencer = await context.Influencers.Include(i => i.Tags)
