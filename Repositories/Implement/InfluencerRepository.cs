@@ -40,6 +40,21 @@ namespace Repositories.Implement
             }
             return influencer;
         }
+
+        public async Task<Influencer> GetByUserId(Guid userId)
+        {
+            var influencer = new Influencer();
+            try
+            {
+                influencer = await context.Influencers.FirstOrDefaultAsync(s => s.UserId == userId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return influencer;
+        }
+
         public async Task Create(Influencer influencer)
         {
             try
@@ -56,16 +71,26 @@ namespace Repositories.Implement
         {
             try
             {
+                var existingEntity = context.Set<Influencer>().Local
+                    .FirstOrDefault(e => e.Id == influencer.Id);
 
-                context.Entry<Influencer>(influencer).State = EntityState.Modified;
+                if (existingEntity != null)
+                {
+                    context.Entry(existingEntity).CurrentValues.SetValues(influencer);
+                }
+                else
+                {
+                    context.Entry<Influencer>(influencer).State = EntityState.Modified;
+                }
+
                 await context.SaveChangesAsync();
-
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task Delete(Guid id)
         {
             try
@@ -101,7 +126,7 @@ namespace Repositories.Implement
             return influencer?.Tags.ToList() ?? new List<Tag>();
         }
 
-        /*public async Task AddTagToInfluencer(Guid influencerId, Guid tagId)
+        public async Task AddTagToInfluencer(Guid influencerId, Guid tagId)
         {
             var influencer = await context.Influencers.Include(i => i.Tags) 
                                               .FirstOrDefaultAsync(i => i.Id == influencerId);
@@ -114,7 +139,7 @@ namespace Repositories.Implement
                 influencer.Tags.Add(tag);
                 await context.SaveChangesAsync();
             }
-        }*/
+        }
 /*
         public async Task RemoveTagFromInfluencer(Guid influencerId, Guid tagId)
         {

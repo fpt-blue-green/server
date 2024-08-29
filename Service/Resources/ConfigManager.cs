@@ -5,6 +5,7 @@
         public readonly string ProjectName = "AdFusion";
         public readonly string SeverErrorMessage = "Yêu cầu của bạn không thể hoàn thành tại thời điểm này. Vui lòng liên hệ với bộ phận hỗ trợ nếu vấn đề vẫn tiếp diễn.";
         public readonly string TokenInvalidErrorMessage = "Lỗi thông tin người dùng. Vui lòng đăng nhập lại.";
+        public readonly string InvalidInfluencer = "Influencer invalid";
 
         public readonly string JWTKey = "JWTKey";
         public readonly string EmailConfig = "EmailConfig";

@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.DTOs.InfluencerDTO;
+using BusinessObjects.Enum;
 
 namespace BusinessObjects.DTOs.InfluencerDTOs
 {
@@ -6,17 +7,17 @@ namespace BusinessObjects.DTOs.InfluencerDTOs
     {
         public string FullName { get; set; } = null!;
 
-        public string NickName { get; set; } = null!;
+        public string Slug { get; set; }
 
-        public int? Gender { get; set; }
+        public string Summarise { get; set; }
 
-        public string? Bio { get; set; }
+        public string Description { get; set; }
+
+        public EGender Gender { get; set; }
 
         public string Phone { get; set; } = null!;
 
-        public decimal AveragePrice { get; set; }
-
-        public virtual ICollection<TagRequestDTO> InfluencerTags { get; set; } = new List<TagRequestDTO>();
+        public string Address { get; set; }
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.DTOs.InfluencerDTOs;
+using BusinessObjects.Models;
 
 namespace Repositories.Interface
 {
@@ -8,7 +9,7 @@ namespace Repositories.Interface
         Task<Influencer> GetById(Guid id);
         Task<Influencer> GetByUserId(Guid id);
         Task<List<Tag>> GetTagsByInfluencer(Guid influencerId);
-        //Task AddTagToInfluencer(Guid influencerId, Guid tagId);
+        Task AddTagToInfluencer(Guid influencerId, Guid tagId);
         //Task RemoveTagFromInfluencer(Guid influencerId, Guid tagId);
         Task UpdateTagsForInfluencer(Guid influencerId, List<Guid> tagIds);
         Task Create(Influencer influencer);

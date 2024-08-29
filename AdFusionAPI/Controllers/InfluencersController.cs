@@ -2,7 +2,6 @@
 using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.DTOs.InfluencerDTOs;
-using BusinessObjects.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 
@@ -97,10 +96,11 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateNewInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
         {
-            var newInflu = await _influencerRepository.CreateInfluencer(influencerRequestDTO);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var newInflu = await _influencerRepository.CreateInfluencer(influencerRequestDTO, token);
             return StatusCode((int)newInflu.StatusCode, newInflu);
         }
 
@@ -129,5 +129,13 @@ namespace AdFusionAPI.Controllers
 			return StatusCode((int)result.StatusCode, result);
 
 		}
-	}
+	
+        [HttpPut]
+        public async Task<IActionResult> UpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var influencer = await _influencerRepository.UpdateInfluencer(influencerRequestDTO, token);
+            return StatusCode((int)influencer.StatusCode, influencer);
+        }
+    }
 }

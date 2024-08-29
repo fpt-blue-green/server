@@ -33,7 +33,7 @@ namespace Service.Implement
             _mapper = mapper;
         }
 
-        public async Task<ApiResponse<UserTokenDTO>> Login(LoginDTO loginDTO)
+        public async Task<ApiResponse<UserDTO>> Login(LoginDTO loginDTO)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace Service.Implement
                 if (user == null)
                 {
                     _loggerService.Warning($"Login: User with email {loginDTO.Email} input wrong email/password.");
-                    return new ApiResponse<UserTokenDTO>
+                    return new ApiResponse<UserDTO>
                     {
                         StatusCode = EHttpStatusCode.Unauthorized,
                         Message = "Email hoặc mật khẩu không hợp lệ.",
@@ -85,7 +85,7 @@ namespace Service.Implement
                 var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
                 var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO), userDTO.Role == ERole.Admin);
 
-                UserTokenDTO userToken = new UserTokenDTO
+                UserDTO userToken = new UserDTO
                 {
                     Id = user.Id,
                     Name = user.DisplayName,
@@ -99,7 +99,7 @@ namespace Service.Implement
                 await _userRepository.UpdateUser(user);
 
                 _loggerService.Information($"Login: User with email {loginDTO.Email} login sucessfully.");
-                return new ApiResponse<UserTokenDTO>
+                return new ApiResponse<UserDTO>
                 {
                     StatusCode = EHttpStatusCode.OK,
                     Message = "Đăng nhập thành công.",
@@ -109,7 +109,7 @@ namespace Service.Implement
             catch (Exception ex)
             {
                 _loggerService.Error("Login: " + ex.ToString());
-                return new ApiResponse<UserTokenDTO>
+                return new ApiResponse<UserDTO>
                 {
                     StatusCode = EHttpStatusCode.InternalServerError,
                     Message = _configManager.SeverErrorMessage,
@@ -418,7 +418,7 @@ namespace Service.Implement
                     Id = Guid.NewGuid(),
                     Email = registerDTO!.Email,
                     Password = _securityService.ComputeSha256Hash(registerDTO.Password),
-                   // IsBanned = false,
+                    // IsBanned = false,
                     DisplayName = registerDTO.DisplayName,
                     IsDeleted = false,
                     Role = (int)registerDTO.Role,
