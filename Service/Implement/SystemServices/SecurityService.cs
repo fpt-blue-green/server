@@ -76,7 +76,7 @@ namespace Service.Implement.SystemService
             }
             catch
             {
-                return null!;
+                throw new UnauthorizedAccessException();
             }
         }
 
