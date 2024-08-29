@@ -32,29 +32,39 @@ namespace AdFusionAPI.APIConfig
         {
             context.Response.ContentType = "application/json";
 
-            var statusCode = HttpStatusCode.InternalServerError; // 500 nếu là lỗi không xác định
-            var message = "Đã xảy ra lỗi không xác định.";
+            var statusCode = HttpStatusCode.InternalServerError;
+            var exceptionMessage = "Lỗi hệ thống. Vui lòng liên hệ với bộ phận hỗ trợ nếu vấn đề vẫn tiếp diễn.";
 
             if (exception is UnauthorizedAccessException)
             {
                 statusCode = HttpStatusCode.Unauthorized; // 401 Unauthorized
-                message = "Bạn không có quyền truy cập.";
+                exceptionMessage = "Bạn cần phải đăng nhập để truy cập tài nguyên này.";
             }
-            else if (exception is ArgumentException)
+            else if (exception is InvalidOperationException)
             {
                 statusCode = HttpStatusCode.BadRequest; // 400 Bad Request
-                message = "Yêu cầu không hợp lệ.";
+                exceptionMessage = exception.Message;
+            }
+            else if (exception is AccessViolationException)
+            {
+                statusCode = HttpStatusCode.Forbidden; // 403 Forbidden
+                exceptionMessage = "Tài khoản của bạn không có quyền truy cập.";
+            }
+            else if (exception is KeyNotFoundException)
+            {
+                statusCode = HttpStatusCode.NotFound; // 404 Not Found
+                exceptionMessage = "Tài nguyên bạn yêu cầu không tồn tại.";
             }
 
             context.Response.StatusCode = (int)statusCode;
 
             var errorResponse = new
             {
-                message = exception.Message,
+                message =  exceptionMessage,
                 statusCode = context.Response.StatusCode
             };
 
-            _logger.Error("Update Influencer: " + exception.ToString());
+            _logger.Error("System has error: " + exception.ToString());
             return context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
         }
     }
