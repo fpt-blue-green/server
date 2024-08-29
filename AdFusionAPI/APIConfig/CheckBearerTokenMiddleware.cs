@@ -83,6 +83,9 @@ namespace AdFusionAPI.APIConfig
                 var principal = new ClaimsPrincipal(identity);
                 context.User = principal;
 
+                // !TODO Set user into context
+                context.Items["user"] = "";
+
                 // Kiểm tra quyền admin nếu yêu cầu
                 if (adminRequired)
                 {

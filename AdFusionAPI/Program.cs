@@ -88,6 +88,7 @@ if (app.Environment.IsDevelopment())
 // 11. Kích hoạt CORS, định tuyến, và middleware xác thực
 app.UseCors("AllowAll");
 app.UseRouting();
+app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseMiddleware<RequestLogMiddleware>();
 app.UseMiddleware<CheckBearerTokenMiddleware>();
 app.UseAuthentication();
