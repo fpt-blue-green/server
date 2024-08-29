@@ -26,7 +26,7 @@ namespace Repositories.Implement
         {
             try
             {
-                var user = await context.Users.SingleOrDefaultAsync(u => u.Id == userId);
+                var user = await context.Users.SingleOrDefaultAsync(u => u.Id == userId && u.IsDeleted == false);
                 return user!;
             }
             catch (Exception ex)
@@ -39,7 +39,7 @@ namespace Repositories.Implement
         {
             try
             {
-                var user = await context.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
+                var user = await context.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
                 return user!;
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace Repositories.Implement
         {
             try
             {
-                var user = await context.Users.SingleOrDefaultAsync(u => u.Email == email);
+                var user = await context.Users.SingleOrDefaultAsync(u => u.Email == email && u.IsDeleted == false);
                     return user!;
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace Repositories.Implement
             {
                 var user = await context.Users
                                     .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
-                                    .Where(u => u.Email == loginDTO.Email && u.Password == loginDTO.Password)
+                                    .Where(u => u.Email == loginDTO.Email && u.Password == loginDTO.Password && u.IsDeleted == false)
                                     .FirstOrDefaultAsync();
                 return user!;
             }

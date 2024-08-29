@@ -1,5 +1,7 @@
-﻿using BusinessObjects.DTOs.AuthDTO;
+﻿using AdFusionAPI.APIConfig;
+using BusinessObjects.DTOs.AuthDTO;
 using BusinessObjects.DTOs.AuthDTOs;
+using BusinessObjects.DTOs.UserDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service.Domain;
 using Service.Interface;
@@ -19,6 +21,8 @@ namespace AdFusionAPI.Controllers
             _config = config;
         }
 
+        [ProducesResponseType(200, Type = typeof(UserTokenDTO))]
+        [NoAuthRequired]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
@@ -26,20 +30,25 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [NoAuthRequired]
         [HttpPost("logout")]
+        [ProducesResponseType(200, Type = typeof(string))]
         public async Task<IActionResult> Logout([FromBody] RefreshTokenDTO tokenDTO)
         {
             await _authenService.Logout(tokenDTO.Token);
             return Ok();
         }
 
+        [NoAuthRequired]
         [HttpPost("refreshToken")]
+        [ProducesResponseType(200, Type = typeof(TokenResponse))]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO tokenDTO)
         {
             var result = await _authenService.RefreshToken(tokenDTO);
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [NoAuthRequired]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO userDTO)
         {
@@ -55,6 +64,7 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [NoAuthRequired]
         [HttpPut("forgotPass")]
         public async Task<IActionResult> ForgotPass([FromBody] ForgotPasswordDTO userDTO)
         {
@@ -62,6 +72,7 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [NoAuthRequired]
         [HttpGet("verify")]
         public async Task<IActionResult> Verify([FromQuery] string token, [FromQuery] int action)
         {

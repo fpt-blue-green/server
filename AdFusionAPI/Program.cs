@@ -18,13 +18,6 @@ builder.Services.AddScoped<CloudinaryStorageService>();
 builder.Services.AddDbContext<PostgresContext>(op =>
     op.UseNpgsql(builder.Configuration.GetConnectionString("AdFusionConnection")));
 
-// 3. Thiết lập chính sách ủy quyền (Authorization Policy)
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminPolicy", policy =>
-        policy.RequireRole("Admin"));
-});
-
 // 4. Đăng ký các dịch vụ tùy chỉnh cho dự án
 builder.Services.AddProjectServices();
 builder.Services.AddQuartzServices();
@@ -96,6 +89,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 app.UseRouting();
 app.UseMiddleware<RequestLogMiddleware>();
+app.UseMiddleware<CheckBearerTokenMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

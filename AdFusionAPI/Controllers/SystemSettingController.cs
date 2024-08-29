@@ -1,4 +1,5 @@
-﻿using BusinessObjects.DTOs;
+﻿using AdFusionAPI.APIConfig;
+using BusinessObjects.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface.SystemServices;
@@ -17,14 +18,15 @@ namespace AdFusionAPI.Controllers
         }
 
         [Authorize(Policy = "AdminPolicy")]
-        [HttpGet("{keyName}")]
+        [HttpGet]
+        [AdminRequired]
         public async Task<IActionResult> Get(string keyName)
         {
             var result = await systemSettingService.GetSystemSetting(keyName);
             return StatusCode((int)result.StatusCode, result);
         }
 
-
+        [AdminRequired]
         [Authorize(Policy = "AdminPolicy")]
         [HttpPut]
         public async Task<IActionResult> Update(SystemSettingDTO settingDTO)
