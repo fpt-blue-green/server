@@ -68,11 +68,11 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpGet("verify")]
-        public async Task<IActionResult> Verify([FromQuery] string token, [FromQuery] int action)
+        [HttpPost("verify")]
+        public async Task<IActionResult> Verify([FromBody] VerifyDTO data)
         {
-            var result = await _authenService.Verify(action, token);
-            return result == true ? Redirect("https://localhost:7244/swagger/index.html") : Redirect("https://localhost:7244/swagger/index.html");
+            var result = await _authenService.Verify(data);
+            return Ok(result);
         }
     }
 }
