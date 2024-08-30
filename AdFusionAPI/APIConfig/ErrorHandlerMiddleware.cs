@@ -33,12 +33,12 @@ namespace AdFusionAPI.APIConfig
             context.Response.ContentType = "application/json";
 
             var statusCode = HttpStatusCode.InternalServerError;
-            var exceptionMessage = "Lỗi hệ thống. Vui lòng liên hệ với bộ phận hỗ trợ nếu vấn đề vẫn tiếp diễn.";
+            var exceptionMessage = "Đã xảy ra lỗi hệ thống. Vui lòng liên hệ bộ phận hỗ trợ nếu vấn đề vẫn tiếp tục.";
 
             if (exception is UnauthorizedAccessException)
             {
                 statusCode = HttpStatusCode.Unauthorized; // 401 Unauthorized
-                exceptionMessage = "Bạn cần phải đăng nhập để truy cập tài nguyên này.";
+                exceptionMessage = "Bạn không có quyền truy cập. Vui lòng đăng nhập để tiếp tục.";
             }
             else if (exception is InvalidOperationException)
             {
@@ -48,19 +48,19 @@ namespace AdFusionAPI.APIConfig
             else if (exception is AccessViolationException)
             {
                 statusCode = HttpStatusCode.Forbidden; // 403 Forbidden
-                exceptionMessage = "Tài khoản của bạn không có quyền truy cập.";
+                exceptionMessage = "Bạn không có quyền truy cập vào tài nguyên này.";
             }
             else if (exception is KeyNotFoundException)
             {
                 statusCode = HttpStatusCode.NotFound; // 404 Not Found
-                exceptionMessage = "Tài nguyên bạn yêu cầu không tồn tại.";
+                exceptionMessage = "Không tìm thấy tài nguyên được yêu cầu.";
             }
 
             context.Response.StatusCode = (int)statusCode;
 
             var errorResponse = new
             {
-                message =  exceptionMessage,
+                message = exceptionMessage,
                 statusCode = context.Response.StatusCode
             };
 

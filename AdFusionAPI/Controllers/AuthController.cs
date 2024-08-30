@@ -22,7 +22,6 @@ namespace AdFusionAPI.Controllers
         }
 
         [ProducesResponseType(200, Type = typeof(UserTokenDTO))]
-        [NoAuthRequired]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
@@ -30,7 +29,6 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [NoAuthRequired]
         [HttpPost("logout")]
         [ProducesResponseType(200, Type = typeof(string))]
         public async Task<IActionResult> Logout([FromBody] RefreshTokenDTO tokenDTO)
@@ -39,7 +37,6 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
-        [NoAuthRequired]
         [HttpPost("refreshToken")]
         [ProducesResponseType(200, Type = typeof(TokenResponse))]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO tokenDTO)
@@ -48,7 +45,6 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [NoAuthRequired]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO userDTO)
         {
@@ -56,6 +52,7 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
+        [AuthRequired]
         [HttpPut("changePass")]
         public async Task<IActionResult> ChangePass([FromBody] ChangePassDTO userDTO)
         {
@@ -64,7 +61,6 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [NoAuthRequired]
         [HttpPut("forgotPass")]
         public async Task<IActionResult> ForgotPass([FromBody] ForgotPasswordDTO userDTO)
         {
@@ -72,7 +68,6 @@ namespace AdFusionAPI.Controllers
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [NoAuthRequired]
         [HttpGet("verify")]
         public async Task<IActionResult> Verify([FromQuery] string token, [FromQuery] int action)
         {

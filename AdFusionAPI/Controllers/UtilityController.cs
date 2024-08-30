@@ -17,7 +17,6 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("location")]
-        [NoAuthRequired]
         public IActionResult GetLocation(string keyName)
         {
             var cities = _utilityService.GetCitiesWithCountry(keyName);
@@ -30,7 +29,6 @@ namespace AdFusionAPI.Controllers
             return Ok(cities);
         }
 
-        [NoAuthRequired]
         [HttpGet("tiktok/video")]
         public async Task<IActionResult> GetVideoTikTokInformation(string url)
         {
@@ -43,7 +41,6 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
-        [NoAuthRequired]
         [HttpGet("instagram/video")]
         public async Task<IActionResult> GetVideoInstagramInformation(string url)
         {
@@ -56,7 +53,6 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
-        [NoAuthRequired]
         [HttpGet("profile")]
         public async Task<IActionResult> GetChannelProfile(int platform, string channelId)
         {
