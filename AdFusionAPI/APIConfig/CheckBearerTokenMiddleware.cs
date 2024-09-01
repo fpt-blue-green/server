@@ -1,11 +1,7 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using BusinessObjects.DTOs;
-using BusinessObjects.Enum;
-using Service.Interface.HelperService;
-using System.Security.Claims;
-using static BusinessObjects.Enum.AuthEnumContainer;
+﻿using BusinessObjects.DTOs.UserDTOs;
 using Newtonsoft.Json;
-using BusinessObjects.DTOs.UserDTOs;
+using Service.Interface.HelperService;
+using static BusinessObjects.Enum.AuthEnumContainer;
 
 namespace AdFusionAPI.APIConfig
 {
@@ -26,57 +22,73 @@ namespace AdFusionAPI.APIConfig
 
             // Lấy đánh dấu hiện tại của endpoint
             var endpoint = context.GetEndpoint();
-            var noAuthRequired = endpoint?.Metadata.GetMetadata<NoAuthRequiredAttribute>() != null;
+            var authRequired = endpoint?.Metadata.GetMetadata<AuthRequiredAttribute>() != null;
             var adminRequired = endpoint?.Metadata.GetMetadata<AdminRequiredAttribute>() != null;
+            var influencerRequired = endpoint?.Metadata.GetMetadata<InfluencerRequiredAttribute>() != null;
+            var brandRequired = endpoint?.Metadata.GetMetadata<BrandRequiredAttribute>() != null;
 
-            if (noAuthRequired)
+            if (authRequired)
             {
-                await _next(context);
-                return;
-            }
+                // Lấy Authorization header
+                var token = context.Request.Headers["Authorization"].ToString();
 
-            // Lấy Authorization header
-            var token = context.Request.Headers["Authorization"].ToString();
-
-            // Kiểm tra nếu token null hoặc không có "Bearer"
-            if (string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
-            {
-                throw new UnauthorizedAccessException();
-            }
-
-            // Xóa "Bearer " khỏi token
-            token = token.Replace("Bearer ", "");
-
-            if (string.IsNullOrEmpty(token))
-            {
-                throw new UnauthorizedAccessException();
-            }
-
-            // Xác thực token
-            var tokenData = await _securityService.ValidateJwtToken(token);
-
-            // Thiết lập thông tin người dùng vào context
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, tokenData)
-            };
-            var identity = new ClaimsIdentity(claims, "Bearer");
-            var principal = new ClaimsPrincipal(identity);
-            context.User = principal;
-
-            // Kiểm tra quyền admin nếu yêu cầu
-            if (adminRequired)
-            {
-                var isAdmin = context.User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == ERole.Admin.ToString());
-                if (!isAdmin)
+                // Kiểm tra nếu token null hoặc không có "Bearer"
+                if (string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
                 {
-                    throw new AccessViolationException();
+                    throw new UnauthorizedAccessException();
                 }
+
+                // Xóa "Bearer " khỏi token
+                token = token.Replace("Bearer ", "");
+
+                if (string.IsNullOrEmpty(token))
+                {
+                    throw new UnauthorizedAccessException();
+                }
+
+                // Xác thực token
+                var tokenData = await _securityService.ValidateJwtToken(token);
+
+                var user = JsonConvert.DeserializeObject<UserDTO>(tokenData);
+
+                if (user == null)
+                {
+                    throw new UnauthorizedAccessException();
+                }
+
+                // Kiểm tra quyền admin nếu yêu cầu
+                if (adminRequired)
+                {
+                    //var isAdmin = context.User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == ERole.Admin.ToString());
+                    if (!(user.Role == ERole.Admin))
+                    {
+                        throw new AccessViolationException();
+                    }
+                }
+
+                // Kiểm tra quyền influencer nếu yêu cầu
+                if (influencerRequired)
+                {
+                    //var isInfluencer = context.User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == ERole.Influencer.ToString());
+                    if (!(user.Role == ERole.Influencer))
+                    {
+                        throw new AccessViolationException();
+                    }
+                }
+
+                // Kiểm tra quyền brand nếu yêu cầu
+                if (brandRequired)
+                {
+                    //var isBrand = context.User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == ERole.Brand.ToString());
+                    if (!(user.Role == ERole.Brand))
+                    {
+                        throw new AccessViolationException();
+                    }
+                }
+
+                context.Items["user"] = user;
             }
 
-            context.Items["user"] = JsonConvert.DeserializeObject<UserDTO>(tokenData);
-
-            // Cho phép request tiếp tục đến controller nếu token hợp lệ
             await _next(context);
         }
     }

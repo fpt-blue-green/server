@@ -97,7 +97,7 @@ namespace Service.Implement
                 throw new UnauthorizedAccessException();
             }
 
-            var userDTO = JsonConvert.DeserializeObject<UserDTO>(data); 
+            var userDTO = JsonConvert.DeserializeObject<UserDTO>(data);
 
             var user = await _userRepository.GetUserByRefreshToken(tokenDTO.Token!);
 
@@ -161,7 +161,7 @@ namespace Service.Implement
 
                 var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(registerDTO));
 
-                var confirmationUrl = $"{_configManager.WebApiBaseUrl}/Auth/verify?action={(int)EAuthAction.Register}&token={token}";
+                var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.Register}&token={token}";
 
                 var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Đăng ký tài khoản mới").Replace("{confirmLink}", confirmationUrl);
 
@@ -231,7 +231,7 @@ namespace Service.Implement
 
                 var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet));
 
-                var confirmationUrl = $"{_configManager.WebApiBaseUrl}/Auth/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
+                var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
 
                 var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Thay đổi mật khẩu").Replace("{confirmLink}", confirmationUrl);
 
@@ -278,7 +278,7 @@ namespace Service.Implement
 
                 var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet));
 
-                var confirmationUrl = $"{_configManager.WebApiBaseUrl}/Auth/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
+                var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
 
                 var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Quên mật khẩu").Replace("{confirmLink}", confirmationUrl);
 
@@ -304,20 +304,20 @@ namespace Service.Implement
             }
         }
 
-        public async Task<bool> Verify(int action, string token)
+        public async Task<bool> Verify(VerifyDTO data)
         {
             try
             {
-                switch ((EAuthAction)action)
+                switch (data.Action)
                 {
                     case EAuthAction.Register:
-                        await ValidateRegister(token);
+                        await ValidateRegister(data.Token);
                         break;
                     case EAuthAction.ChangePass:
-                        await ValidateChangePass(token);
+                        await ValidateChangePass(data.Token);
                         break;
                     case EAuthAction.ForgotPassword:
-                        await ValidateForgotPass(token);
+                        await ValidateForgotPass(data.Token);
                         break;
                     default:
                         throw new Exception("Unvalid Validate Authen action!!");
