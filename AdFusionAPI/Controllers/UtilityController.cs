@@ -29,39 +29,17 @@ namespace AdFusionAPI.Controllers
             return Ok(cities);
         }
 
-        [HttpGet("tiktok/video")]
-        public async Task<IActionResult> GetVideoTikTokInformation(string url)
-        {
-            var info = await _utilityService.GetVideoTikTokInformation(url);
-            if (info.IsNullOrEmpty())
-            {
-                return NotFound();
-            }
-
-            return Ok(info);
-        }
-
-        [HttpGet("instagram/video")]
-        public async Task<IActionResult> GetVideoInstagramInformation(string url)
-        {
-            var info = await _utilityService.GetVideoInstagramInformation(url);
-            if (info.IsNullOrEmpty())
-            {
-                return NotFound();
-            }
-
-            return Ok(info);
-        }
-
         [HttpGet("profile")]
         public async Task<IActionResult> GetChannelProfile(int platform, string channelId)
         {
             var info = await _utilityService.GetChannelProfile(platform, channelId);
-            if (info.IsNullOrEmpty())
-            {
-                return NotFound();
-            }
+            return Ok(info);
+        }
 
+        [HttpGet("video")]
+        public async Task<IActionResult> GetVideoInformation(int platform, string url)
+        {
+            var info = await _utilityService.GetVideoInformation(platform, url);
             return Ok(info);
         }
     }

@@ -20,6 +20,7 @@
 
         public readonly string TikTokUrl = "https://www.tiktok.com/@";
         public readonly string InstagramUrl = "https://www.instagram.com/";
+        public readonly string YoutubeUrl = "https://www.youtube.com/@";
 
     }
 }
