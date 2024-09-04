@@ -12,28 +12,14 @@ namespace Repositories.Implement
 
         public async Task<SystemSetting> GetSystemSetting(string keyName)
         {
-            try
-            {
-                var systemSetting = await context.SystemSettings.FirstOrDefaultAsync(s => s.KeyName == keyName);
-                return systemSetting!;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var systemSetting = await context.SystemSettings.FirstOrDefaultAsync(s => s.KeyName == keyName);
+            return systemSetting!;
         }
 
         public async Task UpdateSystemSetingKeyValue(SystemSetting systemSetting)
         {
-            try
-            {
-                context.Entry<SystemSetting>(systemSetting).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                await context.SaveChangesAsync();
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            context.Entry<SystemSetting>(systemSetting).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            await context.SaveChangesAsync();
         }
     }
 }

@@ -10,99 +10,52 @@ namespace Repositories.Implement
         public InfluencerRepository() { }
         public async Task<IEnumerable<Influencer>> GetAlls()
         {
-            var influencers = new List<Influencer>();
-            try
-            {
-                influencers = await context.Influencers
+            var  influencers = await context.Influencers
                     .Include(i => i.Channels)
                     .Include(i => i.Tags)
                     .Include(i => i.Packages)
                     .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return influencers;
         }
         public async Task<Influencer> GetById(Guid id)
         {
-            var influencer = new Influencer();
-            try
-            {
-
-                influencer = await context.Influencers.SingleOrDefaultAsync(i => i.Id == id);
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var influencer = await context.Influencers.SingleOrDefaultAsync(i => i.Id == id);
             return influencer;
         }
 
         public async Task<Influencer> GetByUserId(Guid userId)
         {
-            var influencer = new Influencer();
-            try
-            {
-                influencer = await context.Influencers.FirstOrDefaultAsync(s => s.UserId == userId);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var influencer = await context.Influencers.FirstOrDefaultAsync(s => s.UserId == userId);
             return influencer;
         }
 
         public async Task Create(Influencer influencer)
         {
-            try
-            {
-                await context.Influencers.AddAsync(influencer);
-                await context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            await context.Influencers.AddAsync(influencer);
+            await context.SaveChangesAsync();
         }
         public async Task Update(Influencer influencer)
         {
-            try
-            {
-                var existingEntity = context.Set<Influencer>().Local
-                    .FirstOrDefault(e => e.Id == influencer.Id);
+            var existingEntity = context.Set<Influencer>().Local
+                     .FirstOrDefault(e => e.Id == influencer.Id);
 
-                if (existingEntity != null)
-                {
-                    context.Entry(existingEntity).CurrentValues.SetValues(influencer);
-                }
-                else
-                {
-                    context.Entry<Influencer>(influencer).State = EntityState.Modified;
-                }
-
-                await context.SaveChangesAsync();
-            }
-            catch (Exception ex)
+            if (existingEntity != null)
             {
-                throw new Exception(ex.Message);
+                context.Entry(existingEntity).CurrentValues.SetValues(influencer);
             }
+            else
+            {
+                context.Entry<Influencer>(influencer).State = EntityState.Modified;
+            }
+
+            await context.SaveChangesAsync();
         }
 
         public async Task Delete(Guid id)
         {
-            try
-            {
-                var influencer = await context.Influencers.SingleOrDefaultAsync(i => i.Id == id);
-                context.Influencers.Remove(influencer);
-                await context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var influencer = await context.Influencers.SingleOrDefaultAsync(i => i.Id == id);
+            context.Influencers.Remove(influencer);
+            await context.SaveChangesAsync();
         }
 
 
@@ -119,7 +72,6 @@ namespace Repositories.Implement
                                               .FirstOrDefaultAsync(i => i.Id == influencerId);
 
             var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == tagId);
-
 
             if (influencer != null && tag != null)
             {

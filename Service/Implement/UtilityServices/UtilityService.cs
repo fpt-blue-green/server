@@ -19,38 +19,27 @@ namespace Service.Implement.UtilityServices
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISystemSettingService _systemSettingService = new SystemSettingService();
 
+        #region SearchCity
         public IEnumerable<string> GetCitiesWithCountry(string keyword)
         {
-            try
+            _loggerService.Information("Start to get City: ");
+            var cities = new List<string>();
+            string inputFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "cities.json").Replace("AdFusionAPI", "Service");
+
+            string json = File.ReadAllText(inputFilePath);
+
+            JArray countriesArray = JArray.Parse(json);
+
+            var results = SearchCities(countriesArray, keyword);
+
+            if (results.Any())
             {
-                _loggerService.Information("Start to get City: ");
-                var cities = new List<string>();
-                string inputFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "cities.json").Replace("AdFusionAPI", "Service");
-
-                string json = File.ReadAllText(inputFilePath);
-
-                JArray countriesArray = JArray.Parse(json);
-
-                var results = SearchCities(countriesArray, keyword);
-
-                if (results.Any())
+                foreach (var result in results)
                 {
-                    foreach (var result in results)
-                    {
-                        cities.Add($"{result.Name}, {result.Country}");
-                    }
-                    return cities;
-                }
-                else
-                {
-                    throw new Exception("Không tìm thấy thành phố phù hợp.");
+                    cities.Add($"{result.Name}, {result.Country}");
                 }
             }
-            catch (Exception ex)
-            {
-                _loggerService.Error(ex.ToString());
-                return null!;
-            }
+            return cities;
         }
         static IEnumerable<CityResult> SearchCities(JArray countriesArray, string searchTerm)
         {
@@ -67,135 +56,163 @@ namespace Service.Implement.UtilityServices
 
             return results;
         }
+        #endregion
+
         public async Task<string> GetChannelProfile(int platform, string channelId)
         {
-            try
+            switch ((EPlatform)platform)
             {
-                switch ((EPlatform)platform)
-                {
-                    case EPlatform.Tiktok:
-                        var tiktokUrl = _configManager.TikTokUrl + channelId;
-                        return await GetTikTokInformation(tiktokUrl);
-                    case EPlatform.Youtube:
-                        return await GetYoutubeInformation(channelId);
-                    case EPlatform.Instagram:
-                        var instagramUrl = _configManager.InstagramUrl + channelId;
-                        return await GetInstagramInformation(instagramUrl);
-                    default:
-                        throw new Exception("Abc");
-                }
-            }catch(Exception ex)
-            {
-                return string.Empty;
+                case EPlatform.Tiktok:
+                    var tiktokUrl = _configManager.TikTokUrl + channelId;
+                    return await GetTikTokInformation(tiktokUrl);
+                case EPlatform.Youtube:
+                    return await GetYoutubeInformation(channelId);
+                case EPlatform.Instagram:
+                    var instagramUrl = _configManager.InstagramUrl + channelId;
+                    return await GetInstagramInformation(instagramUrl);
+                default:
+                    throw new Exception("GetChannelProfile: Invalid input!");
             }
         }
 
+        #region TikTok
         public async Task<string> GetTikTokInformation(string url)
         {
-            try
+            _loggerService.Information("Start to get TikTok Account information: " + url);
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+            string decodedUrl = HttpUtility.UrlDecode(url);
+            var response = await client.GetStringAsync(decodedUrl);
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(response);
+
+            var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
+
+            if (followerNode != null)
             {
-                _loggerService.Information("Start to get TikTok Account information: " + url);
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+                string jsonContent = followerNode.InnerText;
 
-                string decodedUrl = HttpUtility.UrlDecode(url);
-                var response = await client.GetStringAsync(decodedUrl);
+                var jsonObj = JObject.Parse(jsonContent);
 
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(response);
-
-                var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
-
-                if (followerNode != null)
-                {
-                    string jsonContent = followerNode.InnerText;
-
-                    var jsonObj = JObject.Parse(jsonContent);
-
-                    var accountInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?.ToString();
-                    return accountInfo ?? string.Empty;
-                }
-
-                throw new Exception("Không tìm thấy thông tin tài khoản.");
+                var accountInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?.ToString();
+                return accountInfo ?? string.Empty;
             }
-            catch (Exception ex)
-            {
-                _loggerService.Error(ex.ToString());
-                return string.Empty;
-            }
+            throw new InvalidOperationException("Không tìm thấy thông tin tài khoản.");
         }
         public async Task<string> GetVideoTikTokInformation(string url)
         {
-            try
+            _loggerService.Information("Start to get video TikTok information: " + url);
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+            string decodedUrl = HttpUtility.UrlDecode(url);
+            var response = await client.GetStringAsync(decodedUrl);
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(response);
+
+            var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
+
+            if (followerNode != null)
             {
-                _loggerService.Information("Start to get video TikTok information: " + url);
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+                string jsonContent = followerNode.InnerText;
 
-                string decodedUrl = HttpUtility.UrlDecode(url);
-                var response = await client.GetStringAsync(decodedUrl);
+                var jsonObj = JObject.Parse(jsonContent);
 
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(response);
-
-                var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
-
-                if (followerNode != null)
-                {
-                    string jsonContent = followerNode.InnerText;
-
-                    var jsonObj = JObject.Parse(jsonContent);
-
-                    var videoInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.video-detail"]?["itemInfo"]?.ToString();
-                    return videoInfo ?? string.Empty;
-                }
-
-                throw new Exception("Không tìm thấy thông tin video.");
+                var videoInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.video-detail"]?["itemInfo"]?.ToString();
+                return videoInfo ?? string.Empty;
             }
-            catch (Exception ex)
-            {
-                _loggerService.Error(ex.ToString());
-                return string.Empty;
-            }
+
+            throw new InvalidOperationException("Không tìm thấy thông tin video.");
         }
+        #endregion
+
+        #region Instagram
         public async Task<string> GetVideoInstagramInformation(string url)
         {
-            try
+            _loggerService.Information("Start to get video Instagram information: ");
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+            string decodedUrl = HttpUtility.UrlDecode(url);
+            var response = await client.GetStringAsync(decodedUrl);
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(response);
+
+            var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+
+            if (followersNode != null)
             {
-                _loggerService.Information("Start to get video Instagram information: ");
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
-                string decodedUrl = HttpUtility.UrlDecode(url);
-                var response = await client.GetStringAsync(decodedUrl);
-
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(response);
-
-                var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
-
-                if (followersNode != null)
+                string content = followersNode.GetAttributeValue("content", "");
+                string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                var data = new
                 {
-                    string content = followersNode.GetAttributeValue("content", "");
-                    string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                    var data = new
-                    {
-                        likeCount = ConvertToNumber(parts[0]),
-                        commentCount = ConvertToNumber(parts[2]),
-                        actor = parts[5],
-                        date = parts[7] + " " + parts[8] + " " + parts[9],
-                    };
-                    return JsonConvert.SerializeObject(data) ?? string.Empty;
-                }
-
-                throw new Exception("Không tìm thấy thông tin video.");
+                    likeCount = ConvertToNumber(parts[0]),
+                    commentCount = ConvertToNumber(parts[2]),
+                    actor = parts[5],
+                    date = parts[7] + " " + parts[8] + " " + parts[9],
+                };
+                return JsonConvert.SerializeObject(data) ?? string.Empty;
             }
-            catch (Exception ex)
+            throw new InvalidOperationException("Không tìm thấy thông tin tài khoản.");
+        }
+        public async Task<string> GetInstagramInformation(string url)
+        {
+            _loggerService.Information("Start to get Instagram Account information: ");
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+            string decodedUrl = HttpUtility.UrlDecode(url);
+            var response = await client.GetStringAsync(decodedUrl);
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(response);
+
+            var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+
+            if (followersNode != null)
             {
-                _loggerService.Error(ex.ToString());
-                return string.Empty;
+                string content = followersNode.GetAttributeValue("content", "");
+                string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                var data = new
+                {
+                    followers = ConvertToNumber(parts[0]),
+                    following = ConvertToNumber(parts[2]),
+                    posts = ConvertToNumber(parts[4]),
+                };
+                return JsonConvert.SerializeObject(data) ?? string.Empty;
+            }
+            throw new InvalidOperationException("Không tìm thấy thông tin video.");
+        }
+        #endregion
+
+        #region Youtube
+        public async Task<string> GetYoutubeInformation(string channelName)
+        {
+            var channelId = string.Empty;
+            var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue;
+            var url = $"https://www.googleapis.com/youtube/v3/search?part=snippet&q={channelName}&type=channel&key={apiKey}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetStringAsync(url);
+                var json = JObject.Parse(response);
+                channelId = json["items"]?[0]?["id"]?["channelId"]?.ToString();
+            }
+
+            var informationUrl = $"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channelId}&key={apiKey}";
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetStringAsync(informationUrl);
+                var json = JObject.Parse(response);
+                var subscriberCount = json["items"]?[0]?["statistics"]?.ToString();
+                return subscriberCount ?? throw new InvalidOperationException("Không tìm thấy thông tin tài khoản."); ;
             }
         }
+        #endregion
         public static long ConvertToNumber(string input)
         {
             if (input == "0")
@@ -218,74 +235,6 @@ namespace Service.Implement.UtilityServices
                     return long.Parse(input);
             }
         }
-        public async Task<string> GetInstagramInformation(string url)
-        {
-            try
-            {
-                _loggerService.Information("Start to get Instagram Account information: ");
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
-                string decodedUrl = HttpUtility.UrlDecode(url);
-                var response = await client.GetStringAsync(decodedUrl);
-
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(response);
-
-                var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
-
-                if (followersNode != null)
-                {
-                    string content = followersNode.GetAttributeValue("content", "");
-                    string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                    var data = new
-                    {
-                        followers = ConvertToNumber(parts[0]),
-                        following = ConvertToNumber(parts[2]),
-                        posts = ConvertToNumber(parts[4]),
-                    };
-                    return JsonConvert.SerializeObject(data) ?? string.Empty;
-                }
-
-                throw new Exception("Không tìm thấy thông tin account.");
-            }
-            catch (Exception ex)
-            {
-                _loggerService.Error(ex.ToString());
-                return string.Empty;
-            }
-        }
-
-        public async Task<string> GetYoutubeInformation(string channelName)
-        {
-            try
-            {
-                var channelId = string.Empty;
-                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.Data.KeyValue;
-                var url = $"https://www.googleapis.com/youtube/v3/search?part=snippet&q={channelName}&type=channel&key={apiKey}";
-
-                using (var client = new HttpClient())
-                {
-                    var response = await client.GetStringAsync(url);
-                    var json = JObject.Parse(response);
-                    channelId = json["items"]?[0]?["id"]?["channelId"]?.ToString();
-                }
-
-                var informationUrl = $"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channelId}&key={apiKey}";
-                using (var client = new HttpClient())
-                {
-                    var response = await client.GetStringAsync(informationUrl);
-                    var json = JObject.Parse(response);
-                    var subscriberCount = json["items"]?[0]?["statistics"]?.ToString();
-                    return subscriberCount!;
-                }
-            }
-            catch (Exception ex)
-            {
-                _loggerService.Error(ex.ToString());
-                return string.Empty;
-            }
-
-        }
     }
 }

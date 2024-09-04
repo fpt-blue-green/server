@@ -23,7 +23,7 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> Get(string keyName)
         {
             var result = await systemSettingService.GetSystemSetting(keyName);
-            return StatusCode((int)result.StatusCode, result);
+            return Ok(result);
         }
 
         [AdminRequired]
@@ -32,7 +32,8 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> Update(SystemSettingDTO settingDTO)
         {
             var result = await systemSettingService.UpdateSystemSetting(settingDTO);
-            return StatusCode((int)result.StatusCode, result);
+            return Ok(result);
+
         }
     }
 }

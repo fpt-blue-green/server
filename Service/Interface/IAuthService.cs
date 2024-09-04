@@ -11,9 +11,9 @@ namespace Service.Interface
         Task<UserTokenDTO> Login(LoginDTO loginDTO);
         Task<TokenResponse> RefreshToken(RefreshTokenDTO tokenDTO);
         Task Logout(string token);
-        Task<ApiResponse<string>> Register(RegisterDTO registerDTO);
-        Task<ApiResponse<string>> ChangePassword(ChangePassDTO changePassDTO, string token);
+        Task<string> Register(RegisterDTO registerDTO);
+        Task<string> ChangePassword(ChangePassDTO changePassDTO, UserDTO user);
         Task<bool> Verify(VerifyDTO data);
-        Task<ApiResponse<string>> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO);
+        Task<string > ForgotPassword(ForgotPasswordDTO forgotPasswordDTO);
     }
 }

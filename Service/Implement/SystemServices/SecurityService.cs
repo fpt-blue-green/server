@@ -26,7 +26,7 @@ namespace Service.Implement.SystemService
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(45),
+                Expires = DateTime.UtcNow.AddMinutes(15),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -58,26 +58,19 @@ namespace Service.Implement.SystemService
             var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
             var key = Encoding.ASCII.GetBytes(jwtSetting.KeyValue!);
 
-            try
+            var validationParameters = new TokenValidationParameters
             {
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = false, // Bỏ qua kiểm tra Issuer
-                    ValidateAudience = false, // Bỏ qua kiểm tra Audience
-                    ValidateLifetime = true, // Kiểm tra thời gian sống của token
-                    ValidateIssuerSigningKey = true, // Kiểm tra chữ ký của token
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ClockSkew = TimeSpan.Zero
-                };
+                ValidateIssuer = false, // Bỏ qua kiểm tra Issuer
+                ValidateAudience = false, // Bỏ qua kiểm tra Audience
+                ValidateLifetime = true, // Kiểm tra thời gian sống của token
+                ValidateIssuerSigningKey = true, // Kiểm tra chữ ký của token
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ClockSkew = TimeSpan.Zero
+            };
 
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
-                return principal.Identity?.Name!;
-            }
-            catch
-            {
-                throw new UnauthorizedAccessException();
-            }
+            return principal.Identity?.Name!;
         }
 
         public string ComputeSha256Hash(string rawData)
