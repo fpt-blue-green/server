@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.DTOs;
 using BusinessObjects.Enum;
+using CloudinaryDotNet;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,6 +10,7 @@ using Service.Implement.SystemService;
 using Service.Interface.SystemServices;
 using Service.Interface.UtilityServices;
 using System.Globalization;
+using System.Net;
 using System.Web;
 
 namespace Service.Implement.UtilityServices
@@ -75,20 +77,35 @@ namespace Service.Implement.UtilityServices
             }
         }
 
+        public async Task<string> GetVideoInformation(int platform, string url)
+        {
+            string decodedUrl = WebUtility.UrlDecode(url);
+            switch ((EPlatform)platform)
+            {
+                case EPlatform.Tiktok:
+                    return await GetVideoTikTokInformation(decodedUrl);
+                case EPlatform.Youtube:
+                    return await GetYoutubeVideoInformation(decodedUrl);
+                case EPlatform.Instagram:
+                    return await GetVideoInstagramInformation(decodedUrl);
+                default:
+                    throw new Exception("GetVideoInformation: Invalid input!");
+            }
+        }
+
         #region TikTok
         public async Task<string> GetTikTokInformation(string url)
         {
             _loggerService.Information("Start to get TikTok Account information: " + url);
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
             string decodedUrl = HttpUtility.UrlDecode(url);
             var response = await client.GetStringAsync(decodedUrl);
-
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(response);
-
             var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
+
+            string result = null!;
 
             if (followerNode != null)
             {
@@ -96,82 +113,93 @@ namespace Service.Implement.UtilityServices
 
                 var jsonObj = JObject.Parse(jsonContent);
 
-                var accountInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?.ToString();
-                return accountInfo ?? string.Empty;
+                result = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?.ToString()!;
             }
-            throw new InvalidOperationException("Không tìm thấy thông tin tài khoản.");
+            return result ?? throw new KeyNotFoundException();
         }
         public async Task<string> GetVideoTikTokInformation(string url)
         {
-            _loggerService.Information("Start to get video TikTok information: " + url);
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
-            string decodedUrl = HttpUtility.UrlDecode(url);
-            var response = await client.GetStringAsync(decodedUrl);
-
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(response);
-
-            var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
-
-            if (followerNode != null)
+            try
             {
-                string jsonContent = followerNode.InnerText;
+                _loggerService.Information("Start to get video TikTok information: " + url);
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+                string decodedUrl = HttpUtility.UrlDecode(url);
+                var response = await client.GetStringAsync(decodedUrl);
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(response);
+                var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
 
-                var jsonObj = JObject.Parse(jsonContent);
+                string result = null!;
 
-                var videoInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.video-detail"]?["itemInfo"]?.ToString();
-                return videoInfo ?? string.Empty;
+                if (followerNode != null)
+                {
+                    string jsonContent = followerNode.InnerText;
+
+                    var jsonObj = JObject.Parse(jsonContent);
+
+                    result = jsonObj["__DEFAULT_SCOPE__"]?["webapp.video-detail"]?["itemInfo"]?.ToString()!;
+                }
+
+                return result ?? throw new KeyNotFoundException();
             }
-
-            throw new InvalidOperationException("Không tìm thấy thông tin video.");
+            catch
+            {
+                throw new KeyNotFoundException();
+            }
         }
         #endregion
 
         #region Instagram
         public async Task<string> GetVideoInstagramInformation(string url)
         {
-            _loggerService.Information("Start to get video Instagram information: ");
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
-            string decodedUrl = HttpUtility.UrlDecode(url);
-            var response = await client.GetStringAsync(decodedUrl);
-
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(response);
-
-            var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
-
-            if (followersNode != null)
+            try
             {
-                string content = followersNode.GetAttributeValue("content", "");
-                string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                var data = new
+                _loggerService.Information("Start to get video Instagram information: ");
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
+                string decodedUrl = HttpUtility.UrlDecode(url);
+                var response = await client.GetStringAsync(decodedUrl);
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(response);
+                var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+
+                string result = null!;
+
+                if (followersNode != null)
                 {
-                    likeCount = ConvertToNumber(parts[0]),
-                    commentCount = ConvertToNumber(parts[2]),
-                    actor = parts[5],
-                    date = parts[7] + " " + parts[8] + " " + parts[9],
-                };
-                return JsonConvert.SerializeObject(data) ?? string.Empty;
+                    string content = followersNode.GetAttributeValue("content", "");
+                    string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                    var data = new
+                    {
+                        likeCount = ConvertToNumber(parts[0]),
+                        commentCount = ConvertToNumber(parts[2]),
+                        actor = parts[5],
+                        date = parts[7] + " " + parts[8] + " " + parts[9],
+                    };
+                    result = JsonConvert.SerializeObject(data)!;
+                }
+
+                return result ?? throw new KeyNotFoundException();
             }
-            throw new InvalidOperationException("Không tìm thấy thông tin tài khoản.");
+            catch
+            {
+                throw new KeyNotFoundException();
+            }
         }
         public async Task<string> GetInstagramInformation(string url)
         {
             _loggerService.Information("Start to get Instagram Account information: ");
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-
             string decodedUrl = HttpUtility.UrlDecode(url);
             var response = await client.GetStringAsync(decodedUrl);
-
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(response);
-
             var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+           
+            string result = null!;
 
             if (followersNode != null)
             {
@@ -183,56 +211,112 @@ namespace Service.Implement.UtilityServices
                     following = ConvertToNumber(parts[2]),
                     posts = ConvertToNumber(parts[4]),
                 };
-                return JsonConvert.SerializeObject(data) ?? string.Empty;
+                result = JsonConvert.SerializeObject(data);
             }
-            throw new InvalidOperationException("Không tìm thấy thông tin video.");
+            return result ?? throw new KeyNotFoundException();
         }
         #endregion
 
         #region Youtube
         public async Task<string> GetYoutubeInformation(string channelName)
         {
-            var channelId = string.Empty;
-            var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue;
-            var url = $"https://www.googleapis.com/youtube/v3/search?part=snippet&q={channelName}&type=channel&key={apiKey}";
-
-            using (var client = new HttpClient())
+            try
             {
-                var response = await client.GetStringAsync(url);
-                var json = JObject.Parse(response);
-                channelId = json["items"]?[0]?["id"]?["channelId"]?.ToString();
+                var channelId = string.Empty;
+                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue;
+                var url = $"https://www.googleapis.com/youtube/v3/search?part=snippet&q={channelName}&type=channel&key={apiKey}";
+
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetStringAsync(url);
+                    var json = JObject.Parse(response);
+                    channelId = json["items"]?[0]?["id"]?["channelId"]?.ToString();
+                }
+
+                var informationUrl = $"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channelId}&key={apiKey}";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetStringAsync(informationUrl);
+                    var json = JObject.Parse(response);
+                    var subscriberCount = json["items"]?[0]?["statistics"]?.ToString();
+                    return subscriberCount ?? throw new KeyNotFoundException();
+                }
             }
-
-            var informationUrl = $"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channelId}&key={apiKey}";
-            using (var client = new HttpClient())
+            catch
             {
-                var response = await client.GetStringAsync(informationUrl);
-                var json = JObject.Parse(response);
-                var subscriberCount = json["items"]?[0]?["statistics"]?.ToString();
-                return subscriberCount ?? throw new InvalidOperationException("Không tìm thấy thông tin tài khoản."); ;
+                throw new KeyNotFoundException();
             }
         }
+
+        public async Task<string> GetYoutubeVideoInformation(string videoUrl)
+        {
+            try
+            {
+                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue;
+                string videoId = videoUrl.Substring(videoUrl.IndexOf("v=") + 2).Split('&')[0];
+
+                string apiUrl = $"https://www.googleapis.com/youtube/v3/videos?part=statistics&id={videoId}&key={apiKey}";
+
+                HttpClient client = new HttpClient();
+                var response = await client.GetStringAsync(apiUrl);
+                var json = JObject.Parse(response);
+
+                if (json["items"] != null && json["items"].HasValues)
+                {
+                    return json["items"]?[0]?["statistics"]?.ToString()!;
+                }
+                else
+                {
+                    throw new KeyNotFoundException();
+                }
+            }
+            catch
+            {
+                throw new KeyNotFoundException();
+            }
+        }
+
         #endregion
+
         public static long ConvertToNumber(string input)
         {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                throw new ArgumentException("Input không hợp lệ.");
+            }
+
+            // Loại bỏ dấu phẩy (,) nếu có để chuyển đổi đúng
+            input = input.Replace(",", "");
+
+            // Nếu đầu vào là "0"
             if (input == "0")
             {
                 return 0;
             }
 
+            // Kiểm tra ký tự cuối cùng để xác định đơn vị (K, M)
             char lastChar = input[input.Length - 1];
 
-            string numberPart = input.Substring(0, input.Length - 1);
-            double number = double.Parse(numberPart);
-
-            switch (lastChar)
+            if (char.IsLetter(lastChar))
             {
-                case 'M':
-                    return (long)(number * 1_000_000);
-                case 'K':
-                    return (long)(number * 1_000);
-                default:
-                    return long.Parse(input);
+                // Nếu ký tự cuối cùng là chữ cái (K, M), ta cắt phần số
+                string numberPart = input.Substring(0, input.Length - 1);
+                double number = double.Parse(numberPart);
+
+                switch (lastChar)
+                {
+                    case 'M':
+                        return (long)(number * 1_000_000);
+                    case 'K':
+                        return (long)(number * 1_000);
+                    default:
+                        throw new ArgumentException("Đơn vị không hợp lệ.");
+                }
+            }
+            else
+            {
+                // Nếu không có ký tự chữ cái, chỉ cần chuyển đổi thành số
+                return long.Parse(input);
             }
         }
 
