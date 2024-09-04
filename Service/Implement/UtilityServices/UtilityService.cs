@@ -100,6 +100,10 @@ namespace Service.Implement.UtilityServices
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
             string decodedUrl = HttpUtility.UrlDecode(url);
+            if (!decodedUrl.Contains("tiktok"))
+            {
+                throw new InvalidOperationException("Đường dẫn không hợp lệ");
+            }
             var response = await client.GetStringAsync(decodedUrl);
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(response);
@@ -113,7 +117,7 @@ namespace Service.Implement.UtilityServices
 
                 var jsonObj = JObject.Parse(jsonContent);
 
-                result = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?.ToString()!;
+                result = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?["stats"]?.ToString()!;
             }
             return result ?? throw new KeyNotFoundException();
         }
@@ -125,6 +129,10 @@ namespace Service.Implement.UtilityServices
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
                 string decodedUrl = HttpUtility.UrlDecode(url);
+                if (!decodedUrl.Contains("tiktok"))
+                {
+                    throw new InvalidOperationException("Đường dẫn không hợp lệ");
+                }
                 var response = await client.GetStringAsync(decodedUrl);
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(response);
@@ -160,6 +168,10 @@ namespace Service.Implement.UtilityServices
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
                 string decodedUrl = HttpUtility.UrlDecode(url);
+                if (!decodedUrl.Contains("instagram"))
+                {
+                    throw new InvalidOperationException("Đường dẫn không hợp lệ");
+                }
                 var response = await client.GetStringAsync(decodedUrl);
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(response);
@@ -194,6 +206,10 @@ namespace Service.Implement.UtilityServices
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
             string decodedUrl = HttpUtility.UrlDecode(url);
+            if (!decodedUrl.Contains("instagram"))
+            {
+                throw new InvalidOperationException("Đường dẫn không hợp lệ");
+            }
             var response = await client.GetStringAsync(decodedUrl);
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(response);

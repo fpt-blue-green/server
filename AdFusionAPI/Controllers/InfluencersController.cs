@@ -3,6 +3,7 @@ using AutoMapper;
 using BusinessObjects.DTOs;
 using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.DTOs.InfluencerDTOs;
+using BusinessObjects.DTOs.UserDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 
@@ -13,11 +14,13 @@ namespace AdFusionAPI.Controllers
     public class InfluencersController : Controller
     {
         private readonly IInfluencerService _influencerRepository;
+        private readonly IChannelService _channelService;
         private readonly IMapper _mapper;
 
-        public InfluencersController(IInfluencerService influencerService, IMapper mapper)
+        public InfluencersController(IInfluencerService influencerService,IChannelService channelService, IMapper mapper)
         {
             _influencerRepository = influencerService;
+            _channelService = channelService;
             _mapper = mapper;
         }
 
@@ -92,6 +95,15 @@ namespace AdFusionAPI.Controllers
             var result = await _influencerRepository.UpdateTagsForInfluencer(token!, listTags);
             return StatusCode((int)result.StatusCode, result);
 
+        }
+
+        [HttpPost("influencerChannels")]
+        [InfluencerRequired]
+        public async Task<IActionResult> CreateChannels([FromBody] Dictionary<int, string> channels)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _channelService.CreateInfluencerChannel(user, channels);
+            return Ok();
         }
 
         [HttpPut]
