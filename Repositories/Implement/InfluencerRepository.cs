@@ -79,38 +79,5 @@ namespace Repositories.Implement
                 await context.SaveChangesAsync();
             }
         }
-/*
-        public async Task RemoveTagFromInfluencer(Guid influencerId, Guid tagId)
-        {
-            var influencer = await context.Influencers.Include(i => i.Tags)
-                                                .FirstOrDefaultAsync(i => i.Id == influencerId);
-
-            if (influencer != null)
-            {
-                var tagToRemove = influencer.Tags.FirstOrDefault(t => t.Id == tagId);
-
-                if (tagToRemove != null)
-                {
-                    influencer.Tags.Remove(tagToRemove);
-                    await context.SaveChangesAsync();
-                }
-            }
-        }*/
-
-        public async Task UpdateTagsForInfluencer(Guid influencerId, List<Guid> tagIds)
-        {
-            var influencer = await context.Influencers.Include(i => i.Tags)
-                                                .FirstOrDefaultAsync(i => i.Id == influencerId);
-            if (influencer != null)
-            {
-                influencer.Tags.Clear();
-                var newTags = await context.Tags.Where(t => tagIds.Contains(t.Id)).ToListAsync();
-                foreach (var tag in newTags)
-                {
-                    influencer.Tags.Add(tag);
-                }
-                await context.SaveChangesAsync();
-            }
-        }
     }
 }
