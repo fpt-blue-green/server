@@ -21,7 +21,6 @@ namespace AdFusionAPI.Controllers
             _config = config;
         }
 
-        [ProducesResponseType(200, Type = typeof(UserTokenDTO))]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
@@ -30,7 +29,6 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("logout")]
-        [ProducesResponseType(200, Type = typeof(string))]
         public async Task<IActionResult> Logout([FromBody] RefreshTokenDTO tokenDTO)
         {
             await _authenService.Logout(tokenDTO.Token);
@@ -38,7 +36,6 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("refreshToken")]
-        [ProducesResponseType(200, Type = typeof(TokenResponse))]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO tokenDTO)
         {
             var result = await _authenService.RefreshToken(tokenDTO);
@@ -49,23 +46,23 @@ namespace AdFusionAPI.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterDTO userDTO)
         {
             var result = await _authenService.Register(userDTO);
-            return StatusCode((int)result.StatusCode, result);
+            return Ok(result);
         }
 
         [AuthRequired]
         [HttpPut("changePass")]
         public async Task<IActionResult> ChangePass([FromBody] ChangePassDTO userDTO)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var result = await _authenService.ChangePassword(userDTO, token);
-            return StatusCode((int)result.StatusCode, result);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _authenService.ChangePassword(userDTO, user);
+            return Ok(result);
         }
 
         [HttpPut("forgotPass")]
         public async Task<IActionResult> ForgotPass([FromBody] ForgotPasswordDTO userDTO)
         {
             var result = await _authenService.ForgotPassword(userDTO);
-            return StatusCode((int)result.StatusCode, result);
+            return Ok(result);
         }
 
         [HttpPost("verify")]

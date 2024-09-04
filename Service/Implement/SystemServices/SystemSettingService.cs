@@ -19,50 +19,23 @@ namespace Service.Implement.SystemService
             return await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
         }
 
-        public async Task<ApiResponse<SystemSetting>> GetSystemSetting(string keyName)
+        public async Task<SystemSetting> GetSystemSetting(string keyName)
         {
             var data = await _systemSettingRepository.GetSystemSetting(keyName);
-            return new ApiResponse<SystemSetting>
-            {
-                StatusCode = data != null ? EHttpStatusCode.OK : EHttpStatusCode.NotFound,
-                Message = data != null ? "Truy vấn thông tin cài đặt hệ thống thành công." : "KeyName không tồn tại trong hệ thống.",
-                Data = data
-            };
+            return data;
 
         }
 
-        public async Task<ApiResponse<string>> UpdateSystemSetting(SystemSettingDTO systemSettingDTO)
+        public async Task<string> UpdateSystemSetting(SystemSettingDTO systemSettingDTO)
         {
-            try
+            var systemSetting = await _systemSettingRepository.GetSystemSetting(systemSettingDTO.KeyName);
+            if (systemSetting == null)
             {
-                var systemSetting = await _systemSettingRepository.GetSystemSetting(systemSettingDTO.KeyName);
-                if (systemSetting == null)
-                {
-                    return new ApiResponse<string>
-                    {
-                        StatusCode = EHttpStatusCode.NotFound,
-                        Message = "KeyName không tồn tại trong hệ thống.",
-                        Data = null
-                    };
-                }
-                systemSetting.KeyValue = systemSettingDTO.KeyValue;
-                await _systemSettingRepository.UpdateSystemSetingKeyValue(systemSetting);
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.OK,
-                    Message = "Cập nhập cài đặt hệ thông thành công.",
-                    Data = null
-                };
+                throw new KeyNotFoundException();
             }
-            catch (Exception ex)
-            {
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.InternalServerError,
-                    Message = _configManager.SeverErrorMessage,
-                    Data = null
-                };
-            }
+            systemSetting.KeyValue = systemSettingDTO.KeyValue;
+            await _systemSettingRepository.UpdateSystemSetingKeyValue(systemSetting);
+            return "Cập nhập cài đặt hệ thông thành công.";
         }
     }
 }

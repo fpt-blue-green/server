@@ -6,7 +6,7 @@ namespace Service.Interface.SystemServices
     public interface ISystemSettingService
     {
         Task<SystemSetting> GetJWTSystemSetting();
-        Task<ApiResponse<SystemSetting>> GetSystemSetting(string keyName);
-        Task<ApiResponse<string>> UpdateSystemSetting(SystemSettingDTO systemSettingDTO);
+        Task<SystemSetting> GetSystemSetting(string keyName);
+        Task<string> UpdateSystemSetting(SystemSettingDTO systemSettingDTO);
     }
 }

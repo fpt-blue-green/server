@@ -11,83 +11,42 @@ namespace Repositories.Implement
         public UserRepository() { }
         public async Task<IEnumerable<User>> GetUsers()
         {
-            try
-            {
-                var users = await context.Users.ToListAsync();
-                return users;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var users = await context.Users.ToListAsync();
+            return users;
         }
 
         public async Task<User> GetUserById(Guid userId)
         {
-            try
-            {
-                var user = await context.Users.SingleOrDefaultAsync(u => u.Id == userId && u.IsDeleted == false);
-                return user!;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var user = await context.Users.SingleOrDefaultAsync(u => u.Id == userId && u.IsDeleted == false);
+            return user!;
         }
 
         public async Task<User> GetUserByRefreshToken(string refreshToken)
         {
-            try
-            {
-                var user = await context.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
-                return user!;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var user = await context.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
+            return user!;
         }
 
         public async Task<User> GetUserByEmail(string email)
         {
-            try
-            {
-                var user = await context.Users.SingleOrDefaultAsync(u => u.Email == email && u.IsDeleted == false);
-                    return user!;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var user = await context.Users.SingleOrDefaultAsync(u => u.Email == email && u.IsDeleted == false);
+            return user!;
         }
 
         public async Task<User> GetUserByLoginDTO(LoginDTO loginDTO)
         {
-            try
-            {
-                var user = await context.Users
+            var user = await context.Users
                                     .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
                                     .Where(u => u.Email == loginDTO.Email && u.Password == loginDTO.Password && u.IsDeleted == false)
                                     .FirstOrDefaultAsync();
-                return user!;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return user!;
         }
 
         public async Task CreateUser(User user)
         {
-            try
-            {
-                context.Users.Add(user);
-                await context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            user.CreatedAt = DateTime.UtcNow;
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
         }
         public async Task UpdateUser(User user)
         {

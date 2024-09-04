@@ -13,73 +13,33 @@ namespace Repositories.Implement
         }
         public async Task Create(Tag tag)
         {
-            try
-            {
-
-                await context.Tags.AddAsync(tag);
-                await context.SaveChangesAsync();
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            await context.Tags.AddAsync(tag);
+            await context.SaveChangesAsync();
         }
 
         public async Task Delete(Guid id)
         {
-            try
-            {
-                var tag = await context.Tags.SingleOrDefaultAsync(i => i.Id == id);
-                context.Tags.Remove(tag);
-                await context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var tag = await context.Tags.SingleOrDefaultAsync(i => i.Id == id);
+            context.Tags.Remove(tag);
+            await context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<Tag>> GetAlls()
         {
-            var tags = new List<Tag>();
-            try
-            {
-                tags = await context.Tags
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var tags = await context.Tags.ToListAsync();
             return tags;
         }
 
         public async Task<Tag> GetById(Guid id)
         {
-            var tag = new Tag();
-            try
-            {
-                tag = await context.Tags.SingleOrDefaultAsync(i => i.Id == id);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var tag = await context.Tags.SingleOrDefaultAsync(i => i.Id == id);
             return tag;
         }
 
         public async Task Update(Tag tag)
         {
-            try
-            {
-                context.Entry<Tag>(tag).State = EntityState.Modified;
-                await context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            context.Entry<Tag>(tag).State = EntityState.Modified;
+            await context.SaveChangesAsync();
         }
     }
 }

@@ -124,282 +124,143 @@ namespace Service.Implement
 
         public async Task Logout(string token)
         {
-            try
+            var user = await _userRepository.GetUserByRefreshToken(token);
+
+            if (user == null)
             {
-                var user = await _userRepository.GetUserByRefreshToken(token);
-
-                if (user == null)
-                {
-                    _loggerService.Warning($"Logout:  Refresh token Failed {token}.");
-                }
-
-                user.RefreshToken = null;
-
-                await _userRepository.UpdateUser(user);
+                _loggerService.Warning($"Logout:  Refresh token Failed {token}.");
+                return;
             }
-            catch (Exception ex)
-            {
-                _loggerService.Error("Logout: " + ex.ToString());
-            }
+
+            user.RefreshToken = null;
+
+            await _userRepository.UpdateUser(user);
         }
 
-        public async Task<ApiResponse<string>> Register(RegisterDTO registerDTO)
+        public async Task<string> Register(RegisterDTO registerDTO)
         {
-            try
+            var userGet = await _userRepository.GetUserByEmail(registerDTO.Email);
+
+            if (userGet != null)
             {
-                var userGet = await _userRepository.GetUserByEmail(registerDTO.Email);
-
-                if (userGet != null)
-                {
-                    return new ApiResponse<string>
-                    {
-                        StatusCode = EHttpStatusCode.Conflict,
-                        Message = "Email đã tồn tại.",
-                        Data = null
-                    };
-                }
-
-                var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(registerDTO));
-
-                var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.Register}&token={token}";
-
-                var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Đăng ký tài khoản mới").Replace("{confirmLink}", confirmationUrl);
-
-                await _emailService.SendEmail(new List<string> { registerDTO.Email }, "Xác nhận đăng ký tài khoản mới", body);
-
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.Created,
-                    Message = "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận.",
-                    Data = null
-                };
+                throw new InvalidOperationException("Email đã tồn tại.");
             }
-            catch (Exception ex)
-            {
-                _loggerService.Error("Register: " + ex.ToString());
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.InternalServerError,
-                    Message = _configManager.SeverErrorMessage,
-                    Data = null
-                };
-            }
+
+            var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(registerDTO));
+            var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.Register}&token={token}";
+            var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Đăng ký tài khoản mới").Replace("{confirmLink}", confirmationUrl);
+            await _emailService.SendEmail(new List<string> { registerDTO.Email }, "Xác nhận đăng ký tài khoản mới", body);
+            return "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận.";
         }
 
-        public async Task<ApiResponse<string>> ChangePassword(ChangePassDTO changePassDTO, string token)
+        public async Task<string> ChangePassword(ChangePassDTO changePassDTO, UserDTO userData)
         {
-            try
+            var loginDTO = new LoginDTO
             {
-                var userData = await _securityService.ValidateJwtToken(token);
+                Email = userData.Email!,
+                Password = _securityService.ComputeSha256Hash(changePassDTO.OldPassword)
+            };
+            var userGet = await _userRepository.GetUserByLoginDTO(loginDTO);
 
-                if (userData == null)
-                {
-                    throw new Exception($"Token Unvalid: {token}.");
-                }
-
-                var loginDTO = new LoginDTO
-                {
-                    Email = JsonConvert.DeserializeObject<UserDTO>(userData)!.Email!,
-                    Password = _securityService.ComputeSha256Hash(changePassDTO.OldPassword)
-                };
-                var userGet = await _userRepository.GetUserByLoginDTO(loginDTO);
-
-                if (userGet == null)
-                {
-                    return new ApiResponse<string>
-                    {
-                        StatusCode = EHttpStatusCode.NotFound,
-                        Message = "Mật khẩu hiện tại không trùng khớp.",
-                        Data = null
-                    };
-                }
-
-                var newPasswordHash = _securityService.ComputeSha256Hash(changePassDTO.NewPassword);
-
-
-                if (userGet.Password == newPasswordHash)
-                {
-                    return new ApiResponse<string>
-                    {
-                        StatusCode = EHttpStatusCode.BadRequest,
-                        Message = "Mật khẩu mới không được trùng với mật khẩu cũ.",
-                        Data = null
-                    };
-                }
-
-                userGet.Password = newPasswordHash;
-
-                var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet));
-
-                var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
-
-                var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Thay đổi mật khẩu").Replace("{confirmLink}", confirmationUrl);
-
-                await _emailService.SendEmail(new List<string> { userGet.Email }, "Xác nhận thay đổi mật khẩu", body);
-
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.OK,
-                    Message = "Thay đổi thành công. Vui lòng kiểm tra email để xác nhận.",
-                    Data = null
-                };
-            }
-            catch (Exception ex)
+            if (userGet == null)
             {
-                _loggerService.Error("ChangePassword: " + ex.ToString());
-
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.InternalServerError,
-                    Message = _configManager.SeverErrorMessage,
-                    Data = null
-                };
+                throw new InvalidOperationException("Mật khẩu hiện tại không đúng.");
             }
+
+            var newPasswordHash = _securityService.ComputeSha256Hash(changePassDTO.NewPassword);
+
+            if (userGet.Password == newPasswordHash)
+            {
+                throw new InvalidOperationException("Mật khẩu mới không được trùng với mật khẩu cũ.");
+            }
+
+            userGet.Password = newPasswordHash;
+
+            var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet));
+
+            var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
+
+            var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Thay đổi mật khẩu").Replace("{confirmLink}", confirmationUrl);
+
+            await _emailService.SendEmail(new List<string> { userGet.Email }, "Xác nhận thay đổi mật khẩu", body);
+
+            return "Thay đổi thành công. Vui lòng kiểm tra email để xác nhận.";
         }
 
-        public async Task<ApiResponse<string>> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO)
+        public async Task<string> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO)
         {
-            try
+            var userGet = await _userRepository.GetUserByEmail(forgotPasswordDTO.Email);
+
+            if (userGet == null)
             {
-                var userGet = await _userRepository.GetUserByEmail(forgotPasswordDTO.Email);
-
-                if (userGet == null)
-                {
-                    return new ApiResponse<string>
-                    {
-                        StatusCode = EHttpStatusCode.BadRequest,
-                        Message = "Email chưa được đăng ký ở hệ thống.",
-                        Data = null
-                    };
-                }
-                var newPasswordHash = _securityService.ComputeSha256Hash(forgotPasswordDTO.NewPassword);
-
-                userGet.Password = newPasswordHash;
-
-                var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet));
-
-                var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
-
-                var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Quên mật khẩu").Replace("{confirmLink}", confirmationUrl);
-
-                await _emailService.SendEmail(new List<string> { forgotPasswordDTO.Email }, "Xác nhận quên mật khẩu", body);
-
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.OK,
-                    Message = "Yêu cầu cập nhập lại mật khẩu thành công. Vui lòng kiểm tra email để xác nhận.",
-                    Data = null
-                };
+                throw new InvalidOperationException("Email chưa được đăng ký ở hệ thống.");
             }
-            catch (Exception ex)
-            {
-                _loggerService.Error("ForgotPassword: " + ex.ToString());
+            var newPasswordHash = _securityService.ComputeSha256Hash(forgotPasswordDTO.NewPassword);
 
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.InternalServerError,
-                    Message = _configManager.SeverErrorMessage,
-                    Data = null
-                };
-            }
+            userGet.Password = newPasswordHash;
+
+            var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet));
+
+            var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
+
+            var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Quên mật khẩu").Replace("{confirmLink}", confirmationUrl);
+
+            await _emailService.SendEmail(new List<string> { forgotPasswordDTO.Email }, "Xác nhận quên mật khẩu", body);
+
+            return "Yêu cầu cập nhập lại mật khẩu thành công. Vui lòng kiểm tra email để xác nhận.";
         }
 
         public async Task<bool> Verify(VerifyDTO data)
         {
-            try
+            switch (data.Action)
             {
-                switch (data.Action)
-                {
-                    case EAuthAction.Register:
-                        await ValidateRegister(data.Token);
-                        break;
-                    case EAuthAction.ChangePass:
-                        await ValidateChangePass(data.Token);
-                        break;
-                    case EAuthAction.ForgotPassword:
-                        await ValidateForgotPass(data.Token);
-                        break;
-                    default:
-                        throw new Exception("Unvalid Validate Authen action!!");
-                }
-                return true;
+                case EAuthAction.Register:
+                    await ValidateRegister(data.Token);
+                    break;
+                case EAuthAction.ChangePass:
+                    await ValidateChangePass(data.Token);
+                    break;
+                case EAuthAction.ForgotPassword:
+                    await ValidateForgotPass(data.Token);
+                    break;
+                default:
+                    throw new Exception("Unvalid Validate Authen action!!");
             }
-            catch (Exception ex)
-            {
-                _loggerService.Error("Verify: " + ex.ToString());
-                return false;
-            }
+            return true;
         }
 
         public async Task ValidateRegister(string token)
         {
-            try
+            var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+
+            var registerDTO = JsonConvert.DeserializeObject<RegisterDTO>(tokenDecrypt);
+            var user = new User
             {
-                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+                Id = Guid.NewGuid(),
+                Email = registerDTO!.Email,
+                Password = _securityService.ComputeSha256Hash(registerDTO.Password),
+                IsBanned = false,
+                DisplayName = registerDTO.DisplayName,
+                IsDeleted = false,
+                Role = (int)registerDTO.Role,
+                CreatedAt = DateTime.UtcNow,
+            };
 
-                if (tokenDecrypt == null)
-                {
-                    throw new Exception($"Token Unvalid: {token}.");
-                }
-
-                var registerDTO = JsonConvert.DeserializeObject<RegisterDTO>(tokenDecrypt);
-
-                var user = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Email = registerDTO!.Email,
-                    Password = _securityService.ComputeSha256Hash(registerDTO.Password),
-                    IsBanned = false,
-                    DisplayName = registerDTO.DisplayName,
-                    IsDeleted = false,
-                    Role = (int)registerDTO.Role,
-                    CreatedAt = DateTime.UtcNow,
-                };
-
-                await _userRepository.CreateUser(user);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            await _userRepository.CreateUser(user);
         }
 
         public async Task ValidateChangePass(string token)
         {
-            try
-            {
-                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDecrypt == null)
-                {
-                    throw new Exception($"Token Unvalid: {token}.");
-                }
-
-                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
-                await _userRepository.UpdateUser(user!);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+            var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
+            await _userRepository.UpdateUser(user!);
         }
 
         public async Task ValidateForgotPass(string token)
         {
-            try
-            {
-                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDecrypt == null)
-                {
-                    throw new Exception($"Token Unvalid: {token}.");
-                }
-
-                var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
-                await _userRepository.UpdateUser(user!);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+            var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
+            await _userRepository.UpdateUser(user!);
         }
     }
 }
