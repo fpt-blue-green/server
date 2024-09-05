@@ -32,7 +32,7 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("influencerTags")]
+        [HttpGet("tags")]
         [AuthRequired]
         public async Task<ActionResult<List<TagDTO>>> GetTagsByInfluencer()
         {
@@ -40,7 +40,7 @@ namespace AdFusionAPI.Controllers
             var result = await _influencerService.GetTagsByInfluencer(user);
             return Ok(result);
         }
-        [HttpPost("influencerTags/update")]
+        [HttpPost("tags")]
         [InfluencerRequired]
         public async Task<IActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
         {
@@ -49,7 +49,7 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost("influencerChannels")]
+        [HttpPost("channels")]
         [InfluencerRequired]
         public async Task<IActionResult> CreateChannels([FromBody] List<ChannelPlatFormUserNameDTO> channels)
         {
