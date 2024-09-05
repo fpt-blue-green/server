@@ -121,7 +121,7 @@ namespace Service.Implement.UtilityServices
                 result = (JObject)jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?["stats"]!;
             }
 
-            if(result != null)
+            if(result == null)
             {
                 throw new KeyNotFoundException();
             }
