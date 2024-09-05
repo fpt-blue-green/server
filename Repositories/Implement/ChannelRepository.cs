@@ -1,10 +1,8 @@
-﻿using BusinessObjects.Enum;
+﻿using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Helper;
-using Repositories.Interface;
 
-namespace Repositories.Implement
+namespace Repositories
 {
     public class ChannelRepository : SingletonBase<ChannelRepository>, IChannelRepository
     {

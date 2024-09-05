@@ -1,6 +1,6 @@
 ﻿using BusinessObjects.Models;
 
-namespace Repositories.Helper
+namespace Repositories
 {
 	public class SingletonBase<T> where T : class, new()
 	{

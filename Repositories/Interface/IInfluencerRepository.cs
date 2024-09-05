@@ -1,7 +1,7 @@
-﻿using BusinessObjects.DTOs.InfluencerDTOs;
+﻿
 using BusinessObjects.Models;
 
-namespace Repositories.Interface
+namespace Repositories
 {
     public interface IInfluencerRepository
     {

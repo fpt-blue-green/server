@@ -1,21 +1,10 @@
 ﻿using AutoMapper;
-using BusinessObjects.DTOs;
-using BusinessObjects.DTOs.InfluencerDTO;
-using BusinessObjects.DTOs.InfluencerDTOs;
-using BusinessObjects.DTOs.UserDTOs;
-using BusinessObjects.Enum;
+using BusinessObjects;
 using BusinessObjects.Models;
-using HtmlAgilityPack;
-using Newtonsoft.Json;
-using Repositories.Implement;
-using Repositories.Interface;
+using Repositories;
 using Serilog;
-using Service.Domain;
-using Service.Implement.SystemService;
-using Service.Interface;
-using Service.Interface.HelperService;
 
-namespace Service.Implement
+namespace Service
 {
 	public class InfluencerService : IInfluencerService
 	{

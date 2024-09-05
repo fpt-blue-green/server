@@ -1,7 +1,5 @@
-﻿using BusinessObjects.DTOs.InfluencerDTO;
-using BusinessObjects.Enum;
-
-namespace BusinessObjects.DTOs.InfluencerDTOs
+﻿
+namespace BusinessObjects
 {
     public class InfluencerRequestDTO
     {

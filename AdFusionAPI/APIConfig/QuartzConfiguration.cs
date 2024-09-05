@@ -1,5 +1,5 @@
 ﻿using Quartz;
-using Service.Implement.SystemServices.JobService;
+using Service;
 
 public static class QuartzConfiguration
 {

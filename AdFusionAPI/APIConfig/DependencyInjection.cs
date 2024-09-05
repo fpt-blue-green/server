@@ -1,11 +1,6 @@
-﻿using Service.Domain;
+﻿using Service;
 using Service.Implement;
-using Service.Implement.SystemService;
-using Service.Implement.UtilityServices;
-using Service.Interface;
-using Service.Interface.HelperService;
-using Service.Interface.SystemServices;
-using Service.Interface.UtilityServices;
+using Service.Implement;
 
 namespace AdFusionAPI
 {

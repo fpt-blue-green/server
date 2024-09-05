@@ -1,10 +1,6 @@
-﻿using BusinessObjects.DTOs;
-using BusinessObjects.DTOs.AuthDTO;
-using BusinessObjects.DTOs.AuthDTOs;
-using BusinessObjects.DTOs.UserDTOs;
-using System.Threading.Tasks;
+﻿using BusinessObjects;
 
-namespace Service.Interface
+namespace Service
 {
     public interface IAuthService
     {

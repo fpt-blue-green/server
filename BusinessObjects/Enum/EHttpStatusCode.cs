@@ -1,4 +1,4 @@
-﻿namespace BusinessObjects.Enum
+﻿namespace BusinessObjects
 {
     public enum EHttpStatusCode
     {

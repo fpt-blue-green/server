@@ -1,4 +1,4 @@
-﻿namespace Service.Domain
+﻿namespace Service
 {
     public class ConfigManager
     {

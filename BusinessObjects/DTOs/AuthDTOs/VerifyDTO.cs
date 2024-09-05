@@ -1,6 +1,6 @@
-﻿using static BusinessObjects.Enum.AuthEnumContainer;
+﻿using static BusinessObjects.AuthEnumContainer;
 
-namespace BusinessObjects.DTOs.AuthDTOs
+namespace BusinessObjects
 {
     public class VerifyDTO
     {

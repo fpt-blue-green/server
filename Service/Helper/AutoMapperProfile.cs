@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
-using BusinessObjects.DTOs;
-using BusinessObjects.DTOs.InfluencerDTO;
-using BusinessObjects.DTOs.InfluencerDTOs;
-using BusinessObjects.DTOs.UserDTOs;
+using BusinessObjects;
 using BusinessObjects.Models;
 
-namespace Service.Helper
+namespace Service
 {
     public class AutoMapperProfile : Profile
     {

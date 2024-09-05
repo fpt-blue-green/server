@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Service.Interface;
+using Service;
 
 namespace AdFusionAPI.Controllers
 {

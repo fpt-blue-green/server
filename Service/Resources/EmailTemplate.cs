@@ -1,4 +1,4 @@
-﻿namespace Service.Resources
+﻿namespace Service
 {
     public class EmailTemplate
     {

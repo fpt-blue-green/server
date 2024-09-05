@@ -1,6 +1,6 @@
-﻿using BusinessObjects.DTOs;
+﻿using BusinessObjects;
 
-namespace Service.Interface
+namespace Service
 {
     public interface ITagService
     {

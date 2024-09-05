@@ -1,6 +1,6 @@
 ﻿using BusinessObjects.Models;
 
-namespace Service.Interface
+namespace Service
 {
     public interface IFeedBackService
     {

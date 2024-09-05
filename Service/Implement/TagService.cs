@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using BusinessObjects.DTOs;
-using Repositories.Implement;
-using Repositories.Interface;
+using BusinessObjects;
+using Repositories;
 using Serilog;
-using Service.Interface;
 
 namespace Service.Implement
 {

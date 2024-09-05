@@ -1,7 +1,7 @@
-﻿using BusinessObjects.DTOs.UserDTOs;
+﻿using BusinessObjects;
 using Newtonsoft.Json;
-using Service.Interface.HelperService;
-using static BusinessObjects.Enum.AuthEnumContainer;
+using Service;
+using static BusinessObjects.AuthEnumContainer;
 
 namespace AdFusionAPI.APIConfig
 {

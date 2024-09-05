@@ -1,7 +1,7 @@
-﻿using BusinessObjects.Models;
-using BusinessObjects.DTOs.AuthDTO;
+﻿using BusinessObjects;
+using BusinessObjects.Models;
 
-namespace Repositories.Interface
+namespace Repositories
 {
     public interface IUserRepository
     {

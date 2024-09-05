@@ -1,7 +1,5 @@
-﻿using AdFusionAPI.APIConfig;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Service.Interface.UtilityServices;
+﻿using Microsoft.AspNetCore.Mvc;
+using Service;
 
 namespace AdFusionAPI.Controllers
 {

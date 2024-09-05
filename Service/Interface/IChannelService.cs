@@ -1,8 +1,7 @@
-﻿using BusinessObjects.DTOs.InfluencerDTO;
-using BusinessObjects.DTOs.UserDTOs;
+﻿using BusinessObjects;
 using BusinessObjects.Models;
 
-namespace Service.Interface
+namespace Service
 {
     public interface IChannelService
     {

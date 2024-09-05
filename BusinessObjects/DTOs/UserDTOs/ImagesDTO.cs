@@ -1,4 +1,4 @@
-﻿namespace BusinessObjects.DTOs.UserDTOs
+﻿namespace BusinessObjects
 {
     public class ImagesDTO
     {

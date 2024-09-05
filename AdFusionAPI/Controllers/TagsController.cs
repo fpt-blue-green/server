@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using BusinessObjects.Models;
-using BusinessObjects.DTOs;
-using BusinessObjects.DTOs.InfluencerDTO;
+using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
-using Service.Interface;
+using Service;
 
 namespace AdFusionAPI.Controllers
 {

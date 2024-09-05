@@ -3,8 +3,7 @@ using AdFusionAPI.APIConfig;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Service.Helper;
-using Service.Implement;
+using Service;
 
 var builder = WebApplication.CreateBuilder(args);
 

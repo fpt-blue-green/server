@@ -1,9 +1,7 @@
 ﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Helper;
-using Repositories.Interface;
 
-namespace Repositories.Implement
+namespace Repositories
 {
     public class InfluencerRepository : SingletonBase<InfluencerRepository>, IInfluencerRepository
     {
@@ -19,7 +17,7 @@ namespace Repositories.Implement
         }
         public async Task<Influencer> GetById(Guid id)
         {
-            var influencer = await context.Influencers.SingleOrDefaultAsync(i => i.Id == id);
+            var influencer = await context.Influencers.FirstOrDefaultAsync(i => i.Id == id);
             return influencer;
         }
 
@@ -53,7 +51,7 @@ namespace Repositories.Implement
 
         public async Task Delete(Guid id)
         {
-            var influencer = await context.Influencers.SingleOrDefaultAsync(i => i.Id == id);
+            var influencer = await context.Influencers.FirstOrDefaultAsync(i => i.Id == id);
             context.Influencers.Remove(influencer);
             await context.SaveChangesAsync();
         }

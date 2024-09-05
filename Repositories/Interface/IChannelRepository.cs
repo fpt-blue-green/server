@@ -1,7 +1,7 @@
-﻿using BusinessObjects.Enum;
+﻿using BusinessObjects;
 using BusinessObjects.Models;
 
-namespace Repositories.Interface
+namespace Repositories
 {
     public interface IChannelRepository
     {

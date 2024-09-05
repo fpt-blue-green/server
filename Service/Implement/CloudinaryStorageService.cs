@@ -3,9 +3,8 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Service.Interface;
 
-namespace Service.Implement
+namespace Service
 {
     public class CloudinaryStorageService : ICloudinaryStorageService
     {
