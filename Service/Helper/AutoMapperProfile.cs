@@ -29,6 +29,9 @@ namespace Service.Helper
             #region User
             CreateMap<User, UserDTO>();
             #endregion
+            #region Channel
+            CreateMap<ChannelStatDTO, Channel>();
+            #endregion
         }
     }
 }

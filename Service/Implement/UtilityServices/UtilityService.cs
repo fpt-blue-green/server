@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.InfluencerDTO;
 using BusinessObjects.Enum;
 using CloudinaryDotNet;
 using HtmlAgilityPack;
@@ -60,7 +61,7 @@ namespace Service.Implement.UtilityServices
         }
         #endregion
 
-        public async Task<string> GetChannelProfile(int platform, string channelId)
+        public async Task<ChannelStatDTO> GetChannelProfile(int platform, string channelId)
         {
             switch ((EPlatform)platform)
             {
@@ -94,7 +95,7 @@ namespace Service.Implement.UtilityServices
         }
 
         #region TikTok
-        public async Task<string> GetTikTokInformation(string url)
+        public async Task<ChannelStatDTO> GetTikTokInformation(string url)
         {
             _loggerService.Information("Start to get TikTok Account information: " + url);
             HttpClient client = new HttpClient();
@@ -109,7 +110,7 @@ namespace Service.Implement.UtilityServices
             htmlDoc.LoadHtml(response);
             var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
 
-            string result = null!;
+            JObject result = null!;
 
             if (followerNode != null)
             {
@@ -117,9 +118,20 @@ namespace Service.Implement.UtilityServices
 
                 var jsonObj = JObject.Parse(jsonContent);
 
-                result = jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?["stats"]?.ToString()!;
+                result = (JObject)jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?["stats"]!;
             }
-            return result ?? throw new KeyNotFoundException();
+
+            if(result != null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            return new ChannelStatDTO
+            {
+                FollowersCount = (int?)result!["followerCount"],
+                LikesCount = (int?)result["heartCount"],
+                PostsCount = (int?)result["videoCount"],
+            };
         }
         public async Task<string> GetVideoTikTokInformation(string url)
         {
@@ -200,7 +212,7 @@ namespace Service.Implement.UtilityServices
                 throw new KeyNotFoundException();
             }
         }
-        public async Task<string> GetInstagramInformation(string url)
+        public async Task<ChannelStatDTO> GetInstagramInformation(string url)
         {
             _loggerService.Information("Start to get Instagram Account information: ");
             HttpClient client = new HttpClient();
@@ -221,41 +233,62 @@ namespace Service.Implement.UtilityServices
             {
                 string content = followersNode.GetAttributeValue("content", "");
                 string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                var data = new
+                var data = new ChannelStatDTO
                 {
-                    followers = ConvertToNumber(parts[0]),
-                    following = ConvertToNumber(parts[2]),
-                    posts = ConvertToNumber(parts[4]),
+                    FollowersCount = int.Parse(parts[0]),
+                    LikesCount = int.Parse(parts[2]),
+                    PostsCount = int.Parse(parts[4])              
                 };
-                result = JsonConvert.SerializeObject(data);
+                return data ?? throw new KeyNotFoundException();
             }
-            return result ?? throw new KeyNotFoundException();
+            throw new KeyNotFoundException();
         }
         #endregion
 
         #region Youtube
-        public async Task<string> GetYoutubeInformation(string channelName)
+        public async Task<ChannelStatDTO> GetYoutubeInformation(string channelName)
         {
             try
             {
                 var channelId = string.Empty;
-                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue;
-                var url = $"https://www.googleapis.com/youtube/v3/search?part=snippet&q={channelName}&type=channel&key={apiKey}";
 
+                // Lấy API Key từ hệ thống cài đặt
+                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue;
+
+                // Tạo URL để tìm kiếm kênh bằng tên
+                var searchUrl = $"https://www.googleapis.com/youtube/v3/search?part=snippet&q={channelName}&type=channel&key={apiKey}";
+
+                // Tìm kiếm kênh YouTube bằng tên
                 using (var client = new HttpClient())
                 {
-                    var response = await client.GetStringAsync(url);
+                    var response = await client.GetStringAsync(searchUrl);
                     var json = JObject.Parse(response);
                     channelId = json["items"]?[0]?["id"]?["channelId"]?.ToString();
                 }
 
+                // Tạo URL để lấy thông tin về kênh
                 var informationUrl = $"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channelId}&key={apiKey}";
+
+                // Lấy thông tin số liệu từ API YouTube
                 using (var client = new HttpClient())
                 {
                     var response = await client.GetStringAsync(informationUrl);
                     var json = JObject.Parse(response);
-                    var subscriberCount = json["items"]?[0]?["statistics"]?.ToString();
-                    return subscriberCount ?? throw new KeyNotFoundException();
+                    var statistics = json["items"]?[0]?["statistics"];
+
+                    // Nếu không tìm thấy thông tin thống kê, ném ra ngoại lệ
+                    if (statistics == null)
+                    {
+                        throw new KeyNotFoundException();
+                    }
+
+                    // Tạo đối tượng ChannelStatDTO với các dữ liệu từ API
+                    return new ChannelStatDTO
+                    {
+                        FollowersCount = (int?)statistics["subscriberCount"],
+                        ViewsCount = (int?)statistics["viewCount"],
+                        PostsCount = (int?)statistics["videoCount"],
+                    };
                 }
             }
             catch
@@ -263,6 +296,7 @@ namespace Service.Implement.UtilityServices
                 throw new KeyNotFoundException();
             }
         }
+
 
         public async Task<string> GetYoutubeVideoInformation(string videoUrl)
         {

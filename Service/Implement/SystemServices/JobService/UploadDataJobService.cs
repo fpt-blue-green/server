@@ -8,6 +8,7 @@ using Serilog;
 using Service.Domain;
 using Service.Interface.UtilityServices;
 using Service.Resources;
+using Service.Interface;
 
 namespace Service.Implement.SystemServices.JobService
 {
@@ -18,6 +19,12 @@ namespace Service.Implement.SystemServices.JobService
         private static IEmailService _emailService = new EmailService();
         private static ConfigManager _configManager = new ConfigManager();
         private static EmailTemplate _emailTempalte = new EmailTemplate();
+        private static IChannelService _channelService;
+
+        public UploadDataJobService(IChannelService channelService)
+        {
+            _channelService = channelService;
+        }
 
         public async Task Execute(IJobExecutionContext context)
         {
@@ -30,6 +37,8 @@ namespace Service.Implement.SystemServices.JobService
                 // Gọi Service Update data
                 result = await UpdateChannelInfor(jobID);
 
+                if (result.Failure > 0)
+                    throw new Exception();
             }
             catch (Exception ex)
             {
@@ -74,6 +83,7 @@ namespace Service.Implement.SystemServices.JobService
             catch (Exception ex)
             {
                 _loggerService.Error($"Job {jobId}: An unexpected error occurred. Exception: {ex}");
+                throw new Exception(ex.ToString());
             }
 
             return jobResult;
@@ -82,7 +92,7 @@ namespace Service.Implement.SystemServices.JobService
         private static async Task ProcessBatchWithRetries(List<Channel> batch, string jobId, int maxRetryAttempts, JobResult jobResult)
         {
             int retryAttempt = 0;
-
+            int size = batch.Count;
             while (retryAttempt < maxRetryAttempts)
             {
                 var failedChannels = new List<Channel>();
@@ -91,37 +101,39 @@ namespace Service.Implement.SystemServices.JobService
                 {
                     try
                     {
-                        //Sẽ có 1 cái hàm nhận channel. Sau đó nó sẽ lấy url ra và gọi service lấy thông tin. Sau đó update lại thông tin của Channel đó
+                        await _channelService.UpdateInfluencerChannel(channel);
                         // Nếu thành công, tăng biến Success
                         jobResult.Success++;
                     }
                     catch (Exception ex)
                     {
-                        // Nếu thất bại, tăng biến Failure và thêm channel vào danh sách cần retry
-                        jobResult.Failure++;
+                        // Nếu thất bại, thêm channel vào danh sách cần retry
                         failedChannels.Add(channel);
                         _loggerService.Error($"Job {jobId}: Update Channel {channel.Id} failed. Exception: {ex}");
                     }
                 }
 
+                // Nếu không còn channel nào thất bại, kết thúc vòng lặp retry
                 if (!failedChannels.Any())
                 {
-                    break; // Nếu không có channel nào thất bại, kết thúc vòng lặp retry
+                    break;
                 }
 
                 retryAttempt++;
                 if (retryAttempt < maxRetryAttempts)
                 {
                     _loggerService.Warning($"Job {jobId}: Retry attempt {retryAttempt} for {failedChannels.Count} channels.");
-                    await Task.Delay(TimeSpan.FromSeconds(5)); // Chờ trước khi retry lần tiếp theo
-                    batch = failedChannels; // Retry các channel bị lỗi
+                    await Task.Delay(TimeSpan.FromSeconds(3));
+                    batch = failedChannels;
                 }
                 else
                 {
+                    jobResult.Failure = size - jobResult.Success;
                     _loggerService.Error($"Job {jobId}: Max retry attempts reached for batch. {failedChannels.Count} channels failed.");
                 }
             }
         }
+
 
     }
 }
