@@ -13,13 +13,13 @@ namespace AdFusionAPI.Controllers
     [ApiController]
     public class InfluencersController : Controller
     {
-        private readonly IInfluencerService _influencerRepository;
+        private readonly IInfluencerService _influencerService;
         private readonly IChannelService _channelService;
         private readonly IMapper _mapper;
 
         public InfluencersController(IInfluencerService influencerService,IChannelService channelService, IMapper mapper)
         {
-            _influencerRepository = influencerService;
+            _influencerService = influencerService;
             _channelService = channelService;
             _mapper = mapper;
         }
@@ -27,28 +27,28 @@ namespace AdFusionAPI.Controllers
         [HttpGet("top")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopInfluencer()
         {
-            var result = await _influencerRepository.GetTopInfluencer();
+            var result = await _influencerService.GetTopInfluencer();
             return Ok(result);
         }
 
         [HttpGet("top/instagram")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopInstagramInfluencer()
         {
-            var result = await _influencerRepository.GetTopInstagramInfluencer();
+            var result = await _influencerService.GetTopInstagramInfluencer();
             return Ok(result);
         }
 
         [HttpGet("top/tiktok")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopTiktokInfluencer()
         {
-            var result = await _influencerRepository.GetTopTiktokInfluencer();
+            var result = await _influencerService.GetTopTiktokInfluencer();
             return Ok(result);
         }
 
         [HttpGet("top/youtube")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopYoutubeInfluencer()
         {
-            var result = await _influencerRepository.GetTopYoutubeInfluencer();
+            var result = await _influencerService.GetTopYoutubeInfluencer();
             return Ok(result);
 
         }
@@ -56,63 +56,8 @@ namespace AdFusionAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetExploreInfluencer([FromQuery] InfluencerFilterDTO filterDTO)
         {
-            var result = await _influencerRepository.GetAllInfluencers(filterDTO);
+            var result = await _influencerService.GetAllInfluencers(filterDTO);
             return Ok(result);
-        }
-
-        [HttpPost]
-        [InfluencerRequired]
-        public async Task<IActionResult> CreateNewInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
-        {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var newInflu = await _influencerRepository.CreateInfluencer(influencerRequestDTO, token);
-            return StatusCode((int)newInflu.StatusCode, newInflu);
-        }
-
-        [HttpGet("influencerTags")]
-        [InfluencerRequired]
-        public async Task<ActionResult<List<TagDTO>>> GetTagsByInfluencer()
-        {
-            var token = Request?.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
-            var result = await _influencerRepository.GetTagsByInfluencer(token);
-            return StatusCode((int)result.StatusCode, result);
-        }
-
-
-        /*[HttpPost("influencerTags/add")]
-		public async Task<IActionResult> CreateNewInfluencer([FromBody] List<Guid> listTags)
-		{
-			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-			var result = await _influencerRepository.AddTagToInfluencer(token, listTags);
-			return StatusCode((int)result.StatusCode, result);
-		}
-*/
-        [HttpPost("influencerTags/update")]
-        [InfluencerRequired]
-        public async Task<IActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
-        {
-            var token = Request?.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
-            var result = await _influencerRepository.UpdateTagsForInfluencer(token!, listTags);
-            return StatusCode((int)result.StatusCode, result);
-
-        }
-
-        [HttpPost("influencerChannels")]
-        [InfluencerRequired]
-        public async Task<IActionResult> CreateChannels([FromBody] Dictionary<int, string> channels)
-        {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            await _channelService.CreateInfluencerChannel(user, channels);
-            return Ok();
-        }
-
-        [HttpPut]
-        [InfluencerRequired]
-        public async Task<IActionResult> UpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
-        {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var influencer = await _influencerRepository.UpdateInfluencer(influencerRequestDTO, token);
-            return StatusCode((int)influencer.StatusCode, influencer);
         }
     }
 }
