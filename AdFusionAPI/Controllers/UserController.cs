@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using AdFusionAPI.APIConfig;
+using AutoMapper;
+using BusinessObjects.DTOs.UserDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
 
@@ -17,12 +19,22 @@ namespace AdFusionAPI.Controllers
             _mapper = mapper;
         }
 
-        [HttpPatch]
+        [HttpPatch("avatar")]
+        [AuthRequired]
         public async Task<IActionResult> UpdateAvatar(IFormFile file)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var influencer = await _userService.UploadImageAsync(file, token);
-            return StatusCode((int)influencer.StatusCode, influencer);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var avatar = await _userService.UploadImageAsync(file, "Avatar", user);
+            return Ok(avatar);
+        }
+
+        [HttpPost("images")]
+        [AuthRequired]
+        public async Task<IActionResult> UploadImages(List<IFormFile> images)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var avatar = await _userService.UploadContentImages(images, user);
+            return Ok(avatar);
         }
     }
 }

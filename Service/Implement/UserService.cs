@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using BusinessObjects.DTOs;
+using BusinessObjects.DTOs.InfluencerDTOs;
 using BusinessObjects.DTOs.UserDTOs;
-using BusinessObjects.Enum;
+using BusinessObjects.Models;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
@@ -20,6 +19,8 @@ namespace Service.Implement
     public class UserService : IUserService
     {
         private static readonly IUserRepository _userRepository = new UserRepository();
+        private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
+        private static readonly IInfluencerImageRepository _influencerImagesRepository = new InfluencerImageRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
@@ -38,62 +39,96 @@ namespace Service.Implement
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<ApiResponse<string>> UploadImageAsync(IFormFile file, string token)
+        public async Task<string> UploadImageAsync(IFormFile file, string folder, UserDTO user)
         {
-            try
+            _loggerService.Information("Start to upload avatar: ");
+
+            if (file == null)
             {
-                _loggerService.Information("Start to upload avatar: ");
-
-                if (file == null)
-                {
-                    throw new Exception("Invalid File");
-                }
-                //Kiểm tra token, nếu hợp thế thì mã hóa
-                var tokenDecrypt = await _securityService.ValidateJwtToken(token);
-                if (tokenDecrypt == null)
-                {
-                    throw new Exception($"Token Unvalid: {token}.");
-                }
-                var userDto = JsonConvert.DeserializeObject<UserDTO>(tokenDecrypt);
-
-                //Lấy user để update
-                var userGet = await _userRepository.GetUserById(userDto.Id);
-                if (userGet == null)
-                {
-                    throw new Exception($"Unvalid User ID {userDto.Id}.");
-                }
-
-                //Upload ảnh
-                var uploadParams = new ImageUploadParams()
-                {
-                    File = new FileDescription(file.FileName, file.OpenReadStream()),
-                    PublicId = Path.GetFileNameWithoutExtension(file.FileName),
-                    Overwrite = true
-                };
-
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                userGet.Avatar = uploadResult.SecureUrl.ToString();
-                _loggerService.Information("End to upload image");
-
-                await _userRepository.UpdateUser(userGet);
-
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.OK,
-                    Message = "Upload avatar thành công.",
-                    Data = userGet.Avatar
-                };
+                throw new Exception("Invalid File");
             }
-            catch (Exception ex)
+
+            //Lấy user để update
+            var userGet = await _userRepository.GetUserById(user.Id);
+            if (userGet == null)
             {
-                _loggerService.Error("Upload avatar: " + ex.ToString());
-                return new ApiResponse<string>
-                {
-                    StatusCode = EHttpStatusCode.InternalServerError,
-                    Message = _config.SeverErrorMessage,
-                    Data = null
-                };
+                throw new InvalidOperationException("User không tồn tại");
             }
+
+            //Upload ảnh
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(file.FileName, file.OpenReadStream()),
+                Folder = folder,
+                PublicId = Path.GetFileNameWithoutExtension(file.FileName),
+                Overwrite = true
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            userGet.Avatar = uploadResult.SecureUrl.ToString();
+            _loggerService.Information("End to upload image");
+
+            await _userRepository.UpdateUser(userGet);
+
+            return userGet.Avatar;
+        }
+
+        public async Task<List<string>> UploadContentImages(List<IFormFile> contentFiles, UserDTO user)
+        {
+            var contentDownloadUrls = new List<string>();
+
+            var userGet = await _userRepository.GetUserById(user.Id);
+            if (userGet == null)
+            {
+                throw new InvalidOperationException("User không tồn tại");
+            }
+
+            var influencer = await _influencerRepository.GetByUserId(user.Id);
+            if (influencer == null)
+            {
+                throw new InvalidOperationException("Influencer không tồn tại");
+            }
+
+            // Upload Content Images
+            _loggerService.Information("Start to upload content images: ");
+            if (contentFiles.Any())
+            {
+                foreach (var file in contentFiles)
+                {
+                    try
+                    {
+                        var contentFileName = "Content/content_" + Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var contentDownloadUrl = await UploadImageAsync(file, "Images", user);
+                        contentDownloadUrls.Add(contentDownloadUrl);
+
+                        // Add each image to InfluencerImages
+                        var influencerImage = new InfluencerImage
+                        {
+                            Id = new Guid(),
+                            InfluencerId = influencer.Id,
+                            Url = contentDownloadUrl,
+                            CreatedAt = DateTime.UtcNow,
+                            ModifiedAt = DateTime.UtcNow
+                        };
+
+                        await _influencerImagesRepository.Create(influencerImage);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log content upload exception
+                        _loggerService.Error(ex, $"Error uploading content image: {file.FileName}");
+                        contentDownloadUrls.Add($"Error uploading content {file.FileName}: {ex.Message}");
+                    }
+                }
+            }
+            else
+            {
+                _loggerService.Error("Error uploading content images");
+                throw new Exception("No content files provided");
+            }
+
+            _loggerService.Information("End to upload content images: ");
+            return contentDownloadUrls;
         }
     }
 }
