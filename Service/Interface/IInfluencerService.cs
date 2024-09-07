@@ -15,8 +15,7 @@ namespace Service
         Task<List<InfluencerDTO>> GetTopInstagramInfluencer();
         Task<List<InfluencerDTO>> GetTopTiktokInfluencer();
         Task<List<InfluencerDTO>> GetTopYoutubeInfluencer();
-        Task<string> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user);
-        Task<string> UpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user);
+        Task<string> CreateOrUpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user);
         Task DeleteInfluencer(Guid id);
     }
 }

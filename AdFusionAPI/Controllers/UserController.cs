@@ -27,14 +27,5 @@ namespace AdFusionAPI.Controllers
             var avatar = await _userService.UploadImageAsync(file, "Avatar", user);
             return Ok(avatar);
         }
-
-        [HttpPost("images")]
-        [AuthRequired]
-        public async Task<IActionResult> UploadImages(List<IFormFile> images)
-        {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            var avatar = await _userService.UploadContentImages(images, user);
-            return Ok(avatar);
-        }
     }
 }
