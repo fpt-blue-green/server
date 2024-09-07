@@ -34,7 +34,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPut]
         [AuthRequired]
-        public async Task<ActionResult> CreateOrUpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
+        public async Task<ActionResult<string>> CreateOrUpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _influencerService.CreateOrUpdateInfluencer(influencerRequestDTO, user);
@@ -52,7 +52,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("tags")]
         [InfluencerRequired]
-        public async Task<ActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
+        public async Task<ActionResult<string>> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _influencerService.UpdateTagsForInfluencer(user, listTags);
@@ -61,7 +61,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("channels")]
         [InfluencerRequired]
-        public async Task<IActionResult> CreateChannels([FromBody] List<ChannelPlatFormUserNameDTO> channels)
+        public async Task<ActionResult> CreateChannels([FromBody] List<ChannelPlatFormUserNameDTO> channels)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _channelService.CreateInfluencerChannel(user, channels);

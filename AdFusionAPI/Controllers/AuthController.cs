@@ -26,7 +26,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromBody] RefreshTokenDTO tokenDTO)
+        public async Task<ActionResult> Logout([FromBody] RefreshTokenDTO tokenDTO)
         {
             await _authenService.Logout(tokenDTO.Token);
             return Ok();
@@ -40,7 +40,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO userDTO)
+        public async Task<ActionResult<string>> Register([FromBody] RegisterDTO userDTO)
         {
             var result = await _authenService.Register(userDTO);
             return Ok(result);
@@ -48,7 +48,7 @@ namespace AdFusionAPI.Controllers
 
         [AuthRequired]
         [HttpPut("changePass")]
-        public async Task<IActionResult> ChangePass([FromBody] ChangePassDTO userDTO)
+        public async Task<ActionResult<string>> ChangePass([FromBody] ChangePassDTO userDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _authenService.ChangePassword(userDTO, user);
@@ -56,7 +56,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPut("forgotPass")]
-        public async Task<IActionResult> ForgotPass([FromBody] ForgotPasswordDTO userDTO)
+        public async Task<ActionResult<string>> ForgotPass([FromBody] ForgotPasswordDTO userDTO)
         {
             var result = await _authenService.ForgotPassword(userDTO);
             return Ok(result);
