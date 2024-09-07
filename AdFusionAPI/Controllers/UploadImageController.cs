@@ -33,7 +33,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpDelete("image")]
 
-        public async Task<IActionResult> DeleteFile(string publicId)
+        public async Task<ActionResult<string>> DeleteFile(string publicId)
         {
             bool isDeleted = await _storageService.DeleteFileAsync(publicId);
 
