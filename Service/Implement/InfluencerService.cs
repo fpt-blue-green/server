@@ -185,7 +185,6 @@ namespace Service
             }
         }
 
-
         public async Task DeleteInfluencer(Guid id)
 		{
 			await _influencerRepository.Delete(id);

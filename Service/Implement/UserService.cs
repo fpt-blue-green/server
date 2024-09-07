@@ -54,7 +54,7 @@ namespace Service
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
                 Folder = folder,
-                PublicId = Path.GetFileNameWithoutExtension(file.FileName),
+                PublicId = $"{user.Id}",
                 Overwrite = true
             };
 
