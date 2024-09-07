@@ -21,7 +21,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPatch("avatar")]
         [AuthRequired]
-        public async Task<IActionResult> UpdateAvatar(IFormFile file)
+        public async Task<ActionResult<string>> UpdateAvatar(IFormFile file)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var avatar = await _userService.UploadImageAsync(file, "Avatar", user);

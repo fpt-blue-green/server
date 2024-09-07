@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BusinessObjects;
+using Microsoft.AspNetCore.Mvc;
 using Service;
 
 namespace AdFusionAPI.Controllers
@@ -15,7 +16,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("location")]
-        public IActionResult GetLocation(string keyName)
+        public ActionResult<string> GetLocation(string keyName)
         {
             var cities = _utilityService.GetCitiesWithCountry(keyName);
 
@@ -28,14 +29,14 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("profile")]
-        public async Task<IActionResult> GetChannelProfile(int platform, string channelId)
+        public async Task<ActionResult<ChannelStatDTO>> GetChannelProfile(int platform, string channelId)
         {
             var info = await _utilityService.GetChannelProfile(platform, channelId);
             return Ok(info);
         }
 
         [HttpGet("video")]
-        public async Task<IActionResult> GetVideoInformation(int platform, string url)
+        public async Task<ActionResult<string>> GetVideoInformation(int platform, string url)
         {
             var info = await _utilityService.GetVideoInformation(platform, url);
             return Ok(info);

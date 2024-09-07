@@ -54,22 +54,22 @@ namespace Service
             await _channelRepository.UpdateChannel(channelNew);
         }
 
-        public async Task<List<ChannelPlatFormUserNameDTO>> GetChannelPlatFormUserNames(UserDTO user)
+        public async Task<List<ChannelDTO>> GetChannelPlatFormUserNames(UserDTO user)
         {
-            var result = new List<ChannelPlatFormUserNameDTO>();
-            var influencer = _userRepository.GetUserById(user.Id).Result.Influencers.FirstOrDefault()!;
+            var result = new List<ChannelDTO>();
+
+            var userEntity = await _userRepository.GetUserById(user.Id);
+            var influencer = userEntity?.Influencers?.FirstOrDefault();
 
             if (influencer != null)
             {
                 var existingChannels = await _channelRepository.GetChannels(influencer.Id);
-                result = existingChannels.Select(channel => new ChannelPlatFormUserNameDTO
-                {
-                    Platform = (EPlatform)channel.Type,
-                    UserName = channel.UserName
-                }).ToList();
+                result = _mapper.Map<List<ChannelDTO>>(existingChannels);
             }
+
             return result;
         }
+
 
         public async Task<Channel> GetChannelStatData(Channel channel, EPlatform ePlatform, string id)
         {
@@ -83,7 +83,5 @@ namespace Service
 
             return channel;
         }
-
-
     }
 }

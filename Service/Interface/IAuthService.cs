@@ -5,7 +5,7 @@ namespace Service
     public interface IAuthService
     {
         Task<UserTokenDTO> Login(LoginDTO loginDTO);
-        Task<TokenResponse> RefreshToken(RefreshTokenDTO tokenDTO);
+        Task<TokenResponseDTO> RefreshToken(RefreshTokenDTO tokenDTO);
         Task Logout(string token);
         Task<string> Register(RegisterDTO registerDTO);
         Task<string> ChangePassword(ChangePassDTO changePassDTO, UserDTO user);

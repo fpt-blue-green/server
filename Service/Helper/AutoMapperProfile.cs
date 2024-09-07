@@ -28,6 +28,10 @@ namespace Service
             #endregion
             #region Channel
             CreateMap<ChannelStatDTO, Channel>();
+            CreateMap<Channel, ChannelDTO>();
+            #endregion
+            #region SystemSetting
+            CreateMap<SystemSetting, SystemSettingDTO>();
             #endregion
         }
     }

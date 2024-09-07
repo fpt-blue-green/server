@@ -25,7 +25,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpGet]
         [AuthRequired]
-        public async Task<ActionResult<Influencer>> GetCurrentInfluencer()
+        public async Task<ActionResult<InfluencerDTO>> GetCurrentInfluencer()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _influencerService.GetInfluencerByUserId(user.Id);
@@ -34,7 +34,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPut]
         [AuthRequired]
-        public async Task<ActionResult<Influencer>> CreateOrUpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
+        public async Task<ActionResult> CreateOrUpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _influencerService.CreateOrUpdateInfluencer(influencerRequestDTO, user);
@@ -52,7 +52,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("tags")]
         [InfluencerRequired]
-        public async Task<IActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
+        public async Task<ActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _influencerService.UpdateTagsForInfluencer(user, listTags);
@@ -70,7 +70,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpGet("channelUsername")]
         [InfluencerRequired]
-        public async Task<IActionResult> GetChannelUserName()
+        public async Task<ActionResult<List<ChannelDTO>>> GetChannelUserName()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _channelService.GetChannelPlatFormUserNames(user);
@@ -79,7 +79,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("images")]
         [AuthRequired]
-        public async Task<IActionResult> UploadImages(List<IFormFile> images)
+        public async Task<ActionResult<List<string>>> UploadImages(List<IFormFile> images)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var avatar = await _userService.UploadContentImages(images, user);
