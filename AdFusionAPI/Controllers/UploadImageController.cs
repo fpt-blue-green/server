@@ -16,7 +16,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("image")]
-        public async Task<IActionResult> UploadImage(IFormFile file)
+        public async Task<ActionResult<string>> UploadImage(IFormFile file)
         {
             var fileUrl = await _storageService.UploadImageAsync(file, "AdFusionImage");
 
@@ -24,7 +24,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("images")]
-        public async Task<IActionResult> UploadListImage(IFormFile avatar,  List<IFormFile> images)
+        public async Task<ActionResult<Dictionary<string, List<string>>>> UploadListImage(IFormFile avatar,  List<IFormFile> images)
         {
             var fileUrl = await _storageService.UploadListImageAndAvatar(avatar, images);
 

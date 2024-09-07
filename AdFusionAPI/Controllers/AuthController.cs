@@ -19,7 +19,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
+        public async Task<ActionResult<UserTokenDTO>> Login([FromBody] LoginDTO loginDTO)
         {
             var result = await _authenService.Login(loginDTO);
             return Ok(result);
@@ -33,7 +33,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("refreshToken")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO tokenDTO)
+        public async Task<ActionResult<TokenResponseDTO>> RefreshToken([FromBody] RefreshTokenDTO tokenDTO)
         {
             var result = await _authenService.RefreshToken(tokenDTO);
             return Ok(result);
@@ -63,7 +63,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("verify")]
-        public async Task<IActionResult> Verify([FromBody] VerifyDTO data)
+        public async Task<ActionResult<bool>> Verify([FromBody] VerifyDTO data)
         {
             var result = await _authenService.Verify(data);
             return Ok(result);

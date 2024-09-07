@@ -66,6 +66,7 @@ namespace Service
                 Name = user.DisplayName,
                 Email = user.Email,
                 Role = (ERole)user.Role,
+                Image = user.Avatar,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
             };
@@ -77,7 +78,7 @@ namespace Service
             return userToken;
         }
 
-        public async Task<TokenResponse> RefreshToken(RefreshTokenDTO tokenDTO)
+        public async Task<TokenResponseDTO> RefreshToken(RefreshTokenDTO tokenDTO)
         {
             var data = await _securityService.ValidateJwtToken(tokenDTO.Token);
 
@@ -101,7 +102,7 @@ namespace Service
             user.RefreshToken = refreshToken;
             await _userRepository.UpdateUser(user);
 
-            var tokenResponse = new TokenResponse
+            var tokenResponse = new TokenResponseDTO
             {
                 AccessToken = authenToken,
                 RefreshToken = refreshToken
