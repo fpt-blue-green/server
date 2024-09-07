@@ -33,7 +33,7 @@ namespace Service
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<string> UploadImageAsync(IFormFile file, string folder, UserDTO user)
+        public async Task<string> UploadImageAsync(IFormFile file, string folder, UserDTO user, string fileSuffix)
         {
             _loggerService.Information("Start to upload avatar: ");
 
@@ -54,7 +54,7 @@ namespace Service
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
                 Folder = folder,
-                PublicId = $"{user.Id}",
+                PublicId = $"{user.Id}_{fileSuffix}",
                 Overwrite = true
             };
 
@@ -70,6 +70,12 @@ namespace Service
         public async Task<List<string>> UploadContentImages(List<IFormFile> contentFiles, UserDTO user)
         {
             var contentDownloadUrls = new List<string>();
+
+            if (contentFiles.Count < 3 || contentFiles.Count > 10)
+            {
+                _loggerService.Error("Error: Số lượng ảnh không hợp lệ. Chỉ được upload từ 3 đến 10 ảnh.");
+                throw new InvalidOperationException("Số lượng ảnh không hợp lệ. Bạn chỉ được upload từ 3 đến 10 ảnh.");
+            }
 
             var userGet = await _userRepository.GetUserById(user.Id);
             if (userGet == null)
@@ -87,12 +93,14 @@ namespace Service
             _loggerService.Information("Start to upload content images: ");
             if (contentFiles.Any())
             {
+                int imageIndex = 1;
                 foreach (var file in contentFiles)
                 {
                     try
                     {
+                        var fileSuffix = $"content{imageIndex}";
                         var contentFileName = "Content/content_" + Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        var contentDownloadUrl = await UploadImageAsync(file, "Images", user);
+                        var contentDownloadUrl = await UploadImageAsync(file, "Images", user, fileSuffix);
                         contentDownloadUrls.Add(contentDownloadUrl);
 
                         // Add each image to InfluencerImages
@@ -106,6 +114,7 @@ namespace Service
                         };
 
                         await _influencerImagesRepository.Create(influencerImage);
+                        imageIndex++; // Tăng số thứ tự của ảnh
                     }
                     catch (Exception ex)
                     {
