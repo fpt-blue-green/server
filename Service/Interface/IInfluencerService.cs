@@ -16,6 +16,7 @@ namespace Service
         Task<List<InfluencerDTO>> GetTopTiktokInfluencer();
         Task<List<InfluencerDTO>> GetTopYoutubeInfluencer();
         Task<string> CreateOrUpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user);
+        Task<string> ValidatePhoneNumber(UserDTO user, string phoneNumber);
         Task DeleteInfluencer(Guid id);
     }
 }

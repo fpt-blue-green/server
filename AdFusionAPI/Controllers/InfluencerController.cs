@@ -32,6 +32,15 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("phoneNumber/validate")]
+        [AuthRequired]
+        public async Task<ActionResult<string>> ValidatePhoneNumber(string phoneNumber)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _influencerService.ValidatePhoneNumber(user, phoneNumber);
+            return Ok(result);
+        }
+
         [HttpPut]
         [AuthRequired]
         public async Task<ActionResult<string>> CreateOrUpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)

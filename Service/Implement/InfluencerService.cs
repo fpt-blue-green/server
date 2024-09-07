@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Serilog;
+using System.Text.RegularExpressions;
 
 namespace Service
 {
@@ -255,5 +256,40 @@ namespace Service
 			}
 			return "Cập nhật tag thành công.";
 		}
-	}
+
+        public async Task<string> ValidatePhoneNumber(UserDTO user, string phoneNumber)
+        {
+            // Kiểm tra tính hợp lệ của số điện thoại
+            if (!IsPhoneNumberValid(phoneNumber))
+            {
+                throw new InvalidOperationException("Số điện thoại không hợp lệ.");
+            }
+            else
+            {
+                var influencer = await GetInfluencerByUserId(user.Id);
+                if (influencer == null)
+                {
+                    throw new InvalidOperationException("Influencer không tồn tại");
+                }
+				else
+				{
+
+					influencer.Phone = phoneNumber;
+                    var influencerUpdated = _mapper.Map<Influencer>(influencer);
+                    await _influencerRepository.Update(influencerUpdated);
+                    return $"{phoneNumber} Số điện thoại hợp lệ.";
+
+                }
+
+            }
+        }
+
+        private bool IsPhoneNumberValid(string phoneNumber)
+        {
+            // Định dạng regex cho số điện thoại (10 hoặc 11 số, bắt đầu bằng số 0)
+            string pattern = @"^(0[0-9]{9,10})$";
+
+            return Regex.IsMatch(phoneNumber, pattern);
+        }
+    }
 }
