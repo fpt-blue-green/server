@@ -1,6 +1,7 @@
 ﻿using AdFusionAPI.APIConfig;
 using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -11,6 +12,7 @@ namespace AdFusionAPI.Controllers
     public class InfluencerController : Controller
     {
         private readonly IInfluencerService _influencerService;
+        private readonly IUserService _userService;
         private readonly IChannelService _channelService;
         private readonly IMapper _mapper;
 
@@ -20,12 +22,22 @@ namespace AdFusionAPI.Controllers
             _channelService = channelService;
             _mapper = mapper;
         }
-        [HttpPost]
+
+        [HttpGet]
         [AuthRequired]
-        public async Task<IActionResult> CreateNewInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
+        public async Task<ActionResult<Influencer>> GetCurrentInfluencer()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _influencerService.CreateInfluencer(influencerRequestDTO, user);
+            var result = await _influencerService.GetInfluencerByUserId(user.Id);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        [AuthRequired]
+        public async Task<ActionResult<Influencer>> CreateOrUpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _influencerService.CreateOrUpdateInfluencer(influencerRequestDTO, user);
             return Ok(result);
         }
 
@@ -37,6 +49,7 @@ namespace AdFusionAPI.Controllers
             var result = await _influencerService.GetTagsByInfluencer(user);
             return Ok(result);
         }
+
         [HttpPost("tags")]
         [InfluencerRequired]
         public async Task<IActionResult> UpdateTagsForInfluencer([FromBody] List<Guid> listTags)
@@ -64,13 +77,13 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPut]
-        [InfluencerRequired]
-        public async Task<IActionResult> UpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
+        [HttpPost("images")]
+        [AuthRequired]
+        public async Task<IActionResult> UploadImages(List<IFormFile> images)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _influencerService.UpdateInfluencer(influencerRequestDTO, user);
-            return Ok(result);
+            var avatar = await _userService.UploadContentImages(images, user);
+            return Ok(avatar);
         }
     }
 }

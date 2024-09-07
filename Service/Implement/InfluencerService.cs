@@ -162,30 +162,31 @@ namespace Service
 			return result;
 		}
 
-		public async Task<string> CreateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user)
-		{
+        public async Task<string> CreateOrUpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user)
+        {
+            // Kiểm tra xem người dùng đã có influencer hay chưa
+            var influencerDTO = await GetInfluencerByUserId(user.Id);
 
-			var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
-			newInfluencer.UserId = user.Id;
-			await _influencerRepository.Create(newInfluencer);
-			return "Tạo tài khoản thành công.";
-		}
+            if (influencerDTO == null)
+            {
+                // Nếu chưa có, tạo mới
+                var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
+                newInfluencer.UserId = user.Id;
+                await _influencerRepository.Create(newInfluencer);
+                return "Tạo tài khoản influencer thành công.";
+            }
+            else
+            {
+                // Nếu đã có, cập nhật
+                _mapper.Map(influencerRequestDTO, influencerDTO);
+                var influencerUpdated = _mapper.Map<Influencer>(influencerDTO);
+                await _influencerRepository.Update(influencerUpdated);
+                return "Cập nhật influencer thành công.";
+            }
+        }
 
-		public async Task<string> UpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user)
-		{
-			var influencerDTO = await GetInfluencerByUserId(user.Id);
-			if (influencerDTO == null)
-			{
-				throw new InvalidOperationException("Influencer không tồn tại");
-			}
-			_mapper.Map(influencerRequestDTO, influencerDTO);
-			var influencerUpdated = _mapper.Map<Influencer>(influencerDTO);
-			await _influencerRepository.Update(influencerUpdated);
-			return "Cập nhật influencer thành công.";
-		}
 
-
-		public async Task DeleteInfluencer(Guid id)
+        public async Task DeleteInfluencer(Guid id)
 		{
 			await _influencerRepository.Delete(id);
 		}
