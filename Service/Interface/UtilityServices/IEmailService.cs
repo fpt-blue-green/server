@@ -1,4 +1,4 @@
-﻿namespace Service.Interface.UtilityServices
+﻿namespace Service
 {
     public interface IEmailService
     {

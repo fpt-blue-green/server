@@ -1,20 +1,14 @@
-﻿using BusinessObjects.DTOs;
-using BusinessObjects.DTOs.InfluencerDTO;
-using BusinessObjects.Enum;
-using CloudinaryDotNet;
+﻿
+using BusinessObjects;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
-using Service.Domain;
-using Service.Implement.SystemService;
-using Service.Interface.SystemServices;
-using Service.Interface.UtilityServices;
 using System.Globalization;
 using System.Net;
 using System.Web;
 
-namespace Service.Implement.UtilityServices
+namespace Service
 {
     public class UtilityService : IUtilityService
     {

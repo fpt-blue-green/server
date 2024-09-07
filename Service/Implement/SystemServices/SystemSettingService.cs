@@ -1,12 +1,8 @@
-﻿using BusinessObjects.Enum;
+﻿using BusinessObjects;
 using BusinessObjects.Models;
-using BusinessObjects.DTOs;
-using Repositories.Implement;
-using Repositories.Interface;
-using Service.Domain;
-using Service.Interface.SystemServices;
+using Repositories;
 
-namespace Service.Implement.SystemService
+namespace Service
 {
 
     public class SystemSettingService : ISystemSettingService

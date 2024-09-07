@@ -1,4 +1,4 @@
-﻿namespace BusinessObjects.DTOs
+﻿namespace BusinessObjects
 {
     public class CityResult
     {

@@ -1,8 +1,5 @@
 ﻿using BusinessObjects.Models;
-using Repositories.Helper;
-using Repositories.Interface;
-
-namespace Repositories.Implement
+namespace Repositories
 {
     public class InfluencerImageRepository : SingletonBase<InfluencerImageRepository>, IInfluencerImageRepository
     {

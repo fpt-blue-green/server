@@ -1,16 +1,11 @@
 ﻿using BusinessObjects.Models;
-using BusinessObjects.DTOs;
 using Newtonsoft.Json;
 using Quartz;
-using Repositories.Implement;
-using Repositories.Interface;
 using Serilog;
-using Service.Domain;
-using Service.Interface.UtilityServices;
-using Service.Resources;
-using Service.Interface;
+using Repositories;
+using BusinessObjects;
 
-namespace Service.Implement.SystemServices.JobService
+namespace Service
 {
     public class UploadDataJobService : IJob
     {

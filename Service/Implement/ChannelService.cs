@@ -1,15 +1,9 @@
 ﻿using AutoMapper;
-using BusinessObjects.DTOs.InfluencerDTO;
-using BusinessObjects.DTOs.UserDTOs;
-using BusinessObjects.Enum;
+using BusinessObjects;
 using BusinessObjects.Models;
-using Repositories.Implement;
-using Repositories.Interface;
-using Service.Implement.UtilityServices;
-using Service.Interface;
-using Service.Interface.UtilityServices;
+using Repositories;
 
-namespace Service.Implement
+namespace Service
 {
     public class ChannelService : IChannelService
     {

@@ -1,6 +1,5 @@
-﻿using BusinessObjects.DTOs.InfluencerDTO;
-
-namespace BusinessObjects.DTOs.InfluencerDTOs
+﻿
+namespace BusinessObjects
 {
     public class InfluencerDTO
     {

@@ -1,6 +1,6 @@
-﻿using static BusinessObjects.Enum.AuthEnumContainer;
+﻿using static BusinessObjects.AuthEnumContainer;
 
-namespace BusinessObjects.DTOs.AuthDTO
+namespace BusinessObjects
 {
     public class RegisterDTO
     {

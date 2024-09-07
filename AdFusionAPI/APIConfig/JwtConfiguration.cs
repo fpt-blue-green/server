@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Service.Interface.SystemServices;
+using Service;
 using System.Text;
 
 namespace AdFusionAPI

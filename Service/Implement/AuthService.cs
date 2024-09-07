@@ -1,23 +1,12 @@
 ﻿using AutoMapper;
-using BusinessObjects.DTOs;
-using BusinessObjects.DTOs.AuthDTO;
-using BusinessObjects.DTOs.AuthDTOs;
-using BusinessObjects.DTOs.UserDTOs;
-using BusinessObjects.Enum;
+using BusinessObjects;
 using BusinessObjects.Models;
 using Newtonsoft.Json;
-using Repositories.Implement;
-using Repositories.Interface;
+using Repositories;
 using Serilog;
-using Service.Domain;
-using Service.Implement.SystemService;
-using Service.Interface;
-using Service.Interface.HelperService;
-using Service.Interface.UtilityServices;
-using Service.Resources;
-using static BusinessObjects.Enum.AuthEnumContainer;
+using static BusinessObjects.AuthEnumContainer;
 
-namespace Service.Implement
+namespace Service
 {
     public class AuthService : IAuthService
     {

@@ -1,4 +1,4 @@
-﻿namespace Service.Interface.HelperService
+﻿namespace Service
 {
     public interface ISecurityService
     {

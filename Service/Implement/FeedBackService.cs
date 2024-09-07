@@ -1,9 +1,7 @@
 ﻿using BusinessObjects.Models;
-using Repositories.Implement;
-using Repositories.Interface;
-using Service.Interface;
+using Repositories;
 
-namespace Service.Implement
+namespace Service
 {
     public class FeedBackService : IFeedBackService
     {

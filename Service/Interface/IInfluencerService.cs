@@ -1,10 +1,6 @@
-﻿using BusinessObjects.DTOs;
-using BusinessObjects.DTOs.InfluencerDTO;
-using BusinessObjects.DTOs.InfluencerDTOs;
-using BusinessObjects.DTOs.UserDTOs;
-using BusinessObjects.Models;
+﻿using BusinessObjects;
 
-namespace Service.Interface
+namespace Service
 {
     public interface IInfluencerService
     {

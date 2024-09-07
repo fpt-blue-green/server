@@ -1,6 +1,6 @@
 ﻿using BusinessObjects.Models;
 
-namespace Repositories.Interface
+namespace Repositories
 {
     public interface IFeedBackRepository
     {

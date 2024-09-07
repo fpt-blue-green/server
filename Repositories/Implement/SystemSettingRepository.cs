@@ -1,9 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Helper;
-using Repositories.Interface;
-
-namespace Repositories.Implement
+namespace Repositories
 {
     public class SystemSettingRepository : SingletonBase<SystemSettingRepository>, ISystemSettingRepository
     {

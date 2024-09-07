@@ -1,4 +1,4 @@
-﻿namespace BusinessObjects.DTOs.AuthDTOs
+﻿namespace BusinessObjects
 {
     public class TokenResponse
     {

@@ -1,6 +1,5 @@
-﻿using BusinessObjects.Enum;
-
-namespace BusinessObjects.DTOs.InfluencerDTO
+﻿
+namespace BusinessObjects
 {
     public class ChannelDTO
     {

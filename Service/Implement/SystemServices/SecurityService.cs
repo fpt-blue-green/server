@@ -1,14 +1,11 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using Repositories.Implement;
-using Repositories.Interface;
-using Service.Domain;
-using Service.Interface.HelperService;
+using Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Service.Implement.SystemService
+namespace Service
 {
     public class SecurityService : ISecurityService
     {

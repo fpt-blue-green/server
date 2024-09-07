@@ -1,4 +1,4 @@
-﻿namespace BusinessObjects.DTOs.AuthDTO
+﻿namespace BusinessObjects
 {
     public class LoginDTO
     {

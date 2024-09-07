@@ -1,8 +1,8 @@
 ﻿using AdFusionAPI.APIConfig;
 using AutoMapper;
-using BusinessObjects.DTOs.UserDTOs;
+using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
-using Service.Interface;
+using Service;
 
 namespace AdFusionAPI.Controllers
 {

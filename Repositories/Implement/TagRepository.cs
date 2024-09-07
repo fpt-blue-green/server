@@ -1,9 +1,7 @@
 ﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Helper;
-using Repositories.Interface;
 
-namespace Repositories.Implement
+namespace Repositories
 {
     public class TagRepository : SingletonBase<TagRepository>, ITagRepository
     {
@@ -19,7 +17,7 @@ namespace Repositories.Implement
 
         public async Task Delete(Guid id)
         {
-            var tag = await context.Tags.SingleOrDefaultAsync(i => i.Id == id);
+            var tag = await context.Tags.FirstOrDefaultAsync(i => i.Id == id);
             context.Tags.Remove(tag);
             await context.SaveChangesAsync();
         }
@@ -32,7 +30,7 @@ namespace Repositories.Implement
 
         public async Task<Tag> GetById(Guid id)
         {
-            var tag = await context.Tags.SingleOrDefaultAsync(i => i.Id == id);
+            var tag = await context.Tags.FirstOrDefaultAsync(i => i.Id == id);
             return tag;
         }
 

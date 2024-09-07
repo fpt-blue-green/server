@@ -1,6 +1,6 @@
-﻿using BusinessObjects.Enum;
+﻿
 
-namespace BusinessObjects.DTOs
+namespace BusinessObjects
 {
     public class ApiResponse<T>
     {
