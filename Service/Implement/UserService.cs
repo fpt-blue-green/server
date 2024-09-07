@@ -1,20 +1,14 @@
 ﻿using AutoMapper;
-using BusinessObjects.DTOs.InfluencerDTOs;
-using BusinessObjects.DTOs.UserDTOs;
+using BusinessObjects;
 using BusinessObjects.Models;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Repositories.Implement;
-using Repositories.Interface;
+using Repositories;
 using Serilog;
-using Service.Domain;
-using Service.Implement.SystemService;
-using Service.Interface;
-using Service.Interface.HelperService;
 
-namespace Service.Implement
+namespace Service
 {
     public class UserService : IUserService
     {
