@@ -2,7 +2,7 @@
 {
     public class PackageDTO
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         public int? Platform { get; set; }
 

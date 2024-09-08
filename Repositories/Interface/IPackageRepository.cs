@@ -6,7 +6,7 @@ namespace Repositories
 	{
 		Task<IEnumerable<Package>> GetAlls();
 		Task<Package> GetById(Guid id);
-		Task Create(Package package);
+		Task CreateList(List<Package> packages);
 		Task Update(Package package);
 		Task Delete(Guid id);
 	}
