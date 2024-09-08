@@ -71,12 +71,6 @@ namespace Service
         {
             var contentDownloadUrls = new List<string>();
 
-            if (contentFiles.Count < 3 || contentFiles.Count > 10)
-            {
-                _loggerService.Error("Error: Số lượng ảnh không hợp lệ. Chỉ được upload từ 3 đến 10 ảnh.");
-                throw new InvalidOperationException("Số lượng ảnh không hợp lệ. Bạn chỉ được upload từ 3 đến 10 ảnh.");
-            }
-
             var userGet = await _userRepository.GetUserById(user.Id);
             if (userGet == null)
             {
@@ -89,24 +83,64 @@ namespace Service
                 throw new InvalidOperationException("Influencer không tồn tại");
             }
 
-            // Upload Content Images
-            _loggerService.Information("Start to upload content images: ");
-            if (contentFiles.Any())
-            {
-                int imageIndex = 1;
-                foreach (var file in contentFiles)
-                {
-                    try
-                    {
-                        var fileSuffix = $"content{imageIndex}";
-                        var contentFileName = "Content/content_" + Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        var contentDownloadUrl = await UploadImageAsync(file, "Images", user, fileSuffix);
-                        contentDownloadUrls.Add(contentDownloadUrl);
+            // Lấy danh sách các ảnh hiện có của influencer
+            var existingImages = await _influencerImagesRepository.GetByInfluencerId(influencer.Id);
+            var existingImagesOrdered = existingImages
+                .OrderBy(img => img.CreatedAt)
+                .ToList();
 
-                        // Add each image to InfluencerImages
+            int existingImageCount = existingImages.Count();
+
+            if (existingImageCount < 3 && contentFiles.Count < (3 - existingImageCount))
+            {
+                throw new InvalidOperationException("Influencer phải có ít nhất 3 ảnh.");
+            }
+
+            List<InfluencerImage> imagesToUpdate = new List<InfluencerImage>();
+            if (existingImageCount + contentFiles.Count > 10)
+            {
+                int excessImages = (existingImageCount + contentFiles.Count) - 10;
+
+                // Lấy các ảnh cũ nhất để thay thế
+                imagesToUpdate = existingImagesOrdered
+                    .Take(excessImages)
+                    .ToList();
+            }
+
+            _loggerService.Information("Start to upload content images: ");
+            int imageIndex = existingImageCount + 1;
+
+            foreach (var file in contentFiles)
+            {
+                try
+                {
+                    if (imageIndex == 11)
+                    {
+                        imageIndex = 1;
+                    }
+
+                    var fileSuffix = $"content{imageIndex}";
+                    var contentFileName = "Content/content_" + Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    var contentDownloadUrl = await UploadImageAsync(file, "Images", user, fileSuffix);
+                    contentDownloadUrls.Add(contentDownloadUrl);
+
+                    // Thêm hoặc cập nhật ảnh
+                    if (imagesToUpdate.Any())
+                    {
+                        // Cập nhật ảnh cũ với URL và thời gian mới
+                        var imageToUpdate = imagesToUpdate.First();
+                        imageToUpdate.Url = contentDownloadUrl;
+                        imageToUpdate.ModifiedAt = DateTime.UtcNow;
+
+                        await _influencerImagesRepository.Update(imageToUpdate);
+                        imagesToUpdate.Remove(imageToUpdate);
+                    }
+                    else
+                    {
+                        // Tạo mới ảnh nếu chưa có ảnh nào cần thay thế
                         var influencerImage = new InfluencerImage
                         {
-                            Id = new Guid(),
+                            Id = Guid.NewGuid(),
                             InfluencerId = influencer.Id,
                             Url = contentDownloadUrl,
                             CreatedAt = DateTime.UtcNow,
@@ -114,20 +148,15 @@ namespace Service
                         };
 
                         await _influencerImagesRepository.Create(influencerImage);
-                        imageIndex++; // Tăng số thứ tự của ảnh
                     }
-                    catch (Exception ex)
-                    {
-                        // Log content upload exception
-                        _loggerService.Error(ex, $"Error uploading content image: {file.FileName}");
-                        contentDownloadUrls.Add($"Error uploading content {file.FileName}: {ex.Message}");
-                    }
+
+                    imageIndex++;
                 }
-            }
-            else
-            {
-                _loggerService.Error("Error uploading content images");
-                throw new Exception("No content files provided");
+                catch (Exception ex)
+                {
+                    _loggerService.Error(ex, $"Error uploading content image: {file.FileName}");
+                    contentDownloadUrls.Add($"Error uploading content {file.FileName}: {ex.Message}");
+                }
             }
 
             _loggerService.Information("End to upload content images: ");

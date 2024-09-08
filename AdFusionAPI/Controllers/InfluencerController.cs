@@ -16,10 +16,11 @@ namespace AdFusionAPI.Controllers
         private readonly IChannelService _channelService;
         private readonly IMapper _mapper;
 
-        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper)
+        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IUserService userService,  IMapper mapper)
         {
             _influencerService = influencerService;
             _channelService = channelService;
+            _userService = userService;
             _mapper = mapper;
         }
 
@@ -91,8 +92,8 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<List<string>>> UploadImages(List<IFormFile> images)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var avatar = await _userService.UploadContentImages(images, user);
-            return Ok(avatar);
+            var result = await _userService.UploadContentImages(images, user);
+            return Ok(result);
         }
     }
 }
