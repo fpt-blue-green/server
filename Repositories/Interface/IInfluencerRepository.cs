@@ -8,6 +8,7 @@ namespace Repositories
         Task<IEnumerable<Influencer>> GetAlls();
         Task<Influencer> GetById(Guid id);
         Task<Influencer> GetByUserId(Guid id);
+        Task<Influencer> GetBySlug(string slug);
         Task<List<Tag>> GetTagsByInfluencer(Guid influencerId);
         Task AddTagToInfluencer(Guid influencerId, Guid tagId);
         Task Create(Influencer influencer);

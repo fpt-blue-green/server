@@ -23,8 +23,24 @@ namespace Repositories
 
         public async Task<Influencer> GetByUserId(Guid userId)
         {
-            var influencer = await context.Influencers.FirstOrDefaultAsync(s => s.UserId == userId);
-            return influencer;
+            var influencer = await context.Influencers
+                                            .Include(i => i.Channels)
+                                            .Include(i => i.Tags)
+                                            .Include(i => i.Packages)
+                                            .Include(i => i.InfluencerImages)
+                                            .FirstOrDefaultAsync(s => s.UserId == userId);
+            return influencer!;
+        }
+
+        public async Task<Influencer> GetBySlug(string slug)
+        {
+            var influencer = await context.Influencers
+                                            .Include(i => i.Channels)
+                                            .Include(i => i.Tags)
+                                            .Include(i => i.Packages)
+                                            .Include(i => i.InfluencerImages)
+                                            .FirstOrDefaultAsync(s => s.Slug == slug);
+            return influencer!;
         }
 
         public async Task Create(Influencer influencer)

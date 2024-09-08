@@ -7,6 +7,7 @@ namespace Service
         Task<List<InfluencerDTO>> GetAllInfluencers();
         Task<List<InfluencerDTO>> GetAllInfluencers(InfluencerFilterDTO filter);
         Task<InfluencerDTO> GetInfluencerById(Guid id);
+        Task<InfluencerDTO> GetInfluencerBySlug(string slug);
         Task<List<TagDTO>> GetTagsByInfluencer(UserDTO user);
         Task<string> UpdateTagsForInfluencer(UserDTO user, List<Guid> tagIds);
         Task<InfluencerDTO> GetInfluencerByUserId(Guid userId);
