@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using AdFusionAPI.APIConfig;
+using AutoMapper;
 using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
@@ -53,6 +54,14 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetExploreInfluencer([FromQuery] InfluencerFilterDTO filterDTO)
         {
             var result = await _influencerService.GetAllInfluencers(filterDTO);
+            return Ok(result);
+        }
+
+
+        [HttpGet("slug")]
+        public async Task<ActionResult<InfluencerDTO>> GetInfluencerbySlug(string slug)
+        {
+            var result = await _influencerService.GetInfluencerBySlug(slug);
             return Ok(result);
         }
     }

@@ -209,7 +209,13 @@ namespace Service
 			return _mapper.Map<InfluencerDTO>(result);
 		}
 
-		public async Task UpdateInfluencer(Influencer influencer)
+        public async Task<InfluencerDTO> GetInfluencerBySlug(string slug)
+        {
+            var result = await _influencerRepository.GetBySlug(slug);
+            return _mapper.Map<InfluencerDTO>(result);
+        }
+
+        public async Task UpdateInfluencer(Influencer influencer)
 		{
 			await _influencerRepository.Update(influencer);
 		}
