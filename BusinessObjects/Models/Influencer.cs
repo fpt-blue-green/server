@@ -21,7 +21,7 @@ public partial class Influencer
 
     public int? Gender { get; set; }
 
-    public string Phone { get; set; } = null!;
+    public string? Phone { get; set; } = null!;
 
     public string Address { get; set; } = null!;
 
