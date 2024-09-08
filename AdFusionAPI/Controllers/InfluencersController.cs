@@ -58,8 +58,8 @@ namespace AdFusionAPI.Controllers
         }
 
 
-        [HttpGet("slug")]
-        public async Task<ActionResult<InfluencerDTO>> GetInfluencerbySlug(string slug)
+        [HttpGet("{slug}")]
+        public async Task<ActionResult<InfluencerDTO>> GetInfluencerBySlug(string slug)
         {
             var result = await _influencerService.GetInfluencerBySlug(slug);
             return Ok(result);

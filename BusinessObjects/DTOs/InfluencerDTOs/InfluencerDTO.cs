@@ -12,6 +12,8 @@ namespace BusinessObjects
         public string NickName { get; set; } = null!;
 
         public string Slug {  get; set; }
+
+        public string Avatar {  get; set; } = null!;
       
         public int? Gender { get; set; }
       
@@ -33,6 +35,6 @@ namespace BusinessObjects
         public virtual ICollection<ChannelDTO> Channels { get; set; } = new List<ChannelDTO>();
         public virtual ICollection<TagDTO> Tags { get; set; } = new List<TagDTO>();
         public virtual ICollection<PackageDTO> Packages { get; set; } = new List<PackageDTO>();
-        public virtual ICollection<ImagesDTO> Images { get; set; } = new List<ImagesDTO>();
+        public virtual ICollection<ImageDTO> Images { get; set; } = new List<ImageDTO>();
     }
 }
