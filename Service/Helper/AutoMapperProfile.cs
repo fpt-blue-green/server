@@ -9,15 +9,11 @@ namespace Service
         public AutoMapperProfile()
         {
             #region Influencer
-            CreateMap<Influencer, InfluencerDTO>()
-                .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.Channels))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags))
-                .ForMember(dest => dest.Packages, opt => opt.MapFrom(src => src.Packages));
+            CreateMap<Influencer, InfluencerDTO>().ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar)).ReverseMap();
             CreateMap<InfluencerRequestDTO, InfluencerDTO>();
-            CreateMap<InfluencerDTO, Influencer>();
             CreateMap<InfluencerRequestDTO, Influencer>();
             CreateMap<Channel, ChannelDTO>();
-            CreateMap<InfluencerImage, ImagesDTO>();
+            CreateMap<InfluencerImage, ImageDTO>();
             CreateMap<Package, PackageDTO>();
             #endregion
             #region Tag

@@ -8,10 +8,12 @@ namespace Repositories
         public InfluencerRepository() { }
         public async Task<IEnumerable<Influencer>> GetAlls()
         {
-            var  influencers = await context.Influencers
+            var influencers = await context.Influencers
                     .Include(i => i.Channels)
                     .Include(i => i.Tags)
                     .Include(i => i.Packages)
+                    .Include(i => i.InfluencerImages)
+                    .Include(i => i.User)
                     .ToListAsync();
             return influencers;
         }
@@ -28,6 +30,7 @@ namespace Repositories
                                             .Include(i => i.Tags)
                                             .Include(i => i.Packages)
                                             .Include(i => i.InfluencerImages)
+                                            .Include(i => i.User)
                                             .FirstOrDefaultAsync(s => s.UserId == userId);
             return influencer!;
         }
@@ -39,6 +42,7 @@ namespace Repositories
                                             .Include(i => i.Tags)
                                             .Include(i => i.Packages)
                                             .Include(i => i.InfluencerImages)
+                                            .Include(i => i.User)
                                             .FirstOrDefaultAsync(s => s.Slug == slug);
             return influencer!;
         }
@@ -82,7 +86,7 @@ namespace Repositories
 
         public async Task AddTagToInfluencer(Guid influencerId, Guid tagId)
         {
-            var influencer = await context.Influencers.Include(i => i.Tags) 
+            var influencer = await context.Influencers.Include(i => i.Tags)
                                               .FirstOrDefaultAsync(i => i.Id == influencerId);
 
             var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == tagId);
