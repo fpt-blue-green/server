@@ -93,7 +93,7 @@ namespace Service
 
             if (existingImageCount < 3 && contentFiles.Count < (3 - existingImageCount))
             {
-                throw new InvalidOperationException("Influencer must have at least 3 images.");
+                throw new InvalidOperationException("Influencer phải có ít nhất 3 ảnh.");
             }
 
             List<InfluencerImage> imagesToUpdate = new List<InfluencerImage>();
