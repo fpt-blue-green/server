@@ -92,10 +92,10 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("images")]
         [AuthRequired]
-        public async Task<ActionResult<List<string>>> UploadImages(List<IFormFile> images)
+        public async Task<ActionResult<List<string>>> UploadImages([FromForm]List<string> imageList, [FromForm] List<IFormFile> images)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _userService.UploadContentImages(images, user);
+            var result = await _userService.UploadContentImages(imageList, images, user);
             return Ok(result);
         }
 
