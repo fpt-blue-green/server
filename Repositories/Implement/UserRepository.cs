@@ -15,19 +15,25 @@ namespace Repositories
 
         public async Task<User> GetUserById(Guid userId)
         {
-            var user = await context.Users.SingleOrDefaultAsync(u => u.Id == userId && u.IsDeleted == false);
+            var user = await context.Users
+                                    .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
+                                    .SingleOrDefaultAsync(u => u.Id == userId && u.IsDeleted == false);
             return user!;
         }
 
         public async Task<User> GetUserByRefreshToken(string refreshToken)
         {
-            var user = await context.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
+            var user = await context.Users
+                .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
+                .SingleOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
             return user!;
         }
 
         public async Task<User> GetUserByEmail(string email)
         {
-            var user = await context.Users.SingleOrDefaultAsync(u => u.Email == email && u.IsDeleted == false);
+            var user = await context.Users.Include(u => u.Influencers)
+                                        .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
+                                        .SingleOrDefaultAsync(u => u.Email == email && u.IsDeleted == false);
             return user!;
         }
 

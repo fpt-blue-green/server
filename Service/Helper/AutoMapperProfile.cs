@@ -31,6 +31,9 @@ namespace Service
             CreateMap<PackageDtoRequest, Package>();
 
             #endregion
+            #region SystemSetting
+            CreateMap<SystemSetting, SystemSettingDTO>().ReverseMap();
+            #endregion
         }
     }
 }

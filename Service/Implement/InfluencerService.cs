@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Repositories;
 using Serilog;
 using System.Text.RegularExpressions;
@@ -16,7 +17,6 @@ namespace Service
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
-        private readonly ConfigManager _config;
         public InfluencerService(IMapper mapper)
         {
             _mapper = mapper;
@@ -165,12 +165,24 @@ namespace Service
 
         public async Task<string> CreateOrUpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user)
         {
-            // Kiểm tra xem người dùng đã có influencer hay chưa
+            //Kiểm tra xem slug đã được sử dụng hay chưa
+            if (!Regex.IsMatch(influencerRequestDTO.Slug, _configManager.SlugRegex))
+            {
+                throw new InvalidOperationException("Slug không hợp lệ.");
+            }
+
+            //Kiểm tra regex có đúng định dạng hay không
             var influencerDTO = await GetInfluencerByUserId(user.Id);
 
+            // Nếu chưa có, tạo mới
             if (influencerDTO == null)
             {
-                // Nếu chưa có, tạo mới
+                //Kiểm trả xem slug đã được sử dụng hay chưa
+                var result = await _influencerRepository.GetBySlug(influencerRequestDTO.Slug);
+                if (result != null)
+                {
+                    throw new InvalidOperationException("Slug đã được sử dụng. Vui lòng chọn Slug khác.");
+                }
                 var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
                 newInfluencer.UserId = user.Id;
                 await _influencerRepository.Create(newInfluencer);
@@ -250,7 +262,11 @@ namespace Service
                 throw new InvalidOperationException("Tag không được trùng lặp.");
             }
             var influencer = await _influencerRepository.GetByUserId(user.Id);
-            if (influencer != null)
+            if (influencer == null)
+            {
+                throw new InvalidOperationException(_configManager.ProfileNotComplete);
+            }
+            else
             {
                 var influencerId = influencer.Id;
                 var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
@@ -279,7 +295,7 @@ namespace Service
                 var influencer = await GetInfluencerByUserId(user.Id);
                 if (influencer == null)
                 {
-                    throw new InvalidOperationException("Influencer không tồn tại");
+                    throw new InvalidOperationException("Influencer không tồn tại.");
                 }
                 else
                 {

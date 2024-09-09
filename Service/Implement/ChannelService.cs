@@ -11,6 +11,7 @@ namespace Service
         private static IUserRepository _userRepository = new UserRepository();
         private static IUtilityService _utilityRepository = new UtilityService();
         private readonly IMapper _mapper;
+        private readonly ConfigManager _configManager = new ConfigManager();
         public ChannelService(IMapper mapper)
         {
             _mapper = mapper;
@@ -18,12 +19,21 @@ namespace Service
 
         public async Task CreateInfluencerChannel(UserDTO user, List<ChannelPlatFormUserNameDTO> channels)
         {
+            if(!channels.Any()) {
+                throw new InvalidOperationException(_configManager.ProfileNotComplete);
+            }
             // Lấy ID của influencer từ repository
-            Guid influencerId = _userRepository.GetUserById(user.Id).Result.Influencers.FirstOrDefault()!.Id;
+            var influencer = _userRepository.GetUserById(user.Id).Result.Influencers.FirstOrDefault()!;
+
+            if(influencer == null)
+            {
+                throw new InvalidOperationException("Vui lòng hoàn thiện thông tin ở các bước trước.");
+            }
 
             foreach (var item in channels)
             {
                 // Lấy đối tượng channel từ repository nếu có
+                var influencerId = influencer.Id;
                 var existingChannel = await _channelRepository.GetChannel(influencerId, item.Platform);
 
                 if (!existingChannel.Any())
