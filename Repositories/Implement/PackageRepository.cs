@@ -5,10 +5,10 @@ namespace Repositories
 {
 	public class PackageRepository : SingletonBase<PackageRepository>, IPackageRepository
 	{
-		public async Task Create(Package package)
+		public async Task CreateList(List<Package> package)
 		{
-			await context.Packages.AddAsync(package);
-			await context.SaveChangesAsync();
+				await context.Packages.AddRangeAsync(package);
+				await context.SaveChangesAsync();	
 		}
 
 		public async Task Delete(Guid id)
@@ -26,8 +26,12 @@ namespace Repositories
 
 		public async Task<Package> GetById(Guid id)
 		{
-			var package = await context.Packages.FirstOrDefaultAsync(i => i.Id == id);
-			return package;
+			try
+			{
+				var package = await context.Packages.FirstOrDefaultAsync(i => i.Id == id);
+				return package;
+			}catch (Exception ex) { }
+			return null;
 		}
 
 		public async Task Update(Package package)

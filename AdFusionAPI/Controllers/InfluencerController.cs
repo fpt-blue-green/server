@@ -14,14 +14,17 @@ namespace AdFusionAPI.Controllers
         private readonly IInfluencerService _influencerService;
         private readonly IUserService _userService;
         private readonly IChannelService _channelService;
+        private readonly IPackageService _packageService;
+
         private readonly IMapper _mapper;
 
-        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IUserService userService,  IMapper mapper)
+        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper,IUserService userService, IPackageService packageSerivce)
         {
             _influencerService = influencerService;
             _channelService = channelService;
             _userService = userService;
             _mapper = mapper;
+            _packageService = packageSerivce;
         }
 
         [HttpGet]
@@ -95,5 +98,41 @@ namespace AdFusionAPI.Controllers
             var result = await _userService.UploadContentImages(images, user);
             return Ok(result);
         }
-    }
+
+        #region package
+        [HttpPost("packages")]
+        [AuthRequired]
+        public async Task<ActionResult<string>> CreateInfluencerPackages([FromBody] List<PackageDTO> packages)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _packageService.CreatePackage(user.Id, packages);
+            return Ok(result);
+        }
+        [HttpPut("package/{packageId}")]
+        [InfluencerRequired]
+        public async Task<ActionResult<string>> UpdateInfluencerPackage([FromBody] PackageDtoRequest package, Guid packageId)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _packageService.UpdateInfluencerPackage(user.Id, packageId, package);
+            return Ok(result);
+        }
+        [HttpGet("packages")]
+        [InfluencerRequired]
+        public async Task<ActionResult<List<InfluencerDTO>>> GetInfluencerPackages()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _packageService.GetInfluPackages(user.Id);
+            return Ok(result);
+        }
+        [HttpGet("packages/{packageId}")]
+		[InfluencerRequired]
+		public async Task<ActionResult<PackageDTO>> GetInfluencerPackage(Guid packageId)
+		{
+			var user = (UserDTO)HttpContext.Items["user"]!;
+			var result = await _packageService.GetInfluPackage(packageId,user.Id);
+			return Ok(result);
+		}
+		#endregion
+
+	}
 }

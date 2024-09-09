@@ -14,7 +14,6 @@ namespace Service
             CreateMap<InfluencerRequestDTO, Influencer>();
             CreateMap<Channel, ChannelDTO>();
             CreateMap<InfluencerImage, ImageDTO>();
-            CreateMap<Package, PackageDTO>();
             #endregion
             #region Tag
             CreateMap<Tag, TagDTO>();
@@ -24,10 +23,13 @@ namespace Service
             #endregion
             #region Channel
             CreateMap<ChannelStatDTO, Channel>();
-            CreateMap<Channel, ChannelDTO>();
             #endregion
-            #region SystemSetting
-            CreateMap<SystemSetting, SystemSettingDTO>();
+            #region Package
+            CreateMap<Package, PackageDTO>();
+            CreateMap<PackageDTO, Package>();
+            CreateMap<Package, PackageDtoRequest>();
+            CreateMap<PackageDtoRequest, Package>();
+
             #endregion
         }
     }
