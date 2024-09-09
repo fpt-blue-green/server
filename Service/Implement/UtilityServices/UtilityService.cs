@@ -296,27 +296,44 @@ namespace Service
         {
             try
             {
-                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue;
+                var apiKey = await _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey);
                 string videoId = videoUrl.Substring(videoUrl.IndexOf("v=") + 2).Split('&')[0];
 
-                string apiUrl = $"https://www.googleapis.com/youtube/v3/videos?part=statistics&id={videoId}&key={apiKey}";
+                string apiUrl = $"https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id={videoId}&key={apiKey.KeyValue}";
 
-                HttpClient client = new HttpClient();
-                var response = await client.GetStringAsync(apiUrl);
-                var json = JObject.Parse(response);
+                using (HttpClient client = new HttpClient())
+                {
+                    var response = await client.GetStringAsync(apiUrl);
+                    var json = JObject.Parse(response);
 
-                if (json["items"] != null && json["items"].HasValues)
-                {
-                    return json["items"]?[0]?["statistics"]?.ToString()!;
-                }
-                else
-                {
-                    throw new KeyNotFoundException();
+                    // Check if items are present and have values
+                    if (json["items"] != null && json["items"].HasValues)
+                    {
+                        // Check if the video is live
+                        var item = json["items"][0];
+                        var liveBroadcastContent = item["snippet"]?["liveBroadcastContent"]?.ToString();
+
+                        if (liveBroadcastContent == "live")
+                        {
+                            // For livestream, you might want to check additional stats or info
+                            return $"Live stream statistics: {item["statistics"]?.ToString()!}";
+                        }
+                        else
+                        {
+                            // For regular videos
+                            return $"Video statistics: {item["statistics"]?.ToString()!}";
+                        }
+                    }
+                    else
+                    {
+                        throw new KeyNotFoundException("No items found in the response.");
+                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                throw new KeyNotFoundException();
+                // Log or handle specific exception details
+                throw new Exception("An error occurred while retrieving YouTube video information.", ex);
             }
         }
 

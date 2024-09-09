@@ -11,7 +11,7 @@ namespace Service
     {
         private static ConfigManager _configManager = new ConfigManager();
         private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
-        public async Task<string> GenerateAuthenToken(string data)
+        public async Task<string> GenerateAuthenToken(string data, int expire = 15)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
@@ -23,7 +23,7 @@ namespace Service
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(15),
+                Expires = DateTime.UtcNow.AddMinutes(expire),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

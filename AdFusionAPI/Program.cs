@@ -1,6 +1,7 @@
 ﻿using AdFusionAPI;
 using AdFusionAPI.APIConfig;
 using BusinessObjects.Models;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Service;
@@ -8,7 +9,10 @@ using Service;
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Đăng ký các dịch vụ cơ bản
-builder.Services.AddControllers();
+builder.Services.AddControllers(opt =>
+{
+    opt.OutputFormatters.RemoveType<HttpNoContentOutputFormatter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<CloudinaryStorageService>();
@@ -87,8 +91,8 @@ if (app.Environment.IsDevelopment())
 // 11. Kích hoạt CORS, định tuyến, và middleware xác thực
 app.UseCors("AllowAll");
 app.UseRouting();
-app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseMiddleware<RequestLogMiddleware>();
+app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseMiddleware<CheckBearerTokenMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();

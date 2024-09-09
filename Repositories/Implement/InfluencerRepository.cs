@@ -49,6 +49,7 @@ namespace Repositories
 
         public async Task Create(Influencer influencer)
         {
+            influencer.IsPublish = false;
             await context.Influencers.AddAsync(influencer);
             await context.SaveChangesAsync();
         }
