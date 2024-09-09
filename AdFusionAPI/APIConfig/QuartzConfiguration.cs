@@ -18,8 +18,8 @@ public static class QuartzConfiguration
             q.AddTrigger(opts => opts
                 .ForJob(jobKey)
                 .WithIdentity("UploadDataTrigger")
-                .WithCronSchedule("0 * * ? * *") // Cron Expression cho 1p
-                /*.WithCronSchedule("0 0 0 * * ?")*/ // Cron Expression cho 00:00 mỗi ngày
+                /*.WithCronSchedule("0 * * ? * *")*/ // Cron Expression cho 1p
+                .WithCronSchedule("0 0 0 * * ?") // Cron Expression cho 00:00 mỗi ngày
             );
         });
 
