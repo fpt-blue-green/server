@@ -41,7 +41,7 @@ public partial class User
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
-    public virtual ICollection<Influencer> Influencers { get; set; } = new List<Influencer>();
+    public virtual Influencer? Influencer { get; set; }
 
     public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
 }
