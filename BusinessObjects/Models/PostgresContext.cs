@@ -203,14 +203,16 @@ public partial class PostgresContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("influencers_pkey");
 
+            entity.HasIndex(e => e.UserId, "Influencers_UserId_key").IsUnique();
+
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
             entity.Property(e => e.IsPublish).HasDefaultValueSql("true");
             entity.Property(e => e.RateAverage).HasDefaultValueSql("'0'::numeric");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Influencers)
-                .HasForeignKey(d => d.UserId)
+            entity.HasOne(d => d.User).WithOne(p => p.Influencer)
+                .HasForeignKey<Influencer>(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("influencers_userid_fkey");
 
