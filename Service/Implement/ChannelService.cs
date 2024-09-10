@@ -23,7 +23,7 @@ namespace Service
                 throw new InvalidOperationException(_configManager.ProfileNotComplete);
             }
             // Lấy ID của influencer từ repository
-            var influencer = _userRepository.GetUserById(user.Id).Result.Influencers.FirstOrDefault()!;
+            var influencer = _userRepository.GetUserById(user.Id).Result.Influencer!;
 
             if(influencer == null)
             {
@@ -60,7 +60,7 @@ namespace Service
 
         public async Task UpdateInfluencerChannel(Channel channel)
         {
-            var channelNew = await GetChannelStatData(channel, (EPlatform)channel.Type, channel.UserName!);
+            var channelNew = await GetChannelStatData(channel, (EPlatform)channel.Platform, channel.UserName!);
             await _channelRepository.UpdateChannel(channelNew);
         }
 
@@ -69,7 +69,7 @@ namespace Service
             var result = new List<ChannelDTO>();
 
             var userEntity = await _userRepository.GetUserById(user.Id);
-            var influencer = userEntity?.Influencers?.FirstOrDefault();
+            var influencer = userEntity?.Influencer;
 
             if (influencer != null)
             {
@@ -88,7 +88,7 @@ namespace Service
 
             // Cập nhật thuộc tính của đối tượng channel
             channel.UserName = id;
-            channel.Type = (int)ePlatform;
+            channel.Platform = (int)ePlatform;
             _mapper.Map(data, channel);
 
             return channel;
