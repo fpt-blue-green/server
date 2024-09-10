@@ -16,7 +16,7 @@ namespace Repositories
         public async Task<User> GetUserById(Guid userId)
         {
             var user = await context.Users
-                                    .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
+                                    .Include(u => u.BannedUserUsers).Include(u => u.Influencer)
                                     .SingleOrDefaultAsync(u => u.Id == userId && u.IsDeleted == false);
             return user!;
         }
@@ -24,15 +24,15 @@ namespace Repositories
         public async Task<User> GetUserByRefreshToken(string refreshToken)
         {
             var user = await context.Users
-                .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
+                .Include(u => u.BannedUserUsers).Include(u => u.Influencer)
                 .SingleOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
             return user!;
         }
 
         public async Task<User> GetUserByEmail(string email)
         {
-            var user = await context.Users.Include(u => u.Influencers)
-                                        .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
+            var user = await context.Users.Include(u => u.Influencer)
+                                        .Include(u => u.BannedUserUsers).Include(u => u.Influencer)
                                         .SingleOrDefaultAsync(u => u.Email == email && u.IsDeleted == false);
             return user!;
         }
@@ -40,7 +40,7 @@ namespace Repositories
         public async Task<User> GetUserByLoginDTO(LoginDTO loginDTO)
         {
             var user = await context.Users
-                                    .Include(u => u.BannedUserUsers).Include(u => u.Influencers)
+                                    .Include(u => u.BannedUserUsers).Include(u => u.Influencer)
                                     .Where(u => u.Email == loginDTO.Email && u.Password == loginDTO.Password && u.IsDeleted == false)
                                     .FirstOrDefaultAsync();
             return user!;

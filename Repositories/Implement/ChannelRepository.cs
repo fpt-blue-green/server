@@ -15,7 +15,7 @@ namespace Repositories
 
         public async Task<IEnumerable<Channel>> GetChannel(Guid influencerId, EPlatform platform)
         {
-            var channels = await context.Channels.Where(c => c.InfluencerId == influencerId && c.Type == (int)platform).ToListAsync();
+            var channels = await context.Channels.Where(c => c.InfluencerId == influencerId && c.Platform == (int)platform).ToListAsync();
             return channels;
         }
 
@@ -31,7 +31,7 @@ namespace Repositories
             channel.ModifiedAt = DateTime.UtcNow;
             var localChannel = context.Set<Channel>()
                                    .Local
-                                   .FirstOrDefault(entry => entry.Id.Equals(channel.Id) && entry.Type == channel.Type);
+                                   .FirstOrDefault(entry => entry.Id.Equals(channel.Id) && entry.Platform == channel.Platform);
             if (localChannel != null)
             {
                 context.Entry(localChannel).State = EntityState.Detached;

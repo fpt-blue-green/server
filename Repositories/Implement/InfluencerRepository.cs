@@ -25,14 +25,17 @@ namespace Repositories
 
         public async Task<Influencer> GetByUserId(Guid userId)
         {
-            var influencer = await context.Influencers
+            using (var context = new PostgresContext())
+            {
+                var influencer = await context.Influencers
                                             .Include(i => i.Channels)
                                             .Include(i => i.Tags)
                                             .Include(i => i.Packages)
                                             .Include(i => i.InfluencerImages)
                                             .Include(i => i.User)
                                             .FirstOrDefaultAsync(s => s.UserId == userId);
-            return influencer!;
+                return influencer!;
+            }
         }
 
         public async Task<Influencer> GetBySlug(string slug)
