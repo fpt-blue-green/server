@@ -84,7 +84,7 @@ namespace Service
 				_loggerService.Information("Tạo package thành công");
 			}
 			// Tìm các package có trong allPackages nhưng không có trong listPackages
-			var listDtoPackageIds = packages //1,2
+			var listDtoPackageIds = packages 
 				.Where(p => p.Id.HasValue)
 				.Select(p => p.Id.Value)
 				.ToList();

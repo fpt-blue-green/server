@@ -101,5 +101,18 @@ namespace Repositories
                 await context.SaveChangesAsync();
             }
         }
-    }
+		public async Task RemoveTagOfInfluencer(Guid influencerId, Guid tagId)
+		{
+			var influencer = await context.Influencers.Include(i => i.Tags)
+											  .FirstOrDefaultAsync(i => i.Id == influencerId);
+
+			var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == tagId);
+
+			if (influencer != null && tag != null)
+			{
+				influencer.Tags.Remove(tag);
+				await context.SaveChangesAsync();
+			}
+		}
+	}
 }

@@ -11,7 +11,8 @@ namespace Repositories
         Task<Influencer> GetBySlug(string slug);
         Task<List<Tag>> GetTagsByInfluencer(Guid influencerId);
         Task AddTagToInfluencer(Guid influencerId, Guid tagId);
-        Task Create(Influencer influencer);
+		Task RemoveTagOfInfluencer(Guid influencerId, Guid tagId);
+		Task Create(Influencer influencer);
         Task Update(Influencer influencer);
         Task Delete(Guid id);
     }
