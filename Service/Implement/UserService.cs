@@ -33,49 +33,33 @@ namespace Service
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<string> UploadImageAsync(IFormFile file, string folder, UserDTO user, string fileSuffix)
+        public async Task<string> UploadImageAsync(IFormFile file, string folder, UserDTO user)
         {
-            _loggerService.Information("Start to upload avatar: ");
+            _loggerService.Information("Start to upload image: ");
 
             if (file == null)
             {
                 throw new Exception("Invalid File");
             }
 
-            //Lấy user để update
-            var userGet = await _userRepository.GetUserById(user.Id);
-            if (userGet == null)
-            {
-                throw new InvalidOperationException("User không tồn tại");
-            }
-
-            //Upload ảnh
+            // Upload ảnh
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
                 Folder = folder,
-                PublicId = $"{user.Id}_{fileSuffix}",
+                PublicId = Guid.NewGuid().ToString(), // Sử dụng Guid cho PublicId
                 Overwrite = true
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            userGet.Avatar = uploadResult.SecureUrl.ToString();
             _loggerService.Information("End to upload image");
 
-            await _userRepository.UpdateUser(userGet);
-
-            return userGet.Avatar;
+            return uploadResult.SecureUrl.ToString();
         }
 
-        public async Task<List<string>> UploadContentImages(List<IFormFile> contentFiles, UserDTO user)
+        public async Task<List<string>> UploadContentImages(List<Guid> imageIds, List<IFormFile> contentFiles, UserDTO user)
         {
             var contentDownloadUrls = new List<string>();
-
-            var userGet = await _userRepository.GetUserById(user.Id);
-            if (userGet == null)
-            {
-                throw new InvalidOperationException("User không tồn tại");
-            }
 
             var influencer = await _influencerRepository.GetByUserId(user.Id);
             if (influencer == null)
@@ -83,74 +67,62 @@ namespace Service
                 throw new InvalidOperationException("Influencer không tồn tại");
             }
 
-            // Lấy danh sách các ảnh hiện có của influencer
+            // Lấy danh sách các ảnh hiện có của influencer từ DB
             var existingImages = await _influencerImagesRepository.GetByInfluencerId(influencer.Id);
-            var existingImagesOrdered = existingImages
-                .OrderBy(img => img.CreatedAt)
-                .ToList();
 
-            int existingImageCount = existingImages.Count();
+            // Tìm các ảnh trùng trong danh sách mới và danh sách hiện có
+            var matchingImages = existingImages.Where(image => imageIds.Contains(image.Id)).ToList();
 
-            if (existingImageCount < 3 && contentFiles.Count < (3 - existingImageCount))
+            // Tìm các ảnh không trùng trong danh sách mới và danh sách hiện có
+            var unMatchingImages = existingImages.Where(image => !imageIds.Contains(image.Id)).ToList();
+
+            // Kiểm tra nếu số ảnh không trùng và số ảnh mới nhỏ hơn 3
+            if (matchingImages.Count + contentFiles.Count < 3)
             {
                 throw new InvalidOperationException("Influencer phải có ít nhất 3 ảnh.");
             }
 
-            List<InfluencerImage> imagesToUpdate = new List<InfluencerImage>();
-            if (existingImageCount + contentFiles.Count > 10)
+            // Kiểm tra tổng số ảnh sau khi thêm mới không được vượt quá 10
+            if (matchingImages.Count + contentFiles.Count > 10)
             {
-                int excessImages = (existingImageCount + contentFiles.Count) - 10;
-
-                // Lấy các ảnh cũ nhất để thay thế
-                imagesToUpdate = existingImagesOrdered
-                    .Take(excessImages)
-                    .ToList();
+                throw new InvalidOperationException("Influencer chỉ được có tối đa 10 ảnh.");
             }
 
-            _loggerService.Information("Start to upload content images: ");
-            int imageIndex = existingImageCount + 1;
+            // Nếu điều kiện hợp lệ, xóa các ảnh cũ không nằm trong danh sách mới
+            foreach (var unMatchingImage in unMatchingImages)
+            {
+                var imagePath = GetValueAfterLastSlash(unMatchingImage.Url);
+                var link = $"Images/{imagePath}";
 
+                // Xóa ảnh trên cloudinary
+                var deletionParams = new DeletionParams(link);
+                await _cloudinary.DestroyAsync(deletionParams);
+
+                // Xóa ảnh từ DB
+                await _influencerImagesRepository.DeleteByUrl(unMatchingImage.Url);
+                
+            }
+
+            // Thêm các ảnh mới từ contentFiles vào Cloudinary và DB
+            _loggerService.Information("Start to upload content images: ");
             foreach (var file in contentFiles)
             {
                 try
                 {
-                    if (imageIndex == 11)
-                    {
-                        imageIndex = 1;
-                    }
-
-                    var fileSuffix = $"content{imageIndex}";
-                    var contentFileName = "Content/content_" + Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    var contentDownloadUrl = await UploadImageAsync(file, "Images", user, fileSuffix);
+                    var contentDownloadUrl = await UploadImageAsync(file, "Images", user);
                     contentDownloadUrls.Add(contentDownloadUrl);
 
-                    // Thêm hoặc cập nhật ảnh
-                    if (imagesToUpdate.Any())
+                    var influencerImage = new InfluencerImage
                     {
-                        // Cập nhật ảnh cũ với URL và thời gian mới
-                        var imageToUpdate = imagesToUpdate.First();
-                        imageToUpdate.Url = contentDownloadUrl;
-                        imageToUpdate.ModifiedAt = DateTime.UtcNow;
+                        Id = Guid.NewGuid(),
+                        InfluencerId = influencer.Id,
+                        Url = contentDownloadUrl,
+                        CreatedAt = DateTime.UtcNow,
+                        ModifiedAt = DateTime.UtcNow
+                    };
 
-                        await _influencerImagesRepository.Update(imageToUpdate);
-                        imagesToUpdate.Remove(imageToUpdate);
-                    }
-                    else
-                    {
-                        // Tạo mới ảnh nếu chưa có ảnh nào cần thay thế
-                        var influencerImage = new InfluencerImage
-                        {
-                            Id = Guid.NewGuid(),
-                            InfluencerId = influencer.Id,
-                            Url = contentDownloadUrl,
-                            CreatedAt = DateTime.UtcNow,
-                            ModifiedAt = DateTime.UtcNow
-                        };
+                    await _influencerImagesRepository.Create(influencerImage);
 
-                        await _influencerImagesRepository.Create(influencerImage);
-                    }
-
-                    imageIndex++;
                 }
                 catch (Exception ex)
                 {
@@ -162,5 +134,23 @@ namespace Service
             _loggerService.Information("End to upload content images: ");
             return contentDownloadUrls;
         }
+
+        public string GetValueAfterLastSlash(string url)
+        {
+            int lastSlashIndex = url.LastIndexOf('/');
+            if (lastSlashIndex != -1)
+            {
+                var value = url.Substring(lastSlashIndex + 1);
+                int dotIndex = value.LastIndexOf('.');
+                if (dotIndex != -1)
+                {
+                    value = value.Substring(0, dotIndex);
+                }
+                return value;
+            }
+            return url;
+        }
+
+
     }
 }

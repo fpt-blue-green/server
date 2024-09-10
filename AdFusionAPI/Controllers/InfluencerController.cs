@@ -1,7 +1,6 @@
 ﻿using AdFusionAPI.APIConfig;
 using AutoMapper;
 using BusinessObjects;
-using BusinessObjects.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -18,7 +17,7 @@ namespace AdFusionAPI.Controllers
 
         private readonly IMapper _mapper;
 
-        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper,IUserService userService, IPackageService packageSerivce)
+        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper, IUserService userService, IPackageService packageSerivce)
         {
             _influencerService = influencerService;
             _channelService = channelService;
@@ -28,7 +27,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet]
-        [AuthRequired]
+        [InfluencerRequired]
         public async Task<ActionResult<InfluencerDTO>> GetCurrentInfluencer()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -37,7 +36,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("phoneNumber/validate")]
-        [AuthRequired]
+        [InfluencerRequired]
         public async Task<ActionResult<string>> ValidatePhoneNumber(string phoneNumber)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -46,7 +45,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPut]
-        [AuthRequired]
+        [InfluencerRequired]
         public async Task<ActionResult<string>> CreateOrUpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -55,7 +54,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("tags")]
-        [AuthRequired]
+        [InfluencerRequired]
         public async Task<ActionResult<List<TagDTO>>> GetTagsByInfluencer()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -91,11 +90,11 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("images")]
-        [AuthRequired]
-        public async Task<ActionResult<List<string>>> UploadImages(List<IFormFile> images)
+        [InfluencerRequired]
+        public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _userService.UploadContentImages(images, user);
+            var result = await _userService.UploadContentImages(imageIds, images, user);
             return Ok(result);
         }
 
@@ -125,14 +124,14 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
         [HttpGet("packages/{packageId}")]
-		[InfluencerRequired]
-		public async Task<ActionResult<PackageDTO>> GetInfluencerPackage(Guid packageId)
-		{
-			var user = (UserDTO)HttpContext.Items["user"]!;
-			var result = await _packageService.GetInfluPackage(packageId,user.Id);
-			return Ok(result);
-		}
-		#endregion
+        [InfluencerRequired]
+        public async Task<ActionResult<PackageDTO>> GetInfluencerPackage(Guid packageId)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _packageService.GetInfluPackage(packageId, user.Id);
+            return Ok(result);
+        }
+        #endregion
 
-	}
+    }
 }

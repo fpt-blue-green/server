@@ -9,26 +9,28 @@ namespace Service
         public AutoMapperProfile()
         {
             #region Influencer
-            CreateMap<Influencer, InfluencerDTO>().ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar)).ReverseMap();
-            CreateMap<InfluencerRequestDTO, InfluencerDTO>();
-            CreateMap<InfluencerRequestDTO, Influencer>();
-            CreateMap<Channel, ChannelDTO>();
-            CreateMap<InfluencerImage, ImageDTO>();
+            CreateMap<Influencer, InfluencerDTO>()
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.InfluencerImages))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar)).ReverseMap();
+            CreateMap<InfluencerRequestDTO, InfluencerDTO>().ReverseMap();
+            CreateMap<InfluencerRequestDTO, Influencer>().ReverseMap();
+            CreateMap<Channel, ChannelDTO>().ReverseMap();
+            CreateMap<InfluencerImage, ImageDTO>().ReverseMap();
             #endregion
             #region Tag
-            CreateMap<Tag, TagDTO>();
+            CreateMap<Tag, TagDTO>().ReverseMap();
             #endregion
             #region User
-            CreateMap<User, UserDTO>();
+            CreateMap<User, UserDTO>().ReverseMap();
             #endregion
             #region Channel
-            CreateMap<ChannelStatDTO, Channel>();
+            CreateMap<ChannelStatDTO, Channel>().ReverseMap();
             #endregion
             #region Package
-            CreateMap<Package, PackageDTO>();
-            CreateMap<PackageDTO, Package>();
-            CreateMap<Package, PackageDtoRequest>();
-            CreateMap<PackageDtoRequest, Package>();
+            CreateMap<Package, PackageDTO>().ReverseMap();
+            CreateMap<PackageDTO, Package>().ReverseMap();
+            CreateMap<Package, PackageDtoRequest>().ReverseMap();
+            CreateMap<PackageDtoRequest, Package>().ReverseMap();
 
             #endregion
             #region SystemSetting
