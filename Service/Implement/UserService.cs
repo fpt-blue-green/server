@@ -57,7 +57,7 @@ namespace Service
             return uploadResult.SecureUrl.ToString();
         }
 
-        public async Task<List<string>> UploadContentImages(List<string> imageIds, List<IFormFile> contentFiles, UserDTO user)
+        public async Task<List<string>> UploadContentImages(List<Guid> imageIds, List<IFormFile> contentFiles, UserDTO user)
         {
             var contentDownloadUrls = new List<string>();
 
@@ -67,42 +67,40 @@ namespace Service
                 throw new InvalidOperationException("Influencer không tồn tại");
             }
 
-            // Lấy danh sách các ảnh hiện có của influencer từ DB bằng imageIds
-            var influencerImages = await _influencerImagesRepository.GetByIds(imageIds);
-            var remainingImageUrls = influencerImages.Select(img => img.Url).ToList();
-
             // Lấy danh sách các ảnh hiện có của influencer từ DB
             var existingImages = await _influencerImagesRepository.GetByInfluencerId(influencer.Id);
-            var existingImageUrls = existingImages.Select(img => img.Url).ToList();
 
-            // Tìm các URL ảnh trùng trong danh sách mới và danh sách hiện có
-            var matchingImageUrls = remainingImageUrls.Intersect(existingImageUrls).ToList();
+            // Tìm các ảnh trùng trong danh sách mới và danh sách hiện có
+            var matchingImages = existingImages.Where(image => imageIds.Contains(image.Id)).ToList();
+
+            // Tìm các ảnh không trùng trong danh sách mới và danh sách hiện có
+            var unMatchingImages = existingImages.Where(image => !imageIds.Contains(image.Id)).ToList();
 
             // Kiểm tra nếu số ảnh không trùng và số ảnh mới nhỏ hơn 3
-            if (matchingImageUrls.Count + contentFiles.Count < 3)
+            if (matchingImages.Count + contentFiles.Count < 3)
             {
                 throw new InvalidOperationException("Influencer phải có ít nhất 3 ảnh.");
             }
 
             // Kiểm tra tổng số ảnh sau khi thêm mới không được vượt quá 10
-            if (matchingImageUrls.Count + contentFiles.Count > 10)
+            if (matchingImages.Count + contentFiles.Count > 10)
             {
                 throw new InvalidOperationException("Influencer chỉ được có tối đa 10 ảnh.");
             }
 
             // Nếu điều kiện hợp lệ, xóa các ảnh cũ không nằm trong danh sách mới
-            foreach (var existingImage in existingImages)
+            foreach (var unMatchingImage in unMatchingImages)
             {
-                var imagePath = GetValueAfterLastSlash(existingImage.Url);
+                var imagePath = GetValueAfterLastSlash(unMatchingImage.Url);
                 var link = $"Images/{imagePath}";
-                if (!remainingImageUrls.Contains(existingImage.Url))
-                {
-                    var deletionParams = new DeletionParams(link);
-                    await _cloudinary.DestroyAsync(deletionParams);
 
-                    // Xóa ảnh từ DB
-                    await _influencerImagesRepository.DeleteByUrl(existingImage.Url);
-                }
+                // Xóa ảnh trên cloudinary
+                var deletionParams = new DeletionParams(link);
+                await _cloudinary.DestroyAsync(deletionParams);
+
+                // Xóa ảnh từ DB
+                await _influencerImagesRepository.DeleteByUrl(unMatchingImage.Url);
+                
             }
 
             // Thêm các ảnh mới từ contentFiles vào Cloudinary và DB
