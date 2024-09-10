@@ -57,7 +57,14 @@ namespace Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task<int> GetCountByInfluencerId(Guid influencerId)
+        public async Task<List<InfluencerImage>> GetByIds(List<string> imageIds)
+        {
+            return await context.InfluencerImages
+                                .Where(image => imageIds.Contains(image.Id.ToString()))
+                                .ToListAsync();
+        }
+
+        public async Task<int> GetImagesCountByInfluencerId(Guid influencerId)
         {
             return await context.InfluencerImages
                 .Where(img => img.InfluencerId == influencerId)

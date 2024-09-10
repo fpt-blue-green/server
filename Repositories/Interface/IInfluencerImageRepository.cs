@@ -8,9 +8,9 @@ namespace Repositories
         Task<List<InfluencerImage>> GetByInfluencerId(Guid influencerId);
         Task DeleteByUrl(string url);
         Task Delete(Guid imageId);
-
+        Task<List<InfluencerImage>> GetByIds(List<string> imageIds);
         Task Update(InfluencerImage image);
-        Task<int> GetCountByInfluencerId(Guid influencerId);
+        Task<int> GetImagesCountByInfluencerId(Guid influencerId);
 
     }
 }

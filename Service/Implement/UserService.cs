@@ -33,49 +33,33 @@ namespace Service
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<string> UploadImageAsync(IFormFile file, string folder, UserDTO user, string fileSuffix)
+        public async Task<string> UploadImageAsync(IFormFile file, string folder, UserDTO user)
         {
-            _loggerService.Information("Start to upload avatar: ");
+            _loggerService.Information("Start to upload image: ");
 
             if (file == null)
             {
                 throw new Exception("Invalid File");
             }
 
-            //Lấy user để update
-            var userGet = await _userRepository.GetUserById(user.Id);
-            if (userGet == null)
-            {
-                throw new InvalidOperationException("User không tồn tại");
-            }
-
-            //Upload ảnh
+            // Upload ảnh
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
                 Folder = folder,
-                PublicId = $"{user.Id}_{fileSuffix}",
+                PublicId = Guid.NewGuid().ToString(), // Sử dụng Guid cho PublicId
                 Overwrite = true
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            userGet.Avatar = uploadResult.SecureUrl.ToString();
             _loggerService.Information("End to upload image");
 
-            await _userRepository.UpdateUser(userGet);
-
-            return userGet.Avatar;
+            return uploadResult.SecureUrl.ToString();
         }
 
-        public async Task<List<string>> UploadContentImages(List<string> imageList, List<IFormFile> contentFiles, UserDTO user)
+        public async Task<List<string>> UploadContentImages(List<string> imageIds, List<IFormFile> contentFiles, UserDTO user)
         {
             var contentDownloadUrls = new List<string>();
-
-            var userGet = await _userRepository.GetUserById(user.Id);
-            if (userGet == null)
-            {
-                throw new InvalidOperationException("User không tồn tại");
-            }
 
             var influencer = await _influencerRepository.GetByUserId(user.Id);
             if (influencer == null)
@@ -83,23 +67,36 @@ namespace Service
                 throw new InvalidOperationException("Influencer không tồn tại");
             }
 
+            // Lấy danh sách các ảnh hiện có của influencer từ DB bằng imageIds
+            var influencerImages = await _influencerImagesRepository.GetByIds(imageIds);
+            var remainingImageUrls = influencerImages.Select(img => img.Url).ToList();
+
             // Lấy danh sách các ảnh hiện có của influencer từ DB
             var existingImages = await _influencerImagesRepository.GetByInfluencerId(influencer.Id);
-            var existingImageCount = existingImages.Count();
+            var existingImageUrls = existingImages.Select(img => img.Url).ToList();
 
+            // Tìm các URL ảnh trùng trong danh sách mới và danh sách hiện có
+            var matchingImageUrls = remainingImageUrls.Intersect(existingImageUrls).ToList();
 
-            // Xóa các ảnh trong DB và trên Cloudinary nếu chúng không có trong danh sách mới
+            // Kiểm tra nếu số ảnh không trùng và số ảnh mới nhỏ hơn 3
+            if (matchingImageUrls.Count + contentFiles.Count < 3)
+            {
+                throw new InvalidOperationException("Influencer phải có ít nhất 3 ảnh.");
+            }
+
+            // Kiểm tra tổng số ảnh sau khi thêm mới không được vượt quá 10
+            if (matchingImageUrls.Count + contentFiles.Count > 10)
+            {
+                throw new InvalidOperationException("Influencer chỉ được có tối đa 10 ảnh.");
+            }
+
+            // Nếu điều kiện hợp lệ, xóa các ảnh cũ không nằm trong danh sách mới
             foreach (var existingImage in existingImages)
             {
                 var imagePath = GetValueAfterLastSlash(existingImage.Url);
                 var link = $"Images/{imagePath}";
-                if (!imageList.Contains(existingImage.Url))
+                if (!remainingImageUrls.Contains(existingImage.Url))
                 {
-                    if (string.IsNullOrEmpty(imagePath))
-                    {
-                        throw new InvalidOperationException("Image Id không hợp lệ.");
-                    }
-
                     var deletionParams = new DeletionParams(link);
                     await _cloudinary.DestroyAsync(deletionParams);
 
@@ -108,35 +105,15 @@ namespace Service
                 }
             }
 
-            // Đếm lại số ảnh sau khi xóa
-            existingImageCount = await _influencerImagesRepository.GetCountByInfluencerId(influencer.Id);
-
-            // Kiểm tra nếu số lượng ảnh còn lại và ảnh mới ít hơn 3
-            if (existingImageCount < 3 && contentFiles.Count < (3 - existingImageCount))
-            {
-                throw new InvalidOperationException("Influencer phải có ít nhất 3 ảnh.");
-            }
-
-            // Kiểm tra tổng số ảnh sau khi thêm mới không được vượt quá 10
-            if (existingImageCount + contentFiles.Count > 10)
-            {
-                throw new InvalidOperationException("Influencer chỉ được có tối đa 10 ảnh.");
-            }
-
             // Thêm các ảnh mới từ contentFiles vào Cloudinary và DB
             _loggerService.Information("Start to upload content images: ");
-            int imageIndex = existingImageCount + 1;
-
             foreach (var file in contentFiles)
             {
                 try
                 {
-                    var fileSuffix = $"content{imageIndex}";
-                    var contentFileName = $"{user.Id}_{fileSuffix}{Path.GetExtension(file.FileName)}";
-                    var contentDownloadUrl = await UploadImageAsync(file, "Images", user, contentFileName);
+                    var contentDownloadUrl = await UploadImageAsync(file, "Images", user);
                     contentDownloadUrls.Add(contentDownloadUrl);
 
-                    // Tạo mới ảnh nếu chưa có ảnh nào cần thay thế
                     var influencerImage = new InfluencerImage
                     {
                         Id = Guid.NewGuid(),
@@ -148,7 +125,6 @@ namespace Service
 
                     await _influencerImagesRepository.Create(influencerImage);
 
-                    imageIndex++;
                 }
                 catch (Exception ex)
                 {
@@ -163,27 +139,20 @@ namespace Service
 
         public string GetValueAfterLastSlash(string url)
         {
-            // Tìm vị trí của dấu / cuối cùng trong URL
             int lastSlashIndex = url.LastIndexOf('/');
-
-            // Nếu có dấu / trong URL, trích xuất phần sau dấu /
             if (lastSlashIndex != -1)
             {
                 var value = url.Substring(lastSlashIndex + 1);
-
-                // Loại bỏ phần mở rộng file (nếu có)
                 int dotIndex = value.LastIndexOf('.');
                 if (dotIndex != -1)
                 {
                     value = value.Substring(0, dotIndex);
                 }
-
                 return value;
             }
-
-            // Nếu không có dấu / trong URL, trả về giá trị gốc hoặc xử lý lỗi
             return url;
         }
+
 
     }
 }
