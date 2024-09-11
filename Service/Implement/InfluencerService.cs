@@ -270,15 +270,24 @@ namespace Service
             {
                 var influencerId = influencer.Id;
                 var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
-                var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
-                if (!newTags.Any())
+				var deleteTags = existingTags.Where(p => !tagIds.Contains((Guid)p.Id)).ToList();
+				var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
+                //create new tag
+                if(newTags.Count > 0)
                 {
-                    throw new InvalidOperationException("Tất cả các tag trong danh sách đã tồn tại.");
-                }
-                foreach (var tagId in newTags)
-                {
-                    await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
-                }
+					foreach (var tagId in newTags)
+					{
+						await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
+					}
+				}
+                //delete tag
+                if(deleteTags.Any()) {
+					foreach (var tag in deleteTags)
+					{
+						await _influencerRepository.RemoveTagOfInfluencer(influencerId,tag.Id);
+					}
+				}
+                
             }
             return "Cập nhật tag thành công.";
         }
