@@ -46,7 +46,7 @@ namespace Service
             }
             return result;
         }
-        public async Task<List<InfluencerDTO>> GetAllInfluencers(InfluencerFilterDTO filter)
+        public async Task<GetInfluencersResponseDTO> GetAllInfluencers(InfluencerFilterDTO filter)
         {
             try
             {
@@ -124,10 +124,14 @@ namespace Service
                     .Skip((filter.PageIndex - 1) * pageSize)
                     .Take(pageSize)
                     .ToList();
-                #endregion
+				#endregion
 
-                return _mapper.Map<List<InfluencerDTO>>(pagedInfluencers);
-            }
+				return new GetInfluencersResponseDTO
+				{
+					TotalCount = allInfluencers.Count(),
+					Influencers = _mapper.Map<List<InfluencerDTO>>(pagedInfluencers)
+				};
+			}
             catch (Exception ex)
             {
                 throw new InvalidOperationException("Có lỗi xảy ra!");
