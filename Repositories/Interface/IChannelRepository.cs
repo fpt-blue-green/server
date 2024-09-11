@@ -9,5 +9,6 @@ namespace Repositories
         Task<IEnumerable<Channel>> GetChannel(Guid influencerId, EPlatform platform);
         Task CreateChannel(Channel channel);
         Task UpdateChannel(Channel channel);
+        Task DeleteChannel(Guid id);
     }
 }

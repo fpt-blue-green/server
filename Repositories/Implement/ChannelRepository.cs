@@ -21,14 +21,12 @@ namespace Repositories
 
         public async Task CreateChannel(Channel channel)
         {
-            channel.CreatedAt = DateTime.UtcNow;
             context.Channels.Add(channel);
             await context.SaveChangesAsync();
         }
 
         public async Task UpdateChannel(Channel channel)
         {
-            channel.ModifiedAt = DateTime.UtcNow;
             var localChannel = context.Set<Channel>()
                                    .Local
                                    .FirstOrDefault(entry => entry.Id.Equals(channel.Id) && entry.Platform == channel.Platform);
@@ -38,6 +36,13 @@ namespace Repositories
             }
 
             context.Entry(channel).State = EntityState.Modified;
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteChannel(Guid id)
+        {
+            var channel = await context.Channels.FirstOrDefaultAsync(i => i.Id == id);
+            context.Channels.Remove(channel!);
             await context.SaveChangesAsync();
         }
     }

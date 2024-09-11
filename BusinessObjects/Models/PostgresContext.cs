@@ -15,6 +15,36 @@ public partial class PostgresContext : DbContext
     {
     }
 
+    // Override SaveChangesAsync
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        // Gọi hàm tùy chỉnh để cập nhật ModifiedAt trước khi lưu thay đổi
+        UpdateModifiedAt();
+
+        // Gọi SaveChangesAsync của base để lưu thay đổi vào cơ sở dữ liệu
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    // Hàm riêng để kiểm tra và cập nhật thuộc tính ModifiedAt
+    private void UpdateModifiedAt()
+    {
+        // Lặp qua tất cả các entry trong ChangeTracker (bao gồm các thực thể bị thêm mới hoặc thay đổi)
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            // Chỉ kiểm tra các thực thể có trạng thái Modified và Added
+            if (entry.State == EntityState.Modified || entry.State == EntityState.Added)
+            {
+                // Kiểm tra xem thực thể có thuộc tính "ModifiedAt" không
+                var modifiedAtProperty = entry.Entity.GetType().GetProperty("ModifiedAt");
+
+                if (modifiedAtProperty != null && modifiedAtProperty.PropertyType == typeof(DateTime?))
+                {
+                    // Nếu có, cập nhật giá trị của thuộc tính này với thời gian hiện tại
+                    modifiedAtProperty.SetValue(entry.Entity, DateTime.UtcNow);
+                }
+            }
+        }
+    }
     public virtual DbSet<AdminAction> AdminActions { get; set; }
 
     public virtual DbSet<BannedUser> BannedUsers { get; set; }

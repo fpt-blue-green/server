@@ -48,13 +48,11 @@ namespace Repositories
 
         public async Task CreateUser(User user)
         {
-            user.CreatedAt = DateTime.UtcNow;
             context.Users.Add(user);
             await context.SaveChangesAsync();
         }
         public async Task UpdateUser(User user)
         {
-            user.ModifiedAt = DateTime.UtcNow;
             var localUser = context.Set<User>()
                                    .Local
                                    .FirstOrDefault(entry => entry.Id.Equals(user.Id));

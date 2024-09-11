@@ -80,6 +80,14 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
+        [HttpDelete("channels/{id}")]
+        [InfluencerRequired]
+        public async Task<ActionResult> DeleteChannels(Guid id)
+        {
+            await _channelService.DeleteInfluencerChannel(id);
+            return Ok();
+        }
+
         [HttpGet("channelUsername")]
         [InfluencerRequired]
         public async Task<ActionResult<List<ChannelDTO>>> GetChannelUserName()

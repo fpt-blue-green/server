@@ -24,7 +24,7 @@ namespace Service
         public async Task<List<InfluencerDTO>> GetTopInfluencer()
         {
             var result = new List<InfluencerDTO>();
-            var topInflus = (await _influencerRepository.GetAlls()).OrderBy(s => s.RateAverage).Take(10);
+            var topInflus = (await _influencerRepository.GetAlls()).OrderBy(s => s.RateAverage).Where(i => i.IsPublish == true).Take(10);
             if (topInflus.Any())
             {
                 result = _mapper.Map<List<InfluencerDTO>>(topInflus);
@@ -36,7 +36,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-            .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Instagram))
+            .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Instagram) && i.IsPublish == true)
             .OrderBy(s => s.RateAverage)
             .Take(10);
             if (topInflus.Any())
@@ -50,7 +50,7 @@ namespace Service
         {
             try
             {
-                var allInfluencers = await _influencerRepository.GetAlls();
+                var allInfluencers = (await _influencerRepository.GetAlls()).Where(i => i.IsPublish == true);
 
                 #region Filter
 
@@ -138,7 +138,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-            .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Tiktok))
+            .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Tiktok) && i.IsPublish == true)
             .OrderBy(s => s.RateAverage)
             .Take(10);
             if (topInflus.Any())
@@ -152,7 +152,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Youtube))
+                .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Youtube) && i.IsPublish == true)
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
             if (topInflus.Any())
@@ -224,7 +224,7 @@ namespace Service
         public async Task<InfluencerDTO> GetInfluencerBySlug(string slug)
         {
             var result = await _influencerRepository.GetBySlug(slug);
-            if (result == null)
+            if (result == null || result.IsPublish == false)
             {
                 throw new KeyNotFoundException();
             }

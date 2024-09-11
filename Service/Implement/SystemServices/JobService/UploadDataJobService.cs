@@ -37,7 +37,7 @@ namespace Service
             }
             catch (Exception ex)
             {
-                _loggerService.Error($"Job {jobID}: Job failed after retries. Exception: {ex.Message}");
+                _loggerService.Error($"Job {jobID}: Job failed after retries. Exception: {ex.ToString()}");
 
                 // Gửi thông báo qua email cho các admin.
                 var body = _emailTempalte.uploadDataErrorTemplate.Replace("{projectName}", _configManager.ProjectName)
@@ -117,7 +117,7 @@ namespace Service
                 retryAttempt++;
                 if (retryAttempt < maxRetryAttempts)
                 {
-                    _loggerService.Warning($"Job {jobId}: Retry attempt {retryAttempt} for {failedChannels.Count} channels.");
+                    _loggerService.Warning($"Job {jobId}: Retry attempt {retryAttempt} for {failedChannels.Count} channels. Channel Data: {string.Join(';', failedChannels.Select(c => c.Id))}");
                     await Task.Delay(TimeSpan.FromSeconds(3));
                     batch = failedChannels;
                 }
