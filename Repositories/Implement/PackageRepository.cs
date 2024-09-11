@@ -26,13 +26,9 @@ namespace Repositories
 
 		public async Task<Package> GetById(Guid id)
 		{
-			try
-			{
-				var package = await context.Packages.FirstOrDefaultAsync(i => i.Id == id);
-				return package;
-			}catch (Exception ex) { }
-			return null;
-		}
+            var package = await context.Packages.FirstOrDefaultAsync(i => i.Id == id);
+            return package!;
+        }
 
 		public async Task Update(Package package)
 		{

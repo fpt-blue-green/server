@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.IO;
 using System.Text;
 using ILogger = Serilog.ILogger;
 
@@ -20,7 +19,6 @@ namespace AdFusionAPI.APIConfig
         public async Task Invoke(HttpContext context)
         {
             var startTime = Stopwatch.GetTimestamp();
-
             // Lưu trữ mã trạng thái để ghi log sau khi request được xử lý
             int statusCode = 0;
 
@@ -38,14 +36,14 @@ namespace AdFusionAPI.APIConfig
             await _next(context);
 
             var endTime = Stopwatch.GetTimestamp();
-            var duration = (endTime - startTime) / (double)Stopwatch.Frequency * 1000; 
+            var duration = (endTime - startTime) / (double)Stopwatch.Frequency * 1000;
 
             // Ghi log
-            _loggerService.Information("HTTP {Method} {Path} responded {StatusCode} in {Duration} ms",
-                context.Request.Method,context.Request.Path, statusCode, duration);
+            _loggerService.Information("HTTP {Method} {Path} {QueryString} responded {StatusCode} in {Duration} ms",
+                context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode, duration);
 
-            _dbLoggerService.Information("HTTP {Method} {Path} responded {StatusCode} in {Duration} ms. Request Body: {Body}",
-             context.Request.Method, context.Request.Path, statusCode,
+            _dbLoggerService.Information("HTTP {Method} {Path} {QueryString} responded {StatusCode} in {Duration} ms. Request Body: {Body}",
+             context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode,
              duration, requestBody);
 
         }

@@ -64,6 +64,11 @@ namespace Service
             await _channelRepository.UpdateChannel(channelNew);
         }
 
+        public async Task DeleteInfluencerChannel(Guid id)
+        {
+            await _channelRepository.DeleteChannel(id);
+        }
+
         public async Task<List<ChannelDTO>> GetChannelPlatFormUserNames(UserDTO user)
         {
             var result = new List<ChannelDTO>();

@@ -29,7 +29,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("profile")]
-        public async Task<ActionResult<ChannelStatDTO>> GetChannelProfile(int platform, string channelId)
+        public async Task<ActionResult<ChannelStatDTO>> GetChannelProfile([FromQuery] int platform, [FromQuery] string channelId)
         {
             var info = await _utilityService.GetChannelProfile(platform, channelId);
             return Ok(info);
