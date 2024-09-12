@@ -21,7 +21,7 @@ namespace BusinessObjects
       
         public string Address { get; set; } = null!;
 
-        public string Phone { get; set; } = null!;
+        public string? Phone { get; set; } = null!;
 
         public bool? IsPublish { get; set; }
 
