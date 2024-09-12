@@ -326,7 +326,7 @@ namespace Service
         private bool IsPhoneNumberValid(string phoneNumber)
         {
             // Định dạng regex cho số điện thoại (10 hoặc 11 số, bắt đầu bằng số 0)
-            string pattern = @"^(+84|0[3|5|7|8|9])+([0-9]{8})$";
+            string pattern = @"^(\+84|0[3|5|7|8|9])[0-9]{8}$";
 
             return Regex.IsMatch(phoneNumber, pattern);
         }

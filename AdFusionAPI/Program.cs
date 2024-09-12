@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Service;
+using Service.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddControllers(opt =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<CloudinaryStorageService>();
+builder.Services.AddScoped<Utils>();
 
 // 2. Đăng ký DbContext với cấu hình kết nối tới PostgreSQL
 builder.Services.AddDbContext<PostgresContext>(op =>
