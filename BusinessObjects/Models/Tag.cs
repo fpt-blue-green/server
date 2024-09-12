@@ -7,7 +7,7 @@ public partial class Tag
 {
     public Guid Id { get; set; }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public bool IsPremium { get; set; }
 

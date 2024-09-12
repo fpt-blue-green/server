@@ -11,25 +11,23 @@ public partial class Influencer
 
     public bool IsPublish { get; set; }
 
-    public string FullName { get; set; }
+    public string FullName { get; set; } = null!;
 
-    public string Slug { get; set; }
+    public string Slug { get; set; } = null!;
 
-    public string Summarise { get; set; }
+    public string Summarise { get; set; } = null!;
 
-    public string Description { get; set; }
+    public string Description { get; set; } = null!;
 
     public int Gender { get; set; }
 
     public string? Phone { get; set; }
 
-    public string Address { get; set; }
+    public string Address { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
-
-    public bool IsDeleted { get; set; }
 
     public decimal? RateAverage { get; set; }
 
@@ -45,7 +43,7 @@ public partial class Influencer
 
     public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
 
-    public virtual User User { get; set; }
+    public virtual User User { get; set; } = null!;
 
     public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
 }

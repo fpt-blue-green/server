@@ -9,13 +9,13 @@ public partial class CampaignImage
 
     public Guid CampaignId { get; set; }
 
-    public string Url { get; set; }
+    public string Url { get; set; } = null!;
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
 
-    public virtual Campaign Campaign { get; set; }
+    public virtual Campaign Campaign { get; set; } = null!;
 }

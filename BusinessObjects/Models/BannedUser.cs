@@ -9,7 +9,7 @@ public partial class BannedUser
 
     public Guid UserId { get; set; }
 
-    public string Reason { get; set; }
+    public string Reason { get; set; } = null!;
 
     public DateTime BanDate { get; set; }
 
@@ -17,7 +17,7 @@ public partial class BannedUser
 
     public Guid BannedById { get; set; }
 
-    public virtual User BannedBy { get; set; }
+    public virtual User BannedBy { get; set; } = null!;
 
-    public virtual User User { get; set; }
+    public virtual User User { get; set; } = null!;
 }

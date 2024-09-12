@@ -9,11 +9,11 @@ public partial class Brand
 
     public Guid UserId { get; set; }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public string Address { get; set; }
+    public string Address { get; set; } = null!;
 
-    public string Description { get; set; }
+    public string Description { get; set; } = null!;
 
     public bool IsPremium { get; set; }
 
@@ -23,5 +23,5 @@ public partial class Brand
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 
-    public virtual User User { get; set; }
+    public virtual User User { get; set; } = null!;
 }

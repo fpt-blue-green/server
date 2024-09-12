@@ -9,11 +9,11 @@ public partial class Campaign
 
     public Guid BrandId { get; set; }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public DateTime? StartDate { get; set; }
 
@@ -29,7 +29,7 @@ public partial class Campaign
 
     public bool IsDeleted { get; set; }
 
-    public virtual Brand Brand { get; set; }
+    public virtual Brand Brand { get; set; } = null!;
 
     public virtual ICollection<CampaignImage> CampaignImages { get; set; } = new List<CampaignImage>();
 
