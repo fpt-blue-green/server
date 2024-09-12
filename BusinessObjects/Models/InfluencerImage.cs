@@ -9,13 +9,13 @@ public partial class InfluencerImage
 
     public Guid InfluencerId { get; set; }
 
-    public string Url { get; set; }
+    public string Url { get; set; } = null!;
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
 
-    public virtual Influencer Influencer { get; set; }
+    public virtual Influencer Influencer { get; set; } = null!;
 }
