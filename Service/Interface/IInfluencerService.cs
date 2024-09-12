@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using Microsoft.AspNetCore.Http;
 
 namespace Service
 {
@@ -19,5 +20,6 @@ namespace Service
         Task<string> CreateOrUpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user);
         Task<string> ValidatePhoneNumber(UserDTO user, string phoneNumber);
         Task DeleteInfluencer(Guid id);
+        Task<List<string>> UploadContentImages(List<Guid> imageIds, List<IFormFile> contentFiles, UserDTO user, string folder);
     }
 }
