@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Repositories;
 using Serilog;
+using System.Security.Cryptography;
 
 namespace Service
 {
@@ -117,8 +118,7 @@ namespace Service
                         Id = Guid.NewGuid(),
                         InfluencerId = influencer.Id,
                         Url = contentDownloadUrl,
-                        CreatedAt = DateTime.UtcNow,
-                        ModifiedAt = DateTime.UtcNow
+                        Description = BitConverter.ToString(await SHA256.Create().ComputeHashAsync(file.OpenReadStream())).Replace("-", "").ToLowerInvariant()
                     };
 
                     await _influencerImagesRepository.Create(influencerImage);

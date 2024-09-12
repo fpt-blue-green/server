@@ -1,22 +1,28 @@
-﻿using BusinessObjects.Models;
+﻿using System.Threading.Tasks;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
+
 namespace Repositories
 {
-    public class SystemSettingRepository : SingletonBase<SystemSettingRepository>, ISystemSettingRepository
+    public class SystemSettingRepository : ISystemSettingRepository
     {
-        public SystemSettingRepository() { }
-
-
         public async Task<SystemSetting> GetSystemSetting(string keyName)
         {
-            var systemSetting = await context.SystemSettings.FirstOrDefaultAsync(s => s.KeyName == keyName);
-            return systemSetting!;
+            using (var context = new PostgresContext())
+            {
+                var systemSetting = await context.SystemSettings
+                    .FirstOrDefaultAsync(s => s.KeyName == keyName);
+                return systemSetting!;
+            }
         }
 
-        public async Task UpdateSystemSetingKeyValue(SystemSetting systemSetting)
+        public async Task UpdateSystemSettingKeyValue(SystemSetting systemSetting)
         {
-            context.Entry<SystemSetting>(systemSetting).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-            await context.SaveChangesAsync();
+            using (var context = new PostgresContext())
+            {
+                context.Entry<SystemSetting>(systemSetting).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

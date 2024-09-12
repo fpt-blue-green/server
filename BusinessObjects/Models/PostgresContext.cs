@@ -87,6 +87,8 @@ public partial class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
+
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })

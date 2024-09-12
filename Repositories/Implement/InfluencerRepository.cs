@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repositories
 {
-	public class InfluencerRepository : SingletonBase<InfluencerRepository>, IInfluencerRepository
+	public class InfluencerRepository : IInfluencerRepository
 	{
 		public InfluencerRepository() { }
 		public async Task<IEnumerable<Influencer>> GetAlls()

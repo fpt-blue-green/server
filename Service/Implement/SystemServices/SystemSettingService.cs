@@ -40,7 +40,7 @@ namespace Service
                 throw new KeyNotFoundException();
             }
             systemSetting.KeyValue = systemSettingDTO.KeyValue;
-            await _systemSettingRepository.UpdateSystemSetingKeyValue(systemSetting);
+            await _systemSettingRepository.UpdateSystemSettingKeyValue(systemSetting);
             return "Cập nhập cài đặt hệ thông thành công.";
         }
     }

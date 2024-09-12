@@ -232,6 +232,7 @@ namespace Service
                 IsBanned = false,
                 DisplayName = registerDTO.DisplayName,
                 IsDeleted = false,
+                Provider = (int)EAccountProvider.AdFusionAccount,
                 Role = (int)registerDTO.Role,
                 CreatedAt = DateTime.UtcNow,
             };
