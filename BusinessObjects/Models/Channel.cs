@@ -9,7 +9,7 @@ public partial class Channel
 
     public Guid InfluencerId { get; set; }
 
-    public string UserName { get; set; }
+    public string UserName { get; set; } = null!;
 
     public int? FollowersCount { get; set; }
 
@@ -25,5 +25,5 @@ public partial class Channel
 
     public int Platform { get; set; }
 
-    public virtual Influencer Influencer { get; set; }
+    public virtual Influencer Influencer { get; set; } = null!;
 }

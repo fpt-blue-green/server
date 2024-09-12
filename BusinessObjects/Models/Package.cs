@@ -15,11 +15,11 @@ public partial class Package
 
     public int? Duration { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public int? Price { get; set; }
 
     public int? Quantity { get; set; }
 
-    public virtual Influencer Influencer { get; set; }
+    public virtual Influencer Influencer { get; set; } = null!;
 }

@@ -11,9 +11,9 @@ public partial class AdminAction
 
     public int ActionType { get; set; }
 
-    public string ActionDetails { get; set; }
+    public string ActionDetails { get; set; } = null!;
 
     public DateTime ActionDate { get; set; }
 
-    public virtual User User { get; set; }
+    public virtual User User { get; set; } = null!;
 }
