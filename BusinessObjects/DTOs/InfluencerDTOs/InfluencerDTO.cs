@@ -9,8 +9,6 @@ namespace BusinessObjects
 
         public string FullName { get; set; } = null!;
 
-        public string NickName { get; set; } = null!;
-
         public string Slug {  get; set; }
 
         public string Avatar {  get; set; } = null!;
@@ -24,6 +22,8 @@ namespace BusinessObjects
         public string Address { get; set; } = null!;
 
         public string Phone { get; set; } = null!;
+
+        public bool? IsPublish { get; set; }
 
         public DateTime? CreatedAt { get; set; }
 

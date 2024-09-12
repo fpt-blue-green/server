@@ -19,7 +19,7 @@
         public readonly List<string> AdminEmails = new List<string> { "nguyenhoang062017@gmail.com" };
         public readonly string LogLink = "https://supabase.com/dashboard/project/uucyeumznprpthpykxwv/editor";
 
-        public readonly string TikTokUrl = "https://www.tiktok.com/";
+        public readonly string TikTokUrl = "https://www.tiktok.com/@";
         public readonly string InstagramUrl = "https://www.instagram.com/";
         public readonly string YoutubeUrl = "https://www.youtube.com/@";
 

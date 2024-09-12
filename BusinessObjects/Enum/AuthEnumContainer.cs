@@ -15,5 +15,12 @@
             Influencer = 2,
             Brand = 3
         }
+
+        public enum EAccountProvider
+        {
+            AdFusionAccount = 1,
+            Google,
+            Facebook
+        }
     }
 }

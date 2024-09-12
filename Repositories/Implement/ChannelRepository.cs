@@ -4,46 +4,68 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repositories
 {
-    public class ChannelRepository : SingletonBase<ChannelRepository>, IChannelRepository
+    public class ChannelRepository : IChannelRepository
     {
-        public ChannelRepository() { }
         public async Task<IEnumerable<Channel>> GetChannels(Guid influencerId)
         {
-            var channels = await context.Channels.Where(c => c.InfluencerId == influencerId).ToListAsync();
-            return channels;
+            using (var context = new PostgresContext())
+            {
+                var channels = await context.Channels
+                    .Where(c => c.InfluencerId == influencerId)
+                    .ToListAsync();
+                return channels;
+            }
         }
 
         public async Task<IEnumerable<Channel>> GetChannel(Guid influencerId, EPlatform platform)
         {
-            var channels = await context.Channels.Where(c => c.InfluencerId == influencerId && c.Platform == (int)platform).ToListAsync();
-            return channels;
+            using (var context = new PostgresContext())
+            {
+                var channels = await context.Channels
+                    .Where(c => c.InfluencerId == influencerId && c.Platform == (int)platform)
+                    .ToListAsync();
+                return channels;
+            }
         }
 
         public async Task CreateChannel(Channel channel)
         {
-            context.Channels.Add(channel);
-            await context.SaveChangesAsync();
+            using (var context = new PostgresContext())
+            {
+                context.Channels.Add(channel);
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task UpdateChannel(Channel channel)
         {
-            var localChannel = context.Set<Channel>()
-                                   .Local
-                                   .FirstOrDefault(entry => entry.Id.Equals(channel.Id) && entry.Platform == channel.Platform);
-            if (localChannel != null)
+            using (var context = new PostgresContext())
             {
-                context.Entry(localChannel).State = EntityState.Detached;
-            }
+                var localChannel = context.Set<Channel>()
+                    .Local
+                    .FirstOrDefault(entry => entry.Id.Equals(channel.Id) && entry.Platform == channel.Platform);
+                if (localChannel != null)
+                {
+                    context.Entry(localChannel).State = EntityState.Detached;
+                }
 
-            context.Entry(channel).State = EntityState.Modified;
-            await context.SaveChangesAsync();
+                context.Entry(channel).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteChannel(Guid id)
         {
-            var channel = await context.Channels.FirstOrDefaultAsync(i => i.Id == id);
-            context.Channels.Remove(channel!);
-            await context.SaveChangesAsync();
+            using (var context = new PostgresContext())
+            {
+                var channel = await context.Channels
+                    .FirstOrDefaultAsync(i => i.Id == id);
+                if (channel != null)
+                {
+                    context.Channels.Remove(channel);
+                    await context.SaveChangesAsync();
+                }
+            }
         }
     }
 }
