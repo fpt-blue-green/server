@@ -74,7 +74,7 @@ namespace Service
                 {
                     var genderValues = filter.Genders.Select(g => (int)g).ToList();
                     allInfluencers = allInfluencers.Where(i =>
-                        genderValues.Contains(i.Gender.GetValueOrDefault())
+                        genderValues.Contains(i.Gender)
                     ).ToList();
                 }
                 if (filter.RateStart != null && filter.RateStart.Any())

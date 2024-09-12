@@ -15,5 +15,5 @@ public partial class PaymentBooking
 
     public DateTime? PaymentDate { get; set; }
 
-    public virtual Job? Job { get; set; }
+    public virtual Job Job { get; set; }
 }
