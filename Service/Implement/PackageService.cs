@@ -27,7 +27,7 @@ namespace Service
 			var allPackages = await GetInfluPackages(userId);
 			var allPackageIds = allPackages.Select(p => p.Id).ToList();
 
-		
+
 			foreach (var package in packages)
 			{
 				if (package.Id.HasValue)
@@ -72,7 +72,7 @@ namespace Service
 			if (createPackages.Any())
 			{
 				var packageNeedCreate = _mapper.Map<List<Package>>(createPackages);
-				
+
 				if (packageNeedCreate == null || packageNeedCreate.Count == 0)
 				{
 					_loggerService.Information("Tạo package thất bại.");
@@ -84,24 +84,23 @@ namespace Service
 				_loggerService.Information("Tạo package thành công");
 			}
 			// Tìm các package có trong allPackages nhưng không có trong listPackages
-			var listDtoPackageIds = packages 
+			var listDtoPackageIds = packages
 				.Where(p => p.Id.HasValue)
 				.Select(p => p.Id.Value)
 				.ToList();
-			if (listDtoPackageIds.Count > 0)
-			{
-				deletePackageList = allPackages.Where(p => !listDtoPackageIds.Contains((Guid)p.Id)).ToList();
-				if (deletePackageList.Any())
-				{
-					var packageNeedDelete = _mapper.Map<List<Package>>(deletePackageList);
 
-					foreach (var package in packageNeedDelete)
-					{
-						await _packageRepository.Delete(package.Id);
-					}
-					_loggerService.Information("Xoá package không còn tồn tại thành công");
+			deletePackageList = allPackages.Where(p => !listDtoPackageIds.Contains((Guid)p.Id)).ToList();
+			if (deletePackageList.Any())
+			{
+				var packageNeedDelete = _mapper.Map<List<Package>>(deletePackageList);
+
+				foreach (var package in packageNeedDelete)
+				{
+					await _packageRepository.Delete(package.Id);
 				}
+				_loggerService.Information("Xoá package không còn tồn tại thành công");
 			}
+
 			return "Tạo thành công";
 		}
 
