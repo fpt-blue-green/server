@@ -166,7 +166,12 @@ namespace Service
 
             userGet.Password = newPasswordHash;
 
-            var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet));
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet, settings));
 
             var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
 
@@ -189,7 +194,12 @@ namespace Service
 
             userGet.Password = newPasswordHash;
 
-            var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet));
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet, settings));
+
 
             var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
 
