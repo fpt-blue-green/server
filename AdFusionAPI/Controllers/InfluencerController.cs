@@ -3,7 +3,6 @@ using AutoMapper;
 using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using Service.Helper;
 
 namespace AdFusionAPI.Controllers
 {
@@ -15,18 +14,16 @@ namespace AdFusionAPI.Controllers
         private readonly IUserService _userService;
         private readonly IChannelService _channelService;
         private readonly IPackageService _packageService;
-        private readonly Utils _utils;
 
         private readonly IMapper _mapper;
 
-        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper, IUserService userService, IPackageService packageSerivce, Utils utils)
+        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper, IUserService userService, IPackageService packageSerivce)
         {
             _influencerService = influencerService;
             _channelService = channelService;
             _userService = userService;
             _mapper = mapper;
             _packageService = packageSerivce;
-            _utils = utils;
         }
 
         [HttpGet]
@@ -105,7 +102,7 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _utils.UploadContentImages(imageIds, images, user);
+            var result = await _influencerService.UploadContentImages(imageIds, images, user, "Images");
             return Ok(result);
         }
 

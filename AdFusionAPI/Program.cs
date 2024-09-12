@@ -17,7 +17,6 @@ builder.Services.AddControllers(opt =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<CloudinaryStorageService>();
-builder.Services.AddScoped<Utils>();
 
 // 2. Đăng ký DbContext với cấu hình kết nối tới PostgreSQL
 builder.Services.AddDbContext<PostgresContext>(op =>

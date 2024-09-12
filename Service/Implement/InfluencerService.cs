@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
 using Repositories;
 using Serilog;
+using Service.Helper;
 using System.Text.RegularExpressions;
 
 namespace Service
@@ -11,6 +13,7 @@ namespace Service
     public class InfluencerService : IInfluencerService
     {
         private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
+        private static readonly IInfluencerImageRepository _influencerImagesRepository = new InfluencerImageRepository();
         //private static readonly ITagRepository _tagRepository = new TagRepository();
 
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
@@ -124,14 +127,14 @@ namespace Service
                     .Skip((filter.PageIndex - 1) * pageSize)
                     .Take(pageSize)
                     .ToList();
-				#endregion
+                #endregion
 
-				return new GetInfluencersResponseDTO
-				{
-					TotalCount = allInfluencers.Count(),
-					Influencers = _mapper.Map<List<InfluencerDTO>>(pagedInfluencers)
-				};
-			}
+                return new GetInfluencersResponseDTO
+                {
+                    TotalCount = allInfluencers.Count(),
+                    Influencers = _mapper.Map<List<InfluencerDTO>>(pagedInfluencers)
+                };
+            }
             catch (Exception ex)
             {
                 throw new InvalidOperationException("Có lỗi xảy ra!");
@@ -274,24 +277,25 @@ namespace Service
             {
                 var influencerId = influencer.Id;
                 var existingTags = await _influencerRepository.GetTagsByInfluencer(influencerId);
-				var deleteTags = existingTags.Where(p => !tagIds.Contains((Guid)p.Id)).ToList();
-				var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
+                var deleteTags = existingTags.Where(p => !tagIds.Contains((Guid)p.Id)).ToList();
+                var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
                 //create new tag
-                if(newTags.Count > 0)
+                if (newTags.Count > 0)
                 {
-					foreach (var tagId in newTags)
-					{
-						await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
-					}
-				}
+                    foreach (var tagId in newTags)
+                    {
+                        await _influencerRepository.AddTagToInfluencer(influencerId, tagId);
+                    }
+                }
                 //delete tag
-                if(deleteTags.Any()) {
-					foreach (var tag in deleteTags)
-					{
-						await _influencerRepository.RemoveTagOfInfluencer(influencerId,tag.Id);
-					}
-				}
-                
+                if (deleteTags.Any())
+                {
+                    foreach (var tag in deleteTags)
+                    {
+                        await _influencerRepository.RemoveTagOfInfluencer(influencerId, tag.Id);
+                    }
+                }
+
             }
             return "Cập nhật tag thành công.";
         }
@@ -319,8 +323,83 @@ namespace Service
                     return $"{phoneNumber} Số điện thoại hợp lệ.";
 
                 }
+            }
+        }
+
+        public async Task<List<string>> UploadContentImages(List<Guid> imageIds, List<IFormFile> contentFiles, UserDTO user, string folder)
+        {
+            var contentDownloadUrls = new List<string>();
+
+            var influencer = await _influencerRepository.GetByUserId(user.Id);
+            if (influencer == null)
+            {
+                throw new InvalidOperationException("Influencer không tồn tại");
+            }
+
+            // Lấy danh sách các ảnh hiện có của influencer từ DB
+            var existingImages = await _influencerImagesRepository.GetByInfluencerId(influencer.Id);
+
+            // Tìm các ảnh trùng trong danh sách mới và danh sách hiện có
+            var matchingImages = existingImages.Where(image => imageIds.Contains(image.Id)).ToList();
+
+            // Tìm các ảnh không trùng trong danh sách mới và danh sách hiện có
+            var unMatchingImages = existingImages.Where(image => !imageIds.Contains(image.Id)).ToList();
+
+            // Kiểm tra nếu số ảnh không trùng và số ảnh mới nhỏ hơn 3
+            if (matchingImages.Count + contentFiles.Count < 3)
+            {
+                throw new InvalidOperationException("Influencer phải có ít nhất 3 ảnh.");
+            }
+
+            // Kiểm tra tổng số ảnh sau khi thêm mới không được vượt quá 10
+            if (matchingImages.Count + contentFiles.Count > 10)
+            {
+                throw new InvalidOperationException("Influencer chỉ được có tối đa 10 ảnh.");
+            }
+
+            // Nếu điều kiện hợp lệ, xóa các ảnh cũ không nằm trong danh sách mới
+            foreach (var unMatchingImage in unMatchingImages)
+            {
+                var imagePath = CloudinaryHelper.GetValueAfterLastSlash(unMatchingImage.Url);
+                var link = $"Images/{imagePath}";
+
+                // Xóa ảnh trên cloudinary
+                var deletionParams = new DeletionParams(link);
+                await CloudinaryHelper.RemoveImageAsync(deletionParams);
+
+                // Xóa ảnh từ DB
+                await _influencerImagesRepository.Delete(unMatchingImage.Id);
 
             }
+
+            // Thêm các ảnh mới từ contentFiles vào Cloudinary và DB
+            _loggerService.Information("Start to upload content images: ");
+            foreach (var file in contentFiles)
+            {
+                try
+                {
+                    var contentDownloadUrl = CloudinaryHelper.UploadImageAsync(file, folder);
+                    contentDownloadUrls.Add(contentDownloadUrl.ToString());
+
+                    var influencerImage = new InfluencerImage
+                    {
+                        Id = Guid.NewGuid(),
+                        InfluencerId = influencer.Id,
+                        Url = contentDownloadUrl.ToString(),
+                    };
+
+                    await _influencerImagesRepository.Create(influencerImage);
+
+                }
+                catch (Exception ex)
+                {
+                    _loggerService.Error(ex, $"Error uploading content image: {file.FileName}");
+                    contentDownloadUrls.Add($"Error uploading content {file.FileName}: {ex.Message}");
+                }
+            }
+
+            _loggerService.Information("End to upload content images: ");
+            return contentDownloadUrls;
         }
 
         private bool IsPhoneNumberValid(string phoneNumber)
