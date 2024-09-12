@@ -24,7 +24,7 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<string>> UpdateAvatar(IFormFile file)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var avatar = await _userService.UploadImageAsync(file, "Avatar", user);
+            var avatar = await _userService.UploadAvatarAsync(file, "Avatar", user);
             return Ok(avatar);
         }
     }

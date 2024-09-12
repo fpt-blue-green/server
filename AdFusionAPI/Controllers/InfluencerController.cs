@@ -35,7 +35,7 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("phoneNumber/validate")]
+        [HttpPatch("phoneNumber/validate")]
         [InfluencerRequired]
         public async Task<ActionResult<string>> ValidatePhoneNumber(string phoneNumber)
         {
@@ -102,7 +102,7 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _userService.UploadContentImages(imageIds, images, user);
+            var result = await _influencerService.UploadContentImages(imageIds, images, user, "Images");
             return Ok(result);
         }
 

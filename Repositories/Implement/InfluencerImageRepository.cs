@@ -37,20 +37,6 @@ namespace Repositories
             }
         }
 
-        public async Task DeleteByUrl(string url)
-        {
-            using (var context = new PostgresContext())
-            {
-                var image = await context.InfluencerImages
-                    .FirstOrDefaultAsync(x => x.Url == url);
-                if (image != null)
-                {
-                    context.InfluencerImages.Remove(image);
-                    await context.SaveChangesAsync();
-                }
-            }
-        }
-
         public async Task Update(InfluencerImage image)
         {
             using (var context = new PostgresContext())
