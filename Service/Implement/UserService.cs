@@ -38,7 +38,7 @@ namespace Service
             }
 
             // Upload ảnh
-            var avatar = CloudinaryHelper.UploadImageAsync(file, folder);
+            var avatar = await CloudinaryHelper.UploadImageAsync(file, folder);
 
             // Upload avatar to db
             userGet.Avatar = avatar.ToString();

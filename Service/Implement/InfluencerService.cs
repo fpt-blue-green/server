@@ -378,7 +378,7 @@ namespace Service
             {
                 try
                 {
-                    var contentDownloadUrl = CloudinaryHelper.UploadImageAsync(file, folder);
+                    var contentDownloadUrl = await CloudinaryHelper.UploadImageAsync(file, folder);
                     contentDownloadUrls.Add(contentDownloadUrl.ToString());
 
                     var influencerImage = new InfluencerImage
