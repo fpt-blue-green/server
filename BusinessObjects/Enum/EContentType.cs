@@ -4,14 +4,14 @@ namespace BusinessObjects
 {
 	public enum EContentType
 	{
-		TikTokPost = 1,
+		TikTokPost = EPlatform.Tiktok * 10,
 		TikTokStory,
 		TikTokLive,
-		InstagramFeedPost,
+		InstagramFeedPost = EPlatform.Instagram * 10,
 		InstagramReel,
 		InstagramStory,
 		InstagramLive,
-		YouTubeVideo,
+		YouTubeVideo = EPlatform.Youtube *10,
 		YouTubeShort,
 		YouTubeLive,
 	}
