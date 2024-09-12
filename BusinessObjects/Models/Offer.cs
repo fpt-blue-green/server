@@ -15,7 +15,7 @@ public partial class Offer
 
     public int? Duration { get; set; }
 
-    public string? Description { get; set; }
+    public string Description { get; set; }
 
     public int? Price { get; set; }
 
@@ -23,7 +23,7 @@ public partial class Offer
 
     public int? From { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public virtual Job Job { get; set; } = null!;
+    public virtual Job Job { get; set; }
 }

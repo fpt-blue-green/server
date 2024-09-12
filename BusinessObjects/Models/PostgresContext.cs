@@ -45,6 +45,7 @@ public partial class PostgresContext : DbContext
             }
         }
     }
+
     public virtual DbSet<AdminAction> AdminActions { get; set; }
 
     public virtual DbSet<BannedUser> BannedUsers { get; set; }
@@ -88,7 +89,6 @@ public partial class PostgresContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
-
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
@@ -115,6 +115,7 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.ActionDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.ActionDetails).IsRequired();
 
             entity.HasOne(d => d.User).WithMany(p => p.AdminActions)
                 .HasForeignKey(d => d.UserId)
@@ -128,6 +129,7 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.BanDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Reason).IsRequired();
 
             entity.HasOne(d => d.BannedBy).WithMany(p => p.BannedUserBannedBies)
                 .HasForeignKey(d => d.BannedById)
@@ -144,12 +146,16 @@ public partial class PostgresContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("brands_pkey");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.IsPremium).HasDefaultValueSql("false");
+            entity.HasIndex(e => e.UserId, "Brands_UserId_key").IsUnique();
 
-            entity.HasOne(d => d.User).WithMany(p => p.Brands)
-                .HasForeignKey(d => d.UserId)
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Address).IsRequired();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Description).IsRequired();
+            entity.Property(e => e.Name).IsRequired();
+
+            entity.HasOne(d => d.User).WithOne(p => p.Brand)
+                .HasForeignKey<Brand>(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("brands_userid_fkey");
         });
@@ -161,7 +167,8 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Budget).HasPrecision(18, 2);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
+            entity.Property(e => e.Name).IsRequired();
+            entity.Property(e => e.Title).IsRequired();
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Campaigns)
                 .HasForeignKey(d => d.BrandId)
@@ -192,6 +199,7 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Url).IsRequired();
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignImages)
                 .HasForeignKey(d => d.CampaignId)
@@ -205,7 +213,9 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.UserName).HasMaxLength(255);
+            entity.Property(e => e.UserName)
+                .IsRequired()
+                .HasMaxLength(255);
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Channels)
                 .HasForeignKey(d => d.InfluencerId)
@@ -218,6 +228,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("feedbacks_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Content).IsRequired();
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Feedbacks)
@@ -238,10 +249,13 @@ public partial class PostgresContext : DbContext
             entity.HasIndex(e => e.UserId, "Influencers_UserId_key").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Address).IsRequired();
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
-            entity.Property(e => e.IsPublish).HasDefaultValueSql("true");
+            entity.Property(e => e.Description).IsRequired();
+            entity.Property(e => e.FullName).IsRequired();
             entity.Property(e => e.RateAverage).HasDefaultValueSql("'0'::numeric");
+            entity.Property(e => e.Slug).IsRequired();
+            entity.Property(e => e.Summarise).IsRequired();
 
             entity.HasOne(d => d.User).WithOne(p => p.Influencer)
                 .HasForeignKey<Influencer>(d => d.UserId)
@@ -272,6 +286,7 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Url).IsRequired();
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.InfluencerImages)
                 .HasForeignKey(d => d.InfluencerId)
@@ -284,6 +299,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("jobs_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Link).IsRequired();
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.CampaignId)
@@ -380,7 +396,7 @@ public partial class PostgresContext : DbContext
             entity.HasIndex(e => e.Name, "tags_tagname_key").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.IsPremium).HasDefaultValueSql("false");
+            entity.Property(e => e.Name).IsRequired();
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -389,10 +405,12 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.Email).HasMaxLength(100);
-            entity.Property(e => e.IsBanned).HasDefaultValueSql("false");
-            entity.Property(e => e.IsDeleted).HasDefaultValueSql("false");
-            entity.Property(e => e.Password).HasMaxLength(100);
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.Password)
+                .IsRequired()
+                .HasMaxLength(100);
         });
 
         OnModelCreatingPartial(modelBuilder);

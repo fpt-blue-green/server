@@ -9,7 +9,7 @@ public partial class Channel
 
     public Guid InfluencerId { get; set; }
 
-    public string? UserName { get; set; }
+    public string UserName { get; set; }
 
     public int? FollowersCount { get; set; }
 
@@ -19,11 +19,11 @@ public partial class Channel
 
     public int? PostsCount { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
 
     public int Platform { get; set; }
 
-    public virtual Influencer Influencer { get; set; } = null!;
+    public virtual Influencer Influencer { get; set; }
 }
