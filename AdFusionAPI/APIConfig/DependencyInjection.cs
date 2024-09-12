@@ -1,6 +1,5 @@
 ﻿using Service;
 using Service.Implement;
-using Service.Implement;
 
 namespace AdFusionAPI
 {
@@ -20,8 +19,7 @@ namespace AdFusionAPI
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ConfigManager>();
-			services.AddScoped<IPackageService, PackageService>();
-
-		}
-	}
+            services.AddScoped<IPackageService, PackageService>();
+        }
+    }
 }
