@@ -22,7 +22,7 @@ namespace Repositories
                 var user = await context.Users
                     .Include(u => u.BannedUserUsers)
                     .Include(u => u.Influencer)
-                    .SingleOrDefaultAsync(u => u.Id == userId && u.IsDeleted == false);
+                    .FirstOrDefaultAsync(u => u.Id == userId && u.IsDeleted == false);
                 return user!;
             }
         }
@@ -34,7 +34,7 @@ namespace Repositories
                 var user = await context.Users
                     .Include(u => u.BannedUserUsers)
                     .Include(u => u.Influencer)
-                    .SingleOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
+                    .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
                 return user!;
             }
         }
@@ -46,7 +46,7 @@ namespace Repositories
                 var user = await context.Users
                     .Include(u => u.Influencer)
                     .Include(u => u.BannedUserUsers)
-                    .SingleOrDefaultAsync(u => u.Email == email && u.IsDeleted == false);
+                    .FirstOrDefaultAsync(u => u.Email == email && u.IsDeleted == false);
                 return user!;
             }
         }

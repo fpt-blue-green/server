@@ -27,7 +27,7 @@ namespace Service
 
             JArray countriesArray = JArray.Parse(json);
 
-            var results = SearchCities(countriesArray, keyword);
+            var results = SearchCities(countriesArray, keyword).Take(50);
 
             if (results.Any())
             {
@@ -49,7 +49,7 @@ namespace Service
                         Name = city["name"]!.ToString(),
                         Country = country["name"]!.ToString()
                     })
-                    .Where(cityResult => cityResult.Name.StartsWith(searchTerm, true, new CultureInfo("vi-VN"))));
+                     .Where(cityResult => cityResult.Name.Contains(searchTerm, StringComparison.CurrentCultureIgnoreCase)));
 
             return results;
         }
