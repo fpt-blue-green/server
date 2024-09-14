@@ -2,11 +2,15 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using CloudinaryDotNet.Actions;
+using CloudinaryDotNet.Core;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using Repositories;
 using Serilog;
 using Service.Helper;
+using Supabase;
 using System.Text.RegularExpressions;
+using static Supabase.Gotrue.Constants;
 
 namespace Service
 {
@@ -20,9 +24,12 @@ namespace Service
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
-        public InfluencerService(IMapper mapper)
+        private readonly Client _supabase;
+
+        public InfluencerService(IMapper mapper, Client supabase)
         {
             _mapper = mapper;
+            _supabase = supabase;
         }
         public async Task<List<InfluencerDTO>> GetTopInfluencer()
         {
@@ -300,32 +307,6 @@ namespace Service
             return "Cập nhật tag thành công.";
         }
 
-        public async Task<string> ValidatePhoneNumber(UserDTO user, string phoneNumber)
-        {
-            // Kiểm tra tính hợp lệ của số điện thoại
-            if (!IsPhoneNumberValid(phoneNumber))
-            {
-                throw new InvalidOperationException("Số điện thoại không hợp lệ.");
-            }
-            else
-            {
-                var influencer = await GetInfluencerByUserId(user.Id);
-                if (influencer == null)
-                {
-                    throw new InvalidOperationException("Influencer không tồn tại.");
-                }
-                else
-                {
-
-                    influencer.Phone = phoneNumber;
-                    var influencerUpdated = _mapper.Map<Influencer>(influencer);
-                    await _influencerRepository.Update(influencerUpdated);
-                    return $"{phoneNumber} Số điện thoại hợp lệ.";
-
-                }
-            }
-        }
-
         public async Task<List<string>> UploadContentImages(List<Guid> imageIds, List<IFormFile> contentFiles, UserDTO user, string folder)
         {
             var contentDownloadUrls = new List<string>();
@@ -408,6 +389,42 @@ namespace Service
             string pattern = @"^(\+84|0[3|5|7|8|9])[0-9]{8}$";
 
             return Regex.IsMatch(phoneNumber, pattern);
+        }
+
+        public async Task<bool> SendPhoneOtp(string phone)
+        {
+            string phoneNumber = phone;
+            if (phone.StartsWith("0"))
+            {
+                phoneNumber = "+84" + phone.Substring(1);
+            }
+            await _supabase.Auth.SignIn(SignInType.Phone, phoneNumber);
+            return true;
+        }
+
+        public async Task<bool> VerifyPhoneOtp(UserDTO user, string phone, string otp)
+        {
+            try
+            {
+                string phoneNumber = phone;
+                // Phone: +84775428404, OTP: 123456
+                if (phone.StartsWith("0"))
+                {
+                    phoneNumber = "+84" + phone.Substring(1);
+                }
+                await _supabase.Auth.VerifyOTP(phoneNumber, otp, MobileOtpType.SMS);
+
+                var influencer = await _influencerRepository.GetByUserId(user.Id);
+                influencer.Phone = phone;
+                influencer.IsPublish = true;
+                var influencerUpdated = _mapper.Map<Influencer>(influencer);
+                await _influencerRepository.Update(influencerUpdated);
+            }
+            catch
+            {
+                throw new InvalidOperationException("Mã xác thực không hợp lệ hoặc đã hết hạn.");
+            }
+            return true;
         }
     }
 }

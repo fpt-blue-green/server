@@ -12,13 +12,13 @@ namespace Service
         Task<List<TagDTO>> GetTagsByInfluencer(UserDTO user);
         Task<string> UpdateTagsForInfluencer(UserDTO user, List<Guid> tagIds);
         Task<InfluencerDTO> GetInfluencerByUserId(Guid userId);
-
         Task<List<InfluencerDTO>> GetTopInfluencer();
         Task<List<InfluencerDTO>> GetTopInstagramInfluencer();
         Task<List<InfluencerDTO>> GetTopTiktokInfluencer();
         Task<List<InfluencerDTO>> GetTopYoutubeInfluencer();
         Task<string> CreateOrUpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user);
-        Task<string> ValidatePhoneNumber(UserDTO user, string phoneNumber);
+        Task<bool> SendPhoneOtp(string phone);
+        Task<bool> VerifyPhoneOtp(UserDTO user, string phone, string otp);
         Task DeleteInfluencer(Guid id);
         Task<List<string>> UploadContentImages(List<Guid> imageIds, List<IFormFile> contentFiles, UserDTO user, string folder);
     }

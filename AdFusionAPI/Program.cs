@@ -4,8 +4,8 @@ using BusinessObjects.Models;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using Service;
+using Supabase;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +22,21 @@ builder.Services.AddScoped<CloudinaryStorageService>();
 // 2. Đăng ký DbContext với cấu hình kết nối tới PostgreSQL
 builder.Services.AddDbContext<PostgresContext>(op =>
     op.UseNpgsql(builder.Configuration.GetConnectionString("AdFusionConnection")));
+
+builder.Services.AddSingleton(provider =>
+{
+    var supabaseKey = builder.Configuration["Supabase:Key"];
+    var supabaseUrl = builder.Configuration["Supabase:Url"];
+
+    var options = new SupabaseOptions
+    {
+        AutoRefreshToken = true,
+        AutoConnectRealtime = true,
+        SessionHandler = new DefaultSupabaseSessionHandler() //<-- This must be implemented by the developer
+    };
+
+    return new Client(supabaseUrl, supabaseKey, options);
+});
 
 // 4. Đăng ký các dịch vụ tùy chỉnh cho dự án
 builder.Services.AddProjectServices();
