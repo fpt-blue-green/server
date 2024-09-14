@@ -2,9 +2,7 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using CloudinaryDotNet.Actions;
-using CloudinaryDotNet.Core;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
 using Repositories;
 using Serilog;
 using Service.Helper;
