@@ -169,7 +169,7 @@ namespace Service
         {
             try
             {
-                _loggerService.Information("Start to get video Instagram information: ");
+                _loggerService.Information("Start to get video Instagram information: " + url);
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
@@ -208,7 +208,7 @@ namespace Service
         }
         public async Task<ChannelStatDTO> GetInstagramInformation(string url)
         {
-            _loggerService.Information("Start to get Instagram Account information: ");
+            _loggerService.Information("Start to get Instagram Account information: " + url);
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
             string decodedUrl = HttpUtility.UrlDecode(url);
@@ -244,6 +244,7 @@ namespace Service
         {
             try
             {
+                 _loggerService.Information("Start to get video Youtube information: " + channelName);
                 var channelId = string.Empty;
 
                 // Lấy API Key từ hệ thống cài đặt
@@ -296,6 +297,7 @@ namespace Service
         {
             try
             {
+                 _loggerService.Information("Start to get video Youtube Video information: " + videoUrl);
                 var apiKey = await _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey);
                 string videoId = videoUrl.Substring(videoUrl.IndexOf("v=") + 2).Split('&')[0];
 
