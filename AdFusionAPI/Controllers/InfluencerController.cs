@@ -35,15 +35,6 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("phoneNumber/validate")]
-        [InfluencerRequired]
-        public async Task<ActionResult<string>> ValidatePhoneNumber(string phoneNumber)
-        {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _influencerService.ValidatePhoneNumber(user, phoneNumber);
-            return Ok(result);
-        }
-
         [HttpPut]
         [InfluencerRequired]
         public async Task<ActionResult<string>> CreateOrUpdateInfluencer([FromBody] InfluencerRequestDTO influencerRequestDTO)
@@ -103,6 +94,23 @@ namespace AdFusionAPI.Controllers
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _influencerService.UploadContentImages(imageIds, images, user, "Images");
+            return Ok(result);
+        }
+
+        [HttpPost("phone/sendOtp")]
+        [InfluencerRequired]
+        public async Task<ActionResult<bool>> SendPhoneOtp([FromBody] SendPhoneDTO body)
+        {
+            var result = await _influencerService.SendPhoneOtp(body.Phone);
+            return Ok(result);
+        }
+
+        [HttpPost("phone/verify")]
+        [InfluencerRequired]
+        public async Task<ActionResult<bool>> VerifyOtp([FromBody] VerifyPhoneDTO body)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _influencerService.VerifyPhoneOtp(user, body.Phone, body.OTP);
             return Ok(result);
         }
 
