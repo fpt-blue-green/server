@@ -229,9 +229,9 @@ namespace Service
                 string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
                 var data = new ChannelStatDTO
                 {
-                    FollowersCount = int.Parse(parts[0]),
-                    LikesCount = int.Parse(parts[2]),
-                    PostsCount = int.Parse(parts[4])              
+                    FollowersCount = ConvertToNumber(parts[0]),
+                    LikesCount = ConvertToNumber(parts[2]),
+                    PostsCount = ConvertToNumber(parts[4])              
                 };
                 return data ?? throw new KeyNotFoundException();
             }
@@ -341,47 +341,47 @@ namespace Service
 
         #endregion
 
-        public static long ConvertToNumber(string input)
+        public static int ConvertToNumber(string input)
         {
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                throw new ArgumentException("Input không hợp lệ.");
-            }
-
-            // Loại bỏ dấu phẩy (,) nếu có để chuyển đổi đúng
             input = input.Replace(",", "");
 
-            // Nếu đầu vào là "0"
             if (input == "0")
             {
                 return 0;
             }
 
-            // Kiểm tra ký tự cuối cùng để xác định đơn vị (K, M)
             char lastChar = input[input.Length - 1];
 
             if (char.IsLetter(lastChar))
             {
-                // Nếu ký tự cuối cùng là chữ cái (K, M), ta cắt phần số
                 string numberPart = input.Substring(0, input.Length - 1);
-                double number = double.Parse(numberPart);
+                if (!double.TryParse(numberPart, out double number))
+                {
+                    throw new Exception();
+                }
 
                 switch (lastChar)
                 {
                     case 'M':
-                        return (long)(number * 1_000_000);
+                        return (int)(number * 1_000_000);
                     case 'K':
-                        return (long)(number * 1_000);
+                        return (int)(number * 1_000);
+                    case 'N':
+                        return (int)(number * 1_000);
                     default:
                         throw new ArgumentException("Đơn vị không hợp lệ.");
                 }
             }
             else
             {
-                // Nếu không có ký tự chữ cái, chỉ cần chuyển đổi thành số
-                return long.Parse(input);
+                if (!int.TryParse(input, out int result))
+                {
+                    throw new Exception();
+                }
+                return result;
             }
         }
+
 
     }
 }
