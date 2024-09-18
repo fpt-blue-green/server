@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Repositories.Implement;
@@ -23,9 +24,40 @@ namespace Service.Implement
         {
             _mapper = mapper;
         }
+
+        public async Task<string> CreateOrUpdateBrand(BrandRequestDTO brandRequestDTO, UserDTO user)
+        {
+
+            //Kiểm tra regex có đúng định dạng hay không
+            var brandDTO = await GetBrandByUserId(user.Id);
+
+            // Nếu chưa có, tạo mới
+            if (brandDTO == null)
+            {
+                var newBrand = _mapper.Map<Brand>(brandRequestDTO);
+                newBrand.UserId = user.Id;
+                await _brandRepository.CreateBrand(newBrand);
+                return "Tạo tài khoản brand thành công.";
+            }
+            else
+            {
+                // Nếu đã có, cập nhật
+                _mapper.Map(brandRequestDTO, brandDTO);
+                var brandUpdated = _mapper.Map<Brand>(brandDTO);
+                await _brandRepository.UpdateBrand(brandUpdated);
+                return "Cập nhật brand thành công.";
+            }
+        }
+
+        public async Task<BrandDTO> GetBrandByUserId(Guid userId)
+        {
+            var result = await _brandRepository.GetByUserId(userId);
+            return _mapper.Map<BrandDTO>(result);
+        }
+
         public async Task<string> UploadCoverAsync(IFormFile file, string folder, UserDTO user)
         {
-            _loggerService.Information("Start to upload cover image: ");
+            _loggerService.Information("Start to upload banner image: ");
 
             if (file == null)
             {

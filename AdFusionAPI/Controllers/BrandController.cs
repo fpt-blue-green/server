@@ -26,5 +26,14 @@ namespace AdFusionAPI.Controllers
             var cover = await _brandService.UploadCoverAsync(file, "Cover", user);
             return Ok(cover);
         }
+
+        [HttpPut]
+        [BrandRequired]
+        public async Task<ActionResult<string>> CreateOrUpdateBrand([FromBody] BrandRequestDTO brandRequestDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _brandService.CreateOrUpdateBrand(brandRequestDTO, user);
+            return Ok(result);
+        }
     }
 }
