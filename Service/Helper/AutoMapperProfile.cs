@@ -36,6 +36,12 @@ namespace Service
             #region SystemSetting
             CreateMap<SystemSetting, SystemSettingDTO>().ReverseMap();
             #endregion
+            #region Brand
+            CreateMap<Brand, BrandRequestDTO>().ReverseMap();
+            CreateMap<Brand, BrandDTO>().ReverseMap();
+            CreateMap<BrandDTO, BrandRequestDTO>().ReverseMap();
+            #endregion
+
         }
     }
 }
