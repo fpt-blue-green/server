@@ -55,7 +55,7 @@ namespace Service.Implement
             return _mapper.Map<BrandDTO>(result);
         }
 
-        public async Task<string> UploadCoverAsync(IFormFile file, string folder, UserDTO user)
+        public async Task<string> UploadBannerAsync(IFormFile file, string folder, UserDTO user)
         {
             _loggerService.Information("Start to upload banner image: ");
 
@@ -71,15 +71,15 @@ namespace Service.Implement
             }
 
             // Upload ảnh
-            var cover = await CloudinaryHelper.UploadImageAsync(file, folder);
+            var banner = await CloudinaryHelper.UploadImageAsync(file, folder, user.Id);
 
             // Upload avatar to db
-            //brand.CoverImage = cover.ToString();
+            //brand.Banner = Banner.ToString();
             await _brandRepository.UpdateBrand(brand);
 
             _loggerService.Information("End to upload image");
 
-            return cover.ToString();
+            return banner.ToString();
         }
     }
 }
