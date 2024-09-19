@@ -8,6 +8,6 @@ namespace Service.Interface
         Task<string> UploadBannerAsync(IFormFile file, string folder, UserDTO user);
         Task<string> CreateOrUpdateBrand(BrandRequestDTO brandRequestDTO, UserDTO user);
         Task<BrandDTO> GetBrandByUserId(Guid userId);
-
+        Task<BrandDTO> GetBrandById(Guid id);
     }
 }

@@ -49,6 +49,12 @@ namespace Service.Implement
             }
         }
 
+        public async Task<BrandDTO> GetBrandById(Guid id)
+        {
+            var result = await _brandRepository.GetBrandById(id);
+            return _mapper.Map<BrandDTO>(result);
+        }
+
         public async Task<BrandDTO> GetBrandByUserId(Guid userId)
         {
             var result = await _brandRepository.GetByUserId(userId);
