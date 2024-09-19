@@ -37,7 +37,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPatch("upload/banner")]
         [AuthRequired]
-        public async Task<ActionResult<string>> UpdateAvatar(IFormFile file)
+        public async Task<ActionResult<string>> UpdateBanner(IFormFile file)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var banner = await _brandService.UploadBannerAsync(file, "Banner", user);
