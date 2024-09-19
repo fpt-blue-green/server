@@ -19,8 +19,9 @@ namespace Service.Helper
             _cloudinary = new Cloudinary(account);
         }
 
-        public static async Task<string> UploadImageAsync(IFormFile file, string folder)
+        public static async Task<string> UploadImageAsync(IFormFile file, string folder, Guid? name)
         {
+            var publicId = name ?? Guid.NewGuid();
             if (file == null)
             {
                 throw new Exception("Invalid File");
@@ -31,7 +32,7 @@ namespace Service.Helper
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
                 Folder = folder,
-                PublicId = Guid.NewGuid().ToString(), // Sử dụng Guid cho PublicId
+                PublicId = publicId.ToString(), // Sử dụng Guid cho PublicId
                 Overwrite = true
             };
 
