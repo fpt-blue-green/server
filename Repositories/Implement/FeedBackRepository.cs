@@ -33,7 +33,7 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                var feedbacks = await context.Feedbacks.ToListAsync();
+                var feedbacks = await context.Feedbacks.Include(f => f.User).ToListAsync();
                 return feedbacks;
             }
         }

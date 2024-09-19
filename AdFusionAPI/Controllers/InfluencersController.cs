@@ -12,13 +12,15 @@ namespace AdFusionAPI.Controllers
     {
         private readonly IInfluencerService _influencerService;
         private readonly IChannelService _channelService;
+        private readonly IFeedBackService _feedBackService;
         private readonly IMapper _mapper;
 
-        public InfluencersController(IInfluencerService influencerService,IChannelService channelService, IMapper mapper)
+        public InfluencersController(IInfluencerService influencerService,IChannelService channelService, IMapper mapper, IFeedBackService feedBackService)
         {
             _influencerService = influencerService;
             _channelService = channelService;
             _mapper = mapper;
+            _feedBackService = feedBackService;
         }
 
         [HttpGet("top")]
@@ -64,5 +66,14 @@ namespace AdFusionAPI.Controllers
             var result = await _influencerService.GetInfluencerBySlug(slug);
             return Ok(result);
         }
+
+        #region Feedback
+        [HttpGet("/feedbacks/{influId}")]
+        public async Task<ActionResult<InfluencerDTO>> GetFeedbackByInfluencerId(Guid influId)
+        {
+            var result = await _feedBackService.GetFeedBackByInfluencerId(influId);
+            return Ok(result);
+        }
+        #endregion
     }
 }
