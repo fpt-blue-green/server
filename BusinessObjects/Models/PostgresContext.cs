@@ -14,7 +14,6 @@ public partial class PostgresContext : DbContext
         : base(options)
     {
     }
-
 // Override SaveChangesAsync
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -44,7 +43,8 @@ public partial class PostgresContext : DbContext
                 }
             }
         }
-    }    public virtual DbSet<AdminAction> AdminActions { get; set; }
+    } 
+    public virtual DbSet<AdminAction> AdminActions { get; set; }
 
     public virtual DbSet<BannedUser> BannedUsers { get; set; }
 
@@ -86,7 +86,6 @@ public partial class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
@@ -242,7 +241,7 @@ public partial class PostgresContext : DbContext
             entity.HasOne(d => d.User).WithOne(p => p.Influencer)
                 .HasForeignKey<Influencer>(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("influencers_userid_fkey");
+                .HasConstraintName("Influencers_UserId_fkey");
 
             entity.HasMany(d => d.Tags).WithMany(p => p.Influencers)
                 .UsingEntity<Dictionary<string, object>>(

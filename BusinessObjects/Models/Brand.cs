@@ -21,6 +21,18 @@ public partial class Brand
 
     public DateTime? ModifiedAt { get; set; }
 
+    public string? CoverImg { get; set; }
+
+    public string? WebsiteUrl { get; set; }
+
+    public string? InstagramUrl { get; set; }
+
+    public string? FacebookUrl { get; set; }
+
+    public string? TiktokUrl { get; set; }
+
+    public string? YoutubeUrl { get; set; }
+
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 
     public virtual User User { get; set; } = null!;
