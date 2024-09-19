@@ -4,6 +4,7 @@ using Repositories;
 using AutoMapper;
 using BusinessObjects.Models;
 using System.Linq;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Service
 {
@@ -11,7 +12,6 @@ namespace Service
 	{
 		private static readonly IPackageRepository _packageRepository = new PackageRepository();
 		private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
-
 		private readonly IMapper _mapper;
 		private static ILogger _loggerService = new LoggerService().GetDbLogger();
 		public PackageService(IMapper mapper)
@@ -27,7 +27,6 @@ namespace Service
 			var allPackages = await GetInfluPackages(userId);
 			var allPackageIds = allPackages.Select(p => p.Id).ToList();
 
-
 			foreach (var package in packages)
 			{
 				if (package.Id.HasValue)
@@ -41,8 +40,8 @@ namespace Service
 					createPackages.Add(package);
 				}
 			}
-			var influencerId = (await _influencerRepository.GetByUserId(userId)).Id;
-			if (influencerId == null)
+			var influencer = await _influencerRepository.GetByUserId(userId);
+			if (influencer.Id == null)
 			{
 				_loggerService.Information("Influencer không tồn tại.");
 				throw new InvalidOperationException("Influencer không tồn tại.");
@@ -57,8 +56,7 @@ namespace Service
 					{
 						// Sử dụng AutoMapper để cập nhật các thuộc tính từ DTO vào thực thể hiện có
 						_mapper.Map(packageDTO, existingPackage);
-						existingPackage.InfluencerId = influencerId; // Đảm bảo InfluencerId được gán
-
+						existingPackage.Influencer.Id = influencer.Id; // Đảm bảo InfluencerId được gán
 						// Gọi phương thức cập nhật trên repository
 						await _packageRepository.Update(existingPackage);
 					}
@@ -78,7 +76,7 @@ namespace Service
 					_loggerService.Information("Tạo package thất bại.");
 					throw new InvalidOperationException("Vui lòng tạo ít nhất 1 package.");
 				}
-				packageNeedCreate.ForEach(package => package.InfluencerId = influencerId);
+				packageNeedCreate.ForEach(package => package.InfluencerId = influencer.Id);
 
 				await _packageRepository.CreateList(packageNeedCreate);
 				_loggerService.Information("Tạo package thành công");
@@ -100,7 +98,7 @@ namespace Service
 				}
 				_loggerService.Information("Xoá package không còn tồn tại thành công");
 			}
-
+			await UpdateInfluencerAveragePrice(influencer);
 			return "Tạo thành công";
 		}
 
@@ -138,8 +136,8 @@ namespace Service
 		public async Task<string> UpdateInfluencerPackage(Guid userId, Guid packageId, PackageDtoRequest packageDTO)
 		{
 			var package = await _packageRepository.GetById(packageId);
-			var influencerId = (await _influencerRepository.GetByUserId(userId)).Id;
-			if (influencerId == null)
+			var influencer = await _influencerRepository.GetByUserId(userId);
+			if (influencer == null)
 			{
 				_loggerService.Information("Influencer không tồn tại.");
 				throw new InvalidOperationException("Influencer không tồn tại.");
@@ -148,10 +146,11 @@ namespace Service
 			{
 				throw new InvalidOperationException("Không tìm thấy package.");
 			}
-			if (package.InfluencerId == influencerId)
+			if (package.InfluencerId == influencer.Id)
 			{
 				_mapper.Map(packageDTO, package);
 				await _packageRepository.Update(package);
+				await UpdateInfluencerAveragePrice(influencer);
 				_loggerService.Information($"cập nhật package của influencer: {userId} thành công");
 			}
 			else
@@ -160,8 +159,19 @@ namespace Service
 				throw new InvalidOperationException("Không thể cập nhật.");
 			}
 			return "Cập nhật thành công";
+		}
 
-
+		public async Task UpdateInfluencerAveragePrice(Influencer influencer)
+		{
+			var packages = await this.GetInfluPackages(influencer.User.Id);
+			if (!packages.IsNullOrEmpty())
+			{
+				var listPrice = packages.Select(s => s.Price);
+				var average = listPrice?.Average();
+				influencer.AveragePrice = (decimal)average;
+				await _influencerRepository.Update(influencer);
+			}
+			
 		}
 	}
 }
