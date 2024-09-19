@@ -18,13 +18,13 @@ namespace AdFusionAPI.Controllers
             _mapper = mapper;
         }
 
-        [HttpPatch("cover")]
+        [HttpPatch("upload/banner")]
         [AuthRequired]
         public async Task<ActionResult<string>> UpdateAvatar(IFormFile file)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var cover = await _brandService.UploadBannerAsync(file, "Cover", user);
-            return Ok(cover);
+            var banner = await _brandService.UploadBannerAsync(file, "Banner", user);
+            return Ok(banner);
         }
 
         [HttpPut]
