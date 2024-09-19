@@ -19,33 +19,26 @@ namespace AdFusionAPI.APIConfig
         public async Task Invoke(HttpContext context)
         {
             var startTime = Stopwatch.GetTimestamp();
-            // Lưu trữ mã trạng thái để ghi log sau khi request được xử lý
-            int statusCode = 0;
 
             // Đọc request body
             context.Request.EnableBuffering();
             string requestBody = await ReadRequestBodyAsync(context.Request);
 
-            // Ghi lại mã trạng thái trước khi tiếp tục xử lý request
-            context.Response.OnStarting(() =>
-            {
-                statusCode = context.Response.StatusCode;
-                return Task.CompletedTask;
-            });
-
-            await _next(context);
+            await _next(context);  // Xử lý request
 
             var endTime = Stopwatch.GetTimestamp();
             var duration = (endTime - startTime) / (double)Stopwatch.Frequency * 1000;
 
-            // Ghi log
+            // Lấy mã trạng thái sau khi request đã được xử lý
+            var statusCode = context.Response.StatusCode;
+
+            // Ghi log ra console
             _loggerService.Information("HTTP {Method} {Path} {QueryString} responded {StatusCode} in {Duration} ms",
                 context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode, duration);
 
+            // Ghi log ra database
             _dbLoggerService.Information("HTTP {Method} {Path} {QueryString} responded {StatusCode} in {Duration} ms. Request Body: {Body}",
-             context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode,
-             duration, requestBody);
-
+                context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode, duration, requestBody);
         }
 
         private async Task<string> ReadRequestBodyAsync(HttpRequest request)

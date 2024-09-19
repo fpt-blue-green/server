@@ -122,9 +122,9 @@ namespace Service
 
             return new ChannelStatDTO
             {
-                FollowersCount = (int?)result!["followerCount"],
-                LikesCount = (int?)result["heartCount"],
-                PostsCount = (int?)result["videoCount"],
+                FollowersCount = ConvertToNumber(result!["followerCount"]?.ToString() ?? "0"),
+                LikesCount = ConvertToNumber(result!["heartCount"]?.ToString() ?? "0"),
+                PostsCount = ConvertToNumber(result!["videoCount"]?.ToString() ?? "0")
             };
         }
         public async Task<string> GetVideoTikTokInformation(string url)

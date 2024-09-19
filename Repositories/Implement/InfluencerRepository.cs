@@ -59,6 +59,18 @@ namespace Repositories
 			}
 		}
 
+		public async Task<Influencer> GetInfluencerByFeedbackID(Guid feedbackId)
+		{
+            using (var context = new PostgresContext())
+            {
+                var feedback = await context.Feedbacks
+							.Where(f => f.Id == feedbackId)
+							.Include(i => i.Influencer) 
+							.FirstOrDefaultAsync();
+                return feedback?.Influencer!;
+            }
+        }
+
 		public async Task Create(Influencer influencer)
 		{
 			using (var context = new PostgresContext())
@@ -67,7 +79,6 @@ namespace Repositories
 				await context.Influencers.AddAsync(influencer);
 				await context.SaveChangesAsync();
 			}
-
 		}
 		public async Task Update(Influencer influencer)
 		{
@@ -87,7 +98,6 @@ namespace Repositories
 
 				await context.SaveChangesAsync();
 			}
-
 		}
 
 		public async Task Delete(Guid id)

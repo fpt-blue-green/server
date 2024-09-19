@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.DTOs;
 using BusinessObjects.Models;
 
 namespace Service
@@ -40,6 +41,10 @@ namespace Service
             CreateMap<Brand, BrandRequestDTO>().ReverseMap();
             CreateMap<Brand, BrandDTO>().ReverseMap();
             CreateMap<BrandDTO, BrandRequestDTO>().ReverseMap();
+            #endregion
+            #region Feedback
+            CreateMap<Feedback, FeedbackDTO>().ReverseMap();
+            CreateMap<Feedback, FeedbackRequestDTO>().ReverseMap();
             #endregion
 
         }
