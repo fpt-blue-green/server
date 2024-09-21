@@ -39,7 +39,9 @@ namespace Service
             #endregion
             #region Brand
             CreateMap<Brand, BrandRequestDTO>().ReverseMap();
-            CreateMap<Brand, BrandDTO>().ReverseMap();
+            CreateMap<Brand, BrandDTO>()
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar))
+                .ReverseMap();
             CreateMap<BrandDTO, BrandRequestDTO>().ReverseMap();
             #endregion
             #region Feedback

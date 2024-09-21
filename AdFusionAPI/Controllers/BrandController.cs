@@ -20,28 +20,20 @@ namespace AdFusionAPI.Controllers
 
         [HttpGet]
         [BrandRequired]
-        public async Task<ActionResult<string>> GetCurrentBrand()
+        public async Task<ActionResult<BrandDTO>> GetCurrentBrand()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _brandService.GetBrandByUserId(user.Id);
             return Ok(result);
         }
 
-        [HttpGet("Id")]
-        public async Task<ActionResult<string>> GetBrandById(Guid id)
+        [HttpPatch("CoverImg")]
+        [BrandRequired]
+        public async Task<ActionResult<string>> UpdateCoverImg(IFormFile file)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _brandService.GetBrandById(id);
-            return Ok(result);
-        }
-
-        [HttpPatch("upload/banner")]
-        [AuthRequired]
-        public async Task<ActionResult<string>> UpdateBanner(IFormFile file)
-        {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            var banner = await _brandService.UploadBannerAsync(file, "Banner", user);
-            return Ok(banner);
+            var coverImg = await _brandService.UploadCoverImgAsync(file, "Cover", user);
+            return Ok(coverImg);
         }
 
         [HttpPut]
