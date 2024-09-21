@@ -45,6 +45,7 @@ namespace Repositories.Implement
             {
                 var brand = await context.Brands
                                             .Include(i => i.Campaigns)
+                                            .Include(i => i.User)
                                             .FirstOrDefaultAsync(s => s.UserId == id);
                 return brand!;
             }

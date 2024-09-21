@@ -62,6 +62,10 @@ namespace Service.Implement
         public async Task<BrandDTO> GetBrandByUserId(Guid userId)
         {
             var result = await _brandRepository.GetByUserId(userId);
+            if (result == null)
+            {
+                throw new KeyNotFoundException();
+            }
             return _mapper.Map<BrandDTO>(result);
         }
 
