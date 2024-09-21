@@ -22,6 +22,8 @@ namespace AdFusionAPI
             services.AddScoped<ConfigManager>();
             services.AddScoped<IPackageService, PackageService>();
             services.AddScoped<IBrandService, BrandService>();
-        }
-    }
+			services.AddScoped<IBrandService, BrandService>();
+			services.AddScoped<ICampaignService, CampaignService>();
+		}
+	}
 }
