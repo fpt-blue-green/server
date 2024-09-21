@@ -52,6 +52,10 @@ namespace Service.Implement
         public async Task<BrandDTO> GetBrandById(Guid id)
         {
             var result = await _brandRepository.GetBrandById(id);
+            if (result == null)
+            {
+                throw new KeyNotFoundException();
+            }
             return _mapper.Map<BrandDTO>(result);
         }
 
@@ -61,9 +65,9 @@ namespace Service.Implement
             return _mapper.Map<BrandDTO>(result);
         }
 
-        public async Task<string> UploadBannerAsync(IFormFile file, string folder, UserDTO user)
+        public async Task<string> UploadCoverImgAsync(IFormFile file, string folder, UserDTO user)
         {
-            _loggerService.Information("Start to upload banner image: ");
+            _loggerService.Information("Start to upload cover image: ");
 
             if (file == null)
             {
@@ -77,15 +81,15 @@ namespace Service.Implement
             }
 
             // Upload ảnh
-            var banner = await CloudinaryHelper.UploadImageAsync(file, folder, user.Id);
+            var coverImg = await CloudinaryHelper.UploadImageAsync(file, folder, user.Id);
 
             // Upload avatar to db
-            //brand.Banner = Banner.ToString();
+            brand.CoverImg = coverImg.ToString();
             await _brandRepository.UpdateBrand(brand);
 
-            _loggerService.Information("End to upload image");
+            _loggerService.Information("End to upload cover image");
 
-            return banner.ToString();
+            return brand.CoverImg;
         }
     }
 }

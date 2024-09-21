@@ -230,6 +230,10 @@ namespace Service
         public async Task<InfluencerDTO> GetInfluencerByUserId(Guid userId)
         {
             var result = await _influencerRepository.GetByUserId(userId);
+            if (result == null || result.IsPublish == false)
+            {
+                throw new KeyNotFoundException();
+            }
             return _mapper.Map<InfluencerDTO>(result);
         }
 
