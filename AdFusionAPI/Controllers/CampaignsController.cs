@@ -1,5 +1,4 @@
 ﻿using AdFusionAPI.APIConfig;
-using AutoMapper;
 using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
@@ -17,6 +16,12 @@ namespace AdFusionAPI.Controllers
 			_campaignService = campaignService;
 		}
 		[HttpGet()]
+		public async Task<ActionResult<List<CampaignBrandDto>>> GetCampaigns()
+		{
+			var result = await _campaignService.GetAllCampaigns();
+			return Ok(result);
+		}
+		[HttpGet("brand")]
 		[AuthRequired]
 		public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns()
 		{
@@ -25,30 +30,5 @@ namespace AdFusionAPI.Controllers
 			return Ok(result);
 		}
 
-		[HttpGet("{id}")]
-		public async Task<ActionResult<CampaignDTO>> GetBrandCampaign(Guid id)
-		{
-			var user = (UserDTO)HttpContext.Items["user"]!;
-			var result = await _campaignService.GetBrandCampaign(user.Id, id);
-			return Ok(result);
-		}
-
-		[HttpPost("")]
-		[AuthRequired]
-		public async Task<ActionResult<string>> CreateCampaign([FromBody] CampaignDTO campaign)
-		{
-			var user = (UserDTO)HttpContext.Items["user"]!;
-			var result = await _campaignService.CreateCampaign(user.Id, campaign);
-			return Ok(result);
-		}
-
-		[HttpPut]
-		[AuthRequired]
-		public async Task<ActionResult<string>> UpdateCampaign([FromBody] CampaignDTO campaign)
-		{
-			var user = (UserDTO)HttpContext.Items["user"]!;
-			var result = await _campaignService.UpdateCampaign(user.Id, campaign);
-			return Ok(result);
-		}
 	}
 }

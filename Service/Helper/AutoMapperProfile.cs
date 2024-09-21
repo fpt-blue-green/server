@@ -50,6 +50,7 @@ namespace Service
 			#endregion
 			#region campaign
 			CreateMap<Campaign, CampaignDTO>().ReverseMap();
+            CreateMap<Campaign, CampaignBrandDto>().ReverseMap();
 			#endregion
 		}
 	}
