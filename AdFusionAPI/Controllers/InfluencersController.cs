@@ -85,7 +85,7 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
-        [HttpPatch("{id}/feedbacks/{feedbackId}")]
+        [HttpPut("{id}/feedbacks/{feedbackId}")]
         [AuthRequired]
         public async Task<ActionResult> UpdateFeedback(Guid id, Guid feedbackId, [FromBody] FeedbackRequestDTO feedBackRequestDTO)
         {
