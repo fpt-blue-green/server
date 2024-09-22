@@ -38,6 +38,23 @@ namespace Repositories
             }
         }
 
+        public async Task<(Influencer Influencer, Feedback? ExistingFeedback, List<Feedback> FeedbacksForInfluencer)> GetInfluencerAndFeedback(Guid userId, Guid influencerId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var feedbacksForInfluencer = await context.Feedbacks
+                                                    .Where(f => f.InfluencerId == influencerId)
+                                                    .ToListAsync();
+
+                var existingFeedback = feedbacksForInfluencer.FirstOrDefault(f => f.UserId == userId);
+                var influencer = await context.Influencers
+                                       .Include(i => i.User)
+                                       .FirstOrDefaultAsync(i => i.Id == influencerId);
+
+                return (influencer, existingFeedback, feedbacksForInfluencer)!;
+            }
+        }
+
         public async Task<Feedback> GetById(Guid id)
         {
             using (var context = new PostgresContext())

@@ -19,16 +19,8 @@
 
     public class FeedbackRequestDTO
     {
-        public Guid InfluencerId { get; set; }
-
         public int? Rating { get; set; }
 
         public string Content { get; set; } = null!;
-    }
-
-    public class FeedbackDeleteRequestDTO
-    {
-        public Guid Id { get; set; }
-
     }
 }

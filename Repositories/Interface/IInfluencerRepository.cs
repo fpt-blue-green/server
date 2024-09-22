@@ -10,7 +10,7 @@ namespace Repositories
         Task<Influencer> GetByUserId(Guid id);
         Task<Influencer> GetBySlug(string slug);
         Task<List<Tag>> GetTagsByInfluencer(Guid influencerId);
-        Task<Influencer> GetInfluencerByFeedbackID(Guid feedbackId);
+        Task<Influencer> GetInfluencerWithFeedbackById(Guid id);
         Task AddTagToInfluencer(Guid influencerId, Guid tagId);
 		Task RemoveTagOfInfluencer(Guid influencerId, Guid tagId);
 		Task Create(Influencer influencer);
