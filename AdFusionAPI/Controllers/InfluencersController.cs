@@ -1,6 +1,7 @@
 ﻿using AdFusionAPI.APIConfig;
 using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -68,11 +69,38 @@ namespace AdFusionAPI.Controllers
         }
 
         #region Feedback
-        [HttpGet("/feedbacks/{influId}")]
-        public async Task<ActionResult<InfluencerDTO>> GetFeedbackByInfluencerId(Guid influId)
+        [HttpGet("{id}/feedbacks")]
+        public async Task<ActionResult<FeedbackDTO>> GetFeedbackByInfluencerId(Guid id)
         {
-            var result = await _feedBackService.GetFeedBackByInfluencerId(influId);
+            var result = await _feedBackService.GetFeedBackByInfluencerId(id);
             return Ok(result);
+        }
+
+        [HttpPost("{id}/feedbacks")]
+        [AuthRequired]
+        public async Task<ActionResult> CreateFeedback(Guid id, [FromBody] FeedbackRequestDTO feedBackRequestDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _feedBackService.CreateFeedback(id, feedBackRequestDTO, user);
+            return Ok();
+        }
+
+        [HttpPatch("{id}/feedbacks/{feedbackId}")]
+        [AuthRequired]
+        public async Task<ActionResult> UpdateFeedback(Guid id, Guid feedbackId, [FromBody] FeedbackRequestDTO feedBackRequestDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _feedBackService.DeleteFeedback(id, feedbackId, user);
+            return Ok();
+        }
+
+        [HttpDelete("{id}/feedbacks/{feedbackId}")]
+        [AuthRequired]
+        public async Task<ActionResult> DelteFeedback(Guid id, Guid feedbackId)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _feedBackService.DeleteFeedback(id, feedbackId, user);
+            return Ok();
         }
         #endregion
     }

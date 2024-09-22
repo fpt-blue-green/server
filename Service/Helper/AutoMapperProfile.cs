@@ -45,7 +45,11 @@ namespace Service
             CreateMap<BrandDTO, BrandRequestDTO>().ReverseMap();
             #endregion
             #region Feedback
-            CreateMap<Feedback, FeedbackDTO>().ReverseMap();
+            CreateMap<Feedback, FeedbackDTO>()
+              .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+              .ForPath(dest => dest.User.Name, opt => opt.MapFrom(src => src.User.DisplayName))
+              .ForPath(dest => dest.User.Image, opt => opt.MapFrom(src => src.User.Avatar))
+              .ReverseMap();
             CreateMap<Feedback, FeedbackRequestDTO>().ReverseMap();
 			#endregion
 			#region campaign

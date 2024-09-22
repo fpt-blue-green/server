@@ -59,15 +59,15 @@ namespace Repositories
 			}
 		}
 
-		public async Task<Influencer> GetInfluencerByFeedbackID(Guid feedbackId)
+		public async Task<Influencer> GetInfluencerWithFeedbackById(Guid id)
 		{
             using (var context = new PostgresContext())
             {
-                var feedback = await context.Feedbacks
-							.Where(f => f.Id == feedbackId)
-							.Include(i => i.Influencer) 
+                var inflencer = await context.Influencers
+							.Where(f => f.Id == id)
+							.Include(i => i.Feedbacks) 
 							.FirstOrDefaultAsync();
-                return feedback?.Influencer!;
+                return inflencer;
             }
         }
 

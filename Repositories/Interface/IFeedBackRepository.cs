@@ -4,6 +4,7 @@ namespace Repositories
 {
     public interface IFeedBackRepository
     {
+        Task<(Influencer Influencer, Feedback? ExistingFeedback, List<Feedback> FeedbacksForInfluencer)> GetInfluencerAndFeedback(Guid userId, Guid influencerId);
         Task<IEnumerable<Feedback>> GetAlls();
         Task<Feedback> GetById(Guid id);
         Task Create(Feedback feedback);

@@ -39,54 +39,74 @@ namespace Service
 
         public async Task<IEnumerable<FeedbackDTO>> GetFeedBackByInfluencerId(Guid influencerId)
         {
-            var feedbacks = (await _feedbackRepository.GetAlls()).Where(s => s.InfluencerId == influencerId).ToList();
+            var feedbacks = (await _feedbackRepository.GetAlls())
+                                .Where(s => s.InfluencerId == influencerId)
+                                .OrderByDescending(s => s.CreatedAt).ToList();
             var result = _mapper.Map<IEnumerable<FeedbackDTO>>(feedbacks);
             return result;
         }
 
-        public async Task CreateFeedback(FeedbackRequestDTO feedbackRequestDto, UserDTO userDTO)
+        public async Task CreateFeedback(Guid influencerId, FeedbackRequestDTO feedbackRequestDto, UserDTO userDTO)
         {
+            // Kiểm tra rating hợp lệ
             if (feedbackRequestDto.Rating > 5 || feedbackRequestDto.Rating < 1)
             {
                 throw new InvalidOperationException("Vui lòng rating trong khoảng từ 1 đến 5.");
             }
 
+            // Lấy thông tin influencer và kiểm tra feedback tồn tại
+            var (influencer, existingFeedback, feedbacksForInfluencer) = await _feedbackRepository.GetInfluencerAndFeedback(userDTO.Id, influencerId);
+
+            if(influencer.User.Id == userDTO.Id)
+            {
+                throw new InvalidOperationException("Bạn không thể đánh giá chính mình.");
+            }
+
+            if (existingFeedback != null)
+            {
+                throw new InvalidOperationException("Bạn chỉ có thể đánh giá influencer này một lần duy nhất.");
+            }
+
+            // Tạo feedback mới
             var feedBack = _mapper.Map<Feedback>(feedbackRequestDto);
+            feedBack.InfluencerId = influencerId;
             feedBack.UserId = userDTO.Id;
 
-            // Tạo feedback
             await _feedbackRepository.Create(feedBack);
 
-            // Lấy average rate
-            var averageRate = await GetAverageRate(feedbackRequestDto.InfluencerId);
-
-            // Lấy influencer và cập nhật rate
-            var influencer = await _influencerRepository.GetById(feedbackRequestDto.InfluencerId);
-            influencer.RateAverage = (decimal)averageRate;
+            // Tính lại điểm trung bình rate cho influencer
+            var totalRating = feedbacksForInfluencer.Sum(f => f.Rating) + feedbackRequestDto.Rating;
+            var countRating = feedbacksForInfluencer.Count + 1;
+            influencer.RateAverage = Math.Round(((decimal)totalRating! / countRating), 2);
 
             // Cập nhật thông tin influencer
             await _influencerRepository.Update(influencer);
         }
 
-        public async Task DeleteFeedback(Guid id, UserDTO userDTO)
+        public async Task UpdateFeedBack()
+        {
+
+        }
+
+        public async Task DeleteFeedback(Guid influencerId, Guid feebackId, UserDTO userDTO)
         {
             // Lấy thông tin của Influencer dựa trên FeedbackId
-            var influencer = await _influencerRepository.GetInfluencerByFeedbackID(id);
+            var influencer = await _influencerRepository.GetInfluencerWithFeedbackById(influencerId);
 
             if (influencer == null)
             {
                 throw new KeyNotFoundException();
             }
-            if(userDTO.Id != influencer.Feedbacks.FirstOrDefault()?.UserId && userDTO.Role != AuthEnumContainer.ERole.Admin)
+            if(userDTO.Id != influencer.Feedbacks.FirstOrDefault(f => f.Id == feebackId)?.UserId && userDTO.Role != AuthEnumContainer.ERole.Admin)
             {
                 throw new AccessViolationException();
             }
 
             // Xóa feedback
-            await _feedbackRepository.Delete(id);
+            await _feedbackRepository.Delete(feebackId);
 
             // Lấy mức đánh giá trung bình
-            var averageRate = await GetAverageRate(influencer.Id);
+            var averageRate = await GetAverageRate(influencerId);
 
             // Cập nhật thông tin của Influencer
             influencer.RateAverage = (decimal)averageRate;
