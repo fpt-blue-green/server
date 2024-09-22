@@ -47,8 +47,11 @@ namespace Service
             #region Feedback
             CreateMap<Feedback, FeedbackDTO>().ReverseMap();
             CreateMap<Feedback, FeedbackRequestDTO>().ReverseMap();
-            #endregion
-
-        }
-    }
+			#endregion
+			#region campaign
+			CreateMap<Campaign, CampaignDTO>().ReverseMap();
+            CreateMap<Campaign, CampaignBrandDto>().ReverseMap();
+			#endregion
+		}
+	}
 }
