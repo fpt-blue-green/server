@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BusinessObjects;
-using BusinessObjects.DTOs;
 using BusinessObjects.Models;
 using Repositories;
 
@@ -83,9 +82,40 @@ namespace Service
             await _influencerRepository.Update(influencer);
         }
 
-        public async Task UpdateFeedBack()
+        public async Task UpdateFeedBack(Guid influencerId, Guid feebackId, FeedbackRequestDTO feedbackRequest, UserDTO userDTO)
         {
+            // Kiểm tra rating hợp lệ
+            if (feedbackRequest.Rating > 5 || feedbackRequest.Rating < 1)
+            {
+                throw new InvalidOperationException("Vui lòng rating trong khoảng từ 1 đến 5.");
+            }
 
+            // Lấy thông tin của Influencer dựa trên FeedbackId
+            var influencer = await _influencerRepository.GetInfluencerWithFeedbackById(influencerId);
+
+            if (influencer == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            var currentFeedback = influencer.Feedbacks.FirstOrDefault(f => f.Id == feebackId);
+
+            if (userDTO.Id != currentFeedback?.UserId)
+            {
+                throw new AccessViolationException();
+            }
+
+            var newFeedback = _mapper.Map(feedbackRequest, currentFeedback);
+
+            // Update feedback
+            await _feedbackRepository.Update(newFeedback);
+
+            // Lấy mức đánh giá trung bình
+            var averageRate = await GetAverageRate(influencerId);
+
+            // Cập nhật thông tin của Influencer
+            influencer.RateAverage = (decimal)averageRate;
+            await _influencerRepository.Update(influencer);
         }
 
         public async Task DeleteFeedback(Guid influencerId, Guid feebackId, UserDTO userDTO)
@@ -97,7 +127,7 @@ namespace Service
             {
                 throw new KeyNotFoundException();
             }
-            if(userDTO.Id != influencer.Feedbacks.FirstOrDefault(f => f.Id == feebackId)?.UserId && userDTO.Role != AuthEnumContainer.ERole.Admin)
+            if (userDTO.Id != influencer.Feedbacks.FirstOrDefault(f => f.Id == feebackId)?.UserId && userDTO.Role != AuthEnumContainer.ERole.Admin)
             {
                 throw new AccessViolationException();
             }

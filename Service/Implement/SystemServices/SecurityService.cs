@@ -11,7 +11,7 @@ namespace Service
     {
         private static ConfigManager _configManager = new ConfigManager();
         private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
-        public async Task<string> GenerateAuthenToken(string data, int expire = 15)
+        public async Task<string> GenerateAuthenToken(string data, int expire = 10)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
@@ -49,25 +49,59 @@ namespace Service
             return tokenHandler.WriteToken(token);
         }
 
-        public async Task<string> ValidateJwtToken(string token)
+        public async Task<string> ValidateJwtAuthenToken(string token)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
-            var key = Encoding.ASCII.GetBytes(jwtSetting.KeyValue!);
-
-            var validationParameters = new TokenValidationParameters
+            try
             {
-                ValidateIssuer = false, // Bỏ qua kiểm tra Issuer
-                ValidateAudience = false, // Bỏ qua kiểm tra Audience
-                ValidateLifetime = true, // Kiểm tra thời gian sống của token
-                ValidateIssuerSigningKey = true, // Kiểm tra chữ ký của token
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ClockSkew = TimeSpan.Zero
-            };
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
+                var key = Encoding.ASCII.GetBytes(jwtSetting.KeyValue!);
 
-            var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false, // Bỏ qua kiểm tra Issuer
+                    ValidateAudience = false, // Bỏ qua kiểm tra Audience
+                    ValidateLifetime = true, // Kiểm tra thời gian sống của token
+                    ValidateIssuerSigningKey = true, // Kiểm tra chữ ký của token
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero
+                };
 
-            return principal.Identity?.Name!;
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+                return principal.Identity?.Name!;
+            }catch (Exception ex)
+            {
+                throw new UnauthorizedAccessException(ex.ToString());
+            }
+        }
+
+        public async Task<string> ValidateJwtEmailToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
+                var key = Encoding.ASCII.GetBytes(jwtSetting.KeyValue!);
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false, // Bỏ qua kiểm tra Issuer
+                    ValidateAudience = false, // Bỏ qua kiểm tra Audience
+                    ValidateLifetime = true, // Kiểm tra thời gian sống của token
+                    ValidateIssuerSigningKey = true, // Kiểm tra chữ ký của token
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+                return principal.Identity?.Name!;
+            }
+            catch
+            {
+                throw new InvalidOperationException("Token của bạn đã hết hạn.");
+            }
         }
 
         public string ComputeSha256Hash(string rawData)

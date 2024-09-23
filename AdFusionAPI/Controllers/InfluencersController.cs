@@ -1,7 +1,6 @@
 ﻿using AdFusionAPI.APIConfig;
 using AutoMapper;
 using BusinessObjects;
-using BusinessObjects.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -16,7 +15,7 @@ namespace AdFusionAPI.Controllers
         private readonly IFeedBackService _feedBackService;
         private readonly IMapper _mapper;
 
-        public InfluencersController(IInfluencerService influencerService,IChannelService channelService, IMapper mapper, IFeedBackService feedBackService)
+        public InfluencersController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper, IFeedBackService feedBackService)
         {
             _influencerService = influencerService;
             _channelService = channelService;
@@ -24,6 +23,7 @@ namespace AdFusionAPI.Controllers
             _feedBackService = feedBackService;
         }
 
+        #region search/filter Influencer
         [HttpGet("top")]
         public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopInfluencer()
         {
@@ -67,10 +67,11 @@ namespace AdFusionAPI.Controllers
             var result = await _influencerService.GetInfluencerBySlug(slug);
             return Ok(result);
         }
+        #endregion
 
         #region Feedback
         [HttpGet("{id}/feedbacks")]
-        public async Task<ActionResult<FeedbackDTO>> GetFeedbackByInfluencerId(Guid id)
+        public async Task<ActionResult<IEnumerable<FeedbackDTO>>> GetFeedbackByInfluencerId(Guid id)
         {
             var result = await _feedBackService.GetFeedBackByInfluencerId(id);
             return Ok(result);
@@ -90,7 +91,7 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult> UpdateFeedback(Guid id, Guid feedbackId, [FromBody] FeedbackRequestDTO feedBackRequestDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            await _feedBackService.DeleteFeedback(id, feedbackId, user);
+            await _feedBackService.UpdateFeedBack(id, feedbackId,feedBackRequestDTO, user);
             return Ok();
         }
 

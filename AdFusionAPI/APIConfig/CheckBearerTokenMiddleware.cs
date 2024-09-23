@@ -46,8 +46,8 @@ namespace AdFusionAPI.APIConfig
                     throw new UnauthorizedAccessException();
                 }
 
-                // Xác thực token
-                var tokenData = await _securityService.ValidateJwtToken(token);
+                    // Xác thực token
+                var tokenData = await _securityService.ValidateJwtAuthenToken(token);
 
                 var user = JsonConvert.DeserializeObject<UserDTO>(tokenData);
 
