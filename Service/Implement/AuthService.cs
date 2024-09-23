@@ -57,7 +57,7 @@ namespace Service
                 Image = user.Avatar
             };
 
-            var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO));
+            var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO),15);
             var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
 
             UserTokenDTO userToken = new UserTokenDTO
@@ -80,7 +80,7 @@ namespace Service
 
         public async Task<TokenResponseDTO> RefreshToken(RefreshTokenDTO tokenDTO)
         {
-            var data = await _securityService.ValidateJwtToken(tokenDTO.Token);
+            var data = await _securityService.ValidateJwtAuthenToken(tokenDTO.Token);
 
             if (data == null)
             {
@@ -96,7 +96,7 @@ namespace Service
                 throw new KeyNotFoundException();
             }
 
-            var authenToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO));
+            var authenToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO), 15);
             var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
 
             user.RefreshToken = refreshToken;
@@ -231,7 +231,7 @@ namespace Service
 
         public async Task ValidateRegister(string token)
         {
-            var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+            var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
 
             var registerDTO = JsonConvert.DeserializeObject<RegisterDTO>(tokenDecrypt);
             var user = new User
@@ -252,14 +252,14 @@ namespace Service
 
         public async Task ValidateChangePass(string token)
         {
-            var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+            var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
             var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
             await _userRepository.UpdateUser(user!);
         }
 
         public async Task ValidateForgotPass(string token)
         {
-            var tokenDecrypt = await _securityService.ValidateJwtToken(token);
+            var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
             var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
             await _userRepository.UpdateUser(user!);
         }

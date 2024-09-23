@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BusinessObjects.Models;
+﻿namespace BusinessObjects.Models;
 
 public partial class Offer
 {
@@ -22,6 +19,8 @@ public partial class Offer
     public int? Status { get; set; }
 
     public int? From { get; set; }
+
+    public int? Quantity { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

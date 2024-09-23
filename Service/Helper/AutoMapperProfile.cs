@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BusinessObjects;
-using BusinessObjects.DTOs;
 using BusinessObjects.Models;
 
 namespace Service
@@ -51,11 +50,11 @@ namespace Service
               .ForPath(dest => dest.User.Image, opt => opt.MapFrom(src => src.User.Avatar))
               .ReverseMap();
             CreateMap<Feedback, FeedbackRequestDTO>().ReverseMap();
-			#endregion
-			#region campaign
-			CreateMap<Campaign, CampaignDTO>().ReverseMap();
+            #endregion
+            #region campaign
+            CreateMap<Campaign, CampaignDTO>().ReverseMap();
             CreateMap<Campaign, CampaignBrandDto>().ReverseMap();
-			#endregion
-		}
-	}
+            #endregion
+        }
+    }
 }

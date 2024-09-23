@@ -17,6 +17,8 @@ public partial class Feedback
 
     public DateTime CreatedAt { get; set; }
 
+    public DateTime? ModifiedAt { get; set; }
+
     public virtual Influencer Influencer { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

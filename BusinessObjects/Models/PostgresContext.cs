@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace BusinessObjects.Models;
 
@@ -14,7 +12,8 @@ public partial class PostgresContext : DbContext
         : base(options)
     {
     }
-// Override SaveChangesAsync
+
+    // Override SaveChangesAsync
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // Gọi hàm tùy chỉnh để cập nhật ModifiedAt trước khi lưu thay đổi
@@ -43,7 +42,7 @@ public partial class PostgresContext : DbContext
                 }
             }
         }
-    } 
+    }
     public virtual DbSet<AdminAction> AdminActions { get; set; }
 
     public virtual DbSet<BannedUser> BannedUsers { get; set; }
@@ -86,6 +85,7 @@ public partial class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        new DateTimeModelCustomizer().Customize(modelBuilder, this);
         modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
