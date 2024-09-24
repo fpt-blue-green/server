@@ -50,7 +50,6 @@ namespace AdFusionAPI.Controllers
         {
             var result = await _influencerService.GetTopYoutubeInfluencer();
             return Ok(result);
-
         }
 
         [HttpGet]
