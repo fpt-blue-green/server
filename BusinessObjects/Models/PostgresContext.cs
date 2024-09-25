@@ -51,6 +51,8 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<Campaign> Campaigns { get; set; }
 
+    public virtual DbSet<CampaignContent> CampaignContents { get; set; }
+
     public virtual DbSet<CampaignImage> CampaignImages { get; set; }
 
     public virtual DbSet<Channel> Channels { get; set; }
@@ -182,6 +184,21 @@ public partial class PostgresContext : DbContext
                         j.HasKey("CampaignId", "TagId").HasName("CampaignTags_pkey");
                         j.ToTable("CampaignTags");
                     });
+        });
+
+        modelBuilder.Entity<CampaignContent>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("CampaignContents_pkey");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignContents)
+                .HasForeignKey(d => d.CampaignId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("CampaignContents_CampaignId_fkey");
         });
 
         modelBuilder.Entity<CampaignImage>(entity =>

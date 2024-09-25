@@ -3,7 +3,7 @@ using BusinessObjects;
 using Repositories;
 using Serilog;
 
-namespace Service.Implement
+namespace Service
 {
     public class TagService : ITagService
     {

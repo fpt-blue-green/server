@@ -133,7 +133,7 @@ namespace AdFusionAPI.Controllers
         }
         [HttpGet("packages")]
         [InfluencerRequired]
-        public async Task<ActionResult<List<InfluencerDTO>>> GetInfluencerPackages()
+        public async Task<ActionResult<List<PackageDTO>>> GetInfluencerPackages()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _packageService.GetInfluPackages(user.Id);

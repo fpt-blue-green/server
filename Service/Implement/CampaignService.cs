@@ -3,10 +3,7 @@ using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
-using Repositories.Implement;
-using Repositories.Interface;
 using Serilog;
-using Supabase.Gotrue;
 
 namespace Service
 {

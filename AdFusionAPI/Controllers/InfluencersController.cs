@@ -53,7 +53,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<GetInfluencersResponseDTO>> GetExploreInfluencer([FromQuery] InfluencerFilterDTO filterDTO)
+        public async Task<ActionResult<InfluencersResponseDTO>> GetExploreInfluencer([FromQuery] InfluencerFilterDTO filterDTO)
         {
             var result = await _influencerService.GetAllInfluencers(filterDTO);
             return Ok(result);
