@@ -69,6 +69,25 @@ namespace Service.Implement
             return _mapper.Map<BrandDTO>(result);
         }
 
+        public async Task<string> UpdateBrandSocial(BrandSocialDTO brandSocialDTO, UserDTO user)
+        {
+            _loggerService.Information("Start to update brand social: ");
+            var brandDTO = await GetBrandByUserId(user.Id);
+            if (brandDTO == null)
+            {
+                throw new InvalidOperationException("Brand không tồn tại");
+            }
+            //update brand social
+            var updatedBrand = _mapper.Map<Brand>(brandDTO);
+            _mapper.Map(brandSocialDTO, updatedBrand);
+            updatedBrand.UserId = user.Id;
+            await _brandRepository.UpdateBrand(updatedBrand);
+
+            _loggerService.Information("End to upload brand social");
+
+            return "Cập nhật brand social thành công.";
+        }
+
         public async Task<string> UploadCoverImgAsync(IFormFile file, string folder, UserDTO user)
         {
             _loggerService.Information("Start to upload cover image: ");

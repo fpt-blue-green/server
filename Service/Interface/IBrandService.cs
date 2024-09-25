@@ -9,5 +9,6 @@ namespace Service.Interface
         Task<string> CreateOrUpdateBrand(BrandRequestDTO brandRequestDTO, UserDTO user);
         Task<BrandDTO> GetBrandByUserId(Guid userId);
         Task<BrandDTO> GetBrandById(Guid id);
+        Task<string> UpdateBrandSocial(BrandSocialDTO brandSocialDTO, UserDTO user);
     }
 }

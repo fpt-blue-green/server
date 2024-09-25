@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using AdFusionAPI.APIConfig;
+using AutoMapper;
 using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interface;
@@ -22,6 +23,15 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<BrandDTO>> GetBrandById(Guid id)
         {
             var result = await _brandService.GetBrandById(id);
+            return Ok(result);
+        }
+
+        [HttpPut("social")]
+        [BrandRequired]
+        public async Task<ActionResult<string>> UpdateBrandSocial([FromBody] BrandSocialDTO brandSocialDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _brandService.UpdateBrandSocial(brandSocialDTO, user);
             return Ok(result);
         }
     }
