@@ -7,6 +7,7 @@ using Repositories;
 using Serilog;
 using Service.Helper;
 using Supabase;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using static Supabase.Gotrue.Constants;
 
@@ -44,7 +45,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-            .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Instagram) && i.IsPublish == true)
+            .Where(i => i.Channels.Any(c => c.Platform == EPlatform.Instagram) && i.IsPublish == true)
             .OrderBy(s => s.RateAverage)
             .Take(10);
             if (topInflus.Any())
@@ -62,29 +63,27 @@ namespace Service
 
                 #region Filter
 
-                /*    if (filter.TagIds != null && filter.TagIds.Any())
-                    {
-                        allInfluencers = allInfluencers.Where(i =>
-                            i.InfluencerTags.Any(it => filter.TagIds.Contains(it.TagId))
-                        ).ToList();
-                    }*/
-                /*    if (filter.TagIds != null && filter.TagIds.Any())
-                    {
-                        allInfluencers = allInfluencers.Where(i =>
-                            i.InfluencerTags.Any(it => filter.TagIds.Contains(it.TagId))
-                        ).ToList();
-                    }*/
-
+                if (filter.TagIds != null && filter.TagIds.Any())
+                {
+                    allInfluencers = allInfluencers.Where(i =>
+                        i.Tags.Any(it => filter.TagIds.Contains(it.Id))
+                    );
+                }
                 if (filter.Genders != null && filter.Genders.Any())
                 {
-                    var genderValues = filter.Genders.Select(g => (int)g).ToList();
+                    var genderValues = filter.Genders.Select(g => (int)g);
                     allInfluencers = allInfluencers.Where(i =>
                         genderValues.Contains(i.Gender)
-                    ).ToList();
+                    );
                 }
-                if (filter.RateStart != null && filter.RateStart.Any())
+                if (filter.Platforms != null && filter.Platforms.Any())
                 {
-                    allInfluencers = allInfluencers.Where(i => filter.RateStart.Contains((int)i.RateAverage)).OrderByDescending(i => i.AveragePrice).ToList();
+                    allInfluencers = allInfluencers.Where(i =>
+                    i.Channels.Any(c => filter.Platforms.Contains(c.Platform)));
+                }
+                if (filter.RateStart.HasValue)
+                {
+                    allInfluencers = allInfluencers.Where(i => i.RateAverage >= filter.RateStart).OrderByDescending(i => i.AveragePrice);
                 }
 
                 if (filter.PriceFrom.HasValue && filter.PriceTo.HasValue)
@@ -92,37 +91,29 @@ namespace Service
                     allInfluencers = allInfluencers.Where(i =>
                         (!filter.PriceFrom.HasValue || i.AveragePrice >= filter.PriceFrom) &&
                         (!filter.PriceTo.HasValue || i.AveragePrice <= filter.PriceTo)
-                    ).ToList();
+                    );
                 }
                 #endregion
 
                 #region Search
-                if (!string.IsNullOrEmpty(filter.SearchString))
+                if (!string.IsNullOrEmpty(filter.Search))
                 {
                     allInfluencers = allInfluencers.Where(i =>
-                        i.FullName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
-                    // ||   i.NickName.Contains(filter.SearchString, StringComparison.OrdinalIgnoreCase)
-                    ).ToList();
+                        i.FullName.Contains(filter.Search, StringComparison.OrdinalIgnoreCase)
+                    );
                 }
                 #endregion
 
                 #region Sort
-
-                if (filter.IsSortAcsPrice.HasValue && filter.IsSortAcsPrice.Value)
+                if (!string.IsNullOrEmpty(filter.SortBy))
                 {
-                    allInfluencers = allInfluencers.OrderBy(i => i.AveragePrice).ToList();
-                }
-                else if (filter.IsSortDesPrice.HasValue && filter.IsSortDesPrice.Value)
-                {
-                    allInfluencers = allInfluencers.OrderByDescending(i => i.AveragePrice).ToList();
-                }
-                else if (filter.IsSortRate.HasValue && filter.IsSortRate.Value)
-                {
-                    allInfluencers = allInfluencers.OrderByDescending(i => i.RateAverage).ToList();
-                }
-                else
-                {
-                    allInfluencers = allInfluencers.OrderByDescending(i => i.RateAverage).OrderBy(i => i.AveragePrice).ToList();
+                    var propertyInfo = typeof(Influencer).GetProperty(filter.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (propertyInfo != null)
+                    {
+                        allInfluencers = filter.IsAscending.HasValue && filter.IsAscending.Value
+                            ? allInfluencers.OrderBy(i => propertyInfo.GetValue(i, null))
+                            : allInfluencers.OrderByDescending(i => propertyInfo.GetValue(i, null));
+                    }
                 }
                 #endregion
 
@@ -150,7 +141,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-            .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Tiktok) && i.IsPublish == true)
+            .Where(i => i.Channels.Any(c => c.Platform == EPlatform.Tiktok) && i.IsPublish == true)
             .OrderBy(s => s.RateAverage)
             .Take(10);
             if (topInflus.Any())
@@ -164,7 +155,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Youtube) && i.IsPublish == true)
+                .Where(i => i.Channels.Any(c => c.Platform == EPlatform.Youtube) && i.IsPublish == true)
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
             if (topInflus.Any())
@@ -230,7 +221,7 @@ namespace Service
         public async Task<InfluencerDTO> GetInfluencerByUserId(Guid userId)
         {
             var result = await _influencerRepository.GetByUserId(userId);
-            if (result == null || result.IsPublish == false)
+            if (result == null)
             {
                 throw new KeyNotFoundException();
             }
