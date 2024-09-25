@@ -25,14 +25,5 @@ namespace AdFusionAPI.Controllers
             var result = await _brandService.GetBrandById(id);
             return Ok(result);
         }
-
-        [HttpPut("social")]
-        [BrandRequired]
-        public async Task<ActionResult<string>> UpdateBrandSocial([FromBody] BrandSocialDTO brandSocialDTO)
-        {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _brandService.UpdateBrandSocial(brandSocialDTO, user);
-            return Ok(result);
-        }
     }
 }
