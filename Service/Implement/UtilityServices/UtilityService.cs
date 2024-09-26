@@ -1,10 +1,8 @@
 ﻿
 using BusinessObjects;
 using HtmlAgilityPack;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
-using System.Globalization;
 using System.Net;
 using System.Web;
 
@@ -72,7 +70,7 @@ namespace Service
             }
         }
 
-        public async Task<string> GetVideoInformation(int platform, string url)
+        public async Task<ChannelVideoStatDTO> GetVideoInformation(int platform, string url)
         {
             string decodedUrl = WebUtility.UrlDecode(url);
             switch ((EPlatform)platform)
@@ -115,7 +113,7 @@ namespace Service
                 result = (JObject)jsonObj["__DEFAULT_SCOPE__"]?["webapp.user-detail"]?["userInfo"]?["stats"]!;
             }
 
-            if(result == null)
+            if (result == null)
             {
                 throw new KeyNotFoundException();
             }
@@ -127,85 +125,121 @@ namespace Service
                 PostsCount = ConvertToNumber(result!["videoCount"]?.ToString() ?? "0")
             };
         }
-        public async Task<string> GetVideoTikTokInformation(string url)
+        public async Task<ChannelVideoStatDTO> GetVideoTikTokInformation(string url)
         {
             try
             {
                 _loggerService.Information("Start to get video TikTok information: " + url);
                 HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+                client.DefaultRequestHeaders.Add("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+
                 string decodedUrl = HttpUtility.UrlDecode(url);
                 if (!decodedUrl.Contains("tiktok"))
                 {
                     throw new InvalidOperationException("Đường dẫn không hợp lệ");
                 }
+
                 var response = await client.GetStringAsync(decodedUrl);
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(response);
+
                 var followerNode = htmlDoc.DocumentNode.SelectSingleNode("//script[@id='__UNIVERSAL_DATA_FOR_REHYDRATION__']");
 
-                string result = null!;
-
-                if (followerNode != null)
+                if (followerNode == null)
                 {
-                    string jsonContent = followerNode.InnerText;
-
-                    var jsonObj = JObject.Parse(jsonContent);
-
-                    result = jsonObj["__DEFAULT_SCOPE__"]?["webapp.video-detail"]?["itemInfo"]?.ToString()!;
+                    throw new KeyNotFoundException("Không tìm thấy dữ liệu TikTok.");
                 }
 
-                return result ?? throw new KeyNotFoundException();
+                string jsonContent = followerNode.InnerText;
+                var jsonObj = JObject.Parse(jsonContent);
+
+                var videoInfo = jsonObj["__DEFAULT_SCOPE__"]?["webapp.video-detail"]?["itemInfo"]?["itemStruct"];
+
+                if (videoInfo == null)
+                {
+                    throw new KeyNotFoundException("Không tìm thấy thông tin video.");
+                }
+
+                var data = new ChannelVideoStatDTO
+                {
+                    ViewsCount = ConvertToNumber(videoInfo["stats"]?["playCount"]?.ToString() ?? "0"),
+                    LikesCount = ConvertToNumber(videoInfo["stats"]?["diggCount"]?.ToString() ?? "0"),
+                    CommentCount = ConvertToNumber(videoInfo["stats"]?["commentCount"]?.ToString() ?? "0"),
+                };
+
+                return data;
             }
-            catch
+            catch (Exception ex)
             {
-                throw new KeyNotFoundException();
+                _loggerService.Error(ex, "Failed to get video TikTok information");
+                throw new KeyNotFoundException("Không tìm thấy thông tin video.");
             }
         }
+
         #endregion
 
         #region Instagram
-        public async Task<string> GetVideoInstagramInformation(string url)
+        public async Task<ChannelVideoStatDTO> GetVideoInstagramInformation(string url)
         {
             try
             {
                 _loggerService.Information("Start to get video Instagram information: " + url);
                 HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+                client.DefaultRequestHeaders.Add("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
 
                 string decodedUrl = HttpUtility.UrlDecode(url);
                 if (!decodedUrl.Contains("instagram"))
                 {
                     throw new InvalidOperationException("Đường dẫn không hợp lệ");
                 }
+
                 var response = await client.GetStringAsync(decodedUrl);
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(response);
-                var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
 
-                string result = null!;
+                string? viewCount = null;
+                string? likeCount = null;
+                string? commentCount = null;
 
-                if (followersNode != null)
+                // Lấy số lượt xem từ thẻ meta
+                var viewCountNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@property='og:video:view_count']");
+                if (viewCountNode != null)
                 {
-                    string content = followersNode.GetAttributeValue("content", "");
-                    string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                    var data = new
-                    {
-                        likeCount = ConvertToNumber(parts[0]),
-                        commentCount = ConvertToNumber(parts[2]),
-                        actor = parts[5],
-                        date = parts[7] + " " + parts[8] + " " + parts[9],
-                    };
-                    result = JsonConvert.SerializeObject(data)!;
+                    viewCount = viewCountNode.GetAttributeValue("content", "0");
                 }
 
-                return result ?? throw new KeyNotFoundException();
+                // Lấy số lượt thích và bình luận từ thẻ description
+                var descriptionNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+                if (descriptionNode != null)
+                {
+                    string content = descriptionNode.GetAttributeValue("content", "");
+                    string[] parts = content.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (parts.Length >= 9)
+                    {
+                        likeCount = ConvertToNumber(parts[0]).ToString();
+                        commentCount = ConvertToNumber(parts[2]).ToString();
+                    }
+                }
+
+                var data = new ChannelVideoStatDTO
+                {
+                    ViewsCount = ConvertToNumber(viewCount ?? "0"),
+                    LikesCount = ConvertToNumber(likeCount ?? "0"),
+                    CommentCount = ConvertToNumber(commentCount ?? "0")
+                };
+
+                return data;
             }
-            catch
+            catch (Exception ex)
             {
-                throw new KeyNotFoundException();
+                _loggerService.Error(ex, "Failed to get video Instagram information");
+                throw new KeyNotFoundException("Không tìm thấy thông tin video.");
             }
         }
+
         public async Task<ChannelStatDTO> GetInstagramInformation(string url)
         {
             _loggerService.Information("Start to get Instagram Account information: " + url);
@@ -220,8 +254,7 @@ namespace Service
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(response);
             var followersNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
-           
-            string result = null!;
+
 
             if (followersNode != null)
             {
@@ -231,7 +264,7 @@ namespace Service
                 {
                     FollowersCount = ConvertToNumber(parts[0]),
                     LikesCount = ConvertToNumber(parts[2]),
-                    PostsCount = ConvertToNumber(parts[4])              
+                    PostsCount = ConvertToNumber(parts[4])
                 };
                 return data ?? throw new KeyNotFoundException();
             }
@@ -244,7 +277,7 @@ namespace Service
         {
             try
             {
-                 _loggerService.Information("Start to get video Youtube information: " + channelName);
+                _loggerService.Information("Start to get video Youtube information: " + channelName);
                 var channelId = string.Empty;
 
                 // Lấy API Key từ hệ thống cài đặt
@@ -292,12 +325,11 @@ namespace Service
             }
         }
 
-
-        public async Task<string> GetYoutubeVideoInformation(string videoUrl)
+        public async Task<ChannelVideoStatDTO> GetYoutubeVideoInformation(string videoUrl)
         {
             try
             {
-                 _loggerService.Information("Start to get video Youtube Video information: " + videoUrl);
+                _loggerService.Information("Start to get video Youtube Video information: " + videoUrl);
                 var apiKey = await _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey);
                 string videoId = videoUrl.Substring(videoUrl.IndexOf("v=") + 2).Split('&')[0];
 
@@ -309,22 +341,20 @@ namespace Service
                     var json = JObject.Parse(response);
 
                     // Check if items are present and have values
-                    if (json["items"] != null && json["items"].HasValues)
+                    if (json["items"] != null && json["items"]!.HasValues)
                     {
                         // Check if the video is live
-                        var item = json["items"][0];
-                        var liveBroadcastContent = item["snippet"]?["liveBroadcastContent"]?.ToString();
+                        var item = json["items"]![0];
+                        var liveBroadcastContent = item!["snippet"]?["liveBroadcastContent"]?.ToString();
 
-                        if (liveBroadcastContent == "live")
+                        var statistics = item["statistics"];
+                        var data = new ChannelVideoStatDTO
                         {
-                            // For livestream, you might want to check additional stats or info
-                            return $"Live stream statistics: {item["statistics"]?.ToString()!}";
-                        }
-                        else
-                        {
-                            // For regular videos
-                            return $"Video statistics: {item["statistics"]?.ToString()!}";
-                        }
+                            ViewsCount = ConvertToNumber(statistics?["viewCount"]?.ToString() ?? "0"),
+                            LikesCount = ConvertToNumber(statistics?["likeCount"]?.ToString() ?? "0"),
+                            CommentCount = ConvertToNumber(statistics?["commentCount"]?.ToString() ?? "0")
+                        };
+                        return data;
                     }
                     else
                     {
@@ -334,11 +364,9 @@ namespace Service
             }
             catch (Exception ex)
             {
-                // Log or handle specific exception details
                 throw new Exception("An error occurred while retrieving YouTube video information.", ex);
             }
         }
-
         #endregion
 
         public static int ConvertToNumber(string input)

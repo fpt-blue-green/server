@@ -25,7 +25,7 @@ namespace Repositories
 			using (var context = new PostgresContext())
 			{
 				var influencer = await context.Influencers.FirstOrDefaultAsync(i => i.Id == id);
-				return influencer;
+				return influencer!;
 			}
 		}
 
@@ -67,7 +67,7 @@ namespace Repositories
 							.Where(f => f.Id == id)
 							.Include(i => i.Feedbacks) 
 							.FirstOrDefaultAsync();
-                return inflencer;
+                return inflencer!;
             }
         }
 
@@ -105,7 +105,7 @@ namespace Repositories
 			using (var context = new PostgresContext())
 			{
 				var influencer = await context.Influencers.FirstOrDefaultAsync(i => i.Id == id);
-				context.Influencers.Remove(influencer);
+				context.Influencers.Remove(influencer!);
 				await context.SaveChangesAsync();
 			}
 		}

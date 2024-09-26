@@ -1,6 +1,7 @@
 ﻿
 namespace BusinessObjects
 {
+    #region ChannelDTO
     public class ChannelDTO
     {
         public Guid Id { get; set; }
@@ -30,5 +31,13 @@ namespace BusinessObjects
     {
         public EPlatform Platform { get; set; }
         public string? UserName { get; set; }
+    }
+    #endregion
+
+    public class ChannelVideoStatDTO
+    {
+        public int? ViewsCount { get; set; }
+        public int? LikesCount { get; set; }
+        public int? CommentCount { get; set; }
     }
 }
