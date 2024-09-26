@@ -31,6 +31,8 @@ public partial class Campaign
 
     public virtual Brand Brand { get; set; } = null!;
 
+    public virtual ICollection<CampaignContent> CampaignContents { get; set; } = new List<CampaignContent>();
+
     public virtual ICollection<CampaignImage> CampaignImages { get; set; } = new List<CampaignImage>();
 
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();

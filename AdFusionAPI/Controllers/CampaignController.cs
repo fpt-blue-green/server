@@ -10,12 +10,15 @@ namespace AdFusionAPI.Controllers
 	public class CampaignController : Controller
 	{
 		private readonly ICampaignService _campaignService;
+		private readonly ICampaignContentService _campaignContentService;
 
-		public CampaignController(ICampaignService campaignService)
+
+		public CampaignController(ICampaignService campaignService, ICampaignContentService campaignContentService)
 		{
 			_campaignService = campaignService;
+			_campaignContentService = campaignContentService;
 		}
-		
+
 
 		[HttpGet("{id}")]
 		[AuthRequired]
@@ -58,5 +61,36 @@ namespace AdFusionAPI.Controllers
 			var result = await _campaignService.UpdateTagsForCampaign(campaignId, listTags);
 			return Ok(result);
 		}
+
+		#region content
+		[HttpPost("contents")]
+		[AuthRequired]
+		public async Task<ActionResult<string>> CreateCampaignContents([FromBody] List<CampaignContentDto> contents, Guid campaignId)
+		{
+			var result = await _campaignContentService.CreateCampaignContents( campaignId, contents);
+			return Ok(result);
+		}
+		[HttpPut("contents/{contentId}")]
+		[AuthRequired]
+		public async Task<ActionResult<string>> UpdateCampaignContent([FromBody] CampaignContentResDto content, Guid contentId,Guid campaignId)
+		{
+			var result = await _campaignContentService.UpdateCampaignContent(campaignId, contentId, content);
+			return Ok(result);
+		}
+		[HttpGet("contents")]
+		[AuthRequired]
+		public async Task<ActionResult<List<InfluencerDTO>>> GetCampaignContents(Guid campaignId)
+		{
+			var result = await _campaignContentService.GetCampaignContents(campaignId);
+			return Ok(result);
+		}
+		[HttpGet("contents/{contentId}")]
+		[AuthRequired]
+		public async Task<ActionResult<PackageDTO>> GetCampaignContent(Guid contentId)
+		{
+			var result = await _campaignContentService.GetCampaignContent(contentId);
+			return Ok(result);
+		}
+		#endregion
 	}
 }

@@ -3,13 +3,11 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Repositories.Implement;
-using Repositories.Interface;
+using Repositories;
 using Serilog;
 using Service.Helper;
-using Service.Interface;
 
-namespace Service.Implement
+namespace Service
 {
     public class BrandService : IBrandService
     {

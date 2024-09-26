@@ -1,8 +1,7 @@
 ﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Interface;
 
-namespace Repositories.Implement
+namespace Repositories
 {
     public class BrandRepository : IBrandRepository
     {

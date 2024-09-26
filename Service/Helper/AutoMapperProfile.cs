@@ -56,6 +56,8 @@ namespace Service
             CreateMap<Campaign, CampaignDTO>().ReverseMap();
             CreateMap<Campaign, CampaignBrandDto>().ReverseMap();
             #endregion
+            CreateMap<CampaignContentDto, CampaignContent>().ReverseMap();
+            CreateMap<CampaignContent, CampaignContentResDto>().ReverseMap();
         }
     }
 }

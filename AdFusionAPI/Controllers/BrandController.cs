@@ -2,7 +2,7 @@
 using AutoMapper;
 using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
-using Service.Interface;
+using Service;
 
 namespace AdFusionAPI.Controllers
 {

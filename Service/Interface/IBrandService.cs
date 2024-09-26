@@ -1,7 +1,7 @@
 ﻿using BusinessObjects;
 using Microsoft.AspNetCore.Http;
 
-namespace Service.Interface
+namespace Service
 {
     public interface IBrandService
     {
