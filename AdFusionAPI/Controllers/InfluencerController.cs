@@ -93,7 +93,7 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _influencerService.UploadContentImages(imageIds, images, user, "Images");
+            var result = await _influencerService.UploadContentImages(imageIds, images, user, "InfluencerImages");
             return Ok(result);
         }
 
