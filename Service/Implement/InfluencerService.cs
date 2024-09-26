@@ -84,7 +84,7 @@ namespace Service
                 }
                 if (filter.RateStart != null && filter.RateStart.Any())
                 {
-                    allInfluencers = allInfluencers.Where(i => filter.RateStart.Contains((int)i.RateAverage)).OrderByDescending(i => i.AveragePrice).ToList();
+                    allInfluencers = allInfluencers.Where(i => filter.RateStart.Contains((int)i.RateAverage!)).OrderByDescending(i => i.AveragePrice).ToList();
                 }
 
                 if (filter.PriceFrom.HasValue && filter.PriceTo.HasValue)
@@ -142,7 +142,7 @@ namespace Service
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Có lỗi xảy ra!");
+                throw new InvalidOperationException("Có lỗi xảy ra!", ex);
             }
         }
 

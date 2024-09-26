@@ -51,13 +51,13 @@ public class LoggerService
         if (_consoleLogger != null)
         {
             Log.CloseAndFlush();
-            _consoleLogger = null;
+            _consoleLogger = null!;
         }
 
         if (_Logger != null)
         {
             Log.CloseAndFlush();
-            _Logger = null;
+            _Logger = null!;
         }
     }
 }

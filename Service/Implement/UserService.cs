@@ -15,9 +15,8 @@ namespace Service
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
-        private readonly ConfigManager _config;
 
-        public UserService(IMapper mapper, IConfiguration config)
+        public UserService(IMapper mapper)
         {
             _mapper = mapper;
         }

@@ -85,7 +85,6 @@ namespace Service
             return result;
         }
 
-
         public async Task<Channel> GetChannelStatData(Channel channel, EPlatform ePlatform, string id)
         {
             // Gọi phương thức để lấy dữ liệu hồ sơ kênh từ repository
