@@ -24,8 +24,7 @@ namespace AdFusionAPI.Controllers
 		[AuthRequired]
 		public async Task<ActionResult<CampaignDTO>> GetBrandCampaign(Guid id)
 		{
-			var user = (UserDTO)HttpContext.Items["user"]!;
-			var result = await _campaignService.GetBrandCampaign(user.Id, id);
+			var result = await _campaignService.GetBrandCampaignByCampaignId(id);
 			return Ok(result);
 		}
 
@@ -62,8 +61,17 @@ namespace AdFusionAPI.Controllers
 			return Ok(result);
 		}
 
-		#region content
-		[HttpPost("contents")]
+        [HttpPost("images")]
+        [AuthRequired]
+        public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _campaignService.UploadCampaignImages(imageIds, images, user, "CampaignImages");
+            return Ok(result);
+        }
+
+        #region content
+        [HttpPost("contents")]
 		[AuthRequired]
 		public async Task<ActionResult<string>> CreateCampaignContents([FromBody] List<CampaignContentDto> contents, Guid campaignId)
 		{

@@ -344,7 +344,7 @@ namespace Service
             foreach (var unMatchingImage in unMatchingImages)
             {
                 var imagePath = CloudinaryHelper.GetValueAfterLastSlash(unMatchingImage.Url);
-                var link = $"Images/{imagePath}";
+                var link = $"InfluencerImages/{imagePath}";
 
                 // Xóa ảnh trên cloudinary
                 var deletionParams = new DeletionParams(link);
