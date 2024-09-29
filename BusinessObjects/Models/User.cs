@@ -43,6 +43,8 @@ public partial class User
 
     public virtual Influencer? Influencer { get; set; }
 
+    public virtual ICollection<InfluencerReport> InfluencerReports { get; set; } = new List<InfluencerReport>();
+
     public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
 
     public virtual ICollection<UserDevice> UserDevices { get; set; } = new List<UserDevice>();

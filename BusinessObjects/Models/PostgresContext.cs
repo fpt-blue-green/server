@@ -44,8 +44,7 @@ public partial class PostgresContext : DbContext
                 }
             }
         }
-    }
-    public virtual DbSet<AdminAction> AdminActions { get; set; }
+    }    public virtual DbSet<AdminAction> AdminActions { get; set; }
 
     public virtual DbSet<BannedUser> BannedUsers { get; set; }
 
@@ -64,6 +63,8 @@ public partial class PostgresContext : DbContext
     public virtual DbSet<Influencer> Influencers { get; set; }
 
     public virtual DbSet<InfluencerImage> InfluencerImages { get; set; }
+
+    public virtual DbSet<InfluencerReport> InfluencerReports { get; set; }
 
     public virtual DbSet<Job> Jobs { get; set; }
 
@@ -91,9 +92,8 @@ public partial class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        new DateTimeModelCustomizer().Customize(modelBuilder, this);
-        modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
-        modelBuilder
+  new DateTimeModelCustomizer().Customize(modelBuilder, this);
+        modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);        modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
             .HasPostgresEnum("auth", "factor_status", new[] { "unverified", "verified" })
@@ -294,6 +294,24 @@ public partial class PostgresContext : DbContext
                 .HasForeignKey(d => d.InfluencerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("images_influencerid_fkey");
+        });
+
+        modelBuilder.Entity<InfluencerReport>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("influencerreports_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Reason).HasDefaultValueSql("0");
+            entity.Property(e => e.ReportStatus).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.Influencer).WithMany(p => p.InfluencerReports)
+                .HasForeignKey(d => d.InfluencerId)
+                .HasConstraintName("InfluencerReports_InfluencerId_fkey");
+
+            entity.HasOne(d => d.Reporter).WithMany(p => p.InfluencerReports)
+                .HasForeignKey(d => d.ReporterId)
+                .HasConstraintName("InfluencerReports_ReporterId_fkey");
         });
 
         modelBuilder.Entity<Job>(entity =>

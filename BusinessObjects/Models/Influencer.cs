@@ -39,6 +39,8 @@ public partial class Influencer
 
     public virtual ICollection<InfluencerImage> InfluencerImages { get; set; } = new List<InfluencerImage>();
 
+    public virtual ICollection<InfluencerReport> InfluencerReports { get; set; } = new List<InfluencerReport>();
+
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
 
     public virtual ICollection<Package> Packages { get; set; } = new List<Package>();
