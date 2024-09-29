@@ -23,7 +23,7 @@ public partial class Channel
 
     public DateTime? ModifiedAt { get; set; }
 
-    public EPlatform Platform { get; set; }
+    public int Platform { get; set; }
 
     public virtual Influencer Influencer { get; set; } = null!;
 }
