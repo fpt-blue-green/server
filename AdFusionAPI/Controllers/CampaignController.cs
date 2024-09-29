@@ -22,9 +22,9 @@ namespace AdFusionAPI.Controllers
 
 		[HttpGet("{id}")]
 		[AuthRequired]
-		public async Task<ActionResult<CampaignDTO>> GetBrandCampaign(Guid id)
+		public async Task<ActionResult<CampaignDTO>> GetCampaign(Guid id)
 		{
-			var result = await _campaignService.GetBrandCampaignByCampaignId(id);
+			var result = await _campaignService.GetCampaign(id);
 			return Ok(result);
 		}
 
@@ -63,10 +63,9 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("images")]
         [AuthRequired]
-        public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images)
+        public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images,Guid campaginId)
         {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _campaignService.UploadCampaignImages(imageIds, images, user, "CampaignImages");
+            var result = await _campaignService.UploadCampaignImages(campaginId, imageIds, images, "CampaignImages");
             return Ok(result);
         }
 
@@ -78,13 +77,13 @@ namespace AdFusionAPI.Controllers
 			var result = await _campaignContentService.CreateCampaignContents( campaignId, contents);
 			return Ok(result);
 		}
-		[HttpPut("contents/{contentId}")]
+		/*[HttpPut("contents/{contentId}")]
 		[AuthRequired]
 		public async Task<ActionResult<string>> UpdateCampaignContent([FromBody] CampaignContentResDto content, Guid contentId,Guid campaignId)
 		{
 			var result = await _campaignContentService.UpdateCampaignContent(campaignId, contentId, content);
 			return Ok(result);
-		}
+		}*/
 		[HttpGet("contents")]
 		[AuthRequired]
 		public async Task<ActionResult<List<InfluencerDTO>>> GetCampaignContents(Guid campaignId)
@@ -92,13 +91,13 @@ namespace AdFusionAPI.Controllers
 			var result = await _campaignContentService.GetCampaignContents(campaignId);
 			return Ok(result);
 		}
-		[HttpGet("contents/{contentId}")]
+		/*[HttpGet("contents/{contentId}")]
 		[AuthRequired]
 		public async Task<ActionResult<PackageDTO>> GetCampaignContent(Guid contentId)
 		{
 			var result = await _campaignContentService.GetCampaignContent(contentId);
 			return Ok(result);
-		}
+		}*/
 		#endregion
 	}
 }

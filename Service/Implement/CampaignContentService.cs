@@ -166,7 +166,7 @@ namespace Service
 			return result;
 		}
 
-		public async Task<string> UpdateCampaignContent(Guid campaignId, Guid campaignContentId, CampaignContentResDto campaignContentDto)
+		/*public async Task<string> UpdateCampaignContent(Guid campaignId, Guid campaignContentId, CampaignContentResDto campaignContentDto)
 		{
 			var content = await _campaignContentRepository.GetById(campaignContentId);
 			var campaign = await _campaignRepository.GetById(campaignId);
@@ -194,6 +194,6 @@ namespace Service
 				throw new InvalidOperationException("Không thể cập nhật.");
 			}
 			return "Cập nhật thành công";
-		}
+		}*/
 	}
 }

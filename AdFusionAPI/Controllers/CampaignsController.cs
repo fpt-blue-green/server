@@ -16,19 +16,12 @@ namespace AdFusionAPI.Controllers
 			_campaignService = campaignService;
 		}
 		[HttpGet()]
-		public async Task<ActionResult<List<CampaignBrandDto>>> GetCampaigns()
+		public async Task<ActionResult<List<CampaignBrandDto>>> GetCampaignsInprogres()
 		{
-			var result = await _campaignService.GetAllCampaigns();
+			var result = await _campaignService.GetCampaignsInprogres();
 			return Ok(result);
 		}
-		[HttpGet("brand")]
-		[AuthRequired]
-		public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns()
-		{
-			var user = (UserDTO)HttpContext.Items["user"]!;
-			var result = await _campaignService.GetBrandCampaigns(user.Id);
-			return Ok(result);
-		}
+		
 
 	}
 }
