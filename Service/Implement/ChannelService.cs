@@ -92,7 +92,7 @@ namespace Service
 
             // Cập nhật thuộc tính của đối tượng channel
             channel.UserName = id;
-            channel.Platform = ePlatform;
+            channel.Platform = (int)ePlatform;
             _mapper.Map(data, channel);
 
             return channel;
