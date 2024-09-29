@@ -45,13 +45,13 @@ namespace AdFusionAPI.Controllers
 			var result = await _campaignService.UpdateCampaign(user.Id, campaign);
 			return Ok(result);
 		}
-		[HttpGet("tags")]
+		/*[HttpGet("tags")]
 		[AuthRequired]
 		public async Task<ActionResult<List<TagDTO>>> GetTagsOfCampaign( Guid campaignId)
 		{
 			var result = await _campaignService.GetTagsOfCampaign(campaignId);
 			return Ok(result);
-		}
+		}*/
 
 		[HttpPost("tags")]
 		[AuthRequired]

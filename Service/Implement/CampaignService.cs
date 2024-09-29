@@ -95,7 +95,7 @@ namespace Service
 			}
 			return result;
 		}
-		public async Task<List<TagDTO>> GetTagsOfCampaign(Guid campaignId)
+		/*public async Task<List<TagDTO>> GetTagsOfCampaign(Guid campaignId)
 		{
 			var listTagsRes = new List<TagDTO>();
 			var campaign = await _campaignRepository.GetById(campaignId);
@@ -109,7 +109,7 @@ namespace Service
 				}
 			}
 			return listTagsRes;
-		}
+		}*/
 		public async Task<string> UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds)
 		{
 			var duplicateTagIds = tagIds.GroupBy(t => t)
