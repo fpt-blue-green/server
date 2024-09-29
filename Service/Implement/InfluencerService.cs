@@ -45,7 +45,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-            .Where(i => i.Channels.Any(c => c.Platform == EPlatform.Instagram) && i.IsPublish == true)
+            .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Instagram) && i.IsPublish == true)
             .OrderBy(s => s.RateAverage)
             .Take(10);
             if (topInflus.Any())
@@ -79,7 +79,7 @@ namespace Service
                 if (filter.Platforms != null && filter.Platforms.Any())
                 {
                     allInfluencers = allInfluencers.Where(i =>
-                    i.Channels.Any(c => filter.Platforms.Contains(c.Platform)));
+                    i.Channels.Any(c => filter.Platforms.Contains((EPlatform)c.Platform)));
                 }
                 if (filter.RateStart.HasValue)
                 {
@@ -141,7 +141,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-            .Where(i => i.Channels.Any(c => c.Platform == EPlatform.Tiktok) && i.IsPublish == true)
+            .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Tiktok) && i.IsPublish == true)
             .OrderBy(s => s.RateAverage)
             .Take(10);
             if (topInflus.Any())
@@ -155,7 +155,7 @@ namespace Service
         {
             var result = new List<InfluencerDTO>();
             var topInflus = (await _influencerRepository.GetAlls())
-                .Where(i => i.Channels.Any(c => c.Platform == EPlatform.Youtube) && i.IsPublish == true)
+                .Where(i => i.Channels.Any(c => c.Platform == (int)EPlatform.Youtube) && i.IsPublish == true)
                 .OrderBy(s => s.RateAverage)
                 .Take(10);
             if (topInflus.Any())

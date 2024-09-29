@@ -22,7 +22,7 @@ namespace Repositories
             using (var context = new PostgresContext())
             {
                 var channels = await context.Channels
-                    .Where(c => c.InfluencerId == influencerId && c.Platform == platform)
+                    .Where(c => c.InfluencerId == influencerId && c.Platform == (int)platform)
                     .ToListAsync();
                 return channels;
             }
