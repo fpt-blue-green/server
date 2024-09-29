@@ -1,4 +1,7 @@
-﻿namespace BusinessObjects.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace BusinessObjects.Models;
 
 public partial class Offer
 {
@@ -20,9 +23,9 @@ public partial class Offer
 
     public int? From { get; set; }
 
-    public int? Quantity { get; set; }
-
     public DateTime CreatedAt { get; set; }
+
+    public int? Quantity { get; set; }
 
     public virtual Job Job { get; set; } = null!;
 }
