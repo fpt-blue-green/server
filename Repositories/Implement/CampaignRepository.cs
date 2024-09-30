@@ -52,11 +52,11 @@ namespace Repositories
 			}
 		}
 
-		public async Task<Campaign> GetByBrandId(Guid id)
+		public async Task<List<Campaign>> GetByBrandId(Guid id)
 		{
 			using (var context = new PostgresContext())
 			{
-				var campaigns = await context.Campaigns.FirstOrDefaultAsync(s => s.BrandId == id);
+				var campaigns = await context.Campaigns.Where(s => s.BrandId == id).ToListAsync();
 				return campaigns;
 			}
 		}
