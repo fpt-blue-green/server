@@ -13,14 +13,16 @@ namespace AdFusionAPI.Controllers
         private readonly IInfluencerService _influencerService;
         private readonly IChannelService _channelService;
         private readonly IFeedBackService _feedBackService;
+        private readonly IReportService _reportService;
         private readonly IMapper _mapper;
 
-        public InfluencersController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper, IFeedBackService feedBackService)
+        public InfluencersController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper, IFeedBackService feedBackService, IReportService reportService)
         {
             _influencerService = influencerService;
             _channelService = channelService;
             _mapper = mapper;
             _feedBackService = feedBackService;
+            _reportService = reportService;
         }
 
         #region search/filter Influencer
@@ -65,6 +67,18 @@ namespace AdFusionAPI.Controllers
         {
             var result = await _influencerService.GetInfluencerBySlug(slug);
             return Ok(result);
+        }
+        #endregion
+
+        #region Report
+        [HttpPost("{id}/reports")]
+        [AuthRequired]
+
+        public async Task<ActionResult<IEnumerable<FeedbackDTO>>> CreateReport(Guid id, ReportRequestDTO reportRequestDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _reportService.CreateInfluencerReport(id, reportRequestDTO, user);
+            return Ok();
         }
         #endregion
 
