@@ -3,7 +3,10 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Newtonsoft.Json;
 using Repositories;
+using Repositories.Implement;
+using Repositories.Interface;
 using Serilog;
+using UAParser;
 using static BusinessObjects.AuthEnumContainer;
 
 namespace Service
@@ -11,6 +14,7 @@ namespace Service
     public class AuthService : IAuthService
     {
         private static IUserRepository _userRepository = new UserRepository();
+        private static IUserDeviceRepository _userDeviceRepository = new UserDeviceRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static IEmailService _emailService = new EmailService();
@@ -22,7 +26,7 @@ namespace Service
             _mapper = mapper;
         }
 
-        public async Task<UserTokenDTO> Login(LoginDTO loginDTO)
+        public async Task<UserTokenDTO> Login(LoginDTO loginDTO, string userAgent)
         {
             loginDTO.Password = _securityService.ComputeSha256Hash(loginDTO.Password);
 
@@ -48,6 +52,7 @@ namespace Service
                     await _userRepository.UpdateUser(user);
                 }
             }
+
             UserDTO userDTO = new UserDTO
             {
                 Id = user.Id,
@@ -57,8 +62,43 @@ namespace Service
                 Image = user.Avatar
             };
 
-            var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO),15);
-            var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
+            var accessToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO), 15);
+
+            var userAgentConverted = GetBrowserInfo(userAgent);
+
+            var refreshToken = string.Empty;
+            var userDevice = user.UserDevices.FirstOrDefault(u => u.DeviceOperatingSystem == userAgentConverted.DeviceOperatingSystem
+                                                            && u.BrowserName == userAgentConverted.BrowserName
+                                                            && u.DeviceType == userAgentConverted.DeviceType);
+
+            if (userDevice == null)
+            {
+                refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
+                var newUserDevice = new UserDevice
+                {
+                    UserId = user.Id,
+                    RefreshToken = refreshToken,
+                    DeviceOperatingSystem = userAgentConverted.DeviceOperatingSystem,
+                    BrowserName = userAgentConverted.BrowserName,
+                    DeviceType = userAgentConverted.DeviceType,
+                    RefreshTokenTime = DateTime.Now,
+                };
+                await _userDeviceRepository.Create(newUserDevice);
+            }
+            else
+            {
+                refreshToken = userDevice.RefreshToken;
+
+                if (string.IsNullOrEmpty(refreshToken) || await _securityService.ValidateJwtAuthenToken(refreshToken!) == null)
+                {
+                    refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
+                    userDevice.RefreshToken = refreshToken;
+                    userDevice.RefreshTokenTime = DateTime.Now;
+                }
+
+                userDevice.LastLoginTime = DateTime.Now;
+                await _userDeviceRepository.Update(userDevice);
+            }
 
             UserTokenDTO userToken = new UserTokenDTO
             {
@@ -71,16 +111,37 @@ namespace Service
                 RefreshToken = refreshToken,
             };
 
-            user.RefreshToken = refreshToken;
-            await _userRepository.UpdateUser(user);
-
             _loggerService.Information($"Login: User with email {loginDTO.Email} login sucessfully.");
             return userToken;
         }
 
-        public async Task<TokenResponseDTO> RefreshToken(RefreshTokenDTO tokenDTO)
+        protected BrowserInfo GetBrowserInfo(string userAgent)
         {
-            var data = await _securityService.ValidateJwtAuthenToken(tokenDTO.Token);
+            if (userAgent == null)
+            {
+                throw new Exception("User-Agent is null");
+            }
+
+            var parser = Parser.GetDefault();
+            var ua = parser.Parse(userAgent);
+
+            // Xác định loại thiết bị
+            var deviceType = ua.UA.Family.ToLower().Contains("mobile") ? "Mobile" : "Desktop";
+
+            // Lấy thông tin hệ điều hành
+            var operatingSystem = $"{ua.OS.Family}";
+
+            return new BrowserInfo
+            {
+                BrowserName = ua.UA.Family.Replace("Mobile", "").Trim(), // Tên trình duyệt
+                DeviceType = deviceType, // Loại thiết bị
+                DeviceOperatingSystem = operatingSystem // Hệ điều hành
+            };
+        }
+
+        public async Task<TokenResponseDTO> RefreshToken(RefreshTokenDTO tokenDTO, string userAgent)
+        {
+            var data = await _securityService.DecryptJWTAccessToken(tokenDTO.RefreshToken);
 
             if (data == null)
             {
@@ -89,18 +150,25 @@ namespace Service
 
             var userDTO = JsonConvert.DeserializeObject<UserDTO>(data);
 
-            var user = await _userRepository.GetUserByRefreshToken(tokenDTO.Token!);
+            var userAgentConverted = GetBrowserInfo(userAgent);
+            var userDevice = await _userDeviceRepository.GetUserDeviceByAgentAndUserID(userAgentConverted, userDTO!.Id);
 
-            if (user == null)
+            if (userDevice == null)
             {
                 throw new KeyNotFoundException();
+            }
+
+            if (userDevice.RefreshTokenTime != null && userDevice.RefreshTokenTime!.Value.AddDays(30) < DateTime.Now)
+            {
+                throw new UnauthorizedAccessException();
             }
 
             var authenToken = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO), 15);
             var refreshToken = await _securityService.GenerateRefreshToken(JsonConvert.SerializeObject(userDTO));
 
-            user.RefreshToken = refreshToken;
-            await _userRepository.UpdateUser(user);
+            userDevice.RefreshToken = refreshToken;
+            userDevice.RefreshTokenTime = DateTime.Now;
+            await _userDeviceRepository.Update(userDevice);
 
             var tokenResponse = new TokenResponseDTO
             {
@@ -108,23 +176,24 @@ namespace Service
                 RefreshToken = refreshToken
             };
 
-            _loggerService.Information($"RefreshToken: User with email {user.Email} refresh token sucessfully.");
+            _loggerService.Information($"RefreshToken: User with email {userDTO?.Email} refresh token sucessfully.");
             return tokenResponse;
         }
 
-        public async Task Logout(string token)
+        public async Task Logout(string userAgent, string refreshToken)
         {
-            var user = await _userRepository.GetUserByRefreshToken(token);
+            var userAgentConverted = GetBrowserInfo(userAgent);
+            var userDevice = await _userDeviceRepository.GetUserDeviceByAgentAndToken(userAgentConverted, refreshToken);
 
-            if (user == null)
+            if (userDevice == null)
             {
-                _loggerService.Warning($"Logout:  Refresh token Failed {token}.");
+                _loggerService.Warning($"Logout:  Refresh token Failed {refreshToken}.");
                 return;
             }
 
-            user.RefreshToken = null;
+            userDevice.RefreshToken = null;
 
-            await _userRepository.UpdateUser(user);
+            await _userDeviceRepository.Update(userDevice);
         }
 
         public async Task<string> Register(RegisterDTO registerDTO)

@@ -4,6 +4,8 @@ using BusinessObjects.Models;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Repositories;
+using Repositories.Implement;
+using Repositories.Interface;
 using Serilog;
 using Service.Helper;
 using Supabase;
@@ -17,6 +19,7 @@ namespace Service
     {
         private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
         private static readonly IInfluencerImageRepository _influencerImagesRepository = new InfluencerImageRepository();
+        private static IUserDeviceRepository _userDeviceRepository = new UserDeviceRepository();
         //private static readonly ITagRepository _tagRepository = new TagRepository();
 
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
@@ -418,6 +421,17 @@ namespace Service
                 throw new InvalidOperationException("Mã xác thực không hợp lệ hoặc đã hết hạn.");
             }
             return true;
+        }
+
+        public async Task<IEnumerable<UserDeviceDTO>> GetInfluencerLoginHistory(UserDTO user)
+        {
+            var userDevices = await _userDeviceRepository.GetByUserId(user.Id);
+            if(userDevices == null)
+            {
+                throw new KeyNotFoundException();
+            }
+            var result = _mapper.Map<IEnumerable<UserDeviceDTO>>(userDevices);
+            return result;
         }
     }
 }

@@ -70,7 +70,41 @@ namespace Service
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
                 return principal.Identity?.Name!;
-            }catch (Exception ex)
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                // Token đã hết hạn, trả về null
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                throw new UnauthorizedAccessException(ex.ToString());
+            }
+        }
+
+        public async Task<string> DecryptJWTAccessToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtSetting = await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
+                var key = Encoding.ASCII.GetBytes(jwtSetting.KeyValue!);
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false, // Bỏ qua kiểm tra Issuer
+                    ValidateAudience = false, // Bỏ qua kiểm tra Audience
+                    ValidateLifetime = false, // Bỏ qua kiểm tra thời gian sống của token
+                    ValidateIssuerSigningKey = true, // Kiểm tra chữ ký của token
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+                return principal.Identity?.Name!;
+            }
+            catch (Exception ex)
             {
                 throw new UnauthorizedAccessException(ex.ToString());
             }

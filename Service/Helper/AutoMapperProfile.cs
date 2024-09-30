@@ -58,6 +58,9 @@ namespace Service
             #endregion
             CreateMap<CampaignContentDto, CampaignContent>().ReverseMap();
             CreateMap<CampaignContent, CampaignContentResDto>().ReverseMap();
+            #region userDevice
+            CreateMap<UserDevice, UserDeviceDTO>().ReverseMap();
+            #endregion
         }
     }
 }

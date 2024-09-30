@@ -1,6 +1,7 @@
 ﻿using AdFusionAPI.APIConfig;
 using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -148,6 +149,16 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
         #endregion
+
+        [HttpGet("loginHistory")]
+        [InfluencerRequired]
+        public async Task<ActionResult<IEnumerable<UserDeviceDTO>>> GetInfluencerLoginHistory()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _influencerService.GetInfluencerLoginHistory(user);
+            return Ok(result);
+
+        }
 
     }
 }
