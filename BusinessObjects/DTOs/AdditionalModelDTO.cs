@@ -12,4 +12,12 @@
         public int Success { get; set; } = 0;
         public int Failure { get; set; } = 0;
     }
+
+    public class BrowserInfo
+    {
+        public string BrowserName { get; set; }
+        public string DeviceType { get; set; }
+        public string DeviceOperatingSystem { get; set; }
+
+    }
 }

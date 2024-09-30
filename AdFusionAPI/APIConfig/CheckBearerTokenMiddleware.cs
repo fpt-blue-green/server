@@ -49,7 +49,7 @@ namespace AdFusionAPI.APIConfig
                     // Xác thực token
                 var tokenData = await _securityService.ValidateJwtAuthenToken(token);
 
-                var user = JsonConvert.DeserializeObject<UserDTO>(tokenData);
+                var user = tokenData == null ? null : JsonConvert.DeserializeObject<UserDTO>(tokenData);
 
                 if (user == null)
                 {

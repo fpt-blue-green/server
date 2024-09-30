@@ -19,8 +19,6 @@ public partial class User
 
     public int Wallet { get; set; }
 
-    public string? RefreshToken { get; set; }
-
     public int Provider { get; set; }
 
     public DateTime CreatedAt { get; set; }

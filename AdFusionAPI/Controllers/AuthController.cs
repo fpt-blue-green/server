@@ -21,21 +21,24 @@ namespace AdFusionAPI.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserTokenDTO>> Login([FromBody] LoginDTO loginDTO)
         {
-            var result = await _authenService.Login(loginDTO);
+            var userAgent = Request.Headers["User-Agent"].ToString();
+            var result = await _authenService.Login(loginDTO, userAgent);
             return Ok(result);
         }
 
         [HttpPost("logout")]
         public async Task<ActionResult> Logout([FromBody] RefreshTokenDTO tokenDTO)
         {
-            await _authenService.Logout(tokenDTO.Token);
+            var userAgent = Request.Headers["User-Agent"].ToString();
+            await _authenService.Logout(userAgent, tokenDTO.RefreshToken);
             return Ok();
         }
 
         [HttpPost("refreshToken")]
         public async Task<ActionResult<TokenResponseDTO>> RefreshToken([FromBody] RefreshTokenDTO tokenDTO)
         {
-            var result = await _authenService.RefreshToken(tokenDTO);
+            var userAgent = Request.Headers["User-Agent"].ToString();
+            var result = await _authenService.RefreshToken(tokenDTO, userAgent);
             return Ok(result);
         }
 

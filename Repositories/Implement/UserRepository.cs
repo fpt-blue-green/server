@@ -27,18 +27,6 @@ namespace Repositories
             }
         }
 
-        public async Task<User> GetUserByRefreshToken(string refreshToken)
-        {
-            using (var context = new PostgresContext())
-            {
-                var user = await context.Users
-                    .Include(u => u.BannedUserUsers)
-                    .Include(u => u.Influencer)
-                    .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken && u.IsDeleted == false);
-                return user!;
-            }
-        }
-
         public async Task<User> GetUserByEmail(string email)
         {
             using (var context = new PostgresContext())
@@ -58,6 +46,7 @@ namespace Repositories
                 var user = await context.Users
                     .Include(u => u.BannedUserUsers)
                     .Include(u => u.Influencer)
+                    .Include(u => u.UserDevices)
                     .Where(u => u.Email == loginDTO.Email && u.Password == loginDTO.Password && u.IsDeleted == false)
                     .FirstOrDefaultAsync();
                 return user!;

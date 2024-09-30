@@ -432,10 +432,7 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("UserDevices_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.IsActive).HasDefaultValueSql("true");
-            entity.Property(e => e.LoginTime).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.RefreshToken).HasMaxLength(255);
-            entity.Property(e => e.UserAgent).HasMaxLength(50);
+            entity.Property(e => e.LastLoginTime).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserDevices)
                 .HasForeignKey(d => d.UserId)
