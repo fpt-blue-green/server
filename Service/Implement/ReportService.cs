@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
@@ -10,6 +11,7 @@ namespace Service
     public class ReportService : IReportService
     {
         private readonly IReportRepository _reportRepository = new ReportRepository();
+        private readonly IUserRepository _userRepository = new UserRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private readonly IMapper _mapper;
         public ReportService(IMapper mapper)
@@ -28,10 +30,11 @@ namespace Service
                 }
             }
 
-            //if (influReportList.FirstOrDefault(x => x. == userDTO.Id) != null)
-            //{
-            //    throw new InvalidOperationException("Không được report chính mình.");
-            //}
+            var curInfluencer = await _userRepository.GetUserById(userDTO.Id);
+            if (curInfluencer != null && curInfluencer.Influencer?.Id == influencerId)
+            {
+                throw new InvalidOperationException("Không được report chính mình.");
+            }
 
             var influencerReport = new InfluencerReport()
             {
