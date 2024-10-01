@@ -80,6 +80,15 @@ namespace AdFusionAPI.Controllers
             await _reportService.CreateInfluencerReport(id, reportRequestDTO, user);
             return Ok();
         }
+
+        [HttpDelete("reports/{id}")]
+        [AuthRequired]
+        public async Task<ActionResult> DeleteInfluencerReport(Guid id)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _reportService.DeleteInfluencerReport(id, user);
+            return Ok();
+        }
         #endregion
 
         #region Feedback
@@ -110,7 +119,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpDelete("{id}/feedbacks/{feedbackId}")]
         [AuthRequired]
-        public async Task<ActionResult> DelteFeedback(Guid id, Guid feedbackId)
+        public async Task<ActionResult> DeleteFeedback(Guid id, Guid feedbackId)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _feedBackService.DeleteFeedback(id, feedbackId, user);
