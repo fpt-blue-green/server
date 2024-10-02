@@ -9,6 +9,6 @@ namespace Service
         Task<IEnumerable<InfluencerReport>> GetInfluencerReportsByInfluencerId(Guid influencerId);
         Task<InfluencerReport> GetInfluencerReportById(Guid id);
         Task CreateInfluencerReport(Guid influencerId, ReportRequestDTO reportRequestDTO, UserDTO userDTO);
-        Task DeleteInfluencerReport(Guid id);
+        Task DeleteInfluencerReport(Guid id, UserDTO userDTO);
     }
 }

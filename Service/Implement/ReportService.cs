@@ -47,15 +47,21 @@ namespace Service
             _loggerService.Information("End to report Influencer: ");
         }
 
-        public async Task DeleteInfluencerReport(Guid id)
+        public async Task DeleteInfluencerReport(Guid id, UserDTO userDTO)
         {
+            _loggerService.Information("Start to delete InfluencerReport: ");
             var influencerReport = await _reportRepository.GetById(id);
             if (influencerReport == null)
             {
                 throw new KeyNotFoundException();
             }
+            if (userDTO.Role != AuthEnumContainer.ERole.Admin && userDTO.Id != influencerReport.ReporterId)
+            {
+                throw new AccessViolationException();
+            }
 
             await _reportRepository.Delete(influencerReport);
+            _loggerService.Information("End to delete InfluencerReport: ");
         }
 
         public Task<InfluencerReport> GetInfluencerReportById(Guid id)
