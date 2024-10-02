@@ -1,7 +1,7 @@
 ﻿
 namespace BusinessObjects
 {
-    public class InfluencerFilterDTO
+    public class FilterDTO
     {
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 10;
@@ -13,6 +13,6 @@ namespace BusinessObjects
         public bool? IsAscending { get; set; } = true;
         public int? RateStart { get; set; }
         public decimal? PriceFrom { get; set; } = 0;
-        public decimal? PriceTo { get; set; } = 100000;
+        public decimal? PriceTo { get; set; } = 10000000;
     }
 }

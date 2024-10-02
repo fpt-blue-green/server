@@ -56,7 +56,6 @@ namespace Service
 					{
 						// Sử dụng AutoMapper để cập nhật các thuộc tính từ DTO vào thực thể hiện có
 						_mapper.Map(packageDTO, existingPackage);
-						existingPackage.Influencer.Id = influencer.Id; // Đảm bảo InfluencerId được gán
 						// Gọi phương thức cập nhật trên repository
 						await _packageRepository.Update(existingPackage);
 					}
