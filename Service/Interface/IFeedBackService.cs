@@ -9,6 +9,7 @@ namespace Service
         Task<double> GetAverageRate(Guid userId);
         Task CreateFeedback(Guid influencerId, FeedbackRequestDTO feedbackRequestDto, UserDTO userDTO);
         Task DeleteFeedback(Guid influencerId, Guid feebackId, UserDTO userDTO);
+        Task<int> GetTotalFeedbackOfInfluencer(Guid influencerId);
         Task UpdateFeedBack(Guid influencerId, Guid feebackId, FeedbackRequestDTO feedbackRequest, UserDTO userDTO);
     }
 }

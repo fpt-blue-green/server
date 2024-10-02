@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BusinessObjects.Models;
+﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Repositories
@@ -18,16 +14,12 @@ namespace Repositories
             }
         }
 
-        public async Task Delete(Guid id)
+        public async Task Delete(Tag tag)
         {
             using (var context = new PostgresContext())
             {
-                var tag = await context.Tags.FirstOrDefaultAsync(i => i.Id == id);
-                if (tag != null)
-                {
-                    context.Tags.Remove(tag);
-                    await context.SaveChangesAsync();
-                }
+                context.Tags.Remove(tag);
+                await context.SaveChangesAsync();
             }
         }
 

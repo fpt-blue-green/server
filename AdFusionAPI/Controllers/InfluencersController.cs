@@ -99,6 +99,13 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{id}/feedbacks/count")]
+        public async Task<ActionResult<int>> GetTotalFeedback(Guid id)
+        {
+            var result = await _feedBackService.GetTotalFeedbackOfInfluencer(id);
+            return Ok(result);
+        }
+
         [HttpPost("{id}/feedbacks")]
         [AuthRequired]
         public async Task<ActionResult> CreateFeedback(Guid id, [FromBody] FeedbackRequestDTO feedBackRequestDTO)

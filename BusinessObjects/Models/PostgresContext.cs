@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BusinessObjects.Helper;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessObjects.Models;
@@ -44,7 +43,8 @@ public partial class PostgresContext : DbContext
                 }
             }
         }
-    }    public virtual DbSet<AdminAction> AdminActions { get; set; }
+    }
+    public virtual DbSet<AdminAction> AdminActions { get; set; }
 
     public virtual DbSet<BannedUser> BannedUsers { get; set; }
 
@@ -92,8 +92,10 @@ public partial class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-  new DateTimeModelCustomizer().Customize(modelBuilder, this);
-        modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);        modelBuilder
+        DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
+        modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false); 
+
+        modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
             .HasPostgresEnum("auth", "factor_status", new[] { "unverified", "verified" })
@@ -413,6 +415,8 @@ public partial class PostgresContext : DbContext
             entity.HasKey(e => e.Id).HasName("tags_pkey");
 
             entity.HasIndex(e => e.Name, "tags_tagname_key").IsUnique();
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
         });

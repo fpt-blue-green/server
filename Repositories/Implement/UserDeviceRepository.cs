@@ -12,7 +12,7 @@ namespace Repositories.Implement
         {
             using (var context = new PostgresContext())
             {
-                var userDevices = await context.UserDevices.Where(u => u.UserId == userId).ToListAsync();
+                var userDevices = await context.UserDevices.Where(u => u.UserId == userId).OrderByDescending(u => u.LastLoginTime).ToListAsync();
                 return userDevices!;
             }
         }

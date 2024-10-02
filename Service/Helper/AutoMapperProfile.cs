@@ -19,6 +19,7 @@ namespace Service
             #endregion
             #region Tag
             CreateMap<Tag, TagDTO>().ReverseMap();
+            CreateMap<Tag, TagDetailDTO>().ReverseMap();
             #endregion
             #region User
             CreateMap<User, UserDTO>().ReverseMap();
@@ -56,8 +57,10 @@ namespace Service
             CreateMap<Campaign, CampaignDTO>().ReverseMap();
             CreateMap<Campaign, CampaignBrandDto>().ReverseMap();
             #endregion
+            #region CampaignContent
             CreateMap<CampaignContentDto, CampaignContent>().ReverseMap();
             CreateMap<CampaignContent, CampaignContentResDto>().ReverseMap();
+            #endregion
             #region userDevice
             CreateMap<UserDevice, UserDeviceDTO>().ReverseMap();
             #endregion
