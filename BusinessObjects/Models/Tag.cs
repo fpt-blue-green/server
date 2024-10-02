@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BusinessObjects.Models;
+﻿namespace BusinessObjects.Models;
 
 public partial class Tag
 {
@@ -10,6 +7,10 @@ public partial class Tag
     public string Name { get; set; } = null!;
 
     public bool IsPremium { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? ModifiedAt { get; set; }
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 

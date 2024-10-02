@@ -8,6 +8,6 @@ namespace Repositories
         Task<Tag> GetById(Guid id);
         Task Create(Tag tag);
         Task Update(Tag tag);
-        Task Delete(Guid id);
+        Task Delete(Tag tag);
     }
 }

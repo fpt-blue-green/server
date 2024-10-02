@@ -313,7 +313,7 @@ namespace Service
                 IsDeleted = false,
                 Provider = (int)EAccountProvider.AdFusionAccount,
                 Role = (int)registerDTO.Role,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
             };
 
             await _userRepository.CreateUser(user);

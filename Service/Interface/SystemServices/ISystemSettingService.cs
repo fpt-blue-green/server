@@ -7,6 +7,6 @@ namespace Service
     {
         Task<SystemSetting> GetJWTSystemSetting();
         Task<SystemSettingDTO> GetSystemSetting(string keyName);
-        Task<string> UpdateSystemSetting(SystemSettingDTO systemSettingDTO);
+        Task<string> UpdateSystemSetting(SystemSettingDTO systemSettingDTO, UserDTO user);
     }
 }

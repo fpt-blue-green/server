@@ -88,7 +88,7 @@ namespace Service
 		{
 			var result = new List<CampaignBrandDto>();
 			var campaigns = await _campaignRepository.GetAlls();
-			var campaignInprogres = campaigns.Where(s => s.StartDate <= DateTime.UtcNow && s.EndDate >= DateTime.UtcNow).ToList();
+			var campaignInprogres = campaigns.Where(s => s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now).ToList();
 			if (campaigns.Count() > 0)
 			{
 				result = _mapper.Map<List<CampaignBrandDto>>(campaigns);

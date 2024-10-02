@@ -45,6 +45,12 @@ namespace Service
             return result;
         }
 
+        public async Task<int> GetTotalFeedbackOfInfluencer(Guid influencerId)
+        {
+            var feedbacks = await _feedbackRepository.GetFeedbacksByInfluencerId(influencerId);
+            return feedbacks.Count();
+        }
+
         public async Task CreateFeedback(Guid influencerId, FeedbackRequestDTO feedbackRequestDto, UserDTO userDTO)
         {
             // Kiểm tra rating hợp lệ
