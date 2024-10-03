@@ -7,7 +7,7 @@ using BusinessObjects;
 
 namespace Service
 {
-    public class UploadDataJobService : IJob
+    public class UploadChanelDataJobService : IJob
     {
         private static readonly IInfluencerRepository _influRepository = new InfluencerRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
@@ -16,7 +16,7 @@ namespace Service
         private static EmailTemplate _emailTempalte = new EmailTemplate();
         private static IChannelService _channelService;
 
-        public UploadDataJobService(IChannelService channelService)
+        public UploadChanelDataJobService(IChannelService channelService)
         {
             _channelService = channelService;
         }

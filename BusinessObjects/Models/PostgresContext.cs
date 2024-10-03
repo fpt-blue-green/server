@@ -68,6 +68,8 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<Job> Jobs { get; set; }
 
+    public virtual DbSet<JobDetail> JobDetails { get; set; }
+
     public virtual DbSet<Offer> Offers { get; set; }
 
     public virtual DbSet<Package> Packages { get; set; }
@@ -168,6 +170,7 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Budget).HasPrecision(18, 2);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Status).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Campaigns)
                 .HasForeignKey(d => d.BrandId)
@@ -331,6 +334,19 @@ public partial class PostgresContext : DbContext
                 .HasForeignKey(d => d.InfluencerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("jobs_influencerid_fkey");
+        });
+
+        modelBuilder.Entity<JobDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("jobdetails_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.UpdateDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.Job).WithMany(p => p.JobDetails)
+                .HasForeignKey(d => d.JobId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("jobdetails_jobid_fkey");
         });
 
         modelBuilder.Entity<Offer>(entity =>

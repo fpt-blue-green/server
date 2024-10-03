@@ -21,7 +21,7 @@ public partial class Campaign
 
     public decimal? Budget { get; set; }
 
-    public short? Status { get; set; }
+    public int Status { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

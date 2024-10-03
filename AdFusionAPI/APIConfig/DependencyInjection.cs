@@ -1,4 +1,5 @@
 ﻿using Service;
+using Service.Implement;
 
 namespace AdFusionAPI
 {
@@ -24,7 +25,9 @@ namespace AdFusionAPI
 			services.AddScoped<ICampaignService, CampaignService>();
 			services.AddScoped<ICampaignContentService, CampaignContentService>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<IJobService, JobService>();
+            services.AddScoped<IOfferService, OfferService>();
 
-		}
+        }
 	}
 }

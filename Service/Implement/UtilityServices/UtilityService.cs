@@ -163,8 +163,8 @@ namespace Service
 
                 var data = new ChannelVideoStatDTO
                 {
-                    ViewsCount = ConvertToNumber(videoInfo["stats"]?["playCount"]?.ToString() ?? "0"),
-                    LikesCount = ConvertToNumber(videoInfo["stats"]?["diggCount"]?.ToString() ?? "0"),
+                    ViewCount = ConvertToNumber(videoInfo["stats"]?["playCount"]?.ToString() ?? "0"),
+                    LikeCount = ConvertToNumber(videoInfo["stats"]?["diggCount"]?.ToString() ?? "0"),
                     CommentCount = ConvertToNumber(videoInfo["stats"]?["commentCount"]?.ToString() ?? "0"),
                 };
 
@@ -226,8 +226,8 @@ namespace Service
 
                 var data = new ChannelVideoStatDTO
                 {
-                    ViewsCount = ConvertToNumber(viewCount ?? "0"),
-                    LikesCount = ConvertToNumber(likeCount ?? "0"),
+                    ViewCount = ConvertToNumber(viewCount ?? "0"),
+                    LikeCount = ConvertToNumber(likeCount ?? "0"),
                     CommentCount = ConvertToNumber(commentCount ?? "0")
                 };
 
@@ -350,8 +350,8 @@ namespace Service
                         var statistics = item["statistics"];
                         var data = new ChannelVideoStatDTO
                         {
-                            ViewsCount = ConvertToNumber(statistics?["viewCount"]?.ToString() ?? "0"),
-                            LikesCount = ConvertToNumber(statistics?["likeCount"]?.ToString() ?? "0"),
+                            ViewCount = ConvertToNumber(statistics?["viewCount"]?.ToString() ?? "0"),
+                            LikeCount = ConvertToNumber(statistics?["likeCount"]?.ToString() ?? "0"),
                             CommentCount = ConvertToNumber(statistics?["commentCount"]?.ToString() ?? "0")
                         };
                         return data;
