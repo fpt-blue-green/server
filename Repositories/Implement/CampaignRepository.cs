@@ -48,7 +48,7 @@ namespace Repositories
 			using (var context = new PostgresContext())
 			{
 				var campaigns = await context.Campaigns.ToListAsync();
-				return campaigns;
+				return campaigns!;
 			}
 		}
 

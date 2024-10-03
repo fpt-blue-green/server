@@ -14,7 +14,7 @@ namespace Service
 		private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
 		private readonly IMapper _mapper;
 		private static ILogger _loggerService = new LoggerService().GetDbLogger();
-		public async Task<string> CreateCampaignContents(Guid campaginId, List<CampaignContentDto> campaignContents)
+		public async Task CreateCampaignContents(Guid campaginId, List<CampaignContentDto> campaignContents)
 		{
 			var createContents = new List<CampaignContentDto>();
 			var updateContents = new List<CampaignContentDto>();
@@ -101,7 +101,7 @@ namespace Service
 			if (deleteIds.Any())
 			{
 				var contentIdNeedDeletes = new List<Guid>();
-				foreach(var id in deleteIds)
+				foreach (var id in deleteIds)
 				{
 					contentIdNeedDeletes.Add((Guid)id);
 				}
@@ -111,7 +111,6 @@ namespace Service
 				}
 				_loggerService.Information("Xoá content không còn tồn tại thành công");
 			}
-			return "Tạo thành công";
 		}
 
 		public async Task<CampaignContentDto> GetCampaignContent(Guid campaignContentId)
