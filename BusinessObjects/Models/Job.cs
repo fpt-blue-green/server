@@ -13,15 +13,13 @@ public partial class Job
 
     public int Status { get; set; }
 
-    public string Link { get; set; } = null!;
-
-    public int ViewCount { get; set; }
-
-    public int LikesCount { get; set; }
+    public string? Link { get; set; } = null!;
 
     public virtual Campaign Campaign { get; set; } = null!;
 
     public virtual Influencer Influencer { get; set; } = null!;
+
+    public virtual ICollection<JobDetail> JobDetails { get; set; } = new List<JobDetail>();
 
     public virtual ICollection<Offer> Offers { get; set; } = new List<Offer>();
 

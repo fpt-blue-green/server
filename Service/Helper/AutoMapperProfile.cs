@@ -61,9 +61,17 @@ namespace Service
             CreateMap<CampaignContentDto, CampaignContent>().ReverseMap();
             CreateMap<CampaignContent, CampaignContentResDto>().ReverseMap();
             #endregion
-            #region userDevice
+            #region UserDevice
             CreateMap<UserDevice, UserDeviceDTO>().ReverseMap();
             #endregion
+            #region Job
+            CreateMap<Job, JobDTO>().ReverseMap();
+            #endregion
+            #region Offer
+            CreateMap<Offer, OfferDTO>().ReverseMap();
+            #endregion
+
+
         }
     }
 }

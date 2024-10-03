@@ -11,13 +11,15 @@ public partial class UserDevice
 
     public string? RefreshToken { get; set; }
 
-    public string? DeviceOperatingSystem { get; set; }
     public string? BrowserName { get; set; }
-    public string? DeviceType { get; set; }
 
     public DateTime? LastLoginTime { get; set; }
 
     public DateTime? RefreshTokenTime { get; set; }
+
+    public string? DeviceOperatingSystem { get; set; }
+
+    public string? DeviceType { get; set; }
 
     public virtual User User { get; set; } = null!;
 }
