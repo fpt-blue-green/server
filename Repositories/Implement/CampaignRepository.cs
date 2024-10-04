@@ -47,7 +47,10 @@ namespace Repositories
 		{
 			using (var context = new PostgresContext())
 			{
-				var campaigns = await context.Campaigns.ToListAsync();
+				var campaigns = await context.Campaigns
+					.Include(s => s.Brand)
+					.Include(s => s.CampaignImages)
+					.Include(s => s.CampaignContents).ToListAsync();
 				return campaigns!;
 			}
 		}
@@ -56,7 +59,11 @@ namespace Repositories
 		{
 			using (var context = new PostgresContext())
 			{
-				var campaigns = await context.Campaigns.Where(s => s.BrandId == id).ToListAsync();
+				var campaigns = await context.Campaigns
+					.Include(s => s.Brand)
+					.Include(s => s.CampaignImages)
+					.Include(s => s.CampaignContents)
+					.Where(s => s.BrandId == id).ToListAsync();
 				return campaigns;
 			}
 		}
@@ -65,7 +72,11 @@ namespace Repositories
 		{
 			using (var context = new PostgresContext())
 			{
-				var campaign = await context.Campaigns.FirstOrDefaultAsync(i => i.Id == id);
+				var campaign = await context.Campaigns
+					.Include(s => s.Brand)
+					.Include(s => s.CampaignImages)
+					.Include(s => s.CampaignContents)
+					.FirstOrDefaultAsync(i => i.Id == id);
 				return campaign;
 			}
 		}

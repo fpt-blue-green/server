@@ -5,9 +5,9 @@ namespace BusinessObjects
 {
     public class OfferDTO
     {
-        public int? Platform { get; set; }
+        public EPlatform Platform { get; set; }
 
-        public int? ContentType { get; set; }
+        public EContentType ContentType { get; set; }
 
         public int? Duration { get; set; }
 
@@ -15,13 +15,20 @@ namespace BusinessObjects
 
         public int? Price { get; set; }
 
-        public EOfferStatus Status { get; set; }
+        public EOfferStatus? Status { get; set; }
 
-        public ERole From { get; set; }
+        public ERole? From { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public int? Quantity { get; set; }
+    }
+    public class ReOfferDTO 
+    {
+        public Guid JobId { get; set; }
+        public int Price { get; set; }
+        public int Quantity { get; set; }
+        public string? Description { get; set; }
     }
 
     public class OfferCreateRequestDTO

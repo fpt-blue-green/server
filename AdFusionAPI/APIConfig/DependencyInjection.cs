@@ -1,5 +1,4 @@
 ﻿using Service;
-using Service.Implement;
 
 namespace AdFusionAPI
 {

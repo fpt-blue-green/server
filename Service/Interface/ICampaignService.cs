@@ -7,7 +7,7 @@ namespace Service
 	public interface ICampaignService
 	{
 
-		Task<List<CampaignBrandDto>> GetCampaignsInprogres(FilterDTO filter);
+		Task<List<CampaignBrandDto>> GetCampaignsInprogres(CampaignFilterDto filter);
 		Task<Guid> CreateCampaign(Guid userId,CampaignDTO campaign);
 		Task<Guid> UpdateCampaign(Guid userId, CampaignDTO campaign);
 		Task<List<CampaignDTO>> GetBrandCampaigns(Guid userId);

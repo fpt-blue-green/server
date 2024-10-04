@@ -16,7 +16,7 @@ namespace Service
 		private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
 		private static readonly ICampaignImageRepository _campaignImagesRepository = new CampaignImageRepository();
 		private readonly IMapper _mapper;
-		private static ILogger _loggerService = new LoggerService().GetDbLogger();
+		private static readonly ILogger _loggerService = new LoggerService().GetDbLogger();
 		public CampaignService(IMapper mapper)
 		{
 			_mapper = mapper;
@@ -24,7 +24,7 @@ namespace Service
 		public async Task<Guid> CreateCampaign(Guid userId, CampaignDTO campaignDto)
 		{
 			var brand = await _brandRepository.GetByUserId(userId);
-            var campaignDuplicateNames = (await _campaignRepository.GetAlls()).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
+            var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
 			if(campaignDuplicateNames.Any())
 			{
                 throw new InvalidOperationException("Tên campaign không được trùng lặp.");
@@ -52,7 +52,7 @@ namespace Service
 		{
 			var result = new CampaignDTO();
 			var campaign = await _campaignRepository.GetById(campaignId);
-			if (campaign == null)
+            if (campaign == null)
 			{
 				throw new KeyNotFoundException("Campaign không tồn tại.");
 			}
@@ -95,7 +95,7 @@ namespace Service
 			return campaign.Id;
 		}
 
-		public async Task<List<CampaignBrandDto>> GetCampaignsInprogres(FilterDTO filter)
+		public async Task<List<CampaignBrandDto>> GetCampaignsInprogres(CampaignFilterDto filter)
 		{
 			var result = new List<CampaignBrandDto>();
 			var campaigns = await _campaignRepository.GetAlls();

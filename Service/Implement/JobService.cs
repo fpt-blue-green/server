@@ -38,7 +38,7 @@ namespace Service
             }
             else
             {
-                user.Wallet -= offer.Price!.Value;
+                user.Wallet -= offer.Price;
                 await _userRepository.UpdateUser(user);
                 job.Status = (int)EJobStatus.InProgress;
                 job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Done;
