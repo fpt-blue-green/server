@@ -24,7 +24,7 @@
         public readonly string YoutubeUrl = "https://www.youtube.com/@";
 
         public readonly string SlugRegex = @"^[a-z0-9]+(?:-[a-z0-9]+)*$";
-        public readonly List<string> AdminReportHandler = new List<string> { "nguyenhoang062017@gmail.com" };
+        public readonly List<string> AdminReportHandler = new List<string> { "nguyendactamminh@gmail.com" };
 
     }
 }

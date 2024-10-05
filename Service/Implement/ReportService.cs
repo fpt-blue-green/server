@@ -14,6 +14,10 @@ namespace Service
         private readonly IUserRepository _userRepository = new UserRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private readonly IMapper _mapper;
+        private static ConfigManager _configManager = new ConfigManager();
+        private static EmailTemplate _emailTemplate = new EmailTemplate();
+        private static IEmailService _emailService = new EmailService();
+
         public ReportService(IMapper mapper)
         {
             _mapper = mapper;
@@ -44,6 +48,7 @@ namespace Service
                 Description = reportRequestDTO.Description,
             };
             await _reportRepository.Create(influencerReport);
+            await SendEmailToReport(influencerReport.Id);
             _loggerService.Information("End to report Influencer: ");
         }
 
@@ -64,9 +69,9 @@ namespace Service
             _loggerService.Information("End to delete InfluencerReport: ");
         }
 
-        public Task<InfluencerReport> GetInfluencerReportById(Guid id)
+        public async Task<InfluencerReport> GetInfluencerReportById(Guid id)
         {
-            throw new NotImplementedException();
+            return await _reportRepository.GetById(id);
         }
 
         public Task<IEnumerable<InfluencerReport>> GetInfluencerReports()
@@ -77,6 +82,23 @@ namespace Service
         public Task<IEnumerable<InfluencerReport>> GetInfluencerReportsByInfluencerId(Guid influencerId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task SendEmailToReport(Guid id)
+        {
+            var influencerReport = await GetInfluencerReportById(id);
+            if (influencerReport == null) 
+            {
+                return;
+            }
+
+            var body = _emailTemplate.reportTemplate.Replace("{projectName}", _configManager.ProjectName)
+                                                    .Replace("{Reason}", Enum.GetName(typeof(BusinessObjects.EReportReason), influencerReport.Reason!))
+                                                    .Replace("{InfluencerName}", influencerReport.Influencer.FullName)
+                                                    .Replace("{Reporter}", influencerReport.Reporter.DisplayName)
+                                                    .Replace("{CreatedAt}", influencerReport.CreatedAt.ToString("dd/MM/yyyy"))
+                                                    .Replace("{Description}", influencerReport.Description);
+            await _emailService.SendEmail(_configManager.AdminReportHandler , "Đơn báo cáo Influencer", body);
         }
     }
 }

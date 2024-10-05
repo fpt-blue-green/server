@@ -34,6 +34,8 @@ namespace Repositories.Implement
             using (var context = new PostgresContext())
             {
                 var influencerReport = await context.InfluencerReports
+                    .Include(x => x.Influencer)
+                    .Include(x => x.Reporter)
                     .SingleOrDefaultAsync(i => i.Id == id);
                 return influencerReport!;
             }
