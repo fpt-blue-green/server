@@ -32,5 +32,14 @@ namespace AdFusionAPI.Controllers
             await _jobService.BrandCancleJob(id);
             return Ok();
         }
+
+        [InfluencerRequired]
+        [HttpPut("link/{id}")]
+        public async Task<ActionResult> AttachLink(Guid id, [FromBody] JobLinkDTO jobLinkDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _jobService.AttachPostLink(id, user, jobLinkDTO);
+            return Ok();
+        }
     }
 }

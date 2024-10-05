@@ -76,6 +76,9 @@ namespace Service
 			#region Job
 			CreateMap<Job, JobDTO>().ReverseMap();
 			#endregion
+			#region JobDetails
+            CreateMap<JobDetail, ChannelVideoStatDTO>().ReverseMap();
+            #endregion
 			#region Offer
 			CreateMap<Offer, OfferDTO>().ReverseMap();
 			#endregion

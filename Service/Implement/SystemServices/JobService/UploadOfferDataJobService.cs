@@ -14,7 +14,7 @@ namespace Service
         private static IEmailService _emailService = new EmailService();
         private static ConfigManager _configManager = new ConfigManager();
         private static EmailTemplate _emailTemplate = new EmailTemplate();
-        private static IJobRepository _jobService = new JobRepository();
+        private static IJobRepository _jobRepository = new JobRepository();
 
         public async Task Execute(IJobExecutionContext context)
         {
@@ -55,7 +55,7 @@ namespace Service
             try
             {
                 // Lấy toàn bộ danh sách Job và các Offer liên quan
-                var jobs = await _jobService.GetAllPedingJob();
+                var jobs = await _jobRepository.GetAllPedingJob();
                 if (jobs.Any())
                 {
                     // Chia jobs thành các lô (batch) để xử lý
@@ -120,7 +120,7 @@ namespace Service
                         if (!failedOffers.Any())
                         {
                             job.Status = (int)EJobStatus.NotCreated;
-                            await _jobService.UpdateJobAndOffer(job);
+                            await _jobRepository.UpdateJobAndOffer(job);
 
                             // Nếu cập nhật thành công, tăng biến Success
                             jobResult.Success++;

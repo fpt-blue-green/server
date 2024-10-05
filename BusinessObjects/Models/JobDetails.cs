@@ -12,6 +12,8 @@ public partial class JobDetail
 
     public int CommentCount { get; set; }
 
+    public string? Link { get; set; }
+
     public DateTime UpdateDate { get; set; }
 
     public virtual Job Job { get; set; } = null!;

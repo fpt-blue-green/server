@@ -12,4 +12,9 @@ namespace BusinessObjects
 
         public string? Link { get; set; } = null!;
     }
+
+    public class JobLinkDTO
+    {
+        public string Link { get; set; }
+    }
 }
