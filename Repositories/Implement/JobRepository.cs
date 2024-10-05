@@ -27,6 +27,15 @@ namespace Repositories
             }
         }
 
+        public async Task Update(Job job)
+        {
+            using (var context = new PostgresContext())
+            {
+                context.Entry(job).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+            }
+        }
+
         public async Task UpdateJobAndOffer(Job job)
         {
             using (var context = new PostgresContext())
@@ -50,6 +59,45 @@ namespace Repositories
                                             .Include(j => j.Offers)
                                             .FirstOrDefaultAsync();
                 return job!;
+            }
+        }
+
+        public async Task<Job> GetJobInProgress(Guid id)
+        {
+            using (var context = new PostgresContext())
+            {
+                var job = await context.Jobs.Where(j => j.Id == id && j.Status == (int)EJobStatus.InProgress)
+                                            .Include(j => j.Offers)
+                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                            .FirstOrDefaultAsync();
+                return job!;
+            }
+        }
+
+        public async Task<IEnumerable<string>> GetLinkJobInProgress(Guid id)
+        {
+            using (var context = new PostgresContext())
+            {
+                var links = await context.Jobs
+                                        .Where(j => j.Id == id && j.Status == (int)EJobStatus.InProgress)
+                                        .Include(j => j.JobDetails) 
+                                        .SelectMany(j => j.JobDetails.Select(jd => jd.Link))
+                                        .Distinct()
+                                        .ToListAsync();
+
+                return links!;
+            }
+        }
+
+        public async Task<IEnumerable<Job>> GetAllJobInProgress()
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress)
+                                            .Include(j => j.Offers)
+                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                            .ToListAsync();
+                return jobs!;
             }
         }
     }

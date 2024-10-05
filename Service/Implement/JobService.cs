@@ -9,7 +9,9 @@ namespace Service
     public class JobService : IJobService
     {
         private static IJobRepository _jobService = new JobRepository();
+        private static IJobDetailService _jobDetailService = new JobDetailService();
         private static IUserRepository _userRepository = new UserRepository();
+        private static IInfluencerRepository _influencerService = new InfluencerRepository();
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<AutoMapperProfile>();
@@ -59,6 +61,22 @@ namespace Service
             job.Status = (int)EJobStatus.NotCreated;
             job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Cancelled;
             await _jobService.UpdateJobAndOffer(job);
+        }
+
+        public async Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO)
+        {
+            var job = await _jobService.GetJobInProgress(jobId);
+            if (job == null)
+            {
+                throw new InvalidOperationException("Job này chưa bắt đầu hoặc đã kết thúc, không thể thêm link");
+            }
+            
+            if(job.Influencer.User.Id != userDTO.Id)
+            {
+                throw new AccessViolationException();
+            }
+
+            await _jobDetailService.UpdateJobDetailData(job, linkDTO.Link);
         }
     }
 }

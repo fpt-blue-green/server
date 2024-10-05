@@ -21,17 +21,21 @@ namespace AdFusionAPI.APIConfig.JobConfig
             // Kiểm tra nếu job 1 đã hoàn thành
             if (context.JobDetail.Key.Name == "UploadChanelDataJobService")
             {
+                var scheduler = context.Scheduler;
+                // Trigger job thứ hai
+                var job2Key = new JobKey("UploadJobDetailDataJobService");
+                await scheduler.TriggerJob(job2Key);
+
                 // Lấy ngày hiện tại
                 var currentDate = DateTime.UtcNow;
 
                 // Kiểm tra xem hôm nay có phải là ngày chạy của job 2 không
                 if (currentDate.Day % 4 == 0) // Chạy mỗi 4 ngày một lần
                 {
-                    var scheduler = context.Scheduler;
-                    var job2Key = new JobKey("UploadOfferDataJobService");
+                    var job3Key = new JobKey("UploadOfferDataJobService");
 
-                    // Trigger job 2
-                    await scheduler.TriggerJob(job2Key);
+                    // Trigger job 3
+                    await scheduler.TriggerJob(job3Key);
                 }
             }
         }
