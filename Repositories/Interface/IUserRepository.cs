@@ -11,5 +11,7 @@ namespace Repositories
         Task<User> GetUserByLoginDTO(LoginDTO loginDTO);
         Task UpdateUser(User user);
         Task CreateUser(User user);
+        Task<User> GetUserByCampaignId(Guid campaignId);
+        Task<User> GetUserByInfluencerId(Guid influencerId);
     }
 }

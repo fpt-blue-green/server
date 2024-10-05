@@ -19,7 +19,7 @@ namespace BusinessObjects
         public DateTime? CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
 
-        public virtual ICollection<CampaignDTO> Campaigns { get; set; } = new List<CampaignDTO>();
+        //public virtual ICollection<CampaignDTO> Campaigns { get; set; } = new List<CampaignDTO>();
 
 
     }

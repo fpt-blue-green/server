@@ -17,7 +17,7 @@ namespace AdFusionAPI.Controllers
             _campaignContentService = campaignContentService;
         }
         [HttpGet()]
-        public async Task<ActionResult<List<CampaignBrandDto>>> GetCampaignsInprogres([FromQuery]  FilterDTO filter)
+        public async Task<ActionResult<List<CampaignBrandDto>>> GetCampaignsInprogres([FromQuery]  CampaignFilterDto filter)
         {
             var result = await _campaignService.GetCampaignsInprogres(filter);
             return Ok(result);

@@ -9,19 +9,19 @@ public partial class Offer
 
     public Guid JobId { get; set; }
 
-    public int? Platform { get; set; }
+    public int Platform { get; set; }
 
-    public int? ContentType { get; set; }
+    public int ContentType { get; set; }
 
     public int? Duration { get; set; }
 
     public string? Description { get; set; }
 
-    public int? Price { get; set; }
+    public int Price { get; set; }
 
-    public int? Status { get; set; }
+    public int Status { get; set; }
 
-    public int? From { get; set; }
+    public int From { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

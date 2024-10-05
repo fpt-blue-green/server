@@ -58,7 +58,7 @@ namespace Service
             }
             return result;
         }
-        public async Task<InfluencersResponseDTO> GetAllInfluencers(FilterDTO filter)
+        public async Task<InfluencersResponseDTO> GetAllInfluencers(InfluencerFilterDto filter)
         {
             try
             {

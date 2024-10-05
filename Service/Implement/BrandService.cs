@@ -13,8 +13,6 @@ namespace Service
     {
         private static readonly IBrandRepository _brandRepository = new BrandRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
-        private static ISecurityService _securityService = new SecurityService();
-        private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
 
         public BrandService(IMapper mapper)

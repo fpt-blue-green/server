@@ -79,5 +79,28 @@ namespace Repositories
                 await context.SaveChangesAsync();
             }
         }
+        public async Task<User> GetUserByCampaignId(Guid campaignId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var user = await context.Campaigns
+                                         .Where(c => c.Id == campaignId)
+                                         .Select(c => c.Brand.User)
+                                         .FirstOrDefaultAsync();
+                return user;
+            }
+        }
+
+        public async Task<User> GetUserByInfluencerId(Guid influencerId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var user = await context.Influencers
+                                         .Where(c => c.Id == influencerId)
+                                         .Select(c => c.User)
+                                         .FirstOrDefaultAsync();
+                return user;
+            }
+        }
     }
 }
