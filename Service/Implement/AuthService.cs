@@ -19,7 +19,7 @@ namespace Service
         private static ISecurityService _securityService = new SecurityService();
         private static IEmailService _emailService = new EmailService();
         private static ConfigManager _configManager = new ConfigManager();
-        private static EmailTemplate _emailTempalte = new EmailTemplate();
+        private static EmailTemplate _emailTemplate = new EmailTemplate();
         private readonly IMapper _mapper;
         public AuthService(IMapper mapper)
         {
@@ -207,7 +207,7 @@ namespace Service
 
             var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(registerDTO));
             var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.Register}&token={token}";
-            var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Đăng ký tài khoản mới").Replace("{confirmLink}", confirmationUrl);
+            var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Đăng ký tài khoản mới").Replace("{confirmLink}", confirmationUrl);
             await _emailService.SendEmail(new List<string> { registerDTO.Email }, "Xác nhận đăng ký tài khoản mới", body);
             return "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận.";
         }
@@ -244,7 +244,7 @@ namespace Service
 
             var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
 
-            var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Thay đổi mật khẩu").Replace("{confirmLink}", confirmationUrl);
+            var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Thay đổi mật khẩu").Replace("{confirmLink}", confirmationUrl);
 
             await _emailService.SendEmail(new List<string> { userGet.Email }, "Xác nhận thay đổi mật khẩu", body);
 
@@ -272,7 +272,7 @@ namespace Service
 
             var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
 
-            var body = _emailTempalte.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Quên mật khẩu").Replace("{confirmLink}", confirmationUrl);
+            var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Quên mật khẩu").Replace("{confirmLink}", confirmationUrl);
 
             await _emailService.SendEmail(new List<string> { forgotPasswordDTO.Email }, "Xác nhận quên mật khẩu", body);
 
