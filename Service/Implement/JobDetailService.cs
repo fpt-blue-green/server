@@ -44,7 +44,7 @@ namespace Service
                 throw new InvalidOperationException("Không có Offer nào trong Job.");
             }
 
-            var data = await _utilityService.GetVideoInformation(offer!.Platform!.Value, link);
+            var data = await _utilityService.GetVideoInformation(offer!.Platform!, link);
             var jobDetail = _mapper.Map<JobDetail>(data);
             jobDetail.JobId = job.Id;
             jobDetail.Link = link;
