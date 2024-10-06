@@ -31,19 +31,19 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("")]
         [BrandRequired]
-        public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignDTO campaign)
+        public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignResDto campaign)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _campaignService.CreateCampaign(user.Id, campaign);
             return Ok(result);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         [BrandRequired]
-        public async Task<ActionResult<Guid>> UpdateCampaign([FromBody] CampaignDTO campaign)
+        public async Task<ActionResult<Guid>> UpdateCampaign([FromBody] CampaignResDto campaign,Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _campaignService.UpdateCampaign(user.Id, campaign);
+            var result = await _campaignService.UpdateCampaign(user.Id, id, campaign);
             return Ok(result);
         }
         /*[HttpGet("tags")]
@@ -54,28 +54,28 @@ namespace AdFusionAPI.Controllers
 			return Ok(result);
 		}*/
 
-        [HttpPost("tags")]
+        [HttpPost("{id}/tags")]
         [BrandRequired]
-        public async Task<ActionResult<string>> UpdateTagsOfCampaign(Guid campaignId, List<Guid> listTags)
+        public async Task<ActionResult<string>> UpdateTagsOfCampaign(Guid id, List<Guid> listTags)
         {
-            var result = await _campaignService.UpdateTagsForCampaign(campaignId, listTags);
+            var result = await _campaignService.UpdateTagsForCampaign(id, listTags);
             return Ok(result);
         }
 
-        [HttpPost("images")]
+        [HttpPost("{id}/images")]
         [BrandRequired]
-        public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images, Guid campaginId)
+        public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images, Guid id)
         {
-            var result = await _campaignService.UploadCampaignImages(campaginId, imageIds, images, "CampaignImages");
+            var result = await _campaignService.UploadCampaignImages(id, imageIds, images, "CampaignImages");
             return Ok(result);
         }
 
         #region content
-        [HttpPost("contents")]
+        [HttpPost("{id}/contents")]
         [BrandRequired]
-        public async Task<ActionResult> CreateCampaignContents([FromBody] List<CampaignContentDto> contents, Guid campaignId)
+        public async Task<ActionResult> CreateCampaignContents([FromBody] List<CampaignContentDto> contents, Guid id)
         {
-            await _campaignContentService.CreateCampaignContents(campaignId, contents);
+            await _campaignContentService.CreateCampaignContents(id, contents);
             return Ok();
         }
         /*[HttpPut("contents/{contentId}")]
@@ -85,11 +85,11 @@ namespace AdFusionAPI.Controllers
 			var result = await _campaignContentService.UpdateCampaignContent(campaignId, contentId, content);
 			return Ok(result);
 		}*/
-        [HttpGet("contents")]
+        [HttpGet("{id}/contents")]
         [BrandRequired]
-        public async Task<ActionResult<List<InfluencerDTO>>> GetCampaignContents(Guid campaignId)
+        public async Task<ActionResult<List<CampaignContentDto>>> GetCampaignContents(Guid id)
         {
-            var result = await _campaignContentService.GetCampaignContents(campaignId);
+            var result = await _campaignContentService.GetCampaignContents(id);
             return Ok(result);
         }
         /*[HttpGet("contents/{contentId}")]

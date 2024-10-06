@@ -21,29 +21,29 @@ namespace Service
 		{
 			_mapper = mapper;
 		}
-		public async Task<Guid> CreateCampaign(Guid userId, CampaignDTO campaignDto)
+		public async Task<Guid> CreateCampaign(Guid userId, CampaignResDto campaignDto)
 		{
 			var brand = await _brandRepository.GetByUserId(userId);
-            var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
-			if(campaignDuplicateNames.Any())
+			var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
+			if (campaignDuplicateNames.Any())
 			{
-                throw new InvalidOperationException("Tên campaign không được trùng lặp.");
-            }
-			var campaign = new Campaign();
-			if (campaignDto.Id == null)
-			{
-				//create
-				campaign = _mapper.Map<Campaign>(campaignDto);
-				campaign.BrandId = brand.Id;
-				await _campaignRepository.Create(campaign);
+				throw new InvalidOperationException("Tên campaign không được trùng lặp.");
 			}
+			var campaign = new Campaign();
+			/*if (campaignDto.Id == null)
+			{*/
+			//create
+			campaign = _mapper.Map<Campaign>(campaignDto);
+			campaign.BrandId = brand.Id;
+			await _campaignRepository.Create(campaign);
+			/*}
 			else
 			{
 				//update
 				campaign = _mapper.Map<Campaign>(campaignDto);
 				campaign.BrandId = brand.Id;
 				await _campaignRepository.Update(campaign);
-			}
+			}*/
 			_loggerService.Information("Tạo campaign thành công");
 			return campaign.Id;
 		}
@@ -52,7 +52,7 @@ namespace Service
 		{
 			var result = new CampaignDTO();
 			var campaign = await _campaignRepository.GetById(campaignId);
-            if (campaign == null)
+			if (campaign == null)
 			{
 				throw new KeyNotFoundException("Campaign không tồn tại.");
 			}
@@ -79,15 +79,15 @@ namespace Service
 			return result;
 		}
 
-		public async Task<Guid> UpdateCampaign(Guid userId, CampaignDTO campaignDto)
+		public async Task<Guid> UpdateCampaign(Guid userId, Guid campaignId, CampaignResDto campaignDto)
 		{
 			var brand = await _brandRepository.GetByUserId(userId);
-            var campaignDuplicateNames = (await _campaignRepository.GetAlls()).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
-            if (campaignDuplicateNames.Any())
-            {
-                throw new InvalidOperationException("Tên campaign không được trùng lặp.");
-            }
-            var campaign = await _campaignRepository.GetById((Guid)campaignDto.Id);
+			var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
+			if (campaignDuplicateNames.Any())
+			{
+				throw new InvalidOperationException("Tên campaign không được trùng lặp.");
+			}
+			var campaign = await _campaignRepository.GetById(campaignId);
 
 			_mapper.Map(campaignDto, campaign);
 			await _campaignRepository.Update(campaign);
@@ -102,46 +102,47 @@ namespace Service
 			var campaignInprogres = campaigns.Where(s => s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now);
 			if (campaignInprogres.Any())
 			{
-                if (filter.TagIds != null && filter.TagIds.Any())
-                {
-                    campaignInprogres = campaignInprogres.Where(i =>
-                        i.Tags.Any(it => filter.TagIds.Contains(it.Id))
-                    );
-                }
-                if (filter.PriceFrom.HasValue && filter.PriceTo.HasValue)
-                {
+				if (filter.TagIds != null && filter.TagIds.Any())
+				{
+					campaignInprogres = campaignInprogres.Where(i =>
+						i.Tags.Any(it => filter.TagIds.Contains(it.Id))
+					);
+				}
+				if (filter.PriceFrom.HasValue && filter.PriceTo.HasValue)
+				{
 					try
 					{
-                        campaignInprogres = campaignInprogres.Where(i =>
-                                                (!filter.PriceFrom.HasValue || i.Budget >= filter.PriceFrom) &&
-                                                (!filter.PriceTo.HasValue || i.Budget <= filter.PriceTo)
-                                            );
-                    }catch(Exception e) { }
-                    
-                }
-                if (!string.IsNullOrEmpty(filter.Search))
-                {
-                    campaignInprogres =campaignInprogres.Where(i =>
-                        i.Name.Contains(filter.Search, StringComparison.OrdinalIgnoreCase)||
-                        i.Title.Contains(filter.Search, StringComparison.OrdinalIgnoreCase)
-                    );
-                }
-                if (!string.IsNullOrEmpty(filter.SortBy))
-                {
-                    var propertyInfo = typeof(Influencer).GetProperty(filter.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                    if (propertyInfo != null)
-                    {
-                        campaignInprogres = filter.IsAscending.HasValue && filter.IsAscending.Value
-                            ? (List<Campaign>)campaignInprogres.OrderBy(i => propertyInfo.GetValue(i, null))
-                            : (List<Campaign>)campaignInprogres.OrderByDescending(i => propertyInfo.GetValue(i, null));
-                    }
-                }
-                int pageSize = filter.PageSize;
-                var pagedInfluencers = campaignInprogres
-                    .Skip((filter.PageIndex - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
-                result = _mapper.Map<List<CampaignBrandDto>>(campaignInprogres);
+						campaignInprogres = campaignInprogres.Where(i =>
+												(!filter.PriceFrom.HasValue || i.Budget >= filter.PriceFrom) &&
+												(!filter.PriceTo.HasValue || i.Budget <= filter.PriceTo)
+											);
+					}
+					catch (Exception e) { }
+
+				}
+				if (!string.IsNullOrEmpty(filter.Search))
+				{
+					campaignInprogres = campaignInprogres.Where(i =>
+						i.Name.Contains(filter.Search, StringComparison.OrdinalIgnoreCase) ||
+						i.Title.Contains(filter.Search, StringComparison.OrdinalIgnoreCase)
+					);
+				}
+				if (!string.IsNullOrEmpty(filter.SortBy))
+				{
+					var propertyInfo = typeof(Influencer).GetProperty(filter.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+					if (propertyInfo != null)
+					{
+						campaignInprogres = filter.IsAscending.HasValue && filter.IsAscending.Value
+							? (List<Campaign>)campaignInprogres.OrderBy(i => propertyInfo.GetValue(i, null))
+							: (List<Campaign>)campaignInprogres.OrderByDescending(i => propertyInfo.GetValue(i, null));
+					}
+				}
+				int pageSize = filter.PageSize;
+				var pagedInfluencers = campaignInprogres
+					.Skip((filter.PageIndex - 1) * pageSize)
+					.Take(pageSize)
+					.ToList();
+				result = _mapper.Map<List<CampaignBrandDto>>(campaignInprogres);
 			}
 			return result;
 		}
