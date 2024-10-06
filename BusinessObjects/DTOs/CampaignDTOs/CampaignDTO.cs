@@ -10,8 +10,8 @@
 		public DateTime? EndDate { get; set; }
 		public decimal? Budget { get; set; }
         public virtual BrandDTO Brand { get; set; } = new BrandDTO();
-		public virtual ICollection<CampaignContentResDto> CampaignContent { get; set; } = new List<CampaignContentResDto>();
-		public virtual ICollection<CampaignImageDto> CampaignImage { get; set; } = new List<CampaignImageDto>();
+		public virtual ICollection<CampaignContentResDto> Contents { get; set; } = new List<CampaignContentResDto>();
+		public virtual ICollection<CampaignImageDto> Images { get; set; } = new List<CampaignImageDto>();
 
 	}
 }

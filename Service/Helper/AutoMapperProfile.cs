@@ -55,14 +55,14 @@ namespace Service
 			#endregion
 			#region campaign
 			CreateMap<Campaign, CampaignDTO>()
-				.ForMember(dest => dest.CampaignImage, opt => opt.MapFrom(src => src.CampaignImages))  // Assuming one image
-				.ForMember(dest => dest.CampaignContent, opt => opt.MapFrom(src => src.CampaignContents))  // Assuming one content
+				.ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.CampaignImages))  // Assuming one image
+				.ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.CampaignContents))  // Assuming one content
 				.ReverseMap();
 			CreateMap<Campaign, CampaignResDto>().ReverseMap();
 
 			CreateMap<Campaign, CampaignBrandDto>()
-				.ForMember(dest => dest.CampaignImage, opt => opt.MapFrom(src => src.CampaignImages))  // Assuming one image
-				.ForMember(dest => dest.CampaignContent, opt => opt.MapFrom(src => src.CampaignContents))  // Assuming one content
+				.ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.CampaignImages))  // Assuming one image
+				.ForMember(dest => dest.Contents, opt => opt.MapFrom(src => src.CampaignContents))  // Assuming one content
 				.ReverseMap();
 
 			CreateMap<CampaignImage, CampaignImageDto>().ReverseMap();
