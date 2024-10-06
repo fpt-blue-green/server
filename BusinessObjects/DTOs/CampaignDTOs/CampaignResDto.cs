@@ -3,7 +3,6 @@ namespace BusinessObjects
 {
 	public class CampaignResDto
 	{
-		public Guid? Id { get; set; }
 		public string Name { get; set; } = null!;
 		public string Title { get; set; } = null!;
 		public string? Description { get; set; }
