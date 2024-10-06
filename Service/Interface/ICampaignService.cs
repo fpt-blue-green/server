@@ -8,8 +8,8 @@ namespace Service
 	{
 
 		Task<List<CampaignBrandDto>> GetCampaignsInprogres(CampaignFilterDto filter);
-		Task<Guid> CreateCampaign(Guid userId,CampaignDTO campaign);
-		Task<Guid> UpdateCampaign(Guid userId, CampaignDTO campaign);
+		Task<Guid> CreateCampaign(Guid userId,CampaignResDto campaign);
+		Task<Guid> UpdateCampaign(Guid userId,Guid CampaignId, CampaignResDto campaign);
 		Task<List<CampaignDTO>> GetBrandCampaigns(Guid userId);
 		Task<CampaignDTO> GetCampaign(Guid campaignId);
 		//Task<List<TagDTO>> GetTagsOfCampaign(Guid campaignId);

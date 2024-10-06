@@ -21,7 +21,7 @@ namespace Service
 		{
 			_mapper = mapper;
 		}
-		public async Task<Guid> CreateCampaign(Guid userId, CampaignDTO campaignDto)
+		public async Task<Guid> CreateCampaign(Guid userId, CampaignResDto campaignDto)
 		{
 			var brand = await _brandRepository.GetByUserId(userId);
             var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
@@ -79,15 +79,16 @@ namespace Service
 			return result;
 		}
 
-		public async Task<Guid> UpdateCampaign(Guid userId, CampaignDTO campaignDto)
+		public async Task<Guid> UpdateCampaign(Guid userId, Guid campaignId, CampaignResDto campaignDto)
 		{
+			campaignDto.Id = campaignId;
 			var brand = await _brandRepository.GetByUserId(userId);
-            var campaignDuplicateNames = (await _campaignRepository.GetAlls()).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
+            var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
             if (campaignDuplicateNames.Any())
             {
                 throw new InvalidOperationException("Tên campaign không được trùng lặp.");
             }
-            var campaign = await _campaignRepository.GetById((Guid)campaignDto.Id);
+            var campaign = await _campaignRepository.GetById(campaignId);
 
 			_mapper.Map(campaignDto, campaign);
 			await _campaignRepository.Update(campaign);
