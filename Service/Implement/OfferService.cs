@@ -43,7 +43,7 @@ namespace Service
 
             //Create offer
             var offer = _mapper.Map<Offer>(offerCreateRequestDTO.Offer);
-            offer.Status =(int) JobEnumContainer.EOfferStatus.Offering;
+            offer.Status = (int)JobEnumContainer.EOfferStatus.Offering;
             offer.JobId = jobnew.Id;
             offer.From = (int)userDTO.Role;
             await _offerRepository.Create(offer);
@@ -75,68 +75,112 @@ namespace Service
             };
             await _offerRepository.Create(newOffer);
             //Send Mail
-            await SendMail(newOffer, job,EOfferStatus.Offering,true);
+            await SendMail(newOffer, job, EOfferStatus.Offering, true);
+        }
+
+        public async Task ApproveOffer(Guid id)
+        {
+            var offer = await _offerRepository.GetById(id);
+            offer.Status = (int)JobEnumContainer.EOfferStatus.Done;
+
+            var job = await _jobRepository.GetJobFullDetailById(offer.JobId);
+            if (job != null)
+            {
+                job.Status = (int)EJobStatus.InProgress;
+                offer.Job = job;
+            }
+
+            await _offerRepository.UpdateJobAndOffer(offer);
+
+            //Send Mail
+            await SendMail(offer, job, EOfferStatus.Done, true);
+        }
+
+        public async Task RejectOffer(Guid id)
+        {
+            var offer = await _offerRepository.GetById(id);
+            offer.Status = (int)JobEnumContainer.EOfferStatus.Rejected;
+
+            var job = await _jobRepository.GetJobFullDetailById(offer.JobId);
+            if (job != null)
+            {
+                job.Status = (int)EJobStatus.NotCreated;
+                offer.Job = job;
+            }
+
+            await _offerRepository.UpdateJobAndOffer(offer);
+
+            //Send Mail
+            await SendMail(offer, job, EOfferStatus.Rejected, true);
         }
 
         #region Send Mail
         public static async Task SendMail(Offer offer, Job job, EOfferStatus offerType, bool isReOffer = false)
         {
-            var brandUser = job.Campaign.Brand.User;
-            var influencerUser = job.Influencer.User;
-
-            string subject = "";
-            string body = "";
-            string recipientEmail = "";
-
-            switch (offerType)
+            try
             {
-                case EOfferStatus.Offering:
-                    #region Offering Or Reoffer
-                    if (offer.From == (int)AuthEnumContainer.ERole.Influencer)
-                    {
-                        subject = "Influencer đã tạo một Offer mới";
-                        if (isReOffer)
+                var brandUser = job.Campaign.Brand.User;
+                var influencerUser = job.Influencer.User;
+
+                string subject = "";
+                string body = "";
+                string recipientEmail = "";
+
+                switch (offerType)
+                {
+                    case EOfferStatus.Offering:
+                        #region Offering Or Reoffer
+                        if (offer.From == (int)AuthEnumContainer.ERole.Influencer)
                         {
-                            subject = "Re-Offer: Influencer đã tạo một Offer mới";
+                            subject = "Influencer đã tạo một Offer mới";
+                            if (isReOffer)
+                            {
+                                subject = "Re-Offer: Influencer đã tạo một Offer mới";
+                            }
+                            recipientEmail = brandUser.Email;
+                            body = GenerateEmailBody(
+                                _emailTempalte.influencerOffer,
+                                brandUser.DisplayName!,
+                                influencerUser.DisplayName!,
+                                offer,
+                                job
+                            );
                         }
-                        recipientEmail = brandUser.Email;
-                        body = GenerateEmailBody(
-                            _emailTempalte.influencerOffer,
-                            brandUser.DisplayName!,
-                            influencerUser.DisplayName!,
-                            offer,
-                            job
-                        );
-                    }
-                    else if (offer.From == (int)AuthEnumContainer.ERole.Brand)
-                    {
-                        subject = "Brand đã tạo một Offer mới";
-                        if (isReOffer)
+                        else if (offer.From == (int)AuthEnumContainer.ERole.Brand)
                         {
-                            subject = "Re-Offer: Brand đã tạo một Offer mới";
+                            subject = "Brand đã tạo một Offer mới";
+                            if (isReOffer)
+                            {
+                                subject = "Re-Offer: Brand đã tạo một Offer mới";
+                            }
+                            recipientEmail = influencerUser.Email;
+                            body = GenerateEmailBody(
+                                _emailTempalte.brandOffer,
+                                brandUser.DisplayName!,
+                                influencerUser.DisplayName!,
+                                offer,
+                                job
+                            );
                         }
-                        recipientEmail = influencerUser.Email;
-                        body = GenerateEmailBody(
-                            _emailTempalte.brandOffer,
-                            brandUser.DisplayName!,
-                            influencerUser.DisplayName!,
-                            offer,
-                            job
-                        );
-                    }
-                    #endregion
-                    break;
-                case EOfferStatus.WaitingPayment:
-                    break;
-                case EOfferStatus.Rejected: 
-                    break;
-                default:
-                    _loggerService.Error($"Error when send mail: {offerType}");
-                    return;
+                        #endregion
+                        break;
+                    case EOfferStatus.WaitingPayment:
+                        break;
+                    case EOfferStatus.Rejected:
+                        break;
+                    default:
+                        _loggerService.Error($"Error when send mail: {offerType}");
+                        return;
+                }
+
+                await _emailService.SendEmail(new List<string> { recipientEmail }, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Lỗi khi gửi mail offer" + ex);
             }
 
 
-            await _emailService.SendEmail(new List<string> { recipientEmail }, subject, body);
         }
         private static string GenerateEmailBody(string template, string brandName, string influencerName, Offer offer, Job job)
         {

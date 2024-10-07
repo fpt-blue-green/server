@@ -30,7 +30,7 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult> BrandCancel(Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            await _jobService.BrandCancleJob(id, user);
+            await _jobService.BrandCancelJob(id, user);
             return Ok();
         }
 

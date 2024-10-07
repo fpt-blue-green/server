@@ -31,5 +31,20 @@ namespace Repositories
                 await context.SaveChangesAsync();
             }
         }
+
+        public async Task UpdateJobAndOffer(Offer offer)
+        {
+            using (var context = new PostgresContext())
+            {
+                context.Entry(offer).State = EntityState.Modified;
+
+                // Cập nhật trạng thái của job con trong Offer
+                if (offer.Job != null)
+                {
+                    context.Entry(offer.Job).State = EntityState.Modified;
+                }
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }
