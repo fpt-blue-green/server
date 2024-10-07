@@ -11,7 +11,7 @@ public partial class PaymentBooking
 
     public decimal? Amount { get; set; }
 
-    public int? Status { get; set; }
+    public int? Type { get; set; }
 
     public DateTime? PaymentDate { get; set; }
 

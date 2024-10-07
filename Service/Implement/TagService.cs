@@ -24,11 +24,10 @@ namespace Service
             return _mapper.Map<IEnumerable<TagDTO>>(tags);
         }
 
-        public async Task CreateTag(TagDTO tagDTO, UserDTO user)
+        public async Task CreateTag(TagRequestDTO tagDTO, UserDTO user)
         {
             try
             {
-                tagDTO.Id = null;
                 var tag = _mapper.Map<Tag>(tagDTO);
                 await _tagRepository.Create(tag);
 
@@ -73,16 +72,11 @@ namespace Service
             }
         }
 
-        public async Task UpdateTag(TagDTO tagDTO, UserDTO user)
+        public async Task UpdateTag(Guid tagId,TagRequestDTO tagDTO, UserDTO user)
         {
             try
             {
-                if(tagDTO.Id == null)
-                {
-                    throw new Exception("TagID are empty when update.");
-                }
-
-                var tag = await _tagRepository.GetById(tagDTO.Id!.Value);
+                var tag = await _tagRepository.GetById(tagId);
                 if(tag == null)
                 {
                     throw new KeyNotFoundException("Update tag: Tag don't exist!");
@@ -105,16 +99,10 @@ namespace Service
             }
         }
 
-        public async Task<IEnumerable<TagDetailDTO>> GetAllTagsWithTimeDetails()
-        {
-            var tags = await _tagRepository.GetAlls();
-            return _mapper.Map<IEnumerable<TagDetailDTO>>(tags);
-        }
-
-        public async Task<IEnumerable<TagDetailDTO>> GetTagWithTimeDetailsById(Guid Id)
+        public async Task<IEnumerable<TagDTO>> GetTagById(Guid Id)
         {
             var tags = await _tagRepository.GetById(Id);
-            return _mapper.Map<IEnumerable<TagDetailDTO>>(tags);
+            return _mapper.Map<IEnumerable<TagDTO>>(tags);
         }
 
     }

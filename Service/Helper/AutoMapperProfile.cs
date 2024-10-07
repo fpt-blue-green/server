@@ -19,10 +19,10 @@ namespace Service
 			#endregion
 			#region Tag
 			CreateMap<Tag, TagDTO>().ReverseMap();
-			CreateMap<Tag, TagDetailDTO>().ReverseMap();
-			#endregion
-			#region User
-			CreateMap<User, UserDTO>().ReverseMap();
+			CreateMap<Tag, TagRequestDTO>().ReverseMap();
+            #endregion
+            #region User
+            CreateMap<User, UserDTO>().ReverseMap();
 			#endregion
 			#region Channel
 			CreateMap<ChannelStatDTO, Channel>().ReverseMap();

@@ -24,8 +24,14 @@ namespace Service
 		public async Task<Guid> CreateCampaign(Guid userId, CampaignResDto campaignDto)
 		{
 			var brand = await _brandRepository.GetByUserId(userId);
-			var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
-			if (campaignDuplicateNames.Any())
+			var campaigns = (await _campaignRepository.GetByBrandId(brand.Id));
+
+			if(brand.IsPremium == false && campaigns.Count > 1)
+			{
+                throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 1 campaign. Vui lòng nâng cấp để tiếp tục sử dụng.");
+            }
+
+            if (campaigns.Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase)).Any())
 			{
 				throw new InvalidOperationException("Tên campaign không được trùng lặp.");
 			}

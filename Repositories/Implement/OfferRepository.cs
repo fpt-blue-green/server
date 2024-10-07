@@ -19,7 +19,7 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                return (await context.Offers.FirstOrDefaultAsync(s => s.Id == id))!;
+                return (await context.Offers.Include(o => o.Job).FirstOrDefaultAsync(s => s.Id == id))!;
             }
         }
 

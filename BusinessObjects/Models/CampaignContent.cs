@@ -13,7 +13,11 @@ public partial class CampaignContent
 
     public int Quantity { get; set; }
 
-    public string Content { get; set; } = null!;
+    public string Description { get; set; } = null!;
+
+    public int TargetReaction { get; set; }
+
+    public decimal? Price { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

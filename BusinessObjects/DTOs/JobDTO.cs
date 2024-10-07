@@ -10,7 +10,6 @@ namespace BusinessObjects
 
         public EJobStatus Status { get; set; }
 
-        public string? Link { get; set; } = null!;
     }
 
     public class JobLinkDTO

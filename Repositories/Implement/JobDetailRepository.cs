@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using Repositories;
 
 namespace Repositorie
@@ -13,5 +14,17 @@ namespace Repositorie
                 await context.SaveChangesAsync();
             }
         }
+
+        public async Task<JobDetail> GetByDate(DateTime dateTime, Guid jobId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var utcDateTime = dateTime.ToUniversalTime();
+                var result =  await context.JobDetails
+                                    .FirstOrDefaultAsync(j => j.UpdateDate.Date == utcDateTime.Date && j.JobId == jobId);
+                return result!;
+            }
+        }
+
     }
 }
