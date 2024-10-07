@@ -45,12 +45,23 @@ namespace Service
             }
 
             var data = await _utilityService.GetVideoInformation(offer!.Platform!, link);
+            var oldData = await GetJobDetailByDate(DateTime.Now.AddDays(-1), job.Id);
+            if(oldData != null)
+            {
+                data.ViewCount -= oldData.ViewCount;
+                data.CommentCount -= oldData.CommentCount;
+                data.LikesCount -= oldData.LikesCount;
+            }
+
             var jobDetail = _mapper.Map<JobDetail>(data);
             jobDetail.JobId = job.Id;
             jobDetail.Link = link;
             await _jobDetailRepository.Create(jobDetail);
         }
 
-
+        public static async Task<JobDetail> GetJobDetailByDate(DateTime dateTime, Guid jobId)
+        {
+            return await _jobDetailRepository.GetByDate(dateTime, jobId);
+        }
     }
 }

@@ -8,6 +8,8 @@ namespace BusinessObjects
 		public EPlatform Platform { get; set; }
 		public EContentType ContentType { get; set; }
 		public int Quantity { get; set; }
-		public string Content { get; set; } = null!;
+        public decimal? Price { get; set; }
+        public int TargetReaction { get; set; }
+        public string Description { get; set; } = null!;
 	}
 }

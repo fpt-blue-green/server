@@ -29,8 +29,8 @@ namespace BusinessObjects.Helper
         private static DateTime ConvertToLocalTime(DateTime utcDateTime)
         {
             // Tạo một đối tượng TimeZoneInfo cho UTC+7
-            //TimeZoneInfo utcPlus7 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); // Múi giờ UTC+7
-            TimeZoneInfo utcPlus7 = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time"); // Múi giờ UTC+8 Neu test o Cty
+            TimeZoneInfo utcPlus7 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); // Múi giờ UTC+7
+            //TimeZoneInfo utcPlus7 = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time"); // Múi giờ UTC+8 Neu test o Cty
 
             // Chuyển đổi từ UTC sang UTC+7
             return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, utcPlus7);

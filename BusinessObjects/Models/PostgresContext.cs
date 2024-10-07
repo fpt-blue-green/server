@@ -78,8 +78,6 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<PaymentHistory> PaymentHistories { get; set; }
 
-    public virtual DbSet<Requirement> Requirements { get; set; }
-
     public virtual DbSet<SystemSetting> SystemSettings { get; set; }
 
     public virtual DbSet<Tag> Tags { get; set; }
@@ -96,6 +94,7 @@ public partial class PostgresContext : DbContext
     {
         DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
         modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false); 
+        modelBuilder.Entity<Campaign>().HasQueryFilter(u => u.IsDeleted == false);
 
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
@@ -203,6 +202,8 @@ public partial class PostgresContext : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("id");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
+            entity.Property(e => e.Price).HasDefaultValueSql("0");
+            entity.Property(e => e.TargetReaction).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignContents)
                 .HasForeignKey(d => d.CampaignId)
@@ -384,6 +385,7 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.PaymentDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Type).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.Job).WithMany(p => p.PaymentBookings)
                 .HasForeignKey(d => d.JobId)
@@ -402,18 +404,6 @@ public partial class PostgresContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.PaymentHistories)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("payments_userid_fkey");
-        });
-
-        modelBuilder.Entity<Requirement>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("requirements_pkey");
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-
-            entity.HasOne(d => d.Campaign).WithMany(p => p.Requirements)
-                .HasForeignKey(d => d.CampaignId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("bannedusers_campaignid_fkey");
         });
 
         modelBuilder.Entity<SystemSetting>(entity =>

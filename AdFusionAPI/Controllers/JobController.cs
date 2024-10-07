@@ -17,7 +17,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [BrandRequired]
-        [HttpPost("payment/{id}")]
+        [HttpPut("payment/{id}")]
         public async Task<ActionResult> BrandPayment(Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -26,10 +26,11 @@ namespace AdFusionAPI.Controllers
         }
 
         [BrandRequired]
-        [HttpPost("cancel/{id}")]
+        [HttpPut("cancel/{id}")]
         public async Task<ActionResult> BrandCancel(Guid id)
         {
-            await _jobService.BrandCancleJob(id);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _jobService.BrandCancleJob(id, user);
             return Ok();
         }
 

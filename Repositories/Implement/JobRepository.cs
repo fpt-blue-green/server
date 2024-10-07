@@ -51,11 +51,13 @@ namespace Repositories
             }
         }
 
-        public async Task<Job> GetJobOfferById(Guid id)
+        public async Task<Job> GetJobFullDetailById(Guid id)
         {
             using (var context = new PostgresContext())
             {
                 var job = await context.Jobs.Where(j => j.Id == id)
+                                            .Include(j => j.Campaign).ThenInclude( c => c.Brand).ThenInclude(b => b.User)
+                                            .Include(j => j.Influencer).ThenInclude(b => b.User)
                                             .Include(j => j.Offers)
                                             .FirstOrDefaultAsync();
                 return job!;
@@ -100,5 +102,6 @@ namespace Repositories
                 return jobs!;
             }
         }
+
     }
 }

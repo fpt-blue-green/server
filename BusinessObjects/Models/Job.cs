@@ -13,8 +13,6 @@ public partial class Job
 
     public int Status { get; set; }
 
-    public string? Link { get; set; } = null!;
-
     public virtual Campaign Campaign { get; set; } = null!;
 
     public virtual Influencer Influencer { get; set; } = null!;

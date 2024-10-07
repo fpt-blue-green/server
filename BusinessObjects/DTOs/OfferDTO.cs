@@ -25,9 +25,9 @@ namespace BusinessObjects
     }
     public class ReOfferDTO 
     {
-        public Guid JobId { get; set; }
         public int Price { get; set; }
         public int Quantity { get; set; }
+        public int Duration { get; set; }
         public string? Description { get; set; }
     }
 

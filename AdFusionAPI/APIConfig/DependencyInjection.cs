@@ -23,6 +23,7 @@ namespace AdFusionAPI
 			services.AddScoped<IBrandService, BrandService>();
 			services.AddScoped<ICampaignService, CampaignService>();
 			services.AddScoped<ICampaignContentService, CampaignContentService>();
+			services.AddScoped<IJobDetailService, JobDetailService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IOfferService, OfferService>();

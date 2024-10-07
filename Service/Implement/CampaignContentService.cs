@@ -46,16 +46,16 @@ namespace Service
 			{
 				foreach (var content in updateContents)
 				{
-					// Truy xuất package hiện có từ repository
-					var existingPackage = await _campaignContentRepository.GetById(content.Id.Value);
-					if (existingPackage != null)
+					var existingContent = await _campaignContentRepository.GetById(content.Id.Value);
+					if (existingContent != null)
 					{
-						// Sử dụng AutoMapper để cập nhật các thuộc tính từ DTO vào thực thể hiện có
-						existingPackage.Content = content.Content;
-						existingPackage.Platform = (int)content.Platform;
-						existingPackage.ContentType = (int)content.ContentType;
-						existingPackage.Quantity = content.Quantity;
-						await _campaignContentRepository.Update(existingPackage);
+						existingContent.Description = content.Description;
+						existingContent.Platform = (int)content.Platform;
+						existingContent.ContentType = (int)content.ContentType;
+						existingContent.Quantity = content.Quantity;
+						existingContent.Price = content.Price;
+						existingContent.TargetReaction = content.TargetReaction;
+						await _campaignContentRepository.Update(existingContent);
 					}
 					else
 					{
@@ -73,10 +73,12 @@ namespace Service
 					var c = new CampaignContent
 					{
 						CampaignId = campaign.Id,
-						Content = content.Content,
+						Description = content.Description,
 						ContentType = (int)content.ContentType,
 						Platform = (int)content.Platform,
-						Quantity = content.Quantity
+						Quantity = content.Quantity,
+						Price = content.Price,
+						TargetReaction = content.TargetReaction,
 					};
 					contentNeedCreate.Add(c);
 				}
@@ -127,10 +129,12 @@ namespace Service
 			var result = new CampaignContentDto
 			{
 				Id = campaignContentId,
-				Content = camapaignContent.Content,
+				Description = camapaignContent.Description,
 				Quantity = camapaignContent.Quantity,
 				Platform = (EPlatform)camapaignContent.Platform,
-				ContentType = (EContentType)camapaignContent.ContentType
+				ContentType = (EContentType)camapaignContent.ContentType,
+				Price = camapaignContent.Price,
+				TargetReaction = camapaignContent.TargetReaction,
 			};
 			return result;
 		}
@@ -156,10 +160,12 @@ namespace Service
 				result.Add(new CampaignContentDto
 				{
 					Id = item.Id,
-					Content = item.Content,
+					Description = item.Description,
 					ContentType = (EContentType)item.ContentType,
 					Platform = (EPlatform)item.Platform,
 					Quantity = item.Quantity,
+					Price = item.Price,
+					TargetReaction = item.TargetReaction,
 				});
 			}
 			return result;
