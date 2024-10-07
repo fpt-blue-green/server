@@ -16,7 +16,7 @@ namespace Service
         private static readonly IJobRepository _jobRepository = new JobRepository();
         private static readonly IUserRepository _userRepository = new UserRepository();
         private static readonly ConfigManager _configManager = new ConfigManager();
-        private static readonly EmailTemplate _emailTempalte = new EmailTemplate();
+        private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
@@ -78,10 +78,10 @@ namespace Service
             await SendMail(newOffer, job, EOfferStatus.Offering, true);
         }
 
-        public async Task ApproveOffer(Guid id)
+        public async Task ApproveOffer(Guid id, UserDTO userDTO)
         {
             var offer = await _offerRepository.GetById(id);
-            offer.Status = (int)JobEnumContainer.EOfferStatus.Done;
+            offer.Status = (int)JobEnumContainer.EOfferStatus.WaitingPayment;
 
             var job = await _jobRepository.GetJobFullDetailById(offer.JobId);
             if (job != null)
@@ -96,7 +96,7 @@ namespace Service
             await SendMail(offer, job, EOfferStatus.Done, true);
         }
 
-        public async Task RejectOffer(Guid id)
+        public async Task RejectOffer(Guid id, UserDTO userDTO)
         {
             var offer = await _offerRepository.GetById(id);
             offer.Status = (int)JobEnumContainer.EOfferStatus.Rejected;
@@ -115,6 +115,33 @@ namespace Service
         }
 
         #region Send Mail
+
+        public async Task SendEmailToConfirm(Guid id, UserDTO userDTO)
+        {
+            var user = await _userRepository.GetUserById(id);
+            if (user == null)
+            {
+                return;
+            }
+            var offer = await _offerRepository.GetById(id);
+            if (offer == null)
+            {
+                return;
+            }
+
+            var body = _emailTemplate.confirmOffer.Replace("{projectName}", _configManager.ProjectName)
+                                                    .Replace("{Title}", Enum.GetName(typeof(EOfferStatus), offer.Status))
+                                                    .Replace("{Name}", offer.Job.Influencer.FullName)
+                                                    .Replace("{Actor}", user.DisplayName)
+                                                    .Replace("{Status}", offer.Status.ToString())
+                                                    .Replace("{ContentType}", offer.ContentType.ToString())
+                                                    .Replace("{Price}", offer.Price.ToString())
+                                                    .Replace("{CreatedAt}", offer.CreatedAt.ToString("dd/MM/yyyy"))
+                                                    .Replace("{Description}", offer.Description)
+                                                    .Replace("{Duration}", offer.Duration.ToString());
+
+            await _emailService.SendEmail(_configManager.AdminEmails, "Đơn xác nhận offer", body);
+        }
         public static async Task SendMail(Offer offer, Job job, EOfferStatus offerType, bool isReOffer = false)
         {
             try
@@ -139,7 +166,7 @@ namespace Service
                             }
                             recipientEmail = brandUser.Email;
                             body = GenerateEmailBody(
-                                _emailTempalte.influencerOffer,
+                                _emailTemplate.influencerOffer,
                                 brandUser.DisplayName!,
                                 influencerUser.DisplayName!,
                                 offer,
@@ -155,7 +182,7 @@ namespace Service
                             }
                             recipientEmail = influencerUser.Email;
                             body = GenerateEmailBody(
-                                _emailTempalte.brandOffer,
+                                _emailTemplate.brandOffer,
                                 brandUser.DisplayName!,
                                 influencerUser.DisplayName!,
                                 offer,

@@ -6,7 +6,7 @@ namespace Service
     {
         Task CreateOffer(UserDTO userDTO, OfferCreateRequestDTO offerCreateRequestDTO);
         Task ReOffer(Guid id, UserDTO userDTO, ReOfferDTO reOfferDTO);
-        Task ApproveOffer(Guid id);
-        Task RejectOffer(Guid id);
+        Task ApproveOffer(Guid id, UserDTO userDTO);
+        Task RejectOffer(Guid id, UserDTO userDTO);
     }
 }
