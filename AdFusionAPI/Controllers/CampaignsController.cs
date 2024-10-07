@@ -17,7 +17,7 @@ namespace AdFusionAPI.Controllers
             _campaignContentService = campaignContentService;
         }
         [HttpGet()]
-        public async Task<ActionResult<List<CampaignBrandDto>>> GetCampaignsInprogres([FromQuery]  CampaignFilterDto filter)
+        public async Task<ActionResult<List<CampaignDTO>>> GetCampaignsInprogres([FromQuery]  CampaignFilterDto filter)
         {
             var result = await _campaignService.GetCampaignsInprogres(filter);
             return Ok(result);
@@ -56,10 +56,10 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("{id}/tags")]
         [BrandRequired]
-        public async Task<ActionResult<string>> UpdateTagsOfCampaign(Guid id, List<Guid> listTags)
+        public async Task<ActionResult> UpdateTagsOfCampaign(Guid id, List<Guid> listTags)
         {
-            var result = await _campaignService.UpdateTagsForCampaign(id, listTags);
-            return Ok(result);
+            await _campaignService.UpdateTagsForCampaign(id, listTags);
+            return Ok();
         }
 
         [HttpPost("{id}/images")]
@@ -91,6 +91,13 @@ namespace AdFusionAPI.Controllers
         {
             var result = await _campaignContentService.GetCampaignContents(id);
             return Ok(result);
+        }
+        [HttpDelete("{id}")]
+        [BrandRequired]
+        public async Task<ActionResult> DeleteCampaign(Guid id)
+        {
+            await _campaignService.DeleteCampaign(id);
+            return Ok();
         }
         /*[HttpGet("contents/{contentId}")]
 		[AuthRequired]

@@ -41,6 +41,7 @@ namespace Service
 			//create
 			campaign = _mapper.Map<Campaign>(campaignDto);
 			campaign.BrandId = brand.Id;
+			campaign.Status =(int) ECampaignStatus.Draft;
 			await _campaignRepository.Create(campaign);
 			/*}
 			else
@@ -100,12 +101,23 @@ namespace Service
 			_loggerService.Information("Cập nhật campaign thành công");
 			return campaign.Id;
 		}
-
-		public async Task<List<CampaignBrandDto>> GetCampaignsInprogres(CampaignFilterDto filter)
+		public async Task DeleteCampaign(Guid campaignId)
 		{
-			var result = new List<CampaignBrandDto>();
+			var campaign = await _campaignRepository.GetById(campaignId);
+			if (campaign.Status == (int)ECampaignStatus.Active || campaign.Status == (int)ECampaignStatus.Published)
+			{
+				throw new InvalidOperationException("Campaign này đang hoạt động,không thể xoá.");
+			}
+			else
+			{
+				await _campaignRepository.Delete(campaignId);
+			}
+		}
+		public async Task<List<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDto filter)
+		{
+			var result = new List<CampaignDTO>();
 			var campaigns = await _campaignRepository.GetAlls();
-			var campaignInprogres = campaigns.Where(s => s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now);
+			var campaignInprogres = campaigns.Where(s => /*(s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now) &&*/ (s.Status == (int)ECampaignStatus.Active || s.Status ==(int) ECampaignStatus.Published));
 			if (campaignInprogres.Any())
 			{
 				if (filter.TagIds != null && filter.TagIds.Any())
@@ -148,7 +160,7 @@ namespace Service
 					.Skip((filter.PageIndex - 1) * pageSize)
 					.Take(pageSize)
 					.ToList();
-				result = _mapper.Map<List<CampaignBrandDto>>(campaignInprogres);
+				result = _mapper.Map<List<CampaignDTO>>(campaignInprogres);
 			}
 			return result;
 		}
@@ -167,7 +179,7 @@ namespace Service
 			}
 			return listTagsRes;
 		}*/
-		public async Task<string> UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds)
+		public async Task UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds)
 		{
 			var duplicateTagIds = tagIds.GroupBy(t => t)
 								.Where(g => g.Count() > 1)
@@ -206,9 +218,8 @@ namespace Service
 				}
 
 			}
-			return "Cập nhật tag thành công.";
 		}
-
+		
 		public async Task<List<string>> UploadCampaignImages(Guid campaignId, List<Guid> imageIds, List<IFormFile> contentFiles, string folder)
 		{
 			var contentDownloadUrls = new List<string>();
