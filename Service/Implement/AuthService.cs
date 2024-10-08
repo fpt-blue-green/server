@@ -259,6 +259,7 @@ namespace Service
             {
                 throw new InvalidOperationException("Email chưa được đăng ký ở hệ thống.");
             }
+
             var newPasswordHash = _securityService.ComputeSha256Hash(forgotPasswordDTO.NewPassword);
 
             userGet.Password = newPasswordHash;

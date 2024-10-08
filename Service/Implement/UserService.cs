@@ -23,11 +23,11 @@ namespace Service
 
         public async Task<string> UploadAvatarAsync(IFormFile file, string folder, UserDTO user)
         {
-            _loggerService.Information("Start to upload image: ");
+            _loggerService.Information("Start to upload image.");
 
             if (file == null)
             {
-                throw new Exception("Invalid File");
+                throw new InvalidOperationException("File không hợp lệ.");
             }
 
             var userGet = await _userRepository.GetUserById(user.Id);
@@ -43,7 +43,7 @@ namespace Service
             userGet.Avatar = avatar.ToString();
             await _userRepository.UpdateUser(userGet);
 
-            _loggerService.Information("End to upload image");
+            _loggerService.Information("End to upload image.");
 
             return avatar.ToString();
         }

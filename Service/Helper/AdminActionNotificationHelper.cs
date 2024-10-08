@@ -9,21 +9,21 @@ namespace Service.Helper
 {
     public class AdminActionNotificationHelper
     {
-        private static IAdminActionRepository _adminAdctionRepository = new AdminActionRepository();
+        private static IAdminActionRepository _adminActionRepository = new AdminActionRepository();
 
-        public async Task CreateNotification<T>(UserDTO userDTO, EAdminAction actionType, string modelChange, T? newData, T? oldData)
+        public async Task CreateNotification<T>(UserDTO userDTO, EAdminAction actionType, T? newData, T? oldData, string? objectType = null)
         {
             var settings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
 
-            string action = GetDisplayName(actionType); ;
+            string action = GetDisplayName(actionType);
             // Format ngày giờ
             string formattedDateTime = DateTime.Now.ToString("HH:mm 'ngày' dd 'tháng' MM 'năm' yyyy");
 
             // Tạo đoạn văn tóm tắt
-            string summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã thực hiện thao tác [{action}] trên model {modelChange}. " +
+            string summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã thực hiện thao tác [{action}] trên model {objectType ?? typeof(T).Name}. " +
                  (oldData == null ? "" : $"Dữ liệu cũ: {JsonConvert.SerializeObject(oldData, settings)}. ") +
                  (newData == null ? "" : $"Dữ liệu mới sau khi [{action}] là: {JsonConvert.SerializeObject(newData, settings)}.");
 
@@ -33,9 +33,10 @@ namespace Service.Helper
                 UserId = userDTO.Id,
                 ActionType = (int)actionType,
                 ActionDetails = summary,
+                ObjectType = objectType ?? typeof(T).Name,
             };
 
-            await _adminAdctionRepository.Create(detail);
+            await _adminActionRepository.Create(detail);
         }
 
         public static string GetDisplayName(Enum value)

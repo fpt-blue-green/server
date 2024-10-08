@@ -48,8 +48,10 @@ namespace Service
             offer.From = (int)userDTO.Role;
             await _offerRepository.Create(offer);
 
+            var job = await _jobRepository.GetJobFullDetailById(jobnew.Id);
+
             //Send Mail
-            await SendMail(offer, jobnew, EOfferStatus.Offering);
+            await SendMail(offer, job, EOfferStatus.Offering);
         }
 
         public async Task ReOffer(Guid id, UserDTO userDTO, ReOfferDTO reOfferDTO)
