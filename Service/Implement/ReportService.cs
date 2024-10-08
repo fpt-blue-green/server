@@ -25,10 +25,10 @@ namespace Service
         public async Task CreateInfluencerReport(Guid influencerId, ReportRequestDTO reportRequestDTO, UserDTO userDTO)
         {
             _loggerService.Information("Start to report Influencer: ");
-            var influReportList =  await _reportRepository.GetInfluencerReportsByInfluencerId(influencerId);
+            var influReportList = await _reportRepository.GetInfluencerReportsByInfluencerId(influencerId);
             if (influReportList != null)
             {
-                if (influReportList.FirstOrDefault(x => x.ReporterId == userDTO.Id) != null) 
+                if (influReportList.FirstOrDefault(x => x.ReporterId == userDTO.Id) != null)
                 {
                     throw new InvalidOperationException("Không được report 1 Influencer quá 2 lần.");
                 }
@@ -87,7 +87,7 @@ namespace Service
         public async Task SendEmailToReport(Guid id)
         {
             var influencerReport = await GetInfluencerReportById(id);
-            if (influencerReport == null) 
+            if (influencerReport == null)
             {
                 return;
             }
@@ -98,7 +98,7 @@ namespace Service
                                                     .Replace("{Reporter}", influencerReport.Reporter.DisplayName)
                                                     .Replace("{CreatedAt}", influencerReport.CreatedAt.ToString("dd/MM/yyyy"))
                                                     .Replace("{Description}", influencerReport.Description);
-            await _emailService.SendEmail(_configManager.AdminReportHandler , "Đơn báo cáo Influencer", body);
+            await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn báo cáo Influencer", body);
         }
     }
 }
