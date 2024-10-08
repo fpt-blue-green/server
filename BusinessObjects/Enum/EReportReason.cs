@@ -10,4 +10,11 @@
         UncompletedWork = 5,      // Không hoàn thành công việc: Không thực hiện nhiệm vụ đã nhận.
         ViolationOfTerms = 6,     // Vi phạm điều khoản dịch vụ: Không tuân thủ quy định của nền tảng.
     }
+
+    public enum EReportStatus
+    {
+        Pending = 0,
+        Rejected = 1,
+        Approved = 2,
+    }
 }

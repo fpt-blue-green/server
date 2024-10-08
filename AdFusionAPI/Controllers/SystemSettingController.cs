@@ -30,8 +30,8 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<string>> UpdateSystemSetting(SystemSettingDTO settingDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _systemSettingService.UpdateSystemSetting(settingDTO, user);
-            return Ok(result);
+            await _systemSettingService.UpdateSystemSetting(settingDTO, user);
+            return Ok();
         }
         #endregion
 

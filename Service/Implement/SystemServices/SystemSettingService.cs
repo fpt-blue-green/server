@@ -3,7 +3,6 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Service.Helper;
-using Supabase.Gotrue;
 
 namespace Service
 {
@@ -35,19 +34,23 @@ namespace Service
             return result;
         }
 
-        public async Task<string> UpdateSystemSetting(SystemSettingDTO systemSettingDTO, UserDTO user)
+        public async Task UpdateSystemSetting(SystemSettingDTO systemSettingDTO, UserDTO user)
         {
             var systemSetting = await _systemSettingRepository.GetSystemSetting(systemSettingDTO.KeyName);
-            var oldData = systemSetting.KeyValue;
+            var oldKeyData = systemSetting.KeyValue;
+            var oldDesData = systemSetting.Description;
             if (systemSetting == null)
             {
                 throw new KeyNotFoundException();
             }
             systemSetting.KeyValue = systemSettingDTO.KeyValue;
+            systemSetting.Description = systemSettingDTO.Description;
             await _systemSettingRepository.UpdateSystemSettingKeyValue(systemSetting);
 
-            await adminActionNotificationHelper.CreateNotification<String>(user, EAdminAction.Update, "SystemSetting", $"KeyValue: {oldData}", $"KeyValue: {systemSettingDTO.KeyValue}");
-            return "Cập nhập cài đặt hệ thông thành công.";
+            await adminActionNotificationHelper.CreateNotification<String>(user, EAdminAction.Update,
+                                                    $"KeyValue: {oldKeyData}, Description: {oldDesData}",
+                                                    $"KeyValue: {systemSettingDTO.KeyValue}, Description: {systemSettingDTO.Description}",
+                                                    "SystemSetting");
         }
     }
 }
