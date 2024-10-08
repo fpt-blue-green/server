@@ -38,7 +38,7 @@ namespace Repositories
 				var campaign = await context.Campaigns.FirstOrDefaultAsync(i => i.Id == id);
 				if (campaign != null)
 				{
-					context.Campaigns.Remove(campaign);
+					campaign.IsDeleted = true;
 					await context.SaveChangesAsync();
 				}
 			}
@@ -48,7 +48,8 @@ namespace Repositories
 			using (var context = new PostgresContext())
 			{
 				var campaigns = await context.Campaigns
-					.Include(s => s.Brand)
+					.Include(s => s.Brand).ThenInclude(s => s.User)
+                    .Include(s => s.Tags)
 					.Include(s => s.CampaignImages)
 					.Include(s => s.CampaignContents).ToListAsync();
 				return campaigns!;
@@ -60,7 +61,8 @@ namespace Repositories
 			using (var context = new PostgresContext())
 			{
 				var campaigns = await context.Campaigns
-					.Include(s => s.Brand)
+					.Include(s => s.Brand).ThenInclude(s => s.User)
+					.Include(s => s.Tags)
 					.Include(s => s.CampaignImages)
 					.Include(s => s.CampaignContents)
 					.Where(s => s.BrandId == id).ToListAsync();
@@ -73,7 +75,8 @@ namespace Repositories
 			using (var context = new PostgresContext())
 			{
 				var campaign = await context.Campaigns
-					.Include(s => s.Brand)
+					.Include(s => s.Brand).ThenInclude(s => s.User)
+                    .Include(s => s.Tags)
 					.Include(s => s.CampaignImages)
 					.Include(s => s.CampaignContents)
 					.FirstOrDefaultAsync(i => i.Id == id);

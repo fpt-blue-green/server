@@ -15,6 +15,7 @@ namespace Service
         private static readonly IOfferRepository _offerRepository = new OfferRepository();
         private static readonly IJobRepository _jobRepository = new JobRepository();
         private static readonly IUserRepository _userRepository = new UserRepository();
+        private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
@@ -32,6 +33,18 @@ namespace Service
             {
                 throw new InvalidOperationException("Admin không thể tạo được Offer.");
             }
+            var campagin = await _campaignRepository.GetById(offerCreateRequestDTO.Job.CampaignId);
+            if(campagin == null)
+            {
+                throw new InvalidOperationException("Campaign không tồn tại, hãy kiểm tra lại.");
+            }
+            else
+            {
+                if(campagin.Status != (int)ECampaignStatus.Active || campagin.Status != (int)ECampaignStatus.Published)
+                {
+                    throw new InvalidOperationException("Campaign này chưa đi vào hoạt động, hãy bắt đầu trước.");
+                }
+            }
             if (userDTO.Role == AuthEnumContainer.ERole.Influencer)
             {
                 var influencer = await _influencerRepository.GetByUserId(userDTO.Id) ?? throw new KeyNotFoundException();
@@ -48,8 +61,10 @@ namespace Service
             offer.From = (int)userDTO.Role;
             await _offerRepository.Create(offer);
 
+            var job = await _jobRepository.GetJobFullDetailById(jobnew.Id);
+
             //Send Mail
-            await SendMail(offer, jobnew, EOfferStatus.Offering);
+            await SendMail(offer, job, EOfferStatus.Offering);
         }
 
         public async Task ReOffer(Guid id, UserDTO userDTO, ReOfferDTO reOfferDTO)

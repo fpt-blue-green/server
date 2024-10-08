@@ -41,9 +41,8 @@ namespace Service
 				}
 			}
 			var influencer = await _influencerRepository.GetByUserId(userId);
-			if (influencer.Id == null)
+			if (influencer == null)
 			{
-				_loggerService.Information("Influencer không tồn tại.");
 				throw new InvalidOperationException("Influencer không tồn tại.");
 			}
 			if (updatePackages.Any())
@@ -51,7 +50,7 @@ namespace Service
 				foreach (var packageDTO in updatePackages)
 				{
 					// Truy xuất package hiện có từ repository
-					var existingPackage = await _packageRepository.GetById(packageDTO.Id.Value);
+					var existingPackage = await _packageRepository.GetById(packageDTO.Id!.Value);
 					if (existingPackage != null)
 					{
 						// Sử dụng AutoMapper để cập nhật các thuộc tính từ DTO vào thực thể hiện có
@@ -61,7 +60,6 @@ namespace Service
 					}
 					else
 					{
-						_loggerService.Information($"Package với ID {packageDTO.Id.Value} không tồn tại.");
 						throw new InvalidOperationException($"Package với ID {packageDTO.Id.Value} không tồn tại.");
 					}
 				}
@@ -72,7 +70,6 @@ namespace Service
 
 				if (packageNeedCreate == null || packageNeedCreate.Count == 0)
 				{
-					_loggerService.Information("Tạo package thất bại.");
 					throw new InvalidOperationException("Vui lòng tạo ít nhất 1 package.");
 				}
 				packageNeedCreate.ForEach(package => package.InfluencerId = influencer.Id);
@@ -83,10 +80,10 @@ namespace Service
 			// Tìm các package có trong allPackages nhưng không có trong listPackages
 			var listDtoPackageIds = packages
 				.Where(p => p.Id.HasValue)
-				.Select(p => p.Id.Value)
+				.Select(p => p.Id!.Value)
 				.ToList();
 
-			deletePackageList = allPackages.Where(p => !listDtoPackageIds.Contains((Guid)p.Id)).ToList();
+			deletePackageList = allPackages.Where(p => !listDtoPackageIds.Contains(p.Id!.Value)).ToList();
 			if (deletePackageList.Any())
 			{
 				var packageNeedDelete = _mapper.Map<List<Package>>(deletePackageList);
@@ -95,7 +92,6 @@ namespace Service
 				{
 					await _packageRepository.Delete(package.Id);
 				}
-				_loggerService.Information("Xoá package không còn tồn tại thành công");
 			}
 			await UpdateInfluencerAveragePrice(influencer);
 			return "Tạo thành công";
@@ -106,7 +102,6 @@ namespace Service
 			var package = await _packageRepository.GetById(packageId);
 			if (package == null)
 			{
-				_loggerService.Information($"get package {packageId} thất bại");
 				throw new InvalidOperationException("Package không tồn tại.");
 
 			}
@@ -116,13 +111,14 @@ namespace Service
 
 		public async Task<List<PackageDTO>> GetInfluPackages(Guid userId)
 		{
-			var influencerId = (await _influencerRepository.GetByUserId(userId)).Id;
-			if (influencerId == null)
+			var infuluencer = await _influencerRepository.GetByUserId(userId);
+			if (infuluencer == null)
 			{
-				_loggerService.Information("Influencer không tồn tại.");
 				throw new InvalidOperationException("Influencer không tồn tại.");
 			}
-			var packages = (await _packageRepository.GetAlls()).Where(s => s.InfluencerId == influencerId);
+            var influencerId = infuluencer.Id;
+
+            var packages = (await _packageRepository.GetAlls()).Where(s => s.InfluencerId == influencerId);
 			if (packages == null || !packages.Any())
 			{
 				_loggerService.Information($"get packages của influencer: {userId} không có value : count = 0");
@@ -138,7 +134,6 @@ namespace Service
 			var influencer = await _influencerRepository.GetByUserId(userId);
 			if (influencer == null)
 			{
-				_loggerService.Information("Influencer không tồn tại.");
 				throw new InvalidOperationException("Influencer không tồn tại.");
 			}
 			if (package == null)
@@ -154,7 +149,6 @@ namespace Service
 			}
 			else
 			{
-				_loggerService.Information($"cập nhật package của influencer: {userId} thất bại.");
 				throw new InvalidOperationException("Không thể cập nhật.");
 			}
 			return "Cập nhật thành công";
@@ -167,7 +161,7 @@ namespace Service
 			{
 				var listPrice = packages.Select(s => s.Price);
 				var average = listPrice?.Average();
-				influencer.AveragePrice = (decimal)average;
+				influencer.AveragePrice = (decimal)average!;
 				await _influencerRepository.Update(influencer);
 			}
 			

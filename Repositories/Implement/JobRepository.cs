@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using static BusinessObjects.JobEnumContainer;
 
@@ -95,7 +96,7 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                var jobs = await context.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress)
+                var jobs = await context.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress && j.Campaign.Status != (int)ECampaignStatus.Completed)
                                             .Include(j => j.Offers)
                                             .Include(j => j.Influencer).ThenInclude(i => i.User)
                                             .ToListAsync();
@@ -103,5 +104,16 @@ namespace Repositories
             }
         }
 
+        public async Task<IEnumerable<Job>> GetCampaignJobs(Guid campaginId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.CampaignId == campaginId)
+                                            .Include(j => j.Offers)
+                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                            .ToListAsync();
+                return jobs!;
+            }
+        }
     }
 }

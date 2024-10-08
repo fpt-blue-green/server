@@ -17,7 +17,7 @@ namespace AdFusionAPI.Controllers
             _campaignContentService = campaignContentService;
         }
         [HttpGet()]
-        public async Task<ActionResult<List<CampaignBrandDto>>> GetCampaignsInprogres([FromQuery]  CampaignFilterDto filter)
+        public async Task<ActionResult<List<CampaignDTO>>> GetCampaignsInprogres([FromQuery]  CampaignFilterDto filter)
         {
             var result = await _campaignService.GetCampaignsInprogres(filter);
             return Ok(result);
@@ -46,6 +46,21 @@ namespace AdFusionAPI.Controllers
             var result = await _campaignService.UpdateCampaign(user.Id, id, campaign);
             return Ok(result);
         }
+        [HttpPut("start/{id}")]
+        [BrandRequired]
+        public async Task<ActionResult<Guid>> StartCampaign( Guid id)
+        {
+           await _campaignService.StartCampaign( id );
+            return Ok();
+        }
+        [HttpPut("publish/{id}")]
+        [BrandRequired]
+        public async Task<ActionResult<Guid>> PublishCampaign(Guid id)
+        {
+            await _campaignService.PublishCampaign(id);
+            return Ok();
+        }
+        #region tag
         /*[HttpGet("tags")]
 		[AuthRequired]
 		public async Task<ActionResult<List<TagDTO>>> GetTagsOfCampaign( Guid campaignId)
@@ -56,12 +71,13 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("{id}/tags")]
         [BrandRequired]
-        public async Task<ActionResult<string>> UpdateTagsOfCampaign(Guid id, List<Guid> listTags)
+        public async Task<ActionResult> UpdateTagsOfCampaign(Guid id, List<Guid> listTags)
         {
-            var result = await _campaignService.UpdateTagsForCampaign(id, listTags);
-            return Ok(result);
+            await _campaignService.UpdateTagsForCampaign(id, listTags);
+            return Ok();
         }
-
+        #endregion
+        #region image
         [HttpPost("{id}/images")]
         [BrandRequired]
         public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images, Guid id)
@@ -69,6 +85,7 @@ namespace AdFusionAPI.Controllers
             var result = await _campaignService.UploadCampaignImages(id, imageIds, images, "CampaignImages");
             return Ok(result);
         }
+        #endregion
 
         #region content
         [HttpPost("{id}/contents")]
@@ -91,6 +108,13 @@ namespace AdFusionAPI.Controllers
         {
             var result = await _campaignContentService.GetCampaignContents(id);
             return Ok(result);
+        }
+        [HttpDelete("{id}")]
+        [BrandRequired]
+        public async Task<ActionResult> DeleteCampaign(Guid id)
+        {
+            await _campaignService.DeleteCampaign(id);
+            return Ok();
         }
         /*[HttpGet("contents/{contentId}")]
 		[AuthRequired]

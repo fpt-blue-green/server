@@ -31,7 +31,7 @@ namespace Service
                 var tag = _mapper.Map<Tag>(tagDTO);
                 await _tagRepository.Create(tag);
 
-                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Create, "Tag",tag, null);
+                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Create,tag, null);
             }
             catch (Exception ex)
             {
@@ -57,7 +57,7 @@ namespace Service
                 }
                 await _tagRepository.Delete(tag);
 
-                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Delete, "Tag", null, tag);
+                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Delete, null, tag);
             }
             catch (Exception ex)
             {
@@ -84,7 +84,7 @@ namespace Service
                 var newTag = _mapper.Map(tagDTO, tag);
                 await _tagRepository.Update(tag);
 
-                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Update, "Tag", newTag, tag);
+                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Update, newTag, tag);
             }
             catch (Exception ex)
             {
