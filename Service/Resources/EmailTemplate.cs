@@ -514,6 +514,7 @@
                                             <li>Giá: {Price}</li>
                                             <li>Thời gian tạo: {CreatedAt}</li>
                                             <li>Thời gian phản hồi: {Duration}</li>
+                                            <li>Mô tả: {Description}</li>
                                         </ul>
                                         <p>Để biết thêm chi tiết, vui lòng truy cập vào:</p>
                                         <div class=""button-container"">

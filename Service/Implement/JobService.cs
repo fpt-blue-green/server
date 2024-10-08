@@ -68,7 +68,7 @@ namespace Service
             }
         }
 
-        public async Task BrandCancleJob(Guid jobId, UserDTO userDto)
+        public async Task BrandCancelJob(Guid jobId, UserDTO userDto)
         {
             var job = await _jobService.GetJobFullDetailById(jobId);
 
