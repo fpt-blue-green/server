@@ -15,6 +15,7 @@ namespace Service
         private static readonly IOfferRepository _offerRepository = new OfferRepository();
         private static readonly IJobRepository _jobRepository = new JobRepository();
         private static readonly IUserRepository _userRepository = new UserRepository();
+        private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static readonly EmailTemplate _emailTempalte = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
@@ -31,6 +32,18 @@ namespace Service
             if (userDTO.Role == AuthEnumContainer.ERole.Admin)
             {
                 throw new InvalidOperationException("Admin không thể tạo được Offer.");
+            }
+            var campagin = await _campaignRepository.GetById(offerCreateRequestDTO.Job.CampaignId);
+            if(campagin == null)
+            {
+                throw new InvalidOperationException("Campaign không tồn tại, hãy kiểm tra lại.");
+            }
+            else
+            {
+                if(campagin.Status != (int)ECampaignStatus.Active || campagin.Status != (int)ECampaignStatus.Published)
+                {
+                    throw new InvalidOperationException("Campaign này chưa đi vào hoạt động, hãy bắt đầu trước.");
+                }
             }
             if (userDTO.Role == AuthEnumContainer.ERole.Influencer)
             {

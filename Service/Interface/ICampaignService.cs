@@ -16,6 +16,9 @@ namespace Service
 		Task UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds);
 		Task<List<string>> UploadCampaignImages(Guid campaignId, List<Guid> imageIds, List<IFormFile> contentFiles, string folder);
 		Task DeleteCampaign(Guid campaignId);
+        Task PublishCampaign(Guid campaignId);
+        Task StartCampaign(Guid campaignId);
 
-	}
+
+    }
 }
