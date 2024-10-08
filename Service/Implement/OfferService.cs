@@ -93,7 +93,7 @@ namespace Service
             await _offerRepository.UpdateJobAndOffer(offer);
 
             //Send Mail
-            await SendMail(offer, job, EOfferStatus.Done, true);
+            await SendEmailToConfirm(offer, userDTO);
         }
 
         public async Task RejectOffer(Guid id, UserDTO userDTO)
@@ -111,19 +111,18 @@ namespace Service
             await _offerRepository.UpdateJobAndOffer(offer);
 
             //Send Mail
-            await SendMail(offer, job, EOfferStatus.Rejected, true);
+            await SendEmailToConfirm(offer, userDTO);
         }
 
         #region Send Mail
 
-        public async Task SendEmailToConfirm(Guid id, UserDTO userDTO)
+        public async Task SendEmailToConfirm(Offer offer, UserDTO userDTO)
         {
-            var user = await _userRepository.GetUserById(id);
+            var user = await _userRepository.GetUserById(userDTO.Id);
             if (user == null)
             {
                 return;
             }
-            var offer = await _offerRepository.GetById(id);
             if (offer == null)
             {
                 return;
@@ -133,15 +132,16 @@ namespace Service
                                                     .Replace("{Title}", Enum.GetName(typeof(EOfferStatus), offer.Status))
                                                     .Replace("{Name}", offer.Job.Influencer.FullName)
                                                     .Replace("{Actor}", user.DisplayName)
-                                                    .Replace("{Status}", offer.Status.ToString())
+                                                    .Replace("{Status}", Enum.GetName(typeof(EOfferStatus), offer.Status))
                                                     .Replace("{ContentType}", offer.ContentType.ToString())
                                                     .Replace("{Price}", offer.Price.ToString())
                                                     .Replace("{CreatedAt}", offer.CreatedAt.ToString("dd/MM/yyyy"))
                                                     .Replace("{Description}", offer.Description)
                                                     .Replace("{Duration}", offer.Duration.ToString());
 
-            await _emailService.SendEmail(_configManager.AdminEmails, "Đơn xác nhận offer", body);
+            await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn xác nhận offer", body);
         }
+
         public static async Task SendMail(Offer offer, Job job, EOfferStatus offerType, bool isReOffer = false)
         {
             try

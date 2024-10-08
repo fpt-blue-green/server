@@ -38,7 +38,8 @@ namespace AdFusionAPI.Controllers
         [HttpPut("rejectOffer/{id}")]
         public async Task<ActionResult> RejectOffer(Guid id)
         {
-            await _offerService.RejectOffer(id);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _offerService.RejectOffer(id, user);
             return Ok();
         }
 
@@ -46,7 +47,8 @@ namespace AdFusionAPI.Controllers
         [HttpPut("approveOffer/{id}")]
         public async Task<ActionResult> ApproveOffer(Guid id)
         {
-            await _offerService.ApproveOffer(id);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _offerService.ApproveOffer(id, user);
             return Ok();
         }
     }
