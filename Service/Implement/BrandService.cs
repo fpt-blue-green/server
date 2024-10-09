@@ -2,7 +2,6 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Repositories;
 using Serilog;
 using Service.Helper;
@@ -47,20 +46,12 @@ namespace Service
         public async Task<BrandDTO> GetBrandById(Guid id)
         {
             var result = await _brandRepository.GetBrandById(id);
-            if (result == null)
-            {
-                throw new KeyNotFoundException();
-            }
             return _mapper.Map<BrandDTO>(result);
         }
 
         public async Task<BrandDTO> GetBrandByUserId(Guid userId)
         {
             var result = await _brandRepository.GetByUserId(userId);
-            if (result == null)
-            {
-                throw new KeyNotFoundException();
-            }
             return _mapper.Map<BrandDTO>(result);
         }
 

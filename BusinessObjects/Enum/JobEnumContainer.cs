@@ -1,6 +1,5 @@
 ﻿namespace BusinessObjects
 {
-
     public static class JobEnumContainer
     {
         public enum EJobStatus
@@ -11,7 +10,6 @@
             Failed = 3,           // Job thất bại
             NotCreated = 4,       // Job không thành công do không có offer nào được đồng ý
         }
-
 
         public enum EOfferStatus
         {

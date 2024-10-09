@@ -21,7 +21,7 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult> BrandPayment(Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            await _jobService.BrandPaymentJob(id ,user);
+            await _jobService.BrandPaymentJob(id, user);
             return Ok();
         }
 

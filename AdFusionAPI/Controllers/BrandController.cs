@@ -1,5 +1,4 @@
 ﻿using AdFusionAPI.APIConfig;
-using AutoMapper;
 using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
@@ -11,14 +10,14 @@ namespace AdFusionAPI.Controllers
     public class BrandController : Controller
     {
         private readonly IBrandService _brandService;
-		private readonly ICampaignService _campaignService;
-		public BrandController(IBrandService brandService, ICampaignService campaignService)
-		{
-			_brandService = brandService;
-			_campaignService = campaignService;
-		}
+        private readonly ICampaignService _campaignService;
+        public BrandController(IBrandService brandService, ICampaignService campaignService)
+        {
+            _brandService = brandService;
+            _campaignService = campaignService;
+        }
 
-		[HttpGet]
+        [HttpGet]
         [BrandRequired]
         public async Task<ActionResult<BrandDTO>> GetCurrentBrand()
         {
@@ -53,13 +52,13 @@ namespace AdFusionAPI.Controllers
             var result = await _brandService.UpdateBrandSocial(brandSocialDTO, user);
             return Ok(result);
         }
-		[HttpGet("campaigns")]
-		[AuthRequired]
-		public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns()
-		{
-			var user = (UserDTO)HttpContext.Items["user"]!;
-			var result = await _campaignService.GetBrandCampaigns(user.Id);
-			return Ok(result);
-		}
-	}
+        [HttpGet("campaigns")]
+        [AuthRequired]
+        public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _campaignService.GetBrandCampaigns(user.Id);
+            return Ok(result);
+        }
+    }
 }

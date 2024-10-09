@@ -29,7 +29,7 @@ namespace Service
             var influReportList =  await _reportRepository.GetInfluencerReportsByInfluencerId(influencerId);
             if (influReportList != null)
             {
-                if (influReportList.FirstOrDefault(x => x.ReporterId == userDTO.Id) != null) 
+                if (influReportList.FirstOrDefault(x => x.ReporterId == userDTO.Id) != null)
                 {
                     throw new InvalidOperationException("Bạn chỉ được phép báo cáo Influencer 1 lần.");
                 }
@@ -87,21 +87,20 @@ namespace Service
 
         public async Task SendEmailToReport(Guid id)
         {
-            try
-            {
                 var influencerReport = await GetInfluencerReportById(id);
                 if (influencerReport == null)
                 {
                     return;
                 }
 
-                var body = _emailTemplate.reportTemplate.Replace("{projectName}", _configManager.ProjectName)
-                                                        .Replace("{Reason}", Enum.GetName(typeof(BusinessObjects.EReportReason), influencerReport.Reason!))
-                                                        .Replace("{InfluencerName}", influencerReport.Influencer.FullName)
-                                                        .Replace("{Reporter}", influencerReport.Reporter.DisplayName)
-                                                        .Replace("{CreatedAt}", influencerReport.CreatedAt.ToString("dd/MM/yyyy"))
-                                                        .Replace("{Description}", influencerReport.Description);
-                await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn báo cáo Influencer", body);
+            var body = _emailTemplate.reportTemplate.Replace("{projectName}", _configManager.ProjectName)
+                                                    .Replace("{Reason}", Enum.GetName(typeof(BusinessObjects.EReportReason), influencerReport.Reason!))
+                                                    .Replace("{InfluencerName}", influencerReport.Influencer.FullName)
+                                                    .Replace("{Reporter}", influencerReport.Reporter.DisplayName)
+                                                    .Replace("{CreatedAt}", influencerReport.CreatedAt.ToString("dd/MM/yyyy"))
+                                                    .Replace("{Description}", influencerReport.Description);
+            await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn báo cáo Influencer", body);
+
             }catch(Exception ex)
             {
                 _loggerService.Error("Has error when send mail in ReportService." + ex);
