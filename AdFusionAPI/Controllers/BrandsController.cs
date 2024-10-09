@@ -1,6 +1,7 @@
 ﻿using AdFusionAPI.APIConfig;
 using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -24,6 +25,32 @@ namespace AdFusionAPI.Controllers
         {
             var result = await _brandService.GetBrandById(id);
             return Ok(result);
+        }
+
+        [HttpGet("allFavorites")]
+        [BrandRequired]
+        public async Task<ActionResult<Favorite>> GetAllFavoriteByBrandId()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _brandService.GetAllFavoriteByBrandId(user);
+            return Ok(result);
+        }
+
+        [HttpPost("{influencerId}")]
+        [BrandRequired]
+        public async Task<ActionResult> CreateFavorite(Guid influencerId)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _brandService.CreateFavorite(influencerId, user);
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        [BrandRequired]
+        public async Task<ActionResult> DeleteFavorite(Guid id)
+        {
+            await _brandService.DeleteFavorite(id);
+            return Ok();
         }
     }
 }
