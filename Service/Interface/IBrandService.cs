@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace Service
@@ -10,5 +11,8 @@ namespace Service
         Task<BrandDTO> GetBrandByUserId(Guid userId);
         Task<BrandDTO> GetBrandById(Guid id);
         Task<string> UpdateBrandSocial(BrandSocialDTO brandSocialDTO, UserDTO user);
+        Task CreateFavorite(Guid id, UserDTO user);
+        Task DeleteFavorite(Guid favoriteId);
+        Task<IEnumerable<Favorite>> GetAllFavoriteByBrandId(UserDTO user);
     }
 }
