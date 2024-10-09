@@ -503,7 +503,7 @@
                             <body>
                                 <div class=""email-container"">
                                     <div class=""email-header"">
-                                        Thông báo Offer đã {Title} 
+                                        {Title} 
                                     </div>
                                     <div class=""email-body"">
                                         <h2>Xin chào {Name},</h2>
@@ -513,7 +513,7 @@
                                             <li>Content : {ContentType}</li>
                                             <li>Giá: {Price}</li>
                                             <li>Thời gian tạo: {CreatedAt}</li>
-                                            <li>Thời gian phản hồi: {Duration}</li>
+                                            <li>Thời gian phản hồi: {ResponseTime}</li>
                                             <li>Mô tả: {Description}</li>
                                         </ul>
                                         <p>Để biết thêm chi tiết, vui lòng truy cập vào:</p>
@@ -531,6 +531,107 @@
                                 </div>
                             </body>
                             </html>";
+        #endregion
+        
+        # region brandPaymentOffer
+        public string brandPaymentOffer = @"<!DOCTYPE html>
+                                        <html lang=""vi"">
+                                        <head>
+                                            <meta charset=""UTF-8"">
+                                            <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                                            <title>Thông Báo Brand Đã Thanh Toán Offer Thành Công</title>
+                                            <style>
+                                                body {
+                                                    font-family: Arial, sans-serif;
+                                                    background-color: #f4f4f4;
+                                                    margin: 0;
+                                                    padding: 0;
+                                                }
+                                                .email-container {
+                                                    background-color: white;
+                                                    max-width: 600px;
+                                                    margin: 0 auto;
+                                                    border-radius: 8px;
+                                                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                                    overflow: hidden;
+                                                }
+                                                .email-header {
+                                                    background-color: rgb(255, 112, 129);
+                                                    color: white;
+                                                    text-align: center;
+                                                    padding: 25px;
+                                                    font-size: 22px;
+                                                    font-weight: bold;
+                                                }
+                                                .email-body {
+                                                    padding: 20px;
+                                                    color: #333;
+                                                }
+                                                .email-body h2 {
+                                                    color: rgb(255, 112, 129);
+                                                }
+                                                .email-body p {
+                                                    line-height: 1.6;
+                                                }
+                                                .email-body ul {
+                                                    padding-left: 20px;
+                                                }
+                                                .button-container {
+                                                    text-align: center;
+                                                    margin: 20px 0;
+                                                }
+                                                .button {
+                                                    background-color: rgb(255, 112, 129);
+                                                    color: white;
+                                                    padding: 10px 20px;
+                                                    text-align: center;
+                                                    text-decoration: none;
+                                                    display: inline-block;
+                                                    border-radius: 5px;
+                                                    font-weight: bold;
+                                                }
+                                                .email-footer {
+                                                    padding: 20px;
+                                                    font-size: 12px;
+                                                    color: #777;
+                                                    border-top: 1px solid #eaeaea;
+                                                }
+                                                .email-footer .copyright {
+                                                    text-align: center;
+                                                }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            <div class=""email-container"">
+                                                <div class=""email-header"">
+                                                    Thông Báo Offer đã {Title}
+                                                </div>
+                                                <div class=""email-body"">
+                                                    <h2>Xin chào {InfluencerName},</h2>
+                                                    <p>Chúng tôi xin thông báo rằng Brand <strong>{BrandName}</strong> đã {Status} thanh toán offer</p>
+                                                    <p>Thông tin chi tiết về offer của bạn:</p>
+                                                    <ul>
+                                                        <li>Content : {ContentType}</li>
+                                                        <li>Giá: {Price}</li>
+                                                        <li>Mô tả: {Description}</li>
+                                                        <li>Thời gian tạo: {CreatedAt}</li>
+                                                        <li>Thời gian phản hồi: {ResponseAt}</li>
+                                                    </ul>
+                                                    <p>{EndQuote}</p>
+                                                    <div class=""button-container"">
+                                                        <a href=""{ReportLink}"" class=""button"">Xem Chi Tiết</a>
+                                                    </div>
+                                                </div>
+                                                <div class=""email-footer"">
+                                                    <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                                    <p>Trân trọng,<br><br>{projectName}</p>
+                                                    <div class=""copyright"">
+                                                        <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </body>
+                                        </html>";
         #endregion
 
         #region Report

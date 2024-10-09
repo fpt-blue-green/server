@@ -17,7 +17,15 @@ namespace AdFusionAPI.Controllers
         }
 
         #region SystemSetting
-        [HttpGet("SystemSetting")]
+        [HttpGet()]
+        [AdminRequired]
+        public async Task<ActionResult<IEnumerable<SystemSettingDTO>>> GetSystemSettings()
+        {
+            var result = await _systemSettingService.GetSystemSettings();
+            return Ok(result);
+        }
+
+        [HttpGet("{keyName}")]
         [AdminRequired]
         public async Task<ActionResult<SystemSettingDTO>> GetSystemSetting(string keyName)
         {
@@ -26,7 +34,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [AdminRequired]
-        [HttpPut("SystemSetting")]
+        [HttpPut()]
         public async Task<ActionResult<string>> UpdateSystemSetting(SystemSettingDTO settingDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;

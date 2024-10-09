@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BusinessObjects;
 using BusinessObjects.Models;
 using Repositorie;
 using Repositories;
@@ -17,7 +16,6 @@ namespace Service
             cfg.AddProfile<AutoMapperProfile>();
         }).CreateMapper();
 
-
         public async Task UpdateJobDetailData(Job job, string? link)
         {
             // Nếu link không null, tạo 1 JobDetail mới
@@ -29,24 +27,28 @@ namespace Service
             {
                 var links = await _jobRepository.GetLinkJobInProgress(job.Id);
 
-                foreach(var item in links)
+                foreach (var item in links)
                 {
-                    await CreateSingleJobDetails(job, item);
+                    await CreateSingleJobDetails(job, item, true);
                 }
             }
         }
 
-        public static async Task CreateSingleJobDetails(Job job, string link)
+        public static async Task CreateSingleJobDetails(Job job, string link, bool isJobUpdate = false)
         {
             var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.Done);
             if (offer == null)
             {
-                throw new InvalidOperationException("Không có Offer nào trong Job.");
+                if (isJobUpdate)
+                {
+                    return;
+                }
+                throw new InvalidOperationException("Không có Offer nào đã thanh toán trong Job.");
             }
 
             var data = await _utilityService.GetVideoInformation(offer!.Platform!, link);
             var oldData = await GetJobDetailByDate(DateTime.Now.AddDays(-1), job.Id);
-            if(oldData != null)
+            if (oldData != null)
             {
                 data.ViewCount -= oldData.ViewCount;
                 data.CommentCount -= oldData.CommentCount;

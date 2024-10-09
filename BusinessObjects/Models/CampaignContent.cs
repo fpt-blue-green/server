@@ -15,15 +15,15 @@ public partial class CampaignContent
 
     public string Description { get; set; } = null!;
 
-    public int TargetReaction { get; set; }
-
-    public decimal? Price { get; set; }
-
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
 
     public Guid CampaignId { get; set; }
+
+    public decimal? Price { get; set; }
+
+    public int TargetReaction { get; set; }
 
     public virtual Campaign Campaign { get; set; } = null!;
 }

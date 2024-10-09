@@ -29,8 +29,8 @@ namespace AdFusionAPI.APIConfig.JobConfig
                 // Lấy ngày hiện tại
                 var currentDate = DateTime.UtcNow;
 
-                // Kiểm tra xem hôm nay có phải là ngày chạy của job 2 không
-                if (currentDate.Day % 4 == 0) // Chạy mỗi 4 ngày một lần
+                // Kiểm tra xem hôm nay có phải là ngày chạy của job 3 không
+                if (currentDate.Day % 2 == 0) // Chạy mỗi 2 ngày một lần
                 {
                     var job3Key = new JobKey("UploadOfferDataJobService");
 

@@ -1,4 +1,7 @@
-﻿namespace BusinessObjects.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace BusinessObjects.Models;
 
 public partial class Tag
 {
