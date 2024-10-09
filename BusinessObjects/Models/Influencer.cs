@@ -35,6 +35,8 @@ public partial class Influencer
 
     public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
+    public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
     public virtual ICollection<InfluencerImage> InfluencerImages { get; set; } = new List<InfluencerImage>();

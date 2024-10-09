@@ -44,7 +44,7 @@ namespace Service
                                                                  .Replace("{timeHappend}", DateTime.UtcNow.AddHours(7).ToString() + " UTC+07")
                                                                  .Replace("{logLink}", _configManager.LogLink)
                                                                  .Replace("{keyWord}", jobID);
-                await _emailService.SendEmail(_configManager.AdminEmails, "Thông Báo Lỗi", body);
+                await _emailService.SendEmail(_configManager.AdminEmails, "Thông Báo Lỗi Upload Channel", body);
             }
             _loggerService.Information($"Job {jobID}: Channel data upload Finished. Result: {JsonConvert.SerializeObject(result)}");
         }

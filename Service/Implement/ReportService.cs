@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
-using Newtonsoft.Json;
 using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
@@ -25,13 +24,13 @@ namespace Service
         }
         public async Task CreateInfluencerReport(Guid influencerId, ReportRequestDTO reportRequestDTO, UserDTO userDTO)
         {
-            _loggerService.Information("Start to report Influencer: " + influencerId+ " " + JsonConvert.SerializeObject(reportRequestDTO));
-            var influReportList =  await _reportRepository.GetInfluencerReportsByInfluencerId(influencerId);
+            _loggerService.Information("Start to report Influencer: ");
+            var influReportList = await _reportRepository.GetInfluencerReportsByInfluencerId(influencerId);
             if (influReportList != null)
             {
                 if (influReportList.FirstOrDefault(x => x.ReporterId == userDTO.Id) != null)
                 {
-                    throw new InvalidOperationException("Bạn chỉ được phép báo cáo Influencer 1 lần.");
+                    throw new InvalidOperationException("Không được report 1 Influencer quá 2 lần.");
                 }
             }
 
@@ -50,12 +49,12 @@ namespace Service
             };
             await _reportRepository.Create(influencerReport);
             await SendEmailToReport(influencerReport.Id);
-            _loggerService.Information("End to report Influencer");
+            _loggerService.Information("End to report Influencer: ");
         }
 
         public async Task DeleteInfluencerReport(Guid id, UserDTO userDTO)
         {
-            _loggerService.Information($"Start to delete InfluencerReport: Id {id}");
+            _loggerService.Information("Start to delete InfluencerReport: ");
             var influencerReport = await _reportRepository.GetById(id);
             if (influencerReport == null)
             {
@@ -67,7 +66,7 @@ namespace Service
             }
 
             await _reportRepository.Delete(influencerReport);
-            _loggerService.Information("End to delete InfluencerReport.");
+            _loggerService.Information("End to delete InfluencerReport: ");
         }
 
         public async Task<InfluencerReport> GetInfluencerReportById(Guid id)
@@ -87,25 +86,26 @@ namespace Service
 
         public async Task SendEmailToReport(Guid id)
         {
+            try
+            {
                 var influencerReport = await GetInfluencerReportById(id);
                 if (influencerReport == null)
                 {
                     return;
                 }
 
-            var body = _emailTemplate.reportTemplate.Replace("{projectName}", _configManager.ProjectName)
-                                                    .Replace("{Reason}", Enum.GetName(typeof(BusinessObjects.EReportReason), influencerReport.Reason!))
-                                                    .Replace("{InfluencerName}", influencerReport.Influencer.FullName)
-                                                    .Replace("{Reporter}", influencerReport.Reporter.DisplayName)
-                                                    .Replace("{CreatedAt}", influencerReport.CreatedAt.ToString("dd/MM/yyyy"))
-                                                    .Replace("{Description}", influencerReport.Description);
-            await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn báo cáo Influencer", body);
-
-            }catch(Exception ex)
-            {
-                _loggerService.Error("Has error when send mail in ReportService." + ex);
+                var body = _emailTemplate.reportTemplate.Replace("{projectName}", _configManager.ProjectName)
+                                                        .Replace("{Reason}", Enum.GetName(typeof(BusinessObjects.EReportReason), influencerReport.Reason!))
+                                                        .Replace("{InfluencerName}", influencerReport.Influencer.FullName)
+                                                        .Replace("{Reporter}", influencerReport.Reporter.DisplayName)
+                                                        .Replace("{CreatedAt}", influencerReport.CreatedAt.ToString("dd/MM/yyyy"))
+                                                        .Replace("{Description}", influencerReport.Description);
+                await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn báo cáo Influencer", body);
             }
-            
+            catch(Exception ex)
+            {
+                _loggerService.Error("Has error when send mail in Report");
+            }
         }
     }
 }

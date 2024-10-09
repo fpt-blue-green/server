@@ -281,7 +281,7 @@ namespace Service
                 var channelId = string.Empty;
 
                 // Lấy API Key từ hệ thống cài đặt
-                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue;
+                var apiKey = _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey).Result.KeyValue ?? throw new KeyNotFoundException();
 
                 // Tạo URL để tìm kiếm kênh bằng tên
                 var searchUrl = $"https://www.googleapis.com/youtube/v3/search?part=snippet&q={channelName}&type=channel&key={apiKey}";
@@ -330,7 +330,7 @@ namespace Service
             try
             {
                 _loggerService.Information("Start to get video Youtube Video information: " + videoUrl);
-                var apiKey = await _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey);
+                var apiKey = await _systemSettingService.GetSystemSetting(_configManager.YoutubeAPIKey) ?? throw new KeyNotFoundException();
                 string videoId = videoUrl.Substring(videoUrl.IndexOf("v=") + 2).Split('&')[0];
 
                 string apiUrl = $"https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id={videoId}&key={apiKey.KeyValue}";

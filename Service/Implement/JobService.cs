@@ -2,6 +2,7 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
+using Serilog;
 using static BusinessObjects.JobEnumContainer;
 
 namespace Service
@@ -13,8 +14,9 @@ namespace Service
         private static readonly EmailTemplate _emailTempalte = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
         private static IUserRepository _userRepository = new UserRepository();
-        private static IInfluencerRepository _influencerService = new InfluencerRepository();
         private static IPaymentBookingRepository _paymentBookingRepository = new PaymentBookingRepository();
+        private static readonly ConfigManager _configManager = new ConfigManager();
+        private static ILogger _loggerService = new LoggerService().GetDbLogger();
 
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
         {
@@ -36,6 +38,7 @@ namespace Service
             {
                 throw new InvalidOperationException("Không có Offer nào được chấp thuận.");
             }
+
             var user = job.Campaign.Brand.User;
 
             if (userDto.Id != user.Id)
@@ -47,25 +50,25 @@ namespace Service
             {
                 throw new InvalidOperationException("Không đủ tiền để thanh toán. Vui lòng đến trang nạp tiền để hoàn thành Offer.");
             }
-            else
+
+            user.Wallet -= offer.Price;
+            await _userRepository.UpdateUser(user);
+            job.Status = (int)EJobStatus.InProgress;
+            job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Done;
+            await _jobService.UpdateJobAndOffer(job);
+
+            //Save Payment data.
+            await _paymentBookingRepository.Create(new PaymentBooking
             {
-                user.Wallet -= offer.Price;
-                await _userRepository.UpdateUser(user);
-                job.Status = (int)EJobStatus.InProgress;
-                job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Done;
-                await _jobService.UpdateJobAndOffer(job);
+                JobId = jobId,
+                Amount = offer.Price,
+                Type = (int)EPaymentBookingStatus.BrandPayment,
+            });
 
-                //Save Payment data.
-                await _paymentBookingRepository.Create(new PaymentBooking
-                {
-                    JobId = jobId,
-                    Amount = offer.Price,
-                    Type = (int)EPaymentBookingStatus.BrandPayment,
-                });
+            var influencerUser = job.Influencer.User;
 
-                var influencerUser = job.Influencer.User;
-
-            }
+            //send mail
+            await SendMail(job, offer, "được thanh toán", "được thanh toán", "Bạn có thể bắt đầu công việc ngay khi chiến dịch được khởi động.");
         }
 
         public async Task BrandCancelJob(Guid jobId, UserDTO userDto)
@@ -86,6 +89,9 @@ namespace Service
             job.Status = (int)EJobStatus.NotCreated;
             job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Cancelled;
             await _jobService.UpdateJobAndOffer(job);
+
+            //send mail
+            await SendMail(job, offer, "bị từ chối thanh toán", "bị từ chối", "Rất tiếc, thanh toán cho chiến dịch đã bị hủy, do đó bạn không thể bắt đầu công việc.");
         }
 
         public async Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO)
@@ -104,11 +110,33 @@ namespace Service
             await _jobDetailService.UpdateJobDetailData(job, linkDTO.Link);
         }
 
-        public async Task SendMail(Job job)
+        public async Task SendMail(Job job, Offer offer, string title, string status, string endQuote)
         {
-            string subject = string.Empty;
-            string body = string.Empty;
-            await _emailService.SendEmail(new List<string> { "" }, subject, body);
+            try
+            {
+                string subject = "Thông báo trạng thái thanh toán của Offer";
+                var influencerUser = job.Influencer.User;
+                var brandUser = job.Campaign.Brand.User;
+
+                var body = _emailTempalte.brandPaymentOffer
+                    .Replace("{Title}", title)
+                    .Replace("{InfluencerName}", influencerUser.DisplayName)
+                    .Replace("{BrandName}", brandUser.DisplayName)
+                    .Replace("{Status}", status)
+                    .Replace("{ContentType}", ((EContentType)offer.ContentType).GetEnumDescription())
+                    .Replace("{Price}", offer?.Price.ToString("N0") + " VND" ?? "")
+                    .Replace("{Description}", offer?.Description)
+                    .Replace("{CreatedAt}", offer?.CreatedAt.ToString())
+                    .Replace("{ResponseAt}", DateTime.Now.ToString())
+                    .Replace("{ReportLink}", "")
+                    .Replace("{EndQuote}", endQuote)
+                    .Replace("{projectName}", _configManager.ProjectName);
+                await _emailService.SendEmail(new List<string> { "nguyenhoang062017@gmail.com" }, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
+            }
         }
     }
 }

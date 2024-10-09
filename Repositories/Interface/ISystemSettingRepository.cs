@@ -6,5 +6,6 @@ namespace Repositories
     {
         Task<SystemSetting> GetSystemSetting(string keyName);
         Task UpdateSystemSettingKeyValue(SystemSetting systemSetting);
+        Task<IEnumerable<SystemSetting>> GetAll();
     }
 }

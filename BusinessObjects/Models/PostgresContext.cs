@@ -1,4 +1,6 @@
-﻿using BusinessObjects.Helper;
+﻿using System;
+using System.Collections.Generic;
+using BusinessObjects.Helper;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessObjects.Models;
@@ -58,6 +60,8 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<Channel> Channels { get; set; }
 
+    public virtual DbSet<Favorite> Favorites { get; set; }
+
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
     public virtual DbSet<Influencer> Influencers { get; set; }
@@ -95,7 +99,6 @@ public partial class PostgresContext : DbContext
         DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
         modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false); 
         modelBuilder.Entity<Campaign>().HasQueryFilter(u => u.IsDeleted == false);
-
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
@@ -169,7 +172,6 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Budget).HasPrecision(18, 2);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.Status).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.Brand).WithMany(p => p.Campaigns)
                 .HasForeignKey(d => d.BrandId)
@@ -181,8 +183,7 @@ public partial class PostgresContext : DbContext
                     "CampaignTag",
                     r => r.HasOne<Tag>().WithMany()
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("campaigntags_tagid_fkey"),
+                        .HasConstraintName("CampaignTags_TagId_fkey"),
                     l => l.HasOne<Campaign>().WithMany()
                         .HasForeignKey("CampaignId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
@@ -202,8 +203,7 @@ public partial class PostgresContext : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("id");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
-            entity.Property(e => e.Price).HasDefaultValueSql("0");
-            entity.Property(e => e.TargetReaction).HasDefaultValueSql("0");
+            entity.Property(e => e.Price).HasDefaultValueSql("'0'::numeric");
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignContents)
                 .HasForeignKey(d => d.CampaignId)
@@ -236,6 +236,24 @@ public partial class PostgresContext : DbContext
                 .HasForeignKey(d => d.InfluencerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("channels_influencerid_fkey");
+        });
+
+        modelBuilder.Entity<Favorite>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("favorites_pkey");
+
+            entity.HasIndex(e => new { e.BrandId, e.InfluencerId }, "favorites_unique_constraint").IsUnique();
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.Brand).WithMany(p => p.Favorites)
+                .HasForeignKey(d => d.BrandId)
+                .HasConstraintName("favorites_brandid_fkey");
+
+            entity.HasOne(d => d.Influencer).WithMany(p => p.Favorites)
+                .HasForeignKey(d => d.InfluencerId)
+                .HasConstraintName("favorites_influencerid_fkey");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
@@ -276,8 +294,7 @@ public partial class PostgresContext : DbContext
                     "InfluencerTag",
                     r => r.HasOne<Tag>().WithMany()
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("influencertags_tagid_fkey"),
+                        .HasConstraintName("InfluencerTags_TagId_fkey"),
                     l => l.HasOne<Influencer>().WithMany()
                         .HasForeignKey("InfluencerId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
@@ -361,7 +378,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Job).WithMany(p => p.Offers)
                 .HasForeignKey(d => d.JobId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("offer_jobid_fkey");
         });
 
@@ -422,9 +439,8 @@ public partial class PostgresContext : DbContext
 
             entity.HasIndex(e => e.Name, "tags_tagname_key").IsUnique();
 
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
         modelBuilder.Entity<User>(entity =>

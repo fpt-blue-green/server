@@ -2,8 +2,8 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
-using static BusinessObjects.JobEnumContainer;
 using Serilog;
+using static BusinessObjects.JobEnumContainer;
 
 
 namespace Service
@@ -34,13 +34,13 @@ namespace Service
                 throw new InvalidOperationException("Admin không thể tạo được Offer.");
             }
             var campagin = await _campaignRepository.GetById(offerCreateRequestDTO.Job.CampaignId);
-            if(campagin == null)
+            if (campagin == null)
             {
                 throw new InvalidOperationException("Campaign không tồn tại, hãy kiểm tra lại.");
             }
             else
             {
-                if(campagin.Status != (int)ECampaignStatus.Active || campagin.Status != (int)ECampaignStatus.Published)
+                if (campagin.Status != (int)ECampaignStatus.Active || campagin.Status != (int)ECampaignStatus.Published)
                 {
                     throw new InvalidOperationException("Campaign này chưa đi vào hoạt động, hãy bắt đầu trước.");
                 }
@@ -71,6 +71,11 @@ namespace Service
         {
             //set status old offer to reject
             var oldOffer = await _offerRepository.GetById(id);
+            if (oldOffer.From != (int)userDTO.Role)
+            {
+                throw new AccessViolationException();
+            }
+
             oldOffer.Status = (int)JobEnumContainer.EOfferStatus.Rejected;
             await _offerRepository.Update(oldOffer);
 
@@ -96,67 +101,54 @@ namespace Service
         public async Task ApproveOffer(Guid id, UserDTO userDTO)
         {
             var offer = await _offerRepository.GetById(id);
-            offer.Status = (int)JobEnumContainer.EOfferStatus.WaitingPayment;
 
-            var job = await _jobRepository.GetJobFullDetailById(offer.JobId);
-            if (job != null)
+            if (offer.From != (int)userDTO.Role)
             {
-                job.Status = (int)EJobStatus.InProgress;
-                offer.Job = job;
+                throw new AccessViolationException();
             }
+            var job = await _jobRepository.GetJobFullDetailById(offer.JobId);
+
+            if (job == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            offer.Status = (int)JobEnumContainer.EOfferStatus.WaitingPayment;
+            job.Status = (int)EJobStatus.InProgress;
+            offer.Job = job;
 
             await _offerRepository.UpdateJobAndOffer(offer);
 
             //Send Mail
-            await SendEmailToConfirm(offer, userDTO);
+            await SendMail(offer, job!, EOfferStatus.WaitingPayment);
         }
 
         public async Task RejectOffer(Guid id, UserDTO userDTO)
         {
             var offer = await _offerRepository.GetById(id);
-            offer.Status = (int)JobEnumContainer.EOfferStatus.Rejected;
 
-            var job = await _jobRepository.GetJobFullDetailById(offer.JobId);
-            if (job != null)
+            if (offer.From != (int)userDTO.Role)
             {
-                job.Status = (int)EJobStatus.NotCreated;
-                offer.Job = job;
+                throw new AccessViolationException();
             }
+            var job = await _jobRepository.GetJobFullDetailById(offer.JobId);
+
+            if (job == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            offer.Status = (int)JobEnumContainer.EOfferStatus.Rejected;
+            job.Status = (int)EJobStatus.NotCreated;
+            offer.Job = job;
 
             await _offerRepository.UpdateJobAndOffer(offer);
 
             //Send Mail
-            await SendEmailToConfirm(offer, userDTO);
+            await SendMail(offer, job!, EOfferStatus.Rejected);
         }
 
         #region Send Mail
-
-        public async Task SendEmailToConfirm(Offer offer, UserDTO userDTO)
-        {
-            var user = await _userRepository.GetUserById(userDTO.Id);
-            if (user == null)
-            {
-                return;
-            }
-            if (offer == null)
-            {
-                return;
-            }
-
-            var body = _emailTemplate.confirmOffer.Replace("{projectName}", _configManager.ProjectName)
-                                                    .Replace("{Title}", Enum.GetName(typeof(EOfferStatus), offer.Status))
-                                                    .Replace("{Name}", offer.Job.Influencer.FullName)
-                                                    .Replace("{Actor}", user.DisplayName)
-                                                    .Replace("{Status}", Enum.GetName(typeof(EOfferStatus), offer.Status))
-                                                    .Replace("{ContentType}", offer.ContentType.ToString())
-                                                    .Replace("{Price}", offer.Price.ToString())
-                                                    .Replace("{CreatedAt}", offer.CreatedAt.ToString("dd/MM/yyyy"))
-                                                    .Replace("{Description}", offer.Description)
-                                                    .Replace("{Duration}", offer.Duration.ToString());
-
-            await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn xác nhận offer", body);
-        }
-
         public static async Task SendMail(Offer offer, Job job, EOfferStatus offerType, bool isReOffer = false)
         {
             try
@@ -180,7 +172,7 @@ namespace Service
                                 subject = "Re-Offer: Influencer đã tạo một Offer mới";
                             }
                             recipientEmail = brandUser.Email;
-                            body = GenerateEmailBody(
+                            body = GenerateOfferEmailBody(
                                 _emailTemplate.influencerOffer,
                                 brandUser.DisplayName!,
                                 influencerUser.DisplayName!,
@@ -196,7 +188,7 @@ namespace Service
                                 subject = "Re-Offer: Brand đã tạo một Offer mới";
                             }
                             recipientEmail = influencerUser.Email;
-                            body = GenerateEmailBody(
+                            body = GenerateOfferEmailBody(
                                 _emailTemplate.brandOffer,
                                 brandUser.DisplayName!,
                                 influencerUser.DisplayName!,
@@ -207,8 +199,34 @@ namespace Service
                         #endregion
                         break;
                     case EOfferStatus.WaitingPayment:
+                        #region Approve
+                        subject = "Offer của bạn đã được chấp thuận";
+                        if (offer.From == (int)AuthEnumContainer.ERole.Influencer)
+                        {
+                            recipientEmail = brandUser.Email;
+                            body = GenerateBodyEmailToConfirm(influencerUser.DisplayName!, brandUser.DisplayName!, "Thông báo Offer đã được ", offer, job);
+                        }
+                        else if (offer.From == (int)AuthEnumContainer.ERole.Brand)
+                        {
+                            recipientEmail = influencerUser.Email;
+                            body = GenerateBodyEmailToConfirm(brandUser.DisplayName!, influencerUser.DisplayName!, "Thông báo Offer đã được ", offer, job);
+                        }
+                        #endregion
                         break;
                     case EOfferStatus.Rejected:
+                        #region Reject
+                        subject = "Offer của bạn đã bị từ chối";
+                        if (offer.From == (int)AuthEnumContainer.ERole.Influencer)
+                        {
+                            recipientEmail = brandUser.Email;
+                            body = GenerateBodyEmailToConfirm(influencerUser.DisplayName!, brandUser.DisplayName!, "Thông báo Offer đã bị ", offer, job);
+                        }
+                        else if (offer.From == (int)AuthEnumContainer.ERole.Brand)
+                        {
+                            recipientEmail = influencerUser.Email;
+                            body = GenerateBodyEmailToConfirm(brandUser.DisplayName!, influencerUser.DisplayName!, "Thông báo Offer đã bị ", offer, job);
+                        }
+                        #endregion
                         break;
                     default:
                         _loggerService.Error($"Error when send mail: {offerType}");
@@ -224,7 +242,7 @@ namespace Service
 
 
         }
-        private static string GenerateEmailBody(string template, string brandName, string influencerName, Offer offer, Job job)
+        private static string GenerateOfferEmailBody(string template, string brandName, string influencerName, Offer offer, Job job)
         {
             return template
                 .Replace("{projectName}", _configManager.ProjectName)
@@ -237,6 +255,22 @@ namespace Service
                 .Replace("{JobDescription}", offer?.Description ?? "")
                 .Replace("{JobLink}", "")
                 .Replace("{JobPayment}", offer?.Price.ToString("N0") ?? "");
+        }
+
+        public static string GenerateBodyEmailToConfirm(string name, string actor, string title, Offer offer, Job job)
+        {
+            var body = _emailTemplate.confirmOffer.Replace("{projectName}", _configManager.ProjectName)
+                                                    .Replace("{Title}", title + ((EOfferStatus)offer.Status).GetEnumDescription())
+                                                    .Replace("{Name}", name)
+                                                    .Replace("{Actor}", actor)
+                                                    .Replace("{Status}", ((EOfferStatus)offer.Status).GetEnumDescription())
+                                                    .Replace("{ContentType}", ((EContentType)offer.ContentType).GetEnumDescription())
+                                                    .Replace("{Price}", offer?.Price.ToString("N0") + " VND" ?? "")
+                                                    .Replace("{CreatedAt}", offer?.CreatedAt.ToString())
+                                                    .Replace("{Description}", offer?.Description)
+                                                    .Replace("{ResponseTime}", DateTime.Now.ToString())
+                                                    .Replace("{DetailsLink}", "");
+            return body;
         }
         #endregion
     }

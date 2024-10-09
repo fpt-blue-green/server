@@ -35,5 +35,7 @@ public partial class Brand
 
     public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
 
+    public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+
     public virtual User User { get; set; } = null!;
 }
