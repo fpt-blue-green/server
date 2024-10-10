@@ -1,7 +1,5 @@
 ﻿using AdFusionAPI.APIConfig;
-using AutoMapper;
 using BusinessObjects;
-using BusinessObjects.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -12,12 +10,12 @@ namespace AdFusionAPI.Controllers
     public class BrandsController : Controller
     {
         private readonly IBrandService _brandService;
-        private readonly IMapper _mapper;
+        private readonly ICampaignService _campaignService;
 
-        public BrandsController(IBrandService brandService, IMapper mapper)
+        public BrandsController(IBrandService brandService, ICampaignService campaignService)
         {
             _brandService = brandService;
-            _mapper = mapper;
+            _campaignService = campaignService;
         }
 
         [HttpGet("{id}")]
@@ -27,30 +25,12 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("allFavorites")]
-        [BrandRequired]
-        public async Task<ActionResult<Favorite>> GetAllFavoriteByBrandId()
+        [HttpGet("{id}/campaigns")]
+        public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns(Guid id)
         {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _brandService.GetAllFavoriteByBrandId(user);
+            var result = await _campaignService.GetPublishBrandCampaigns(id);
             return Ok(result);
         }
 
-        [HttpPost("{influencerId}")]
-        [BrandRequired]
-        public async Task<ActionResult> CreateFavorite(Guid influencerId)
-        {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            await _brandService.CreateFavorite(influencerId, user);
-            return Ok();
-        }
-
-        [HttpDelete("{id}")]
-        [BrandRequired]
-        public async Task<ActionResult> DeleteFavorite(Guid id)
-        {
-            await _brandService.DeleteFavorite(id);
-            return Ok();
-        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BusinessObjects;
+﻿using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.IdentityModel.Tokens;
 using Repositories;
@@ -11,7 +10,6 @@ namespace Service
     {
         private static readonly ICampaignContentRepository _campaignContentRepository = new CampaignContentRepository();
         private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
-        private readonly IMapper _mapper;
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         public async Task CreateCampaignContents(Guid campaginId, List<CampaignContentDto> campaignContents)
         {

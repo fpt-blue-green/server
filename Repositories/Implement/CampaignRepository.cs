@@ -84,6 +84,18 @@ namespace Repositories
 			}
 		}
 
+		public async Task<Campaign> GetFullDetailCampaignJobById(Guid id)
+		{
+            using (var context = new PostgresContext())
+            {
+                var campaign = await context.Campaigns
+                    .Include(s => s.Brand).ThenInclude(s => s.User)
+                    .Include(s => s.Jobs).ThenInclude(s => s.Influencer).ThenInclude(s => s.User)
+                    .FirstOrDefaultAsync(i => i.Id == id);
+                return campaign;
+            }
+        }
+
 		public async Task<List<Tag>> GetTagsOfCampaign(Guid campaignId)
 		{
 			using (var context = new PostgresContext())

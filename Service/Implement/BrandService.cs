@@ -20,32 +20,6 @@ namespace Service
             _mapper = mapper;
         }
 
-        public async Task CreateFavorite(Guid id, UserDTO user)
-        {
-            var brand = await _brandRepository.GetByUserId(user.Id);
-            if (brand == null)
-            {
-                throw new InvalidOperationException("Brand không tồn tại.");
-            }
-
-            var favorites = await _favoriteRepository.GetAllFavoriteByBrandId(brand.Id);
-            if (favorites != null)
-            {
-                if (favorites.Any(x => x.InfluencerId == id))
-                {
-                    throw new InvalidOperationException("Influencer đã được thêm vào danh sách yêu thích.");
-                }
-            }
-            var favorite = new Favorite()
-            {
-                Id = Guid.NewGuid(),
-                BrandId = brand.Id,
-                InfluencerId = id,
-            };
-
-            await _favoriteRepository.CreateFavorite(favorite);
-        }
-
         public async Task<string> CreateOrUpdateBrand(BrandRequestDTO brandRequestDTO, UserDTO user)
         {
 
@@ -68,21 +42,6 @@ namespace Service
                 await _brandRepository.UpdateBrand(brandUpdated);
                 return "Cập nhật brand thành công.";
             }
-        }
-
-        public async Task DeleteFavorite(Guid favoriteId)
-        {
-            await _favoriteRepository.DeleteFavorite(favoriteId);
-        }
-
-        public async Task<IEnumerable<Favorite>> GetAllFavoriteByBrandId(UserDTO user)
-        {
-            var brand = await _brandRepository.GetByUserId(user.Id);
-            if (brand == null)
-            {
-                throw new InvalidOperationException("Brand không tồn tại.");
-            }
-            return await _favoriteRepository.GetAllFavoriteByBrandId(brand.Id);
         }
 
         public async Task<BrandDTO> GetBrandById(Guid id)

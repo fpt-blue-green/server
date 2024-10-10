@@ -11,7 +11,8 @@ namespace Repositories
 		Task<List<Tag>> GetTagsOfCampaign(Guid campaignId);
 		Task AddTagToCampaign(Guid campaignId, Guid tagId);
 		Task RemoveTagOfCampaign(Guid campaignId, Guid tagId);
-		Task Create(Campaign campaign);
+		Task<Campaign> GetFullDetailCampaignJobById(Guid id);
+        Task Create(Campaign campaign);
 		Task Update(Campaign campaign);
 		Task Delete(Guid id);
 	}

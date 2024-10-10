@@ -208,7 +208,8 @@ namespace Service
             var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(registerDTO));
             var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.Register}&token={token}";
             var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Đăng ký tài khoản mới").Replace("{confirmLink}", confirmationUrl);
-            await _emailService.SendEmail(new List<string> { registerDTO.Email }, "Xác nhận đăng ký tài khoản mới", body);
+            // Gửi mail thông báo trong một tác vụ nền
+            _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { registerDTO.Email }, "Xác nhận đăng ký tài khoản mới", body));
             return "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận.";
         }
 
@@ -246,7 +247,7 @@ namespace Service
 
             var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Thay đổi mật khẩu").Replace("{confirmLink}", confirmationUrl);
 
-            await _emailService.SendEmail(new List<string> { userGet.Email }, "Xác nhận thay đổi mật khẩu", body);
+            _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { userGet.Email }, "Xác nhận thay đổi mật khẩu", body));
 
             return "Thay đổi thành công. Vui lòng kiểm tra email để xác nhận.";
         }
@@ -275,7 +276,7 @@ namespace Service
 
             var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Quên mật khẩu").Replace("{confirmLink}", confirmationUrl);
 
-            await _emailService.SendEmail(new List<string> { forgotPasswordDTO.Email }, "Xác nhận quên mật khẩu", body);
+            _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { forgotPasswordDTO.Email }, "Xác nhận quên mật khẩu", body));
 
             return "Yêu cầu cập nhập lại mật khẩu thành công. Vui lòng kiểm tra email để xác nhận.";
         }

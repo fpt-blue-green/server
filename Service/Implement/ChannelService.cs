@@ -19,13 +19,14 @@ namespace Service
 
         public async Task CreateInfluencerChannel(UserDTO user, List<ChannelPlatFormUserNameDTO> channels)
         {
-            if(!channels.Any()) {
+            if (!channels.Any())
+            {
                 throw new InvalidOperationException(_configManager.ProfileNotComplete);
             }
             // Lấy ID của influencer từ repository
             var influencer = _userRepository.GetUserById(user.Id).Result.Influencer!;
 
-            if(influencer == null)
+            if (influencer == null)
             {
                 throw new InvalidOperationException("Vui lòng hoàn thiện thông tin ở các bước trước.");
             }

@@ -3,11 +3,11 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Repositories;
 using Serilog;
 using Service.Helper;
 using System.Reflection;
+using static BusinessObjects.JobEnumContainer;
 
 namespace Service
 {
@@ -19,6 +19,10 @@ namespace Service
         private static readonly IJobRepository _jobRepository = new JobRepository();
         private readonly IMapper _mapper;
         private static readonly ILogger _loggerService = new LoggerService().GetDbLogger();
+        private static readonly ConfigManager _configManager = new ConfigManager();
+        private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
+        private static readonly IEmailService _emailService = new EmailService();
+
         public CampaignService(IMapper mapper)
         {
             _mapper = mapper;
@@ -71,7 +75,7 @@ namespace Service
             return result;
         }
 
-        public async Task<List<CampaignDTO>> GetBrandCampaigns(Guid userId)
+        public async Task<List<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId)
         {
             var result = new List<CampaignDTO>();
             var brand = await _brandRepository.GetByUserId(userId);
@@ -85,6 +89,15 @@ namespace Service
 
                 result = _mapper.Map<List<CampaignDTO>>(campaign);
             }
+            return result;
+        }
+
+        public async Task<List<CampaignDTO>> GetPublishBrandCampaigns(Guid brandId)
+        {
+            var result = new List<CampaignDTO>();
+            var campaign = await _campaignRepository.GetByBrandId(brandId);
+            var activeCampaigns = campaign.Where(c => c.Status == (int)ECampaignStatus.Published || c.Status == (int)ECampaignStatus.Active).ToList();
+            result = _mapper.Map<List<CampaignDTO>>(activeCampaigns);
             return result;
         }
 
@@ -103,6 +116,7 @@ namespace Service
             _loggerService.Information("Cập nhật campaign thành công");
             return campaign.Id;
         }
+
         public async Task DeleteCampaign(Guid campaignId)
         {
             var campaign = await _campaignRepository.GetById(campaignId);
@@ -127,6 +141,7 @@ namespace Service
                 await _campaignRepository.Delete(campaignId);
             }
         }
+
         public async Task<List<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDto filter)
         {
             var result = new List<CampaignDTO>();
@@ -178,6 +193,7 @@ namespace Service
             }
             return result;
         }
+
         /*public async Task<List<TagDTO>> GetTagsOfCampaign(Guid campaignId)
 		{
 			var listTagsRes = new List<TagDTO>();
@@ -193,6 +209,7 @@ namespace Service
 			}
 			return listTagsRes;
 		}*/
+
         public async Task UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds)
         {
             var duplicateTagIds = tagIds.GroupBy(t => t)
@@ -313,18 +330,67 @@ namespace Service
 
         public async Task PublishCampaign(Guid campaignId)
         {
-            var campaign =await _campaignRepository.GetById(campaignId) ?? throw new KeyNotFoundException("");
-            campaign.Status = (int) ECampaignStatus.Published;
+            var campaign = await _campaignRepository.GetById(campaignId);
+            if (campaign.Status != (int)ECampaignStatus.Published)
+            {
+                throw new InvalidOperationException("Chỉ những chiến dịch đang có trạng thái đang chuẩn bị mới có thể công khai.");
+            }
+            campaign.Status = (int)ECampaignStatus.Published;
             await _campaignRepository.Update(campaign);
         }
 
         public async Task StartCampaign(Guid campaignId)
         {
-            var campaign = await _campaignRepository.GetById(campaignId) ?? throw new KeyNotFoundException("");
-            campaign.Status = (int)ECampaignStatus.Active;
+            var campaign = await _campaignRepository.GetFullDetailCampaignJobById(campaignId) ?? throw new KeyNotFoundException();
+
+            if (campaign.Status != (int)ECampaignStatus.Published)
+            {
+                throw new InvalidOperationException("Chỉ những chiến dịch đang có trạng thái công khai mới có thể bắt đầu.");
+            }
+
+            if (campaign?.Jobs?.Any(s => s.Status == (int)EJobStatus.InProgress) != true)
+            {
+                throw new InvalidOperationException("Cần có ít nhất 1 Công việc đã được thanh toán để có thể bắt đầu chiến dịch.");
+            }
+
+            campaign!.Status = (int)ECampaignStatus.Active;
             await _campaignRepository.Update(campaign);
 
-            //send mail thong bao
+            // Gửi mail thông báo trong một tác vụ nền
+            _ = Task.Run(async () => await SendNotificationStartCampagin(campaign));
+        }
+
+        public async Task SendNotificationStartCampagin(Campaign campaign)
+        {
+            try
+            {
+                var emails = campaign?.Jobs?
+                 .Where(j => j.Influencer != null && j.Influencer.User != null && !string.IsNullOrEmpty(j.Influencer.User.Email))
+                 .Select(j => j.Influencer.User.Email)
+                 .Distinct()
+                 .ToList();
+
+                if (emails == null)
+                {
+                    return;
+                }
+
+                string subject = "Thông Báo Campaign Đã Bắt Đầu";
+
+                var body = _emailTemplate.campaignStart
+                    .Replace("{CampaignName}", campaign?.Name)
+                    .Replace("{Title}", campaign?.Title)
+                    .Replace("{BrandName}", campaign?.Brand?.User?.DisplayName)
+                    .Replace("{StartDate}", DateTime.Now.ToString())
+                    .Replace("{EndDate}", campaign?.EndDate.ToString())
+                    .Replace("{CampaignLink}", "")
+                    .Replace("{projectName}", _configManager.ProjectName);
+                await _emailService.SendEmail(emails, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Lỗi khi gửi mail Start Campaign" + ex);
+            }
         }
     }
 }

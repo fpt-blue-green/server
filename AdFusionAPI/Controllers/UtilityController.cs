@@ -9,10 +9,12 @@ namespace AdFusionAPI.Controllers
     public class UtilityController : Controller
     {
         private readonly IUtilityService _utilityService;
+        private readonly IVideoCallService _videoCallService;
 
-        public UtilityController(IUtilityService utilityService)
+        public UtilityController(IUtilityService utilityService, IVideoCallService videoCallService)
         {
             this._utilityService = utilityService;
+            this._videoCallService = videoCallService;
         }
 
         [HttpGet("location")]
@@ -40,6 +42,28 @@ namespace AdFusionAPI.Controllers
         {
             var info = await _utilityService.GetVideoInformation(platform, url);
             return Ok(info);
+        }
+
+        [HttpPost("videoRoom/{name}")]
+        public async Task<ActionResult<string>> CreateVideoCallRoom(string name)
+        {
+            var info = await _videoCallService.CreateRoom(name);
+            return Ok(info);
+        }
+
+        [HttpGet("videoRoom/log")]
+        public async Task<IActionResult> DownloadLogFile()
+        {
+            var fileContent = await _videoCallService.GetLogFile();
+
+            return File(fileContent.fileContent, "application/octet-stream", fileContent.fileName);
+        }
+
+        [HttpDelete("videoRoom/{name}")]
+        public async Task<ActionResult<string>> DeleteVideoRoom(string name)
+        {
+            await _videoCallService.DeleteRoomAsync(name);
+            return Ok();
         }
     }
 }

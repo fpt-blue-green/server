@@ -24,7 +24,8 @@ namespace Repositories
             using (var context = new PostgresContext())
             {
                 var brand = await context.Brands
-                    .FirstOrDefaultAsync(u => u.Id == brandId);
+                                        .Include(b => b.User)
+                                        .FirstOrDefaultAsync(u => u.Id == brandId);
                 return brand!;
             }
         }
@@ -72,6 +73,15 @@ namespace Repositories
                 }
 
                 await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Brand> GetBrandWithFavoriteByUserId(Guid userId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var brand = await context.Brands.Include(b => b.Favorites).FirstOrDefaultAsync(b => b.UserId == userId);
+                return brand!;
             }
         }
     }
