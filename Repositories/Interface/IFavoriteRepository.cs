@@ -6,6 +6,6 @@ namespace Repositories
     {
         Task CreateFavorite(Favorite favorite);
         Task DeleteFavorite(Guid favoriteId);
-        Task<IEnumerable<Favorite>> GetAllFavoriteByBrandId(Guid brandId);
+        Task<IEnumerable<Favorite>> GetAllFavoriteByUserId(Guid userId);
     }
 }

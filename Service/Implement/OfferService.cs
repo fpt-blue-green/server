@@ -14,7 +14,6 @@ namespace Service
         private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
         private static readonly IOfferRepository _offerRepository = new OfferRepository();
         private static readonly IJobRepository _jobRepository = new JobRepository();
-        private static readonly IUserRepository _userRepository = new UserRepository();
         private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
@@ -233,7 +232,7 @@ namespace Service
                         return;
                 }
 
-                await _emailService.SendEmail(new List<string> { recipientEmail }, subject, body);
+                _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { recipientEmail }, subject, body));
             }
             catch (Exception ex)
             {

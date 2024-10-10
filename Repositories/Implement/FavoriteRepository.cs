@@ -24,11 +24,14 @@ namespace Repositories
             }
         }
 
-        public async Task<IEnumerable<Favorite>> GetAllFavoriteByBrandId(Guid brandId)
+        public async Task<IEnumerable<Favorite>> GetAllFavoriteByUserId(Guid userId)
         {
             using (var context = new PostgresContext())
             {
-                var favorites = await context.Favorites.Where(i => i.BrandId == brandId).ToListAsync();
+                var favorites = await context.Favorites
+                    .Where(f => f.Brand.UserId == userId)
+                    .Include(f => f.Influencer)
+                    .ToListAsync();
                 return favorites;
             }
         }

@@ -11,5 +11,6 @@ namespace Repositories
         Task UpdateBrand(Brand brand);
         Task CreateBrand(Brand brand);
         Task GetUserById(Guid id);
+        Task<Brand> GetBrandWithFavoriteByUserId(Guid userId);
     }
 }

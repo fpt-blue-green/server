@@ -735,5 +735,107 @@
                     </body>
                     </html>";
         #endregion
+
+        #region CampaignStart
+        public string campaignStart = @"<!DOCTYPE html>
+                                        <html lang=""vi"">
+                                        <head>
+                                            <meta charset=""UTF-8"">
+                                            <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                                            <title>Thông Báo Campaign Đã Bắt Đầu</title>
+                                            <style>
+                                                body {
+                                                    font-family: Arial, sans-serif;
+                                                    background-color: #f4f4f4;
+                                                    margin: 0;
+                                                    padding: 0;
+                                                }
+                                                .email-container {
+                                                    background-color: white;
+                                                    max-width: 600px;
+                                                    margin: 0 auto;
+                                                    border-radius: 8px;
+                                                    border: 0.3px solid rgba(0, 0, 0, 0.2);
+                                                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+                                                    overflow: hidden;
+                                                }
+                                                .email-header {
+                                                    background-color: rgb(255, 112, 129);
+                                                    color: white;
+                                                    text-align: center;
+                                                    padding: 25px;
+                                                    font-size: 22px;
+                                                    font-weight: bold;
+                                                }
+                                                .email-body {
+                                                    padding: 20px;
+                                                    color: #333;
+                                                }
+                                                .email-body h2 {
+                                                    color: rgb(255, 112, 129);
+                                                }
+                                                .email-body p {
+                                                    line-height: 1.6;
+                                                }
+                                                .email-body ul {
+                                                    padding-left: 20px;
+                                                }
+                                                .button-container {
+                                                    text-align: center;
+                                                    margin: 20px 0;
+                                                }
+                                                .button {
+                                                    background-color: rgb(255, 112, 129);
+                                                    color: white;
+                                                    padding: 10px 20px;
+                                                    text-align: center;
+                                                    text-decoration: none;
+                                                    display: inline-block;
+                                                    border-radius: 5px;
+                                                    font-weight: bold;
+                                                }
+                                                .email-footer {
+                                                    padding: 20px;
+                                                    font-size: 12px;
+                                                    color: #777;
+                                                    border-top: 1px solid #eaeaea;
+                                                }
+                                                .email-footer .copyright {
+                                                    text-align: center;
+                                                }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            <div class=""email-container"">
+                                                <div class=""email-header"">
+                                                    Thông Báo Campaign Đã Bắt Đầu
+                                                </div>
+                                                <div class=""email-body"">
+                                                    <h2>Xin chào Inluencer,</h2>
+                                                    <p>Chúng tôi xin thông báo rằng campaign <strong>{CampaignName}</strong> mà bạn tham gia đã được bắt đầu.</p>
+                                                    <p>Vui lòng chuẩn bị và triển khai công việc theo như đã thỏa thuận trước đó.</p>
+                                                    <p>Thông tin chi tiết về campaign của bạn:</p>
+                                                    <ul>
+                                                        <li>Campaign: {CampaignName} - {Title}</li>
+                                                        <li>Brand: {BrandName}</li>
+                                                        <li>Thời gian bắt đầu: {StartDate}</li>
+                                                        <li>Thời gian dự kiến kết thúc: {EndDate}</li>
+                                                    </ul>
+                                                    <div class=""button-container"">
+                                                        <a href=""{CampaignLink}"" class=""button"">Xem Chi Tiết</a>
+                                                    </div>
+                                                </div>
+                                                <div class=""email-footer"">
+	                                            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                                    <p>Trân trọng,<br><br>{projectName}</p>
+                                                    <div class=""copyright"">
+                                                        <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </body>
+                                        </html>
+                                        ";
+        #endregion
     }
 }

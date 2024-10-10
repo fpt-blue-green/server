@@ -11,10 +11,13 @@ namespace AdFusionAPI.Controllers
     {
         private readonly IBrandService _brandService;
         private readonly ICampaignService _campaignService;
-        public BrandController(IBrandService brandService, ICampaignService campaignService)
+        private readonly IFavoriteService _favoriteService;
+
+        public BrandController(IBrandService brandService, ICampaignService campaignService, IFavoriteService favoriteService)
         {
             _brandService = brandService;
             _campaignService = campaignService;
+            _favoriteService = favoriteService;
         }
 
         [HttpGet]
@@ -52,13 +55,42 @@ namespace AdFusionAPI.Controllers
             var result = await _brandService.UpdateBrandSocial(brandSocialDTO, user);
             return Ok(result);
         }
+
         [HttpGet("campaigns")]
         [AuthRequired]
         public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _campaignService.GetBrandCampaigns(user.Id);
+            var result = await _campaignService.GetBrandCampaignsByUserId(user.Id);
             return Ok(result);
         }
+
+        #region Favorite
+        [HttpGet("favorites")]
+        [BrandRequired]
+        public async Task<ActionResult<IEnumerable<FavoriteDTO>>> GetAllFavoriteByBrandId()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _favoriteService.GetAllFavorites(user);
+            return Ok(result);
+        }
+
+        [HttpPost("favorites/{id}")]
+        [BrandRequired]
+        public async Task<ActionResult> CreateFavorite(Guid id)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _favoriteService.CreateFavorite(id, user);
+            return Ok();
+        }
+
+        [HttpDelete("favorites/{id}")]
+        [BrandRequired]
+        public async Task<ActionResult> DeleteFavorite(Guid id)
+        {
+            await _favoriteService.DeleteFavorite(id);
+            return Ok();
+        }
+        #endregion
     }
 }

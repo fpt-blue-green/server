@@ -27,6 +27,9 @@ namespace AdFusionAPI
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IOfferService, OfferService>();
+            services.AddScoped<IFavoriteService, FavoriteService>();
+            services.AddScoped<IVideoCallService, VideoCallService>();
+            services.AddScoped<IAdminActionService, AdminActionService>();
 
         }
 	}

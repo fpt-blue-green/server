@@ -11,7 +11,7 @@ namespace Service
     {
         private static IJobRepository _jobService = new JobRepository();
         private static IJobDetailService _jobDetailService = new JobDetailService();
-        private static readonly EmailTemplate _emailTempalte = new EmailTemplate();
+        private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
         private static IUserRepository _userRepository = new UserRepository();
         private static IPaymentBookingRepository _paymentBookingRepository = new PaymentBookingRepository();
@@ -118,7 +118,7 @@ namespace Service
                 var influencerUser = job.Influencer.User;
                 var brandUser = job.Campaign.Brand.User;
 
-                var body = _emailTempalte.brandPaymentOffer
+                var body = _emailTemplate.brandPaymentOffer
                     .Replace("{Title}", title)
                     .Replace("{InfluencerName}", influencerUser.DisplayName)
                     .Replace("{BrandName}", brandUser.DisplayName)
@@ -131,7 +131,8 @@ namespace Service
                     .Replace("{ReportLink}", "")
                     .Replace("{EndQuote}", endQuote)
                     .Replace("{projectName}", _configManager.ProjectName);
-                await _emailService.SendEmail(new List<string> { "nguyenhoang062017@gmail.com" }, subject, body);
+
+                _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { influencerUser.Email }, subject, body));
             }
             catch (Exception ex)
             {

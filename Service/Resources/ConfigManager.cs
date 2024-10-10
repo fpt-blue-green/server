@@ -26,5 +26,7 @@
         public readonly string SlugRegex = @"^[a-z0-9]+(?:-[a-z0-9]+)*$";
         public readonly List<string> AdminReportHandler = new List<string> { "nguyendactamminh@gmail.com" };
 
+        public readonly string DailyVideoCallEnpoint = @"https://api.daily.co/v1/rooms";
+        public readonly string DailyVideoCallKey = "VideoCallAPIKey";
     }
 }
