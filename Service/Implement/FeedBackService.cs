@@ -128,18 +128,19 @@ namespace Service
         {
             // Lấy thông tin của Influencer dựa trên FeedbackId
             var influencer = await _influencerRepository.GetInfluencerWithFeedbackById(influencerId);
+            var feedback = influencer?.Feedbacks?.FirstOrDefault(f => f.Id == feebackId);
 
-            if (influencer == null)
+            if (influencer == null || feedback == null)
             {
                 throw new KeyNotFoundException();
             }
-            if (userDTO.Id != influencer.Feedbacks.FirstOrDefault(f => f.Id == feebackId)?.UserId && userDTO.Role != AuthEnumContainer.ERole.Admin)
+            if (userDTO.Id != feedback?.UserId && userDTO.Role != AuthEnumContainer.ERole.Admin)
             {
                 throw new AccessViolationException();
             }
 
             // Xóa feedback
-            await _feedbackRepository.Delete(feebackId);
+            await _feedbackRepository.Delete(feedback!);
 
             // Lấy mức đánh giá trung bình
             var averageRate = await GetAverageRate(influencerId);

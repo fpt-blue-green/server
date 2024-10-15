@@ -31,15 +31,15 @@ namespace Repositories
 			}
 		}
 
-		public async Task Delete(Guid id)
+		public async Task Delete(Campaign campaign)
 		{
 			using (var context = new PostgresContext())
 			{
-				var campaign = await context.Campaigns.FirstOrDefaultAsync(i => i.Id == id);
 				if (campaign != null)
 				{
 					campaign.IsDeleted = true;
-					await context.SaveChangesAsync();
+                    context.Entry<Campaign>(campaign).State = EntityState.Modified;
+                    await context.SaveChangesAsync();
 				}
 			}
 		}

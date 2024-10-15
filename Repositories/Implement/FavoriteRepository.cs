@@ -24,6 +24,16 @@ namespace Repositories
             }
         }
 
+        public async Task DeleteFavoriteByInfluencerId(Guid influencerId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var favorite = await context.Favorites.FirstOrDefaultAsync(i => i.InfluencerId == influencerId);
+                context.Favorites.Remove(favorite!);
+                await context.SaveChangesAsync();
+            }
+        }
+
         public async Task<IEnumerable<Favorite>> GetAllFavoriteByUserId(Guid userId)
         {
             using (var context = new PostgresContext())
