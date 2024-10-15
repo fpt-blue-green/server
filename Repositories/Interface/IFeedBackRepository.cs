@@ -10,6 +10,6 @@ namespace Repositories
         Task<Feedback> GetById(Guid id);
         Task Create(Feedback feedback);
         Task Update(Feedback feedback);
-        Task Delete(Guid id);
+        Task Delete(Feedback feedback);
     }
 }

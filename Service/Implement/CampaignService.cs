@@ -133,12 +133,12 @@ namespace Service
                 var jobs = await _jobRepository.GetCampaignJobs(campaign.Id);
                 if (jobs.Any(s => s.Status == (int)JobEnumContainer.EJobStatus.InProgress))
                 {
-                    throw new InvalidOperationException("Campaign này có job đang hoạt động , không thể xóa.");
+                    throw new InvalidOperationException("Campaign này có job đã thanh toán, không thể xóa.");
                 }
             }
             else
             {
-                await _campaignRepository.Delete(campaignId);
+                await _campaignRepository.Delete(campaign);
             }
         }
 

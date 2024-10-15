@@ -40,9 +40,13 @@ namespace Service
             await _favoriteRepository.CreateFavorite(favorite);
         }
 
-        public async Task DeleteFavorite(Guid favoriteId)
+        public async Task DeleteFavoriteById(Guid favoriteId)
         {
             await _favoriteRepository.DeleteFavorite(favoriteId);
+        }
+        public async Task DeleteFavoriteByInfluencerId(Guid influencerId)
+        {
+            await _favoriteRepository.DeleteFavoriteByInfluencerId(influencerId);
         }
 
         public async Task<IEnumerable<FavoriteDTO>> GetAllFavorites(UserDTO user)

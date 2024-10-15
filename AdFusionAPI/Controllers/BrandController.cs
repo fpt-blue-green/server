@@ -88,7 +88,15 @@ namespace AdFusionAPI.Controllers
         [BrandRequired]
         public async Task<ActionResult> DeleteFavorite(Guid id)
         {
-            await _favoriteService.DeleteFavorite(id);
+            await _favoriteService.DeleteFavoriteById(id);
+            return Ok();
+        }
+
+        [HttpDelete("favorites/influencer/{influencerId}")]
+        [BrandRequired]
+        public async Task<ActionResult> DeleteFavoriteByInfluencerId(Guid influencerId)
+        {
+            await _favoriteService.DeleteFavoriteByInfluencerId(influencerId);
             return Ok();
         }
         #endregion

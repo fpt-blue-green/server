@@ -14,12 +14,10 @@ namespace Repositories
             }
         }
 
-        public async Task Delete(Guid id)
+        public async Task Delete(Feedback feedback)
         {
             using (var context = new PostgresContext())
             {
-                var feedback = await context.Feedbacks
-                    .SingleOrDefaultAsync(i => i.Id == id);
 
                 if (feedback != null)
                 {

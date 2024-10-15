@@ -14,6 +14,6 @@ namespace Repositories
 		Task<Campaign> GetFullDetailCampaignJobById(Guid id);
         Task Create(Campaign campaign);
 		Task Update(Campaign campaign);
-		Task Delete(Guid id);
+		Task Delete(Campaign campaign);
 	}
 }
