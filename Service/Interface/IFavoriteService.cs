@@ -6,7 +6,7 @@ namespace Service
     {
         Task CreateFavorite(Guid id, UserDTO user);
         Task DeleteFavoriteById(Guid favoriteId);
-        Task DeleteFavoriteByInfluencerId(Guid influencerId);
-        Task<IEnumerable<FavoriteDTO>> GetAllFavorites(UserDTO user);
+        Task DeleteFavoriteByInfluencerId(Guid influencerId, UserDTO user);
+        Task<IEnumerable<InfluencerDTO>> GetAllFavorites(UserDTO user);
     }
 }

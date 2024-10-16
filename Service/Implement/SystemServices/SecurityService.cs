@@ -134,7 +134,7 @@ namespace Service
             }
             catch
             {
-                throw new InvalidOperationException("Token của bạn đã hết hạn.");
+                throw new UnauthorizedAccessException();
             }
         }
 

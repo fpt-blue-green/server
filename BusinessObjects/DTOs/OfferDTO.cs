@@ -15,11 +15,13 @@ namespace BusinessObjects
 
         public int? Price { get; set; }
 
+        public int TargetReaction { get; set; }
+
         public EOfferStatus? Status { get; set; }
 
         public ERole? From { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public int? Quantity { get; set; }
     }

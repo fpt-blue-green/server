@@ -32,9 +32,9 @@ namespace Service
             var brand = await _brandRepository.GetByUserId(userId);
             var campaigns = (await _campaignRepository.GetByBrandId(brand.Id));
 
-            if (brand.IsPremium == false && campaigns.Count > 1)
+            if (brand.IsPremium == false && campaigns.Count > 2)
             {
-                throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 1 campaign. Vui lòng nâng cấp để tiếp tục sử dụng.");
+                throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 2 campaign. Vui lòng nâng cấp để tiếp tục sử dụng.");
             }
 
             if (campaigns.Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase)).Any())

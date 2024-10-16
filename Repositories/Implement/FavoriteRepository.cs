@@ -24,11 +24,10 @@ namespace Repositories
             }
         }
 
-        public async Task DeleteFavoriteByInfluencerId(Guid influencerId)
+        public async Task DeleteFavoriteByInfluencerId(Favorite favorite)
         {
             using (var context = new PostgresContext())
             {
-                var favorite = await context.Favorites.FirstOrDefaultAsync(i => i.InfluencerId == influencerId);
                 context.Favorites.Remove(favorite!);
                 await context.SaveChangesAsync();
             }

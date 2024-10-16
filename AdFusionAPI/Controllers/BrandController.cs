@@ -68,7 +68,7 @@ namespace AdFusionAPI.Controllers
         #region Favorite
         [HttpGet("favorites")]
         [BrandRequired]
-        public async Task<ActionResult<IEnumerable<FavoriteDTO>>> GetAllFavoriteByBrandId()
+        public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetAllFavoriteByBrandId()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _favoriteService.GetAllFavorites(user);
@@ -84,19 +84,12 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
-        [HttpDelete("favorites/{id}")]
+        [HttpDelete("favorites/influencer/{id}")]
         [BrandRequired]
-        public async Task<ActionResult> DeleteFavorite(Guid id)
+        public async Task<ActionResult> DeleteFavoriteByInfluencerId(Guid id)
         {
-            await _favoriteService.DeleteFavoriteById(id);
-            return Ok();
-        }
-
-        [HttpDelete("favorites/influencer/{influencerId}")]
-        [BrandRequired]
-        public async Task<ActionResult> DeleteFavoriteByInfluencerId(Guid influencerId)
-        {
-            await _favoriteService.DeleteFavoriteByInfluencerId(influencerId);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _favoriteService.DeleteFavoriteByInfluencerId(id, user);
             return Ok();
         }
         #endregion

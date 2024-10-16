@@ -44,15 +44,17 @@ namespace Service
         {
             await _favoriteRepository.DeleteFavorite(favoriteId);
         }
-        public async Task DeleteFavoriteByInfluencerId(Guid influencerId)
+        public async Task DeleteFavoriteByInfluencerId(Guid influencerId, UserDTO user)
         {
-            await _favoriteRepository.DeleteFavoriteByInfluencerId(influencerId);
+            var favorites = await _favoriteRepository.GetAllFavoriteByUserId(user.Id) ?? throw new KeyNotFoundException();
+            await _favoriteRepository.DeleteFavoriteByInfluencerId(favorites.FirstOrDefault(f => f.InfluencerId == influencerId)!);
         }
 
-        public async Task<IEnumerable<FavoriteDTO>> GetAllFavorites(UserDTO user)
+        public async Task<IEnumerable<InfluencerDTO>> GetAllFavorites(UserDTO user)
         {
             var favorites = await _favoriteRepository.GetAllFavoriteByUserId(user.Id);
-            return _mapper.Map<IEnumerable<FavoriteDTO>>(favorites);
+            
+            return _mapper.Map<IEnumerable<InfluencerDTO>>(favorites.Select(f => f.Influencer));
         }
     }
 }

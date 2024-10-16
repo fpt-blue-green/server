@@ -39,7 +39,7 @@ namespace Service
             }
             else
             {
-                if (campagin.Status != (int)ECampaignStatus.Active || campagin.Status != (int)ECampaignStatus.Published)
+                if (campagin.Status != (int)ECampaignStatus.Active && campagin.Status != (int)ECampaignStatus.Published)
                 {
                     throw new InvalidOperationException("Campaign này chưa đi vào hoạt động, hãy bắt đầu trước.");
                 }

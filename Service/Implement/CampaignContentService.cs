@@ -50,7 +50,6 @@ namespace Service
                         existingContent.ContentType = (int)content.ContentType;
                         existingContent.Quantity = content.Quantity;
                         existingContent.Price = content.Price;
-                        existingContent.TargetReaction = content.TargetReaction;
                         await _campaignContentRepository.Update(existingContent);
                     }
                     else
@@ -73,7 +72,6 @@ namespace Service
                         Platform = (int)content.Platform,
                         Quantity = content.Quantity,
                         Price = content.Price,
-                        TargetReaction = content.TargetReaction,
                     };
                     contentNeedCreate.Add(c);
                 }
@@ -128,7 +126,6 @@ namespace Service
                 Platform = (EPlatform)camapaignContent.Platform,
                 ContentType = (EContentType)camapaignContent.ContentType,
                 Price = camapaignContent.Price,
-                TargetReaction = camapaignContent.TargetReaction,
             };
             return result;
         }
@@ -159,7 +156,6 @@ namespace Service
                     Platform = (EPlatform)item.Platform,
                     Quantity = item.Quantity,
                     Price = item.Price,
-                    TargetReaction = item.TargetReaction,
                 });
             }
             return result;
