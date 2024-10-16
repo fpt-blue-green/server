@@ -23,7 +23,5 @@ public partial class CampaignContent
 
     public decimal? Price { get; set; }
 
-    public int TargetReaction { get; set; }
-
     public virtual Campaign Campaign { get; set; } = null!;
 }
