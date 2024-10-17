@@ -22,6 +22,13 @@ namespace Repositories
                 return (await context.Offers.Include(o => o.Job).FirstOrDefaultAsync(s => s.Id == id))!;
             }
         }
+        public async Task<IEnumerable<Offer>> GetByJobId(Guid jobId)
+        {
+            using (var context = new PostgresContext())
+            {
+                return await context.Offers.Where(o => o.JobId == jobId).ToListAsync()!;
+            }
+        }
 
         public async Task Update(Offer offer)
         {

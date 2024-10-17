@@ -77,12 +77,14 @@ namespace Service
             CreateMap<UserDevice, UserDeviceDTO>().ReverseMap();
             #endregion
             #region Job
+            CreateMap<Job, JobRequestDTO>().ReverseMap();
             CreateMap<Job, JobDTO>().ReverseMap();
             #endregion
             #region JobDetails
             CreateMap<JobDetail, ChannelVideoStatDTO>().ReverseMap();
             #endregion
             #region Offer
+            CreateMap<Offer, OfferRequestDTO>().ReverseMap();
             CreateMap<Offer, OfferDTO>().ReverseMap();
             #endregion
             #region Favorite

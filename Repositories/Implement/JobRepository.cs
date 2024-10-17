@@ -115,5 +115,29 @@ namespace Repositories
                 return jobs!;
             }
         }
+
+        public async Task<IEnumerable<Job>> GetJobInfluencerByUserId(Guid userId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.Influencer.UserId == userId)
+                                            .Include(j => j.Influencer)
+                                            .Include(j => j.Campaign)
+                                            .ToListAsync();
+                return jobs!;
+            }
+        }
+
+        public async Task<IEnumerable<Job>> GetJobBrandByUserId(Guid userId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.Campaign.Brand.UserId == userId)
+                                            .Include(j => j.Influencer)
+                                            .Include(j => j.Campaign)
+                                            .ToListAsync();
+                return jobs!;
+            }
+        }
     }
 }

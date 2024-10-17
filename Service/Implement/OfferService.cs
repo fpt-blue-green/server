@@ -25,6 +25,12 @@ namespace Service
         }).CreateMapper();
         #endregion
 
+        public async Task<IEnumerable<OfferDTO>> GetOfferByJobId(Guid id)
+        {
+            var offer = await _offerRepository.GetByJobId(id);
+            return _mapper.Map<IEnumerable<OfferDTO>>(offer);
+        }
+
         public async Task CreateOffer(UserDTO userDTO, OfferCreateRequestDTO offerCreateRequestDTO)
         {
 
@@ -86,6 +92,7 @@ namespace Service
                 Price = reOfferDTO.Price,
                 Quantity = reOfferDTO.Quantity,
                 ContentType = oldOffer.ContentType,
+                TargetReaction = reOfferDTO.TargetReaction,
                 Duration = reOfferDTO.Duration,
                 From = (int)userDTO.Role,
                 Platform = oldOffer.Platform,

@@ -13,5 +13,7 @@ namespace Repositories
         Task<Job> GetJobFullDetailById(Guid id);
         Task UpdateJobAndOffer(Job job);
         Task Update(Job job);
+        Task<IEnumerable<Job>> GetJobInfluencerByUserId(Guid userId);
+        Task<IEnumerable<Job>> GetJobBrandByUserId(Guid userId);
     }
 }

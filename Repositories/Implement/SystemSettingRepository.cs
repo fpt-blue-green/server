@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using BusinessObjects.Models;
+﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Repositories

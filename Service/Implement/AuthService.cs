@@ -52,7 +52,12 @@ namespace Service
                     await _userRepository.UpdateUser(user);
                 }
             }
+            _loggerService.Information($"Login: User with email {loginDTO.Email} login sucessfully.");
+            return await GenerateUserTokens(user, userAgent);
+        }
 
+        protected async Task<UserTokenDTO> GenerateUserTokens(User user, string userAgent)
+        {
             UserDTO userDTO = new UserDTO
             {
                 Id = user.Id,
@@ -111,7 +116,6 @@ namespace Service
                 RefreshToken = refreshToken,
             };
 
-            _loggerService.Information($"Login: User with email {loginDTO.Email} login sucessfully.");
             return userToken;
         }
 
