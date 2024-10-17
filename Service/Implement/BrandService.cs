@@ -62,7 +62,7 @@ namespace Service
             var brand = await _brandRepository.GetByUserId(user.Id);
             if (brand == null)
             {
-                throw new InvalidOperationException("Brand không tồn tại");
+                throw new InvalidOperationException("Nhãn hàng không tồn tại");
             }
             //update brand social
             var updatedBrand = _mapper.Map(brandSocialDTO, brand);
@@ -85,7 +85,7 @@ namespace Service
             var brand = await _brandRepository.GetByUserId(user.Id);
             if (brand == null)
             {
-                throw new InvalidOperationException("Brand không tồn tại");
+                throw new InvalidOperationException("Nhãn hàng không tồn tại");
             }
 
             // Upload ảnh

@@ -30,18 +30,18 @@ namespace Service
 
             if (userDTO.Role == AuthEnumContainer.ERole.Admin)
             {
-                throw new InvalidOperationException("Admin không thể tạo được Offer.");
+                throw new InvalidOperationException("Quản trị viên không thể tạo được đề nghị.");
             }
             var campagin = await _campaignRepository.GetById(offerCreateRequestDTO.Job.CampaignId);
             if (campagin == null)
             {
-                throw new InvalidOperationException("Campaign không tồn tại, hãy kiểm tra lại.");
+                throw new InvalidOperationException("Nhãn hàng không tồn tại, hãy kiểm tra lại.");
             }
             else
             {
                 if (campagin.Status != (int)ECampaignStatus.Active && campagin.Status != (int)ECampaignStatus.Published)
                 {
-                    throw new InvalidOperationException("Campaign này chưa đi vào hoạt động, hãy bắt đầu trước.");
+                    throw new InvalidOperationException("Nhãn hàng này chưa đi vào hoạt động, hãy bắt đầu trước.");
                 }
             }
             if (userDTO.Role == AuthEnumContainer.ERole.Influencer)

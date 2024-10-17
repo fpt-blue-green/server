@@ -31,13 +31,13 @@ namespace Service
                 var tag = _mapper.Map<Tag>(tagDTO);
                 await _tagRepository.Create(tag);
 
-                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Create,tag, null);
+                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Create, tag, null);
             }
             catch (Exception ex)
             {
                 if (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
                 {
-                    throw new InvalidOperationException("Tên của Tag phải là duy nhất và không được trùng lặp.");
+                    throw new InvalidOperationException("Tên của thẻ phải là duy nhất và không được trùng lặp.");
                 }
                 else
                 {
@@ -63,7 +63,7 @@ namespace Service
             {
                 if (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
                 {
-                    throw new InvalidOperationException("Tên của Tag phải là duy nhất và không được trùng lặp.");
+                    throw new InvalidOperationException("Tên của thẻ phải là duy nhất và không được trùng lặp.");
                 }
                 else
                 {
@@ -72,12 +72,12 @@ namespace Service
             }
         }
 
-        public async Task UpdateTag(Guid tagId,TagRequestDTO tagDTO, UserDTO user)
+        public async Task UpdateTag(Guid tagId, TagRequestDTO tagDTO, UserDTO user)
         {
             try
             {
                 var tag = await _tagRepository.GetById(tagId);
-                if(tag == null)
+                if (tag == null)
                 {
                     throw new KeyNotFoundException("Update tag: Tag don't exist!");
                 }
@@ -90,7 +90,7 @@ namespace Service
             {
                 if (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
                 {
-                    throw new InvalidOperationException("Tên của Tag phải là duy nhất và không được trùng lặp.");
+                    throw new InvalidOperationException("Tên của thẻ phải là duy nhất và không được trùng lặp.");
                 }
                 else
                 {
