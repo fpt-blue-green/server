@@ -43,7 +43,7 @@ namespace Service
                 {
                     return;
                 }
-                throw new InvalidOperationException("Không có Offer nào đã thanh toán trong Job.");
+                throw new InvalidOperationException("Không có đề nghị nào đã thanh toán trong công việc.");
             }
 
             var data = await _utilityService.GetVideoInformation(offer!.Platform!, link);

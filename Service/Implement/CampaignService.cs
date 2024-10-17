@@ -34,12 +34,12 @@ namespace Service
 
             if (brand.IsPremium == false && campaigns.Count > 2)
             {
-                throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 2 campaign. Vui lòng nâng cấp để tiếp tục sử dụng.");
+                throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 2 chiến dịch. Vui lòng nâng cấp để tiếp tục sử dụng.");
             }
 
             if (campaigns.Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase)).Any())
             {
-                throw new InvalidOperationException("Tên campaign không được trùng lặp.");
+                throw new InvalidOperationException("Tên chiến dịch không được trùng lặp.");
             }
             var campaign = new Campaign();
             /*if (campaignDto.Id == null)
@@ -107,13 +107,13 @@ namespace Service
             var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
             if (campaignDuplicateNames.Any())
             {
-                throw new InvalidOperationException("Tên campaign không được trùng lặp.");
+                throw new InvalidOperationException("Tên chiến dịch không được trùng lặp.");
             }
             var campaign = await _campaignRepository.GetById(campaignId);
 
             _mapper.Map(campaignDto, campaign);
             await _campaignRepository.Update(campaign);
-            _loggerService.Information("Cập nhật campaign thành công");
+            _loggerService.Information("Cập nhật chiến dịch thành công");
             return campaign.Id;
         }
 
@@ -126,14 +126,14 @@ namespace Service
             }
             if (campaign.Status == (int)ECampaignStatus.Active)
             {
-                throw new InvalidOperationException("Campaign này đang hoạt động,không thể xoá.");
+                throw new InvalidOperationException("Chiến dịch này đang hoạt động, không thể xoá.");
             }
             if (campaign.Status == (int)ECampaignStatus.Published)
             {
                 var jobs = await _jobRepository.GetCampaignJobs(campaign.Id);
                 if (jobs.Any(s => s.Status == (int)JobEnumContainer.EJobStatus.InProgress))
                 {
-                    throw new InvalidOperationException("Campaign này có job đã thanh toán, không thể xóa.");
+                    throw new InvalidOperationException("Chiến dịch này có công việc đã thanh toán, không thể xóa.");
                 }
             }
             else
@@ -218,13 +218,13 @@ namespace Service
                                 .ToList();
             if (duplicateTagIds.Any())
             {
-                throw new InvalidOperationException("Tag không được trùng lặp.");
+                throw new InvalidOperationException("Thẻ không được trùng lặp.");
             }
             var campaign = await _campaignRepository.GetById(campaignId);
 
             if (campaign == null)
             {
-                throw new InvalidOperationException("Không tìm thấy campaign.");
+                throw new InvalidOperationException("Không tìm thấy chiến dịch.");
             }
             else
             {
@@ -259,7 +259,7 @@ namespace Service
             var campaign = await _campaignRepository.GetById(campaignId);
             if (campaign == null)
             {
-                throw new InvalidOperationException("Campaign không tồn tại");
+                throw new InvalidOperationException("Chiến dịch không tồn tại");
             }
 
             // Lấy danh sách các ảnh hiện có của influencer từ DB
@@ -274,13 +274,13 @@ namespace Service
             // Kiểm tra nếu số ảnh không trùng và số ảnh mới nhỏ hơn 1
             if (matchingImages.Count + contentFiles.Count < 1)
             {
-                throw new InvalidOperationException("Campaign phải có ít nhất 1 ảnh.");
+                throw new InvalidOperationException("Chiến dịch phải có ít nhất 1 ảnh.");
             }
 
             // Kiểm tra tổng số ảnh sau khi thêm mới không được vượt quá 10
             if (matchingImages.Count + contentFiles.Count > 10)
             {
-                throw new InvalidOperationException("Campaign chỉ được có tối đa 10 ảnh.");
+                throw new InvalidOperationException("Chiến dịch chỉ được có tối đa 10 ảnh.");
             }
 
             // Nếu điều kiện hợp lệ, xóa các ảnh cũ không nằm trong danh sách mới
@@ -350,7 +350,7 @@ namespace Service
 
             if (campaign?.Jobs?.Any(s => s.Status == (int)EJobStatus.InProgress) != true)
             {
-                throw new InvalidOperationException("Cần có ít nhất 1 Công việc đã được thanh toán để có thể bắt đầu chiến dịch.");
+                throw new InvalidOperationException("Cần có ít nhất 1 công việc đã được thanh toán để có thể bắt đầu chiến dịch.");
             }
 
             campaign!.Status = (int)ECampaignStatus.Active;

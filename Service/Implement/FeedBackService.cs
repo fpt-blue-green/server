@@ -56,20 +56,20 @@ namespace Service
             // Kiểm tra rating hợp lệ
             if (feedbackRequestDto.Rating > 5 || feedbackRequestDto.Rating < 1)
             {
-                throw new InvalidOperationException("Vui lòng rating trong khoảng từ 1 đến 5.");
+                throw new InvalidOperationException("Vui lòng đánh giá trong khoảng từ 1 đến 5.");
             }
 
             // Lấy thông tin influencer và kiểm tra feedback tồn tại
             var (influencer, existingFeedback, feedbacksForInfluencer) = await _feedbackRepository.GetInfluencerAndFeedback(userDTO.Id, influencerId);
 
-            if(influencer.User.Id == userDTO.Id)
+            if (influencer.User.Id == userDTO.Id)
             {
                 throw new InvalidOperationException("Bạn không thể đánh giá chính mình.");
             }
 
             if (existingFeedback != null)
             {
-                throw new InvalidOperationException("Bạn chỉ có thể đánh giá influencer này một lần duy nhất.");
+                throw new InvalidOperationException("Bạn chỉ có thể đánh giá nhà sáng tạo nội dung này một lần duy nhất.");
             }
 
             // Tạo feedback mới
@@ -88,12 +88,12 @@ namespace Service
             await _influencerRepository.Update(influencer);
         }
 
-        public async Task UpdateFeedBack(Guid influencerId, Guid feebackId, FeedbackRequestDTO feedbackRequest, UserDTO userDTO)
+        public async Task UpdateFeedBack(Guid influencerId, Guid feedbackId, FeedbackRequestDTO feedbackRequest, UserDTO userDTO)
         {
             // Kiểm tra rating hợp lệ
             if (feedbackRequest.Rating > 5 || feedbackRequest.Rating < 1)
             {
-                throw new InvalidOperationException("Vui lòng rating trong khoảng từ 1 đến 5.");
+                throw new InvalidOperationException("Vui lòng đánh giá trong khoảng từ 1 đến 5.");
             }
 
             // Lấy thông tin của Influencer dựa trên FeedbackId

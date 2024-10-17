@@ -30,14 +30,14 @@ namespace Service
             {
                 if (influReportList.FirstOrDefault(x => x.ReporterId == userDTO.Id) != null)
                 {
-                    throw new InvalidOperationException("Không được report 1 Influencer quá 2 lần.");
+                    throw new InvalidOperationException("Không được báo cáo 1 nhà sáng tạo nội dung quá 2 lần.");
                 }
             }
 
             var curInfluencer = await _userRepository.GetUserById(userDTO.Id);
             if (curInfluencer != null && curInfluencer.Influencer?.Id == influencerId)
             {
-                throw new InvalidOperationException("Không được report chính mình.");
+                throw new InvalidOperationException("Không được báo cáo chính mình.");
             }
 
             var influencerReport = new InfluencerReport()
@@ -102,7 +102,7 @@ namespace Service
                                                         .Replace("{Description}", influencerReport.Description);
                 await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn báo cáo Influencer", body);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _loggerService.Error("Has error when send mail in Report");
             }

@@ -174,7 +174,7 @@ namespace Service
             //Kiểm tra xem slug đã được sử dụng hay chưa
             if (!Regex.IsMatch(influencerRequestDTO.Slug, _configManager.SlugRegex))
             {
-                throw new InvalidOperationException("Slug không hợp lệ.");
+                throw new InvalidOperationException("Tên người dùng không hợp lệ.");
             }
 
             //Kiểm tra regex có đúng định dạng hay không
@@ -187,7 +187,7 @@ namespace Service
                 var result = await _influencerRepository.GetBySlug(influencerRequestDTO.Slug);
                 if (result != null)
                 {
-                    throw new InvalidOperationException("Slug đã được sử dụng. Vui lòng chọn Slug khác.");
+                    throw new InvalidOperationException("Tên người dùng đã được sử dụng. Vui lòng chọn tên người dùng khác.");
                 }
                 var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
                 newInfluencer.UserId = user.Id;
@@ -265,7 +265,7 @@ namespace Service
                                 .ToList();
             if (duplicateTagIds.Any())
             {
-                throw new InvalidOperationException("Tag không được trùng lặp.");
+                throw new InvalidOperationException("Thẻ không được trùng lặp.");
             }
             var influencer = await _influencerRepository.GetByUserId(user.Id);
             if (influencer == null)
@@ -306,7 +306,7 @@ namespace Service
             var influencer = await _influencerRepository.GetByUserId(user.Id);
             if (influencer == null)
             {
-                throw new InvalidOperationException("Influencer không tồn tại");
+                throw new InvalidOperationException("Nhà sáng tạo nội dung không tồn tại");
             }
 
             // Lấy danh sách các ảnh hiện có của influencer từ DB
@@ -321,13 +321,13 @@ namespace Service
             // Kiểm tra nếu số ảnh không trùng và số ảnh mới nhỏ hơn 3
             if (matchingImages.Count + contentFiles.Count < 3)
             {
-                throw new InvalidOperationException("Influencer phải có ít nhất 3 ảnh.");
+                throw new InvalidOperationException("Nhà sáng tạo nội dung phải có ít nhất 3 ảnh.");
             }
 
             // Kiểm tra tổng số ảnh sau khi thêm mới không được vượt quá 10
             if (matchingImages.Count + contentFiles.Count > 10)
             {
-                throw new InvalidOperationException("Influencer chỉ được có tối đa 10 ảnh.");
+                throw new InvalidOperationException("Nhà sáng tạo nội dung chỉ được có tối đa 10 ảnh.");
             }
 
             // Nếu điều kiện hợp lệ, xóa các ảnh cũ không nằm trong danh sách mới
@@ -422,7 +422,7 @@ namespace Service
         public async Task<IEnumerable<UserDeviceDTO>> GetInfluencerLoginHistory(UserDTO user)
         {
             var userDevices = await _userDeviceRepository.GetByUserId(user.Id);
-            if(userDevices == null)
+            if (userDevices == null)
             {
                 throw new KeyNotFoundException();
             }

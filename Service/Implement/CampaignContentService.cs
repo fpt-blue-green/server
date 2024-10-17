@@ -36,7 +36,7 @@ namespace Service
             var campaign = await _campaignRepository.GetById(campaginId);
             if (campaign == null)
             {
-                throw new InvalidOperationException("campaign không tồn tại.");
+                throw new InvalidOperationException("Chiến dịch không tồn tại.");
             }
             if (updateContents.Any())
             {
@@ -54,7 +54,7 @@ namespace Service
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Content với ID {content.Id.Value} không tồn tại.");
+                        throw new InvalidOperationException($"Yêu cầu của chiến dịch với ID {content.Id.Value} không tồn tại.");
                     }
                 }
             }
@@ -77,7 +77,7 @@ namespace Service
                 }
                 if (contentNeedCreate == null || contentNeedCreate.Count == 0)
                 {
-                    throw new InvalidOperationException("Vui lòng tạo ít nhất 1 content.");
+                    throw new InvalidOperationException("Vui lòng tạo ít nhất 1 yêu cầu của chiến dịch.");
                 }
                 contentNeedCreate.ForEach(content => content.CampaignId = campaign.Id);
 
@@ -114,7 +114,7 @@ namespace Service
             if (camapaignContent == null)
             {
                 _loggerService.Information($"get campaign content {campaignContentId} thất bại");
-                throw new InvalidOperationException("Campaign content không tồn tại.");
+                throw new InvalidOperationException("Yêu cầu của chiến dịch không tồn tại.");
 
             }
             _loggerService.Information($"get campaign content {campaignContentId} thành công");
@@ -137,7 +137,7 @@ namespace Service
             if (campaign == null)
             {
                 _loggerService.Information("Campaign không tồn tại.");
-                throw new InvalidOperationException("Campaign không tồn tại.");
+                throw new InvalidOperationException("Chiến dịch không tồn tại.");
             }
             var campaignContents = (await _campaignContentRepository.GetAlls()).Where(s => s.CampaignId == campaign.Id);
             if (campaignContents.IsNullOrEmpty())
@@ -168,11 +168,11 @@ namespace Service
 			if (campaign == null)
 			{
 				_loggerService.Information("campaign không tồn tại.");
-				throw new InvalidOperationException("campaign không tồn tại.");
+				throw new InvalidOperationException("Chiến dịch không tồn tại.");
 			}
 			if (content == null)
 			{
-				throw new InvalidOperationException("Không tìm thấy content.");
+				throw new InvalidOperationException("Không tìm thấy yêu cầu của chiến dịch.");
 			}
 			if (content.CampaignId == campaign.Id)
 			{
