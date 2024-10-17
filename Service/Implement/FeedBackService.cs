@@ -104,7 +104,7 @@ namespace Service
                 throw new KeyNotFoundException();
             }
 
-            var currentFeedback = influencer.Feedbacks.FirstOrDefault(f => f.Id == feebackId);
+            var currentFeedback = influencer.Feedbacks.FirstOrDefault(f => f.Id == feedbackId);
 
             if (userDTO.Id != currentFeedback?.UserId)
             {
