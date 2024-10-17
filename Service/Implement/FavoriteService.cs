@@ -19,17 +19,17 @@ namespace Service
             var brandFavorites = await _brandRepository.GetBrandWithFavoriteByUserId(user.Id);
             if (brandFavorites == null)
             {
-                throw new InvalidOperationException("Brand không tồn tại.");
+                throw new InvalidOperationException("Nhãn hàng không tồn tại.");
             }
-            if(brandFavorites.Favorites.Count == 10 && !brandFavorites.IsPremium)
+            if (brandFavorites.Favorites.Count == 10 && !brandFavorites.IsPremium)
             {
-                throw new InvalidOperationException("Bạn chỉ có thể thêm tối đa 10 Influencer vào danh sách yêu thích. Vui lòng nâng cấp lên Premium để có thể thêm nhiều hơn.");
+                throw new InvalidOperationException("Bạn chỉ có thể thêm tối đa 10 nhà sáng tạo nội dung vào danh sách yêu thích. Vui lòng nâng cấp lên tài khoản cao cấp để có thể thêm nhiều hơn.");
             }
 
             var favorites = brandFavorites?.Favorites?.Any(x => x.InfluencerId == id) ?? false;
             if (favorites)
             {
-                throw new InvalidOperationException("Influencer đã được thêm vào danh sách yêu thích.");
+                throw new InvalidOperationException("Nhà sáng tạo nội dung đã được thêm vào danh sách yêu thích.");
             }
             var favorite = new Favorite()
             {
@@ -53,7 +53,7 @@ namespace Service
         public async Task<IEnumerable<InfluencerDTO>> GetAllFavorites(UserDTO user)
         {
             var favorites = await _favoriteRepository.GetAllFavoriteByUserId(user.Id);
-            
+
             return _mapper.Map<IEnumerable<InfluencerDTO>>(favorites.Select(f => f.Influencer));
         }
     }

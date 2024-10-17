@@ -36,19 +36,19 @@ namespace Service
             var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment);
             if (offer == null)
             {
-                throw new InvalidOperationException("Không có Offer nào được chấp thuận.");
+                throw new InvalidOperationException("Không có đề nghị nào được chấp thuận.");
             }
 
             var user = job.Campaign.Brand.User;
 
             if (userDto.Id != user.Id)
             {
-                throw new AccessViolationException($"Brand với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
+                throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
             }
 
             if (user.Wallet < offer.Price)
             {
-                throw new InvalidOperationException("Không đủ tiền để thanh toán. Vui lòng đến trang nạp tiền để hoàn thành Offer.");
+                throw new InvalidOperationException("Không đủ tiền để thanh toán. Vui lòng đến trang nạp tiền để hoàn thành đề nghị.");
             }
 
             user.Wallet -= offer.Price;
@@ -78,12 +78,12 @@ namespace Service
             var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment);
             if (offer == null)
             {
-                throw new InvalidOperationException("Không có Offer nào được chấp thuận.");
+                throw new InvalidOperationException("Không có đề nghị nào được chấp thuận.");
             }
             var user = job.Campaign.Brand.User;
             if (userDto.Id != user.Id)
             {
-                throw new AccessViolationException($"Brand với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
+                throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
             }
 
             job.Status = (int)EJobStatus.NotCreated;
@@ -99,7 +99,7 @@ namespace Service
             var job = await _jobService.GetJobInProgress(jobId);
             if (job == null)
             {
-                throw new InvalidOperationException("Job này chưa bắt đầu hoặc đã kết thúc, không thể thêm link");
+                throw new InvalidOperationException("Công việc này chưa bắt đầu hoặc đã kết thúc, không thể thêm liên kết");
             }
 
             if (job.Influencer.User.Id != userDTO.Id)

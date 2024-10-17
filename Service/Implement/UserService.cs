@@ -27,13 +27,13 @@ namespace Service
 
             if (file == null)
             {
-                throw new InvalidOperationException("File không hợp lệ.");
+                throw new InvalidOperationException("Tệp không hợp lệ.");
             }
 
             var userGet = await _userRepository.GetUserById(user.Id);
             if (userGet == null)
             {
-                throw new InvalidOperationException("User không tồn tại");
+                throw new InvalidOperationException("Người dùng không tồn tại");
             }
 
             // Upload ảnh
