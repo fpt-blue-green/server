@@ -9,6 +9,7 @@ namespace BusinessObjects
         public string Name { get; set; }
         public string Avatar { get; set; } = null!;
         public string CoverImg { get; set; } = null!;
+        public bool IsPremium { get; set; }
         public string? Description { get; set; }
         public string Address { get; set; } = null!;
         public string WebsiteUrl { get; set; }
@@ -20,7 +21,5 @@ namespace BusinessObjects
         public DateTime? ModifiedAt { get; set; }
 
         //public virtual ICollection<CampaignDTO> Campaigns { get; set; } = new List<CampaignDTO>();
-
-
     }
 }
