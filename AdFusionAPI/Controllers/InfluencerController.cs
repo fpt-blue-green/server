@@ -15,16 +15,19 @@ namespace AdFusionAPI.Controllers
         private readonly IUserService _userService;
         private readonly IChannelService _channelService;
         private readonly IPackageService _packageService;
+        private readonly IJobService _jobService;
 
         private readonly IMapper _mapper;
 
-        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper, IUserService userService, IPackageService packageSerivce)
+        public InfluencerController(IInfluencerService influencerService, IChannelService channelService, IMapper mapper,
+                                    IUserService userService, IPackageService packageSerivce, IJobService jobService)
         {
             _influencerService = influencerService;
             _channelService = channelService;
             _userService = userService;
             _mapper = mapper;
             _packageService = packageSerivce;
+            _jobService = jobService;
         }
 
         [HttpGet]
@@ -160,5 +163,13 @@ namespace AdFusionAPI.Controllers
 
         }
 
+        [HttpGet("jobs")]
+        [InfluencerRequired]
+        public async Task<ActionResult<List<JobDTO>>> GetJobs()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _jobService.GetAllJobByCurrentAccount(user);
+            return Ok(result);
+        }
     }
 }

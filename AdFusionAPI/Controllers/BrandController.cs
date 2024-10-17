@@ -12,12 +12,14 @@ namespace AdFusionAPI.Controllers
         private readonly IBrandService _brandService;
         private readonly ICampaignService _campaignService;
         private readonly IFavoriteService _favoriteService;
+        private readonly IJobService _jobService;
 
-        public BrandController(IBrandService brandService, ICampaignService campaignService, IFavoriteService favoriteService)
+        public BrandController(IBrandService brandService, ICampaignService campaignService, IFavoriteService favoriteService, IJobService jobService)
         {
             _brandService = brandService;
             _campaignService = campaignService;
             _favoriteService = favoriteService;
+            _jobService = jobService;
         }
 
         [HttpGet]
@@ -93,5 +95,14 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
         #endregion
+
+        [HttpGet("jobs")]
+        [BrandRequired]
+        public async Task<ActionResult<List<JobDTO>>> GetJobs()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _jobService.GetAllJobByCurrentAccount(user);
+            return Ok(result);
+        }
     }
 }

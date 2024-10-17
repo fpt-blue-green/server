@@ -8,5 +8,6 @@ namespace Service
         Task ReOffer(Guid id, UserDTO userDTO, ReOfferDTO reOfferDTO);
         Task ApproveOffer(Guid id, UserDTO userDTO);
         Task RejectOffer(Guid id, UserDTO userDTO);
+        Task<IEnumerable<OfferDTO>> GetOfferByJobId(Guid id);
     }
 }

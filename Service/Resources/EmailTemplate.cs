@@ -220,14 +220,14 @@
                                         ";
         #endregion
 
-        #region influencer offer 
+        #region Nhà sáng tạo nội dung Đề nghị 
         public string influencerOffer = @"
                         <!DOCTYPE html>
                         <html lang=""vi"">
                           <head>
                             <meta charset=""UTF-8"" />
                             <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
-                            <title>Thông Báo Influencer Tham Gia Chiến Dịch</title>
+                            <title>Thông Báo Nhà sáng tạo nội dung Tham Gia Chiến Dịch</title>
                             <style>
                               body {
                                 font-family: Arial, sans-serif;
@@ -292,11 +292,11 @@
                           </head>
                           <body>
                             <div class=""email-container"">
-                              <div class=""email-header"">Thông Báo Influencer Tham Gia Chiến Dịch</div>
+                              <div class=""email-header"">Thông Báo Nhà sáng tạo nội dung Tham Gia Chiến Dịch</div>
                               <div class=""email-body"">
                                 <h2>Xin chào {BrandName},</h2>
                                 <p>
-                                  Chúng tôi xin thông báo rằng influencer
+                                  Chúng tôi xin thông báo rằng Nhà sáng tạo nội dung
                                   <strong>{InfluencerName}</strong> đã bày tỏ nguyện vọng tham gia vào
                                   chiến dịch của bạn với công việc:
                                 </p>
@@ -308,7 +308,7 @@
                                   <li>Mô tả: {JobDescription}</li>
                                 </ul>
                                 <p>
-                                  Vui lòng xem xét và phản hồi để xác nhận sự tham gia của influencer.
+                                  Vui lòng xem xét và phản hồi để xác nhận sự tham gia của Nhà sáng tạo nội dung.
                                 </p>
                                 <div class=""button-container"">
                                   <a href=""{JobLink}"" class=""button"">Xem Chi Tiết</a>
@@ -328,14 +328,14 @@
                         ";
         #endregion
 
-        #region brand offer 
+        #region Nhãn hàng Đề nghị 
         public string brandOffer = @"
                             <!DOCTYPE html>
                             <html lang=""vi"">
                             <head>
                                 <meta charset=""UTF-8"">
                                 <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                                <title>Job Offer</title>
+                                <title>Đề nghị Công việc</title>
                                 <style>
                                     body {
                                         font-family: Arial, sans-serif;
@@ -430,13 +430,13 @@
             ";
         #endregion
 
-        #region Confirm Offer
+        #region Confirm Đề nghị
         public string confirmOffer = @"<!DOCTYPE html>
                             <html lang=""vi"">
                             <head>
                                 <meta charset=""UTF-8"">
                                 <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                                <title>Thông Báo trạng thái Offer</title>
+                                <title>Thông Báo trạng thái Đề nghị</title>
                                 <style>
                                     body {
                                         font-family: Arial, sans-serif;
@@ -507,10 +507,10 @@
                                     </div>
                                     <div class=""email-body"">
                                         <h2>Xin chào {Name},</h2>
-                                        <p>Chúng tôi xin thông báo rằng <strong>{Actor}</strong> đã {Status} offer của bạn:</p>
-                                        <p>Thông tin chi tiết về offer của bạn dành cho {Actor}:</p>
+                                        <p>Chúng tôi xin thông báo rằng <strong>{Actor}</strong> đã {Status} Đề nghị của bạn:</p>
+                                        <p>Thông tin chi tiết về Đề nghị của bạn dành cho {Actor}:</p>
                                         <ul>
-                                            <li>Content : {ContentType}</li>
+                                            <li>Yêu cầu của chiến dịch : {ContentType}</li>
                                             <li>Giá: {Price}</li>
                                             <li>Thời gian tạo: {CreatedAt}</li>
                                             <li>Thời gian phản hồi: {ResponseTime}</li>
@@ -539,7 +539,7 @@
                                         <head>
                                             <meta charset=""UTF-8"">
                                             <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                                            <title>Thông Báo Brand Đã Thanh Toán Offer Thành Công</title>
+                                            <title>Thông Báo Nhãn hàng Đã Thanh Toán Đề nghị Thành Công</title>
                                             <style>
                                                 body {
                                                     font-family: Arial, sans-serif;
@@ -604,14 +604,14 @@
                                         <body>
                                             <div class=""email-container"">
                                                 <div class=""email-header"">
-                                                    Thông Báo Offer đã {Title}
+                                                    Thông Báo Đề nghị đã {Title}
                                                 </div>
                                                 <div class=""email-body"">
                                                     <h2>Xin chào {InfluencerName},</h2>
-                                                    <p>Chúng tôi xin thông báo rằng Brand <strong>{BrandName}</strong> đã {Status} thanh toán offer</p>
-                                                    <p>Thông tin chi tiết về offer của bạn:</p>
+                                                    <p>Chúng tôi xin thông báo rằng Nhãn hàng <strong>{BrandName}</strong> đã {Status} thanh toán Đề nghị</p>
+                                                    <p>Thông tin chi tiết về Đề nghị của bạn:</p>
                                                     <ul>
-                                                        <li>Content : {ContentType}</li>
+                                                        <li>Yêu cầu của chiến dịch : {ContentType}</li>
                                                         <li>Giá: {Price}</li>
                                                         <li>Mô tả: {Description}</li>
                                                         <li>Thời gian tạo: {CreatedAt}</li>
@@ -640,7 +640,7 @@
                     <head>
                         <meta charset=""UTF-8"">
                         <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                        <title>Thông Báo Influencer Vi Phạm Chính Sách Trang Web</title>
+                        <title>Thông Báo Nhà sáng tạo nội dung Vi Phạm Chính Sách Trang Web</title>
                         <style>
                             body {
                                 font-family: Arial, sans-serif;
@@ -707,19 +707,19 @@
                     <body>
                         <div class=""email-container"">
                             <div class=""email-header"">
-                                Thông Báo Influencer Vi Phạm Chính Sách Trang Web
+                                Thông Báo Nhà sáng tạo nội dung Vi Phạm Chính Sách Trang Web
                             </div>
                             <div class=""email-body"">
                                 <h2>Xin chào Admin,</h2>
-                                <p>Chúng tôi xin thông báo rằng influencer <strong>{InfluencerName}</strong> đã vi phạm chính sách của trang web:</p>
+                                <p>Chúng tôi xin thông báo rằng Nhà sáng tạo nội dung <strong>{InfluencerName}</strong> đã vi phạm chính sách của trang web:</p>
                                 <p><strong>{Reason}</strong></p>
-                                <p>Thông tin chi tiết về sai phạm của influencer:</p>
+                                <p>Thông tin chi tiết về sai phạm của Nhà sáng tạo nội dung:</p>
                                 <ul>
                                     <li>Người báo cáo: {Reporter}</li>
                                     <li>Thời gian báo cáo: {CreatedAt}</li>
                                     <li>Mô tả: {Description}</li>
                                 </ul>
-                                <p>Vui lòng xem xét và phản hồi để có hướng xử lý phù hợp cho các hành vi vi phạm chính sách của influencer.</p>
+                                <p>Vui lòng xem xét và phản hồi để có hướng xử lý phù hợp cho các hành vi vi phạm chính sách của Nhà sáng tạo nội dung.</p>
                                 <div class=""button-container"">
                                     <a href=""{ReportLink}"" class=""button"">Xem Chi Tiết</a>
                                 </div>
@@ -742,7 +742,7 @@
                                         <head>
                                             <meta charset=""UTF-8"">
                                             <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                                            <title>Thông Báo Campaign Đã Bắt Đầu</title>
+                                            <title>Thông Báo Chiến dịch Đã Bắt Đầu</title>
                                             <style>
                                                 body {
                                                     font-family: Arial, sans-serif;
@@ -808,16 +808,16 @@
                                         <body>
                                             <div class=""email-container"">
                                                 <div class=""email-header"">
-                                                    Thông Báo Campaign Đã Bắt Đầu
+                                                    Thông Báo Chiến dịch Đã Bắt Đầu
                                                 </div>
                                                 <div class=""email-body"">
                                                     <h2>Xin chào Inluencer,</h2>
-                                                    <p>Chúng tôi xin thông báo rằng campaign <strong>{CampaignName}</strong> mà bạn tham gia đã được bắt đầu.</p>
+                                                    <p>Chúng tôi xin thông báo rằng Chiến dịch <strong>{CampaignName}</strong> mà bạn tham gia đã được bắt đầu.</p>
                                                     <p>Vui lòng chuẩn bị và triển khai công việc theo như đã thỏa thuận trước đó.</p>
-                                                    <p>Thông tin chi tiết về campaign của bạn:</p>
+                                                    <p>Thông tin chi tiết về Chiến dịch của bạn:</p>
                                                     <ul>
-                                                        <li>Campaign: {CampaignName} - {Title}</li>
-                                                        <li>Brand: {BrandName}</li>
+                                                        <li>Chiến dịch: {CampaignName} - {Title}</li>
+                                                        <li>Nhãn hàng: {BrandName}</li>
                                                         <li>Thời gian bắt đầu: {StartDate}</li>
                                                         <li>Thời gian dự kiến kết thúc: {EndDate}</li>
                                                     </ul>

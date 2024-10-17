@@ -3,13 +3,14 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Serilog;
+using static BusinessObjects.AuthEnumContainer;
 using static BusinessObjects.JobEnumContainer;
 
 namespace Service
 {
     public class JobService : IJobService
     {
-        private static IJobRepository _jobService = new JobRepository();
+        private static IJobRepository _jobRepository = new JobRepository();
         private static IJobDetailService _jobDetailService = new JobDetailService();
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
@@ -23,15 +24,32 @@ namespace Service
             cfg.AddProfile<AutoMapperProfile>();
         }).CreateMapper();
 
-        public async Task CreateJob(JobDTO job)
+        public async Task CreateJob(JobRequestDTO job)
         {
             var jobnew = _mapper.Map<Job>(job);
-            await _jobService.Create(jobnew);
+            await _jobRepository.Create(jobnew);
         }
+
+        public async Task<IEnumerable<JobDTO>> GetAllJobByCurrentAccount(UserDTO user)
+        {
+            IEnumerable<Job> jobs = Enumerable.Empty<Job>();
+
+            if (user.Role == ERole.Influencer)
+            {
+                jobs = await _jobRepository.GetJobInfluencerByUserId(user.Id);
+            }
+            else
+            {
+                jobs = await _jobRepository.GetJobBrandByUserId(user.Id);
+            }
+
+            return _mapper.Map<IEnumerable<JobDTO>>(jobs);
+        }
+
 
         public async Task BrandPaymentJob(Guid jobId, UserDTO userDto)
         {
-            var job = await _jobService.GetJobFullDetailById(jobId);
+            var job = await _jobRepository.GetJobFullDetailById(jobId);
 
             var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment);
             if (offer == null)
@@ -55,7 +73,7 @@ namespace Service
             await _userRepository.UpdateUser(user);
             job.Status = (int)EJobStatus.InProgress;
             job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Done;
-            await _jobService.UpdateJobAndOffer(job);
+            await _jobRepository.UpdateJobAndOffer(job);
 
             //Save Payment data.
             await _paymentBookingRepository.Create(new PaymentBooking
@@ -73,7 +91,7 @@ namespace Service
 
         public async Task BrandCancelJob(Guid jobId, UserDTO userDto)
         {
-            var job = await _jobService.GetJobFullDetailById(jobId);
+            var job = await _jobRepository.GetJobFullDetailById(jobId);
 
             var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment);
             if (offer == null)
@@ -88,7 +106,7 @@ namespace Service
 
             job.Status = (int)EJobStatus.NotCreated;
             job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Cancelled;
-            await _jobService.UpdateJobAndOffer(job);
+            await _jobRepository.UpdateJobAndOffer(job);
 
             //send mail
             await SendMail(job, offer, "bị từ chối thanh toán", "bị từ chối", "Rất tiếc, thanh toán cho chiến dịch đã bị hủy, do đó bạn không thể bắt đầu công việc.");
@@ -96,7 +114,7 @@ namespace Service
 
         public async Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO)
         {
-            var job = await _jobService.GetJobInProgress(jobId);
+            var job = await _jobRepository.GetJobInProgress(jobId);
             if (job == null)
             {
                 throw new InvalidOperationException("Công việc này chưa bắt đầu hoặc đã kết thúc, không thể thêm liên kết");

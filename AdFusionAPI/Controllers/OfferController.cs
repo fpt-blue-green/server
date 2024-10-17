@@ -17,6 +17,14 @@ namespace AdFusionAPI.Controllers
         }
 
         [AuthRequired]
+        [HttpGet("{id}/job")]
+        public async Task<ActionResult<IEnumerable<OfferDTO>>> GetOfferByJobId(Guid id)
+        {
+            var result = await _offerService.GetOfferByJobId(id);
+            return Ok(result);
+        }
+
+        [AuthRequired]
         [HttpPost]
         public async Task<ActionResult> CreateOffer(OfferCreateRequestDTO offerCreateRequestDTO)
         {
