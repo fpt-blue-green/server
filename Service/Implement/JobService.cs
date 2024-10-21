@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Serilog;
+using System.Transactions;
 using static BusinessObjects.AuthEnumContainer;
 using static BusinessObjects.JobEnumContainer;
 
@@ -49,44 +50,55 @@ namespace Service
 
         public async Task BrandPaymentJob(Guid jobId, UserDTO userDto)
         {
-            var job = await _jobRepository.GetJobFullDetailById(jobId);
-
-            var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment);
-            if (offer == null)
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                throw new InvalidOperationException("Không có đề nghị nào được chấp thuận.");
+                try
+                {
+                    var job = await _jobRepository.GetJobFullDetailById(jobId);
+
+                    var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment);
+                    if (offer == null)
+                    {
+                        throw new InvalidOperationException("Không có đề nghị nào được chấp thuận.");
+                    }
+
+                    var user = job.Campaign.Brand.User;
+
+                    if (userDto.Id != user.Id)
+                    {
+                        throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
+                    }
+
+                    if (user.Wallet < offer.Price)
+                    {
+                        throw new InvalidOperationException("Không đủ tiền để thanh toán. Vui lòng đến trang nạp tiền để hoàn thành đề nghị.");
+                    }
+
+                    user.Wallet -= offer.Price;
+                    await _userRepository.UpdateUser(user);
+                    job.Status = (int)EJobStatus.InProgress;
+                    job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Done;
+                    await _jobRepository.UpdateJobAndOffer(job);
+
+                    //Save Payment data.
+                    await _paymentBookingRepository.Create(new PaymentBooking
+                    {
+                        JobId = jobId,
+                        Amount = offer.Price,
+                        Type = (int)EPaymentType.BrandPayment,
+                    });
+
+                    var influencerUser = job.Influencer.User;
+
+                    //send mail
+                    await SendMail(job, offer, "được thanh toán", "được thanh toán", "Bạn có thể bắt đầu công việc ngay khi chiến dịch được khởi động.");
+                }
+                catch
+                {
+                    throw;
+
+                }
             }
-
-            var user = job.Campaign.Brand.User;
-
-            if (userDto.Id != user.Id)
-            {
-                throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
-            }
-
-            if (user.Wallet < offer.Price)
-            {
-                throw new InvalidOperationException("Không đủ tiền để thanh toán. Vui lòng đến trang nạp tiền để hoàn thành đề nghị.");
-            }
-
-            user.Wallet -= offer.Price;
-            await _userRepository.UpdateUser(user);
-            job.Status = (int)EJobStatus.InProgress;
-            job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Done;
-            await _jobRepository.UpdateJobAndOffer(job);
-
-            //Save Payment data.
-            await _paymentBookingRepository.Create(new PaymentBooking
-            {
-                JobId = jobId,
-                Amount = offer.Price,
-                Type = (int)EPaymentBookingStatus.BrandPayment,
-            });
-
-            var influencerUser = job.Influencer.User;
-
-            //send mail
-            await SendMail(job, offer, "được thanh toán", "được thanh toán", "Bạn có thể bắt đầu công việc ngay khi chiến dịch được khởi động.");
         }
 
         public async Task BrandCancelJob(Guid jobId, UserDTO userDto)

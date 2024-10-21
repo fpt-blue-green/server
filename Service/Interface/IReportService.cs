@@ -5,10 +5,12 @@ namespace Service
 {
     public interface IReportService
     {
-        Task<IEnumerable<InfluencerReport>> GetInfluencerReports();
-        Task<IEnumerable<InfluencerReport>> GetInfluencerReportsByInfluencerId(Guid influencerId);
-        Task<InfluencerReport> GetInfluencerReportById(Guid id);
+        Task<IEnumerable<ReportDTO>> GetReports();
+        Task<IEnumerable<ReportDTO>> GetReportsByInfluencerId(Guid influencerId);
+        Task<InfluencerReport> GetReportById(Guid id);
         Task CreateInfluencerReport(Guid influencerId, ReportRequestDTO reportRequestDTO, UserDTO userDTO);
         Task DeleteInfluencerReport(Guid id, UserDTO userDTO);
+        Task ApproveReport(Guid id, UserDTO user, BannedUserRequestDTO userRequestDTO);
+        Task RejectReport(Guid id);
     }
 }

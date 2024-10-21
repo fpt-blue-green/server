@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interface;
 
@@ -24,9 +25,22 @@ namespace Repositories.Implement
             }
         }
 
-        public Task<IEnumerable<InfluencerReport>> GetAll()
+        public async Task UpdateReports(IEnumerable<InfluencerReport> reports)
         {
-            throw new NotImplementedException();
+            using (var context = new PostgresContext())
+            {
+                context.InfluencerReports.UpdateRange(reports); 
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<InfluencerReport>> GetAll()
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.InfluencerReports.IgnoreQueryFilters().ToListAsync();
+                return result;
+            }
         }
 
         public async Task<InfluencerReport> GetById(Guid id)
@@ -40,6 +54,23 @@ namespace Repositories.Implement
                 return influencerReport!;
             }
         }
+
+        public async Task<IEnumerable<InfluencerReport>> GetReportWithSameType(Guid id)
+        {
+            using (var context = new PostgresContext())
+            {
+                // Truy vấn lấy cả báo cáo chính và các báo cáo cùng loại
+                var reports = await context.InfluencerReports
+                    .Include(x => x.Influencer).ThenInclude(i => i.User)
+                    .Include(x => x.Reporter)
+                    .Where(i => i.Id == id  || (i.InfluencerId == (context.InfluencerReports.Where(r => r.Id == id).Select(r => r.InfluencerId).FirstOrDefault())
+                                                 && i.Reason == (context.InfluencerReports .Where(r => r.Id == id).Select(r => r.Reason).FirstOrDefault())))
+                    .ToListAsync();
+
+                return reports;
+            }
+        }
+
 
         public async Task<IEnumerable<InfluencerReport>> GetInfluencerReportsByInfluencerId(Guid id)
         {

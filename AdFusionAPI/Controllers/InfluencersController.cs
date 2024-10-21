@@ -74,7 +74,7 @@ namespace AdFusionAPI.Controllers
         [HttpPost("{id}/reports")]
         [AuthRequired]
 
-        public async Task<ActionResult<IEnumerable<FeedbackDTO>>> CreateReport(Guid id, ReportRequestDTO reportRequestDTO)
+        public async Task<ActionResult> CreateReport(Guid id, ReportRequestDTO reportRequestDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _reportService.CreateInfluencerReport(id, reportRequestDTO, user);

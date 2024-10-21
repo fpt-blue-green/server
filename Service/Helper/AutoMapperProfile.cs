@@ -91,7 +91,9 @@ namespace Service
             CreateMap<Favorite, FavoriteDTO>()
             .ForMember(dest => dest.Influencer, opt => opt.MapFrom(src => src.Influencer)).ReverseMap();
             #endregion
-
+            #region Reports
+            CreateMap<ReportDTO, InfluencerReport>().ReverseMap();
+            #endregion
             #region AdminAction
             CreateMap<AdminAction, AdminActionDTO>().ReverseMap();
             #endregion

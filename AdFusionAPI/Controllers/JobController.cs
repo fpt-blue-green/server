@@ -10,10 +10,12 @@ namespace AdFusionAPI.Controllers
     public class JobController : Controller
     {
         private readonly IJobService _jobService;
+        private readonly IOfferService _offerService;
 
-        public JobController(IJobService jobService)
+        public JobController(IJobService jobService, IOfferService offerService)
         {
             _jobService = jobService;
+            _offerService = offerService;
         }
 
         [BrandRequired]
@@ -41,6 +43,14 @@ namespace AdFusionAPI.Controllers
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _jobService.AttachPostLink(id, user, jobLinkDTO);
             return Ok();
+        }
+
+        [AuthRequired]
+        [HttpGet("{id}/offer")]
+        public async Task<ActionResult<IEnumerable<OfferDTO>>> GetOfferByJobId(Guid id)
+        {
+            var result = await _offerService.GetOfferByJobId(id);
+            return Ok(result);
         }
     }
 }

@@ -679,20 +679,6 @@
                             .email-body ul {
                                 padding-left: 20px;
                             }
-                            .button-container {
-                                text-align: center;
-                                margin: 20px 0;
-                            }
-                            .button {
-                                background-color: rgb(255, 112, 129);
-                                color: white;
-                                padding: 10px 20px;
-                                text-align: center;
-                                text-decoration: none;
-                                display: inline-block;
-                                border-radius: 5px;
-                                font-weight: bold;
-                            }
                             .email-footer {
                                 padding: 20px;
                                 font-size: 12px;
@@ -720,9 +706,6 @@
                                     <li>Mô tả: {Description}</li>
                                 </ul>
                                 <p>Vui lòng xem xét và phản hồi để có hướng xử lý phù hợp cho các hành vi vi phạm chính sách của Nhà sáng tạo nội dung.</p>
-                                <div class=""button-container"">
-                                    <a href=""{ReportLink}"" class=""button"">Xem Chi Tiết</a>
-                                </div>
                             </div>
                             <div class=""email-footer"">
                                 <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>

@@ -40,7 +40,7 @@ namespace Service
             if (user.IsBanned == true)
             {
                 var bannedEntry = user.BannedUserUsers
-                    .FirstOrDefault(b => b.UnbanDate == null || b.UnbanDate > DateTime.UtcNow);
+                    .FirstOrDefault(b => b.UnbanDate != null && b.UnbanDate > DateTime.UtcNow);
 
                 if (bannedEntry != null)
                 {
