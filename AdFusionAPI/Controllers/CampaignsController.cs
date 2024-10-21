@@ -46,14 +46,14 @@ namespace AdFusionAPI.Controllers
             var result = await _campaignService.UpdateCampaign(user.Id, id, campaign);
             return Ok(result);
         }
-        [HttpPut("start/{id}")]
+        [HttpPut("{id}/start")]
         [BrandRequired]
         public async Task<ActionResult<Guid>> StartCampaign( Guid id)
         {
            await _campaignService.StartCampaign( id );
             return Ok();
         }
-        [HttpPut("publish/{id}")]
+        [HttpPut("{id}/publish")]
         [BrandRequired]
         public async Task<ActionResult<Guid>> PublishCampaign(Guid id)
         {

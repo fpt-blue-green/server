@@ -34,7 +34,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [AuthRequired]
-        [HttpPut("reoffer/{id}")]
+        [HttpPut("{id}/reoffer")]
         public async Task<ActionResult> ReOffer(Guid id,ReOfferDTO reofferDto)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -43,7 +43,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [AuthRequired]
-        [HttpPut("rejectOffer/{id}")]
+        [HttpPut("{id}/rejectOffer")]
         public async Task<ActionResult> RejectOffer(Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -52,7 +52,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [AuthRequired]
-        [HttpPut("approveOffer/{id}")]
+        [HttpPut("{id}/approveOffer")]
         public async Task<ActionResult> ApproveOffer(Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
