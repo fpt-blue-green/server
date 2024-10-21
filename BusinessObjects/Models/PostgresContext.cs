@@ -99,6 +99,8 @@ public partial class PostgresContext : DbContext
         DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
         modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false); 
         modelBuilder.Entity<Campaign>().HasQueryFilter(u => u.IsDeleted == false);
+        modelBuilder.Entity<InfluencerReport>().HasQueryFilter(u => u.ReportStatus == (int)EReportStatus.Pending);
+
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
@@ -417,6 +419,7 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.Date).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Type).HasDefaultValueSql("5");
 
             entity.HasOne(d => d.User).WithMany(p => p.PaymentHistories)
                 .HasForeignKey(d => d.UserId)

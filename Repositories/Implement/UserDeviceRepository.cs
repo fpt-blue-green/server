@@ -21,6 +21,7 @@ namespace Repositories.Implement
             using (var context = new PostgresContext())
             {
                 var userDevices = await context.UserDevices.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken
+                                                            && u.User.IsBanned == false
                                                             && u.DeviceOperatingSystem == userAgentConverted.DeviceOperatingSystem
                                                             && u.BrowserName == userAgentConverted.BrowserName
                                                             && u.DeviceType == userAgentConverted.DeviceType);
@@ -32,7 +33,8 @@ namespace Repositories.Implement
         {
             using (var context = new PostgresContext())
             {
-                var userDevices = await context.UserDevices.FirstOrDefaultAsync(u => u.UserId == userId
+                var userDevices = await context.UserDevices.FirstOrDefaultAsync(u => u.UserId == userId 
+                                                            && u.User.IsBanned == false
                                                             && u.DeviceOperatingSystem == userAgentConverted.DeviceOperatingSystem
                                                             && u.BrowserName == userAgentConverted.BrowserName
                                                             && u.DeviceType == userAgentConverted.DeviceType);

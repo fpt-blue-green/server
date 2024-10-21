@@ -13,9 +13,11 @@ public partial class PaymentHistory
 
     public int? Status { get; set; }
 
-    public int? Type { get; set; }
+    public int Type { get; set; }
 
     public DateTime? Date { get; set; }
+
+    public string? Description { get; set; }
 
     public virtual User? User { get; set; }
 }

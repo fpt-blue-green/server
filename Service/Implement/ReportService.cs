@@ -5,6 +5,8 @@ using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
+using Service.Helper;
+using System.Transactions;
 
 namespace Service
 {
@@ -13,18 +15,18 @@ namespace Service
         private readonly IReportRepository _reportRepository = new ReportRepository();
         private readonly IUserRepository _userRepository = new UserRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
-        private readonly IMapper _mapper;
         private static ConfigManager _configManager = new ConfigManager();
         private static EmailTemplate _emailTemplate = new EmailTemplate();
         private static IEmailService _emailService = new EmailService();
-
-        public ReportService(IMapper mapper)
+        private static IBannedUserService _bannedUserService = new BannedUserService();
+        private static AdminActionNotificationHelper adminActionNotificationHelper = new AdminActionNotificationHelper();
+        private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
         {
-            _mapper = mapper;
-        }
+            cfg.AddProfile<AutoMapperProfile>();
+        }).CreateMapper();
+
         public async Task CreateInfluencerReport(Guid influencerId, ReportRequestDTO reportRequestDTO, UserDTO userDTO)
         {
-            _loggerService.Information("Start to report Influencer: ");
             var influReportList = await _reportRepository.GetInfluencerReportsByInfluencerId(influencerId);
             if (influReportList != null)
             {
@@ -48,13 +50,11 @@ namespace Service
                 Description = reportRequestDTO.Description,
             };
             await _reportRepository.Create(influencerReport);
-            await SendEmailToReport(influencerReport.Id);
-            _loggerService.Information("End to report Influencer: ");
+            await SendEmailToAdmin(influencerReport.Id);
         }
 
         public async Task DeleteInfluencerReport(Guid id, UserDTO userDTO)
         {
-            _loggerService.Information("Start to delete InfluencerReport: ");
             var influencerReport = await _reportRepository.GetById(id);
             if (influencerReport == null)
             {
@@ -66,29 +66,78 @@ namespace Service
             }
 
             await _reportRepository.Delete(influencerReport);
-            _loggerService.Information("End to delete InfluencerReport: ");
         }
 
-        public async Task<InfluencerReport> GetInfluencerReportById(Guid id)
+        public async Task<InfluencerReport> GetReportById(Guid id)
         {
             return await _reportRepository.GetById(id);
         }
 
-        public Task<IEnumerable<InfluencerReport>> GetInfluencerReports()
+        public async Task<IEnumerable<ReportDTO>> GetReports()
+        {
+            var reports = await _reportRepository.GetAll();
+
+            var sortedReports = reports
+                         .OrderBy(r => r.InfluencerId)
+                         .ThenByDescending(r => r.CreatedAt)
+                         .ToList();
+            return _mapper.Map<IEnumerable<ReportDTO>>(sortedReports);
+        }
+
+        public async Task RejectReport(Guid id)
+        {
+            var sameTypeReports = await _reportRepository.GetReportWithSameType(id);
+
+            if (sameTypeReports != null && sameTypeReports.Any())
+            {
+                foreach (var sameReport in sameTypeReports)
+                {
+                    sameReport.ReportStatus = (int)EReportStatus.Rejected;
+                }
+
+                await _reportRepository.UpdateReports(sameTypeReports);
+            }
+        }
+
+        public async Task ApproveReport(Guid id, UserDTO user, BannedUserRequestDTO userRequestDTO)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var sameTypeReports = await _reportRepository.GetReportWithSameType(id);
+
+                    if (sameTypeReports != null && sameTypeReports.Any())
+                    {
+                        foreach (var sameReport in sameTypeReports)
+                        {
+                            sameReport.ReportStatus = (int)EReportStatus.Approved;
+                        }
+
+                        await _reportRepository.UpdateReports(sameTypeReports);
+                    }
+                    var result = await _bannedUserService.BanUser(sameTypeReports!.FirstOrDefault()?.Influencer?.User!, userRequestDTO, user);
+                    await adminActionNotificationHelper.CreateNotification<BannedUser>(user, null,result, null, null, true);
+
+                    scope.Complete();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
+
+        public Task<IEnumerable<ReportDTO>> GetReportsByInfluencerId(Guid influencerId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<InfluencerReport>> GetInfluencerReportsByInfluencerId(Guid influencerId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task SendEmailToReport(Guid id)
+        public async Task SendEmailToAdmin(Guid id)
         {
             try
             {
-                var influencerReport = await GetInfluencerReportById(id);
+                var influencerReport = await GetReportById(id);
                 if (influencerReport == null)
                 {
                     return;
@@ -104,7 +153,7 @@ namespace Service
             }
             catch (Exception ex)
             {
-                _loggerService.Error("Has error when send mail in Report");
+                _loggerService.Error("Has error when send mail in Report : " + ex.ToString());
             }
         }
     }

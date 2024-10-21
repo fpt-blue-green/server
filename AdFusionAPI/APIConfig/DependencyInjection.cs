@@ -30,6 +30,7 @@ namespace AdFusionAPI
             services.AddScoped<IFavoriteService, FavoriteService>();
             services.AddScoped<IVideoCallService, VideoCallService>();
             services.AddScoped<IAdminActionService, AdminActionService>();
+            services.AddScoped<IBannedUserService, BannedUserService>();
 
         }
 	}
