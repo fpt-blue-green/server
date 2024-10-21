@@ -81,7 +81,7 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
-        [HttpDelete("reports/{id}")]
+        [HttpDelete("{id}/reports")]
         [AuthRequired]
         public async Task<ActionResult> DeleteInfluencerReport(Guid id)
         {

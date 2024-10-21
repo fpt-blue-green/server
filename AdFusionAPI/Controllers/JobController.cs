@@ -17,7 +17,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [BrandRequired]
-        [HttpPut("payment/{id}")]
+        [HttpPut("{id}/payment")]
         public async Task<ActionResult> BrandPayment(Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -26,7 +26,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [BrandRequired]
-        [HttpPut("cancel/{id}")]
+        [HttpPut("{id}/cancel")]
         public async Task<ActionResult> BrandCancel(Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
@@ -35,7 +35,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [InfluencerRequired]
-        [HttpPut("link/{id}")]
+        [HttpPut("{id}/link")]
         public async Task<ActionResult> AttachLink(Guid id, [FromBody] JobLinkDTO jobLinkDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
