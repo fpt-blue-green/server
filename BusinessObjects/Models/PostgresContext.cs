@@ -32,19 +32,38 @@ public partial class PostgresContext : DbContext
         // Lặp qua tất cả các entry trong ChangeTracker (bao gồm các thực thể bị thêm mới hoặc thay đổi)
         foreach (var entry in ChangeTracker.Entries())
         {
-            // Chỉ kiểm tra các thực thể có trạng thái Modified và Added
-            if (entry.State == EntityState.Modified || entry.State == EntityState.Added)
+            // Kiểm tra trạng thái thực thể
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
             {
                 // Kiểm tra xem thực thể có thuộc tính "ModifiedAt" không
                 var modifiedAtProperty = entry.Entity.GetType().GetProperty("ModifiedAt");
+                var createdAtProperty = entry.Entity.GetType().GetProperty("CreatedAt");
 
-                if (modifiedAtProperty != null && modifiedAtProperty.PropertyType == typeof(DateTime?))
+                // Nếu trạng thái là Added, set cả CreatedAt và ModifiedAt
+                if (entry.State == EntityState.Added)
                 {
-                    // Nếu có, cập nhật giá trị của thuộc tính này với thời gian hiện tại
-                    modifiedAtProperty.SetValue(entry.Entity, DateTime.UtcNow);
+                    var now = DateTime.UtcNow;
+                    if (createdAtProperty != null && createdAtProperty.PropertyType == typeof(DateTime))
+                    {
+                        createdAtProperty.SetValue(entry.Entity, now);
+                    }
+
+                    if (modifiedAtProperty != null && modifiedAtProperty.PropertyType == typeof(DateTime?))
+                    {
+                        modifiedAtProperty.SetValue(entry.Entity, now);
+                    }
+                }
+                // Nếu trạng thái là Modified, chỉ set ModifiedAt
+                else if (entry.State == EntityState.Modified)
+                {
+                    if (modifiedAtProperty != null && modifiedAtProperty.PropertyType == typeof(DateTime?))
+                    {
+                        modifiedAtProperty.SetValue(entry.Entity, DateTime.UtcNow);
+                    }
                 }
             }
         }
+
     }
     public virtual DbSet<AdminAction> AdminActions { get; set; }
 
@@ -443,7 +462,6 @@ public partial class PostgresContext : DbContext
             entity.HasIndex(e => e.Name, "tags_tagname_key").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
         });
 
         modelBuilder.Entity<User>(entity =>
