@@ -172,21 +172,12 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("jobs/filter/jobStatus")]
+        [HttpGet("jobs/filter")]
         [InfluencerRequired]
-        public async Task<ActionResult<List<JobDTO>>> FilterJobByJobStatus(int jobStatus)
+        public async Task<ActionResult<List<JobDTO>>> FilterJobByJobStatus(int? eJobStatus, int? eCampaignStatus)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _jobService.FilterJobByJobStatus(user, jobStatus);
-            return Ok(result);
-        }
-
-        [HttpGet("jobs/filter/campaignStatus")]
-        [InfluencerRequired]
-        public async Task<ActionResult<List<JobDTO>>> FilterJobByCampaignStatus(int campaignStatus)
-        {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _jobService.FilterJobByCampaignStatus(user, campaignStatus);
+            var result = await _jobService.FilterJob(user, eJobStatus, eCampaignStatus);
             return Ok(result);
         }
     }

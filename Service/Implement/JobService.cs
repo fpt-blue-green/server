@@ -47,42 +47,23 @@ namespace Service
             return _mapper.Map<IEnumerable<JobDTO>>(jobs);
         }
 
-        public async Task<IEnumerable<JobDTO>> FilterJobByJobStatus(UserDTO user, int eJobStatus)
+        public async Task<IEnumerable<JobDTO>> FilterJob(UserDTO user, int? eJobStatus, int? eCampaignStatus)
         {
             IEnumerable<Job> jobs = Enumerable.Empty<Job>();
 
             if (user.Role == ERole.Influencer)
             {
-                jobs = await _jobRepository.FilterJobInfluencerByJobStatus(user.Id, eJobStatus);
+                jobs = await _jobRepository.FilterJobInfluencer(user.Id, eJobStatus, eCampaignStatus);
 
             }
             else
             {
-                jobs = await _jobRepository.FilterJobBrandByJobStatus(user.Id, eJobStatus);
+                jobs = await _jobRepository.FilterJobBrand(user.Id, eJobStatus, eCampaignStatus);
 
             }
 
             return _mapper.Map<IEnumerable<JobDTO>>(jobs);
 
-        }
-
-
-        public async Task<IEnumerable<JobDTO>> FilterJobByCampaignStatus(UserDTO user, int eCampaignStatus)
-        {
-            IEnumerable<Job> jobs = Enumerable.Empty<Job>();
-
-            if (user.Role == ERole.Influencer)
-            {
-                jobs = await _jobRepository.FilterJobInfluencerByCampaignStatus(user.Id, eCampaignStatus);
-
-            }
-            else
-            {
-                jobs = await _jobRepository.FilterJobBrandByCampaignStatus(user.Id, eCampaignStatus);
-
-            }
-
-            return _mapper.Map<IEnumerable<JobDTO>>(jobs);
         }
 
         public async Task BrandPaymentJob(Guid jobId, UserDTO userDto)

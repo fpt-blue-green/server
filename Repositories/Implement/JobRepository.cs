@@ -104,51 +104,81 @@ namespace Repositories
             }
         }
 
-        public async Task<IEnumerable<Job>> FilterJobInfluencerByCampaignStatus(Guid userId, int eCampaignStatus)
+        public async Task<IEnumerable<Job>> FilterJobInfluencer(Guid userId, int? eJobStatus, int? eCampaignStatus)
         {
             using (var context = new PostgresContext())
             {
-                var jobs = await context.Jobs.Where(j => j.Campaign.Status == eCampaignStatus && j.Influencer.UserId == userId)
-                                            .Include(j => j.Offers)
-                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
-                                            .ToListAsync();
-                return jobs!;
+                var query = context.Jobs.AsQueryable();
+
+                // Khi cả eJobStatus và eCampaignStatus có giá trị, lọc theo cả hai
+                if (eJobStatus.HasValue && eCampaignStatus.HasValue)
+                {
+                    query = query.Where(j => j.Status == eJobStatus.Value && j.Campaign.Status == eCampaignStatus.Value);
+                }
+                else
+                {
+                    // Lọc theo eJobStatus nếu có giá trị
+                    if (eJobStatus.HasValue)
+                    {
+                        query = query.Where(j => j.Status == eJobStatus.Value);
+                    }
+
+                    // Lọc theo eCampaignStatus nếu có giá trị
+                    if (eCampaignStatus.HasValue)
+                    {
+                        query = query.Where(j => j.Campaign.Status == eCampaignStatus.Value);
+                    }
+                }
+
+                // Lọc theo Influencer UserId
+                query = query.Where(j => j.Influencer.UserId == userId);
+
+                // Thực thi query và trả về kết quả
+                var jobs = await query
+                                .Include(j => j.Offers)
+                                .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                .ToListAsync();
+
+                return jobs;
             }
         }
 
-        public async Task<IEnumerable<Job>> FilterJobBrandByCampaignStatus(Guid userId, int eCampaignStatus)
+        public async Task<IEnumerable<Job>> FilterJobBrand(Guid userId, int? eJobStatus, int? eCampaignStatus)
         {
             using (var context = new PostgresContext())
             {
-                var jobs = await context.Jobs.Where(j => j.Campaign.Status == eCampaignStatus && j.Campaign.Brand.UserId == userId)
-                                            .Include(j => j.Offers)
-                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
-                                            .ToListAsync();
-                return jobs!;
-            }
-        }
+                var query = context.Jobs.AsQueryable();
 
-        public async Task<IEnumerable<Job>> FilterJobInfluencerByJobStatus(Guid userId, int eJobStatus)
-        {
-            using (var context = new PostgresContext())
-            {
-                var jobs = await context.Jobs.Where(j => j.Status == eJobStatus && j.Influencer.UserId == userId)
-                                            .Include(j => j.Offers)
-                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
-                                            .ToListAsync();
-                return jobs!;
-            }
-        }
+                // Khi cả eJobStatus và eCampaignStatus có giá trị, lọc theo cả hai
+                if (eJobStatus.HasValue && eCampaignStatus.HasValue)
+                {
+                    query = query.Where(j => j.Status == eJobStatus.Value && j.Campaign.Status == eCampaignStatus.Value);
+                }
+                else
+                {
+                    // Lọc theo eJobStatus nếu có giá trị
+                    if (eJobStatus.HasValue)
+                    {
+                        query = query.Where(j => j.Status == eJobStatus.Value);
+                    }
 
-        public async Task<IEnumerable<Job>> FilterJobBrandByJobStatus(Guid userId, int eJobStatus)
-        {
-            using (var context = new PostgresContext())
-            {
-                var jobs = await context.Jobs.Where(j => j.Status == eJobStatus && j.Campaign.Brand.UserId == userId)
-                                            .Include(j => j.Offers)
-                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
-                                            .ToListAsync();
-                return jobs!;
+                    // Lọc theo eCampaignStatus nếu có giá trị
+                    if (eCampaignStatus.HasValue)
+                    {
+                        query = query.Where(j => j.Campaign.Status == eCampaignStatus.Value);
+                    }
+                }
+
+                // Lọc theo Influencer UserId
+                query = query.Where(j => j.Campaign.Brand.UserId == userId);
+
+                // Thực thi query và trả về kết quả
+                var jobs = await query
+                                .Include(j => j.Offers)
+                                .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                .ToListAsync();
+
+                return jobs;
             }
         }
 

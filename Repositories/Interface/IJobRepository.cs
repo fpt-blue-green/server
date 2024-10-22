@@ -15,10 +15,8 @@ namespace Repositories
         Task Update(Job job);
         Task<IEnumerable<Job>> GetJobInfluencerByUserId(Guid userId);
         Task<IEnumerable<Job>> GetJobBrandByUserId(Guid userId);
-        Task<IEnumerable<Job>> FilterJobBrandByJobStatus(Guid userId, int eJobStatus);
-        Task<IEnumerable<Job>> FilterJobInfluencerByJobStatus(Guid userId, int eJobStatus);
-        Task<IEnumerable<Job>> FilterJobInfluencerByCampaignStatus(Guid userId, int eCampaignStatus);
-        Task<IEnumerable<Job>> FilterJobBrandByCampaignStatus(Guid userId, int eCampaignStatus);
+        Task<IEnumerable<Job>> FilterJobBrand(Guid userId, int? eJobStatus, int? eCampaignStatus);
+        Task<IEnumerable<Job>> FilterJobInfluencer(Guid userId, int? eJobStatus, int? eCampaignStatus);
 
 
     }
