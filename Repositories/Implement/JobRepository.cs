@@ -104,6 +104,54 @@ namespace Repositories
             }
         }
 
+        public async Task<IEnumerable<Job>> FilterJobInfluencerByCampaignStatus(Guid userId, int eCampaignStatus)
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.Campaign.Status == eCampaignStatus && j.Influencer.UserId == userId)
+                                            .Include(j => j.Offers)
+                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                            .ToListAsync();
+                return jobs!;
+            }
+        }
+
+        public async Task<IEnumerable<Job>> FilterJobBrandByCampaignStatus(Guid userId, int eCampaignStatus)
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.Campaign.Status == eCampaignStatus && j.Campaign.Brand.UserId == userId)
+                                            .Include(j => j.Offers)
+                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                            .ToListAsync();
+                return jobs!;
+            }
+        }
+
+        public async Task<IEnumerable<Job>> FilterJobInfluencerByJobStatus(Guid userId, int eJobStatus)
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.Status == eJobStatus && j.Influencer.UserId == userId)
+                                            .Include(j => j.Offers)
+                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                            .ToListAsync();
+                return jobs!;
+            }
+        }
+
+        public async Task<IEnumerable<Job>> FilterJobBrandByJobStatus(Guid userId, int eJobStatus)
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.Status == eJobStatus && j.Campaign.Brand.UserId == userId)
+                                            .Include(j => j.Offers)
+                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                            .ToListAsync();
+                return jobs!;
+            }
+        }
+
         public async Task<IEnumerable<Job>> GetCampaignJobs(Guid campaginId)
         {
             using (var context = new PostgresContext())

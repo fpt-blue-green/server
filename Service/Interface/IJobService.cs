@@ -9,5 +9,8 @@ namespace Service
         Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO);
         Task BrandCancelJob(Guid jobId, UserDTO userDTO);
         Task<IEnumerable<JobDTO>> GetAllJobByCurrentAccount(UserDTO user);
+        Task<IEnumerable<JobDTO>> FilterJobByJobStatus(UserDTO user, int eJobStatus);
+        Task<IEnumerable<JobDTO>> FilterJobByCampaignStatus(UserDTO user, int eCampaignStatus);
+
     }
 }

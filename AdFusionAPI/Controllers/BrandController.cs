@@ -104,5 +104,23 @@ namespace AdFusionAPI.Controllers
             var result = await _jobService.GetAllJobByCurrentAccount(user);
             return Ok(result);
         }
+
+        [HttpGet("jobs/filter/jobStatus")]
+        [BrandRequired]
+        public async Task<ActionResult<List<JobDTO>>> FilterJobByJobStatus(int jobStatus)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _jobService.FilterJobByJobStatus(user, jobStatus);
+            return Ok(result);
+        }
+
+        [HttpGet("jobs/filter/campaignStatus")]
+        [BrandRequired]
+        public async Task<ActionResult<List<JobDTO>>> FilterJobByCampaignStatus(int campaignStatus)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _jobService.FilterJobByCampaignStatus(user, campaignStatus);
+            return Ok(result);
+        }
     }
 }
