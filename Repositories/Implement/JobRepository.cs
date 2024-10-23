@@ -122,7 +122,7 @@ namespace Repositories
             {
                 var jobs = await context.Jobs.Where(j => j.Influencer.UserId == userId)
                                             .Include(j => j.Influencer)
-                                            .Include(j => j.Campaign)
+                                            .Include(j => j.Campaign).ThenInclude(j => j.CampaignImages)
                                             .Include(i => i.Offers)
                                             .ToListAsync();
                 return jobs!;
