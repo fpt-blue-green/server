@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repositories
 {
@@ -10,6 +11,24 @@ namespace Repositories
             {
                 context.BannedUsers.Add(user);
                 await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdateBannedUserData(BannedUser user)
+        {
+            using (var context = new PostgresContext())
+            {
+                context.Entry<BannedUser>(user).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<BannedUser>> GetBannedUsers()
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.BannedUsers.Include(i => i.BannedBy).ToListAsync();
+                return result;
             }
         }
 

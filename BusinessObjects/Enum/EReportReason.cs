@@ -1,15 +1,31 @@
 ﻿namespace BusinessObjects
 {
+    using System.ComponentModel;
+
     public enum EReportReason
     {
-        Other = 0,                // Lý do khác: Lý do không nằm trong các mục đã liệt kê.
-        InappropriateContent = 1, // Nội dung không phù hợp: Nội dung gây khó chịu hoặc không phù hợp với cộng đồng.
-        HateSpeech = 2,           // Ngôn từ thù địch: Sử dụng ngôn từ phân biệt hoặc thù địch.
-        Fraud = 3,                // Gian lận: Hành động lừa đảo hoặc gian lận với người dùng.
-        FalseInformation = 4,     // Nội dung giả mạo: Phát tán thông tin sai lệch.
-        UncompletedWork = 5,      // Không hoàn thành công việc: Không thực hiện nhiệm vụ đã nhận.
-        ViolationOfTerms = 6,     // Vi phạm điều khoản dịch vụ: Không tuân thủ quy định của nền tảng.
+        [Description("Lý do khác.")]
+        Other = 0,
+
+        [Description("Nội dung không phù hợp.")]
+        InappropriateContent = 1,
+
+        [Description("Ngôn từ thù địch.")]
+        HateSpeech = 2,
+
+        [Description("Gian lận.")]
+        Fraud = 3,
+
+        [Description("Nội dung giả mạo.")]
+        FalseInformation = 4,
+
+        [Description("Không hoàn thành công việc.")]
+        UncompletedWork = 5,
+
+        [Description("Vi phạm điều khoản dịch vụ.")]
+        ViolationOfTerms = 6,
     }
+
 
     public enum EReportStatus
     {

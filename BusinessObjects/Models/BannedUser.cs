@@ -11,6 +11,8 @@ public partial class BannedUser
 
     public string Reason { get; set; } = null!;
 
+    public bool IsActive { get; set; } 
+
     public DateTime BanDate { get; set; }
 
     public DateTime? UnbanDate { get; set; }

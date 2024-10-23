@@ -159,11 +159,12 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.BanDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.HasOne(d => d.BannedBy).WithMany(p => p.BannedUserBannedBies)
                 .HasForeignKey(d => d.BannedById)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("bannedusers_bannedbyid_fkey");
+
 
             entity.HasOne(d => d.User).WithMany(p => p.BannedUserUsers)
                 .HasForeignKey(d => d.UserId)

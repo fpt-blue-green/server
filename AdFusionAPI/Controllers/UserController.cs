@@ -1,5 +1,4 @@
 ﻿using AdFusionAPI.APIConfig;
-using AutoMapper;
 using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
@@ -11,12 +10,9 @@ namespace AdFusionAPI.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IMapper _mapper;
-
-        public UserController(IUserService userService, IMapper mapper)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _mapper = mapper;
         }
 
         [HttpPatch("avatar")]
