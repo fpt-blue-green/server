@@ -53,5 +53,13 @@ namespace Repositories
                 await context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<Offer>> GetOfferByCampaignAndInfluencerId(Guid campaignId, Guid influencerId)
+        {
+            using (var context = new PostgresContext())
+            {
+                return await context.Offers.Where(o => o.Job.CampaignId == campaignId && o.Job.InfluencerId == influencerId).ToListAsync()!;
+            }
+        }
     }
 }
