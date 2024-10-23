@@ -8,6 +8,6 @@ namespace Service
         Task BrandPaymentJob(Guid jobId, UserDTO userDto);
         Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO);
         Task BrandCancelJob(Guid jobId, UserDTO userDTO);
-        Task<IEnumerable<JobDTO>> GetAllJobByCurrentAccount(UserDTO user);
+        Task<JobResponseDTO> GetAllJobByCurrentAccount(UserDTO user, JobFilterDto filter);
     }
 }

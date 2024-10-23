@@ -31,7 +31,7 @@ namespace Service
             await _jobRepository.Create(jobnew);
         }
 
-        public async Task<IEnumerable<JobDTO>> GetAllJobByCurrentAccount(UserDTO user)
+        public async Task<JobResponseDTO> GetAllJobByCurrentAccount(UserDTO user, JobFilterDto filter)
         {
             IEnumerable<Job> jobs = Enumerable.Empty<Job>();
 
@@ -43,6 +43,24 @@ namespace Service
             {
                 jobs = await _jobRepository.GetJobBrandByUserId(user.Id);
             }
+
+            #region filter
+            if (filter.JobStatus.HasValue || filter.CampaignStatus.HasValue)
+            {
+                jobs = jobs.Where(i =>
+                    (!filter.JobStatus.HasValue || i.Status == (int)filter.JobStatus) &&
+                    (!filter.CampaignStatus.HasValue || i.Campaign.Status == (int)filter.CampaignStatus)
+                );
+            }
+            #endregion
+
+            #region paging
+            int pageSize = filter.PageSize;
+            jobs = jobs
+                .Skip((filter.PageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            #endregion
 
             // Map từng job và chọn offer có CreateAt mới nhất
             var jobDTOs = jobs.Select(job =>
@@ -58,7 +76,11 @@ namespace Service
                 return jobDTO;
             });
 
-            return jobDTOs!;
+            return new JobResponseDTO
+            {
+                TotalCount = jobs.Count(),
+                Jobs = _mapper.Map<IEnumerable<JobDTO>>(jobDTOs)
+            };
         }
 
 

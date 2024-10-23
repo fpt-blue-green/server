@@ -98,10 +98,10 @@ namespace AdFusionAPI.Controllers
 
         [HttpGet("jobs")]
         [BrandRequired]
-        public async Task<ActionResult<List<JobDTO>>> GetJobs()
+        public async Task<ActionResult<List<JobDTO>>> GetJobs([FromQuery] JobFilterDto filter)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _jobService.GetAllJobByCurrentAccount(user);
+            var result = await _jobService.GetAllJobByCurrentAccount(user, filter);
             return Ok(result);
         }
     }
