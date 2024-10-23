@@ -61,7 +61,7 @@ namespace Repositories.Implement
             {
                 // Truy vấn lấy cả báo cáo chính và các báo cáo cùng loại
                 var reports = await context.InfluencerReports
-                    .Include(x => x.Influencer).ThenInclude(i => i.User)
+                    .Include(x => x.Influencer).ThenInclude(i => i.User).ThenInclude(i => i.BannedUserUsers)
                     .Include(x => x.Reporter)
                     .Where(i => i.Id == id  || (i.InfluencerId == (context.InfluencerReports.Where(r => r.Id == id).Select(r => r.InfluencerId).FirstOrDefault())
                                                  && i.Reason == (context.InfluencerReports .Where(r => r.Id == id).Select(r => r.Reason).FirstOrDefault())))

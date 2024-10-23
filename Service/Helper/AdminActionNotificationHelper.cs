@@ -36,7 +36,7 @@ namespace Service.Helper
             else
             {
                 actionType = EAdminAction.BanUser;
-                summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã cấm người dùng vì vi phạm các quy định. Thông tin chi tiết: {JsonConvert.SerializeObject(newData, settings)}";
+                summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã cấm/hủy cấm người dùng. Thông tin chi tiết: {JsonConvert.SerializeObject(newData, settings)}";
             }
 
 

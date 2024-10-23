@@ -5,31 +5,31 @@ namespace BusinessObjects
     public enum EBanDate
     {
         [Description("Hủy Bỏ Lệnh Cấm.")]
-        None,
+        None = 0,
 
         [Description("Bị ban 1 tuần")]
-        OneWeek,
+        OneWeek = 1,
 
         [Description("Bị ban 2 tuần")]
-        TwoWeeks,
+        TwoWeeks = 2,
 
         [Description("Bị ban 1 tháng")]
-        OneMonth,
+        OneMonth = 3,
 
         [Description("Bị ban 3 tháng")]
-        ThreeMonths,
+        ThreeMonths = 4,
 
         [Description("Bị ban 6 tháng")]
-        SixMonths,
+        SixMonths = 5,
 
         [Description("Bị ban 1 năm")]
-        OneYear,
+        OneYear = 6,
 
         [Description("Bị ban 2 năm")]
-        TwoYear,
+        TwoYear = 7,
 
         [Description("Bị ban vô thời hạn")]
-        Indefinitely
+        Indefinitely = 8
     }
 
     public static class EBanDateExtensions

@@ -22,6 +22,6 @@
     {
         public string Reason { get; set; } = null!;
 
-        public EBanDate BannedTime { get; set; }
+        public EBanDate BannedTime { get; set; } = EBanDate.None;
     }
 }

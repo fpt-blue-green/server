@@ -120,7 +120,7 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult> UpdateFeedback(Guid id, Guid feedbackId, [FromBody] FeedbackRequestDTO feedBackRequestDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            await _feedBackService.UpdateFeedBack(id, feedbackId,feedBackRequestDTO, user);
+            await _feedBackService.UpdateFeedBack(id, feedbackId, feedBackRequestDTO, user);
             return Ok();
         }
 

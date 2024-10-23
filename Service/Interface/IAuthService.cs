@@ -11,5 +11,6 @@ namespace Service
         Task<string> ChangePassword(ChangePassDTO changePassDTO, UserDTO user);
         Task<bool> Verify(VerifyDTO data);
         Task<string > ForgotPassword(ForgotPasswordDTO forgotPasswordDTO);
+        Task RegisterWithThirdParty(RegisterThirdPartyDTO registerDTO);
     }
 }

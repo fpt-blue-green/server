@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace Service
