@@ -33,4 +33,11 @@ namespace BusinessObjects
     {
         public string Link { get; set; }
     }
+
+    public class JobResponseDTO
+    {
+        public int TotalCount { get; set; }
+        public IEnumerable<JobDTO> Jobs { get; set; }
+    }
+
 }

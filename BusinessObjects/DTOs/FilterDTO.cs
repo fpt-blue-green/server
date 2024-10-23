@@ -1,4 +1,6 @@
 ﻿
+using static BusinessObjects.JobEnumContainer;
+
 namespace BusinessObjects
 {
     public class FilterDTO
@@ -22,5 +24,13 @@ namespace BusinessObjects
     public class CampaignFilterDto : FilterDTO
     {
         public List<Guid>? TagIds { get; set; }
+    }
+
+    public class JobFilterDto
+    {
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public ECampaignStatus? CampaignStatus { get; set; }
+        public EJobStatus? JobStatus { get; set; }
     }
 }
