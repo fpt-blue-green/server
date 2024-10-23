@@ -1,8 +1,9 @@
-﻿using BusinessObjects;
+﻿using AdFusionAPI.APIConfig;
+using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
-namespace AdFusionAPI.Controllers
+namespace AdFusionAPI.Controllers.AdminController
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -16,6 +17,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet]
+        [AdminRequired]
         public async Task<ActionResult<IEnumerable<AdminActionDTO>>> GetAdminAction()
         {
             var result = await _adminActionService.GetAdminAction();
@@ -23,6 +25,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("export")]
+        [AdminRequired]
         public async Task<IActionResult> DownloadDataFile()
         {
             var fileContent = await _adminActionService.GetDataFile();

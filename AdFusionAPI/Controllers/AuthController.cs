@@ -46,7 +46,14 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<string>> Register([FromBody] RegisterDTO userDTO)
         {
             var result = await _authenService.Register(userDTO);
-            return Ok(result);
+            return Ok();
+        }
+
+        [HttpPost("registerwiththirdparty")]
+        public async Task<ActionResult<string>> RegisterWithThirdParty([FromBody] RegisterThirdPartyDTO userDTO)
+        {
+            await _authenService.RegisterWithThirdParty(userDTO);
+            return Ok();
         }
 
         [AuthRequired]

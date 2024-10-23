@@ -17,7 +17,7 @@ namespace AdFusionAPI.Controllers
             _campaignContentService = campaignContentService;
         }
         [HttpGet()]
-        public async Task<ActionResult<List<CampaignDTO>>> GetCampaignsInprogres([FromQuery]  CampaignFilterDto filter)
+        public async Task<ActionResult<List<CampaignDTO>>> GetCampaignsInprogres([FromQuery] CampaignFilterDto filter)
         {
             var result = await _campaignService.GetCampaignsInprogres(filter);
             return Ok(result);
@@ -40,7 +40,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPut("{id}")]
         [BrandRequired]
-        public async Task<ActionResult<Guid>> UpdateCampaign([FromBody] CampaignResDto campaign,Guid id)
+        public async Task<ActionResult<Guid>> UpdateCampaign([FromBody] CampaignResDto campaign, Guid id)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _campaignService.UpdateCampaign(user.Id, id, campaign);
@@ -48,9 +48,9 @@ namespace AdFusionAPI.Controllers
         }
         [HttpPut("{id}/start")]
         [BrandRequired]
-        public async Task<ActionResult<Guid>> StartCampaign( Guid id)
+        public async Task<ActionResult<Guid>> StartCampaign(Guid id)
         {
-           await _campaignService.StartCampaign( id );
+            await _campaignService.StartCampaign(id);
             return Ok();
         }
         [HttpPut("{id}/publish")]
