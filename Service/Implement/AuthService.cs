@@ -28,19 +28,32 @@ namespace Service
 
         public async Task<UserTokenDTO> Login(LoginDTO loginDTO, string userAgent)
         {
-            loginDTO.Password = _securityService.ComputeSha256Hash(loginDTO.Password);
+            var user = new User();
+            if(loginDTO.Password == null)
+            {
+                user = await _userRepository.GetUserByEmail(loginDTO.Email);
+                if(user.Provider== (int)EAccountProvider.AdFusionAccount)
+                {
+                    throw new Exception();
+                }
+            }
+            else
+            {
+                loginDTO.Password = _securityService.ComputeSha256Hash(loginDTO.Password);
 
-            var user = await _userRepository.GetUserByLoginDTO(loginDTO);
+                user = await _userRepository.GetUserByLoginDTO(loginDTO);
+            }
 
             if (user == null)
             {
                 throw new InvalidOperationException("Email hoặc mật khẩu không hợp lệ.");
             }
 
+
             if (user.IsBanned == true)
             {
                 var bannedEntry = user.BannedUserUsers
-                    .FirstOrDefault(b => b.UnbanDate != null && b.UnbanDate > DateTime.UtcNow);
+                    .FirstOrDefault(b => b.UnbanDate != null && b.UnbanDate > DateTime.UtcNow && b.IsActive);
 
                 if (bannedEntry != null)
                 {
@@ -141,6 +154,33 @@ namespace Service
                 DeviceType = deviceType, // Loại thiết bị
                 DeviceOperatingSystem = operatingSystem // Hệ điều hành
             };
+        }
+
+        public async Task RegisterWithThirdParty(RegisterThirdPartyDTO registerDTO)
+        {
+            if (registerDTO.AccountProvider == EAccountProvider.AdFusionAccount)
+            {
+                throw new Exception();
+            }
+            var user = await _userRepository.GetUserByEmail(registerDTO.Email);
+
+            if(user != null)
+            {
+                throw new InvalidOperationException("Email đã tồn tại trong hệ thống. Vui lòng sử dụng tài khoản khác để đăng ký.");
+            }
+            var userNew = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = registerDTO!.Email,
+                IsBanned = false,
+                DisplayName = registerDTO.Name,
+                Avatar = registerDTO.Image,
+                IsDeleted = false,
+                Provider = (int)registerDTO.AccountProvider,
+                Role = (int)registerDTO.Role,
+                CreatedAt = DateTime.Now,
+            };
+            await _userRepository.CreateUser(userNew);
         }
 
         public async Task<TokenResponseDTO> RefreshToken(RefreshTokenDTO tokenDTO, string userAgent)

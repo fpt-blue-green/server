@@ -97,6 +97,8 @@ namespace Service
 
                 await _reportRepository.UpdateReports(sameTypeReports);
             }
+
+            await SendEmailResult(sameTypeReports!, "Bị từ chối");
         }
 
         public async Task ApproveReport(Guid id, UserDTO user, BannedUserRequestDTO userRequestDTO)
@@ -116,10 +118,14 @@ namespace Service
 
                         await _reportRepository.UpdateReports(sameTypeReports);
                     }
-                    var result = await _bannedUserService.BanUser(sameTypeReports!.FirstOrDefault()?.Influencer?.User!, userRequestDTO, user);
-                    await adminActionNotificationHelper.CreateNotification<BannedUser>(user, null,result, null, null, true);
+                    var result = await _bannedUserService.BanUserBaseOnReport(sameTypeReports!.FirstOrDefault()?.Influencer?.User!, userRequestDTO, user);
+                    await adminActionNotificationHelper.CreateNotification<BannedUser>(user, null, result, null, null, true);
 
                     scope.Complete();
+
+                    await SendEmailResult(sameTypeReports!, "Được chập thuận");
+                    await SendBannedMailToUser(sameTypeReports?.FirstOrDefault()?.Influencer.User.Email!,
+                                                result.UnbanDate.ToString()!, userRequestDTO.Reason);
                 }
                 catch
                 {
@@ -133,6 +139,7 @@ namespace Service
             throw new NotImplementedException();
         }
 
+        #region Send Mail
         public async Task SendEmailToAdmin(Guid id)
         {
             try
@@ -144,17 +151,59 @@ namespace Service
                 }
 
                 var body = _emailTemplate.reportTemplate.Replace("{projectName}", _configManager.ProjectName)
-                                                        .Replace("{Reason}", Enum.GetName(typeof(BusinessObjects.EReportReason), influencerReport.Reason!))
+                                                        .Replace("{Reason}", ((EReportReason)influencerReport.Reason!).GetEnumDescription())
                                                         .Replace("{InfluencerName}", influencerReport.Influencer.FullName)
                                                         .Replace("{Reporter}", influencerReport.Reporter.DisplayName)
                                                         .Replace("{CreatedAt}", influencerReport.CreatedAt.ToString("dd/MM/yyyy"))
                                                         .Replace("{Description}", influencerReport.Description);
-                await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn báo cáo Influencer", body);
+
+                _ = Task.Run(async () => await _emailService.SendEmail(_configManager.AdminReportHandler, "Đơn báo cáo Influencer", body));
+
             }
             catch (Exception ex)
             {
                 _loggerService.Error("Has error when send mail in Report : " + ex.ToString());
             }
         }
+
+        public async Task SendEmailResult(IEnumerable<InfluencerReport> reports, string status)
+        {
+            try
+            {
+                if (reports.Any() == false)
+                {
+                    return;
+                }
+                var userEmail = reports.Select(i => i.Reporter.Email).ToList();
+
+                var body = _emailTemplate.reportResultTemplate.Replace("{projectName}", _configManager.ProjectName)
+                                                        .Replace("{Influencer}", reports.FirstOrDefault()?.Influencer.User.DisplayName)
+                                                        .Replace("{Reason}", ((EReportReason)reports.FirstOrDefault()?.Reason!).GetEnumDescription())
+                                                        .Replace("{Status}", status);
+
+                _ = Task.Run(async () => await _emailService.SendEmail(userEmail, "Thông Báo Kết Quả Báo Cáo", body));
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Has error when send mail in Report : " + ex.ToString());
+            }
+        }
+
+        public async Task SendBannedMailToUser(string email, string time, string description)
+        {
+            try
+            {
+                var body = _emailTemplate.reportResultTemplate.Replace("{projectName}", _configManager.ProjectName)
+                                                        .Replace("{UnbanDate}", time)
+                                                        .Replace("{CurrenDate}", DateTime.Now.ToString())
+                                                        .Replace("{Description}", description);
+                _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { email }, "Thông Báo Tài Khoản Đã Bị Cấm", body));
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Has error when send mail in Report : " + ex.ToString());
+            }
+        }
+        #endregion
     }
 }

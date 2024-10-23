@@ -220,7 +220,7 @@
                                         ";
         #endregion
 
-        #region Nhà sáng tạo nội dung Đề nghị 
+        #region influencerOffer
         public string influencerOffer = @"
                         <!DOCTYPE html>
                         <html lang=""vi"">
@@ -328,7 +328,7 @@
                         ";
         #endregion
 
-        #region Nhãn hàng Đề nghị 
+        #region brandOffer
         public string brandOffer = @"
                             <!DOCTYPE html>
                             <html lang=""vi"">
@@ -430,7 +430,7 @@
             ";
         #endregion
 
-        #region Confirm Đề nghị
+        #region confirmOffer
         public string confirmOffer = @"<!DOCTYPE html>
                             <html lang=""vi"">
                             <head>
@@ -717,6 +717,243 @@
                         </div>
                     </body>
                     </html>";
+        #endregion
+
+        #region ReportResult
+        public string reportResultTemplate = @"<!DOCTYPE html>
+                                    <html lang=""vi"">
+                                    <head>
+                                        <meta charset=""UTF-8"">
+                                        <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                                        <title>Thông Báo Kết Quả Báo Cáo</title>
+                                        <style>
+                                            body {
+                                                font-family: Arial, sans-serif;
+                                                background-color: #f4f4f4;
+                                                margin: 0;
+                                                padding: 0;
+                                            }
+                                            .email-container {
+                                                background-color: white;
+                                                max-width: 600px;
+                                                margin: 0 auto;
+                                                border-radius: 8px;
+                                                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                                overflow: hidden;
+                                                border: 0.3px solid rgba(0, 0, 0, 0.2);
+                                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+                                            }
+                                            .email-header {
+                                                background-color: rgb(255, 112, 129);
+                                                color: white;
+                                                text-align: center;
+                                                padding: 25px;
+                                                font-size: 22px;
+                                                font-weight: bold;
+                                            }
+                                            .email-body {
+                                                padding: 20px;
+                                                color: #333;
+                                            }
+                                            .email-body h2 {
+                                                color: rgb(255, 112, 129);
+                                            }
+                                            .email-body p {
+                                                line-height: 1.2;
+                                            }
+                                            .email-body ul {
+                                                padding-left: 20px;
+                                            }
+                                            .email-footer {
+                                                padding: 20px;
+                                                font-size: 12px;
+                                                color: #777;
+                                                border-top: 1px solid #eaeaea;
+                                            }
+                                            .email-footer .copyright {
+                                                text-align: center;
+                                            }
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class=""email-container"">
+                                            <div class=""email-header"">
+                                                Thông Báo Kết Quả Báo Cáo
+                                            </div>
+                                            <div class=""email-body"">
+                                                <h2>Xin chào Quý khách hàng,</h2>
+                                                <p>Chúng tôi xin thông báo rằng báo cáo của bạn cho Nhà sáng tạo nội dung: <strong>{Influencer}</strong>,với lý do <strong>{Reason}</strong> Đã được xem xét và <strong>{Status}</strong></p>
+	                                            <p>Chúng tôi đánh giá cao sự đóng góp của bạn và khuyến khích bạn tiếp tục gửi báo cáo trong tương lai để giúp duy trì cộng đồng lành mạnh và an toàn.</p>
+                                                <p>Nếu bạn muốn thảo luận thêm về kết quả này hoặc có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi. Đội ngũ hỗ trợ của chúng tôi sẽ sẵn sàng giúp đỡ bạn.</p>
+ 	                                        <p><strong>Lưu ý:</strong> Nếu chúng tôi phát hiện hành vi gửi báo cáo sai lệch hoặc spam, tài khoản của bạn có thể bị xử lý theo quy định của trang web, bao gồm việc tạm khóa hoặc đình chỉ vĩnh viễn.</p>
+                                            </div>
+                                            <div class=""email-footer"">
+                                                <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                                <p>Trân trọng,<br><br>{projectName}</p>
+                                                <div class=""copyright"">
+                                                    <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </body>
+                                    </html>
+                                    ";
+        #endregion
+
+        #region ReportNotification
+        public string reportNotificationTempalte = @"<!DOCTYPE html>
+                        <html lang=""vi"">
+                        <head>
+                            <meta charset=""UTF-8"">
+                            <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                            <title>Thông Báo Tài Khoản Đã Bị Cấm</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    background-color: #f4f4f4;
+                                    margin: 0;
+                                    padding: 0;
+                                }
+                                .email-container {
+                                    background-color: white;
+                                    max-width: 600px;
+                                    margin: 0 auto;
+                                    border-radius: 8px;
+                                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                    overflow: hidden;
+                                    border: 0.3px solid rgba(0, 0, 0, 0.2);
+                                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+                                }
+                                .email-header {
+                                    background-color: rgb(255, 112, 129);
+                                    color: white;
+                                    text-align: center;
+                                    padding: 25px;
+                                    font-size: 22px;
+                                    font-weight: bold;
+                                }
+                                .email-body {
+                                    padding: 20px;
+                                    color: #333;
+                                }
+                                .email-body h2 {
+                                    color: rgb(255, 112, 129);
+                                }
+                                .email-body p {
+                                    line-height: 1.2;
+                                }
+                                .email-footer {
+                                    padding: 20px;
+                                    font-size: 12px;
+                                    color: #777;
+                                    border-top: 1px solid #eaeaea;
+                                }
+                                .email-footer .copyright {
+                                    text-align: center;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class=""email-container"">
+                                <div class=""email-header"">
+                                    Thông Báo Tài Khoản Đã Bị Cấm
+                                </div>
+                                <div class=""email-body"">
+                                    <h2>Xin chào Quý khách hàng,</h2>
+                                    <p>Chúng tôi xin thông báo rằng tài khoản của bạn đã bị cấm do vi phạm quy định của trang web.</p>
+                                    <p> Lý do cụ thể: <strong>{Description}</strong>.</p>
+                                    <p> Thời gian bị cấm : <strong>{CurrenDate}</strong>.</p>
+                                    <p> Thời gian mở khóa: <strong>{UnbanDate}</strong>.</p>
+                                    <p>Chúng tôi đánh giá cao sự đóng góp của bạn, nhưng việc duy trì một cộng đồng lành mạnh và an toàn là ưu tiên hàng đầu của chúng tôi. Nếu bạn có bất kỳ câu hỏi nào liên quan đến quyết định này, vui lòng liên hệ với đội ngũ hỗ trợ của chúng tôi.</p>
+                                    <p><strong>Lưu ý:</strong> Nếu bạn tin rằng việc cấm tài khoản là không công bằng, bạn có thể gửi yêu cầu xem xét lại. Tuy nhiên, hành vi gửi báo cáo sai lệch hoặc spam có thể dẫn đến các biện pháp xử lý nghiêm khắc hơn.</p>
+                                </div>
+                                <div class=""email-footer"">
+                                    <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                    <p>Trân trọng,<br><br>{projectName}</p>
+                                    <div class=""copyright"">
+                                        <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                        ";
+        public string unbanNotification = @"<!DOCTYPE html>
+                                <html lang=""vi"">
+                                <head>
+                                    <meta charset=""UTF-8"">
+                                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                                    <title>Thông Báo Tài Khoản Đã Được Mở Khóa</title>
+                                    <style>
+                                        body {
+                                            font-family: Arial, sans-serif;
+                                            background-color: #f4f4f4;
+                                            margin: 0;
+                                            padding: 0;
+                                        }
+                                        .email-container {
+                                            background-color: white;
+                                            max-width: 600px;
+                                            margin: 0 auto;
+                                            border-radius: 8px;
+                                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                            overflow: hidden;
+                                            border: 0.3px solid rgba(0, 0, 0, 0.2);
+                                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+                                        }
+                                        .email-header {
+                                            background-color: rgb(255, 112, 129);
+                                            color: white;
+                                            text-align: center;
+                                            padding: 25px;
+                                            font-size: 22px;
+                                            font-weight: bold;
+                                        }
+                                        .email-body {
+                                            padding: 20px;
+                                            color: #333;
+                                        }
+                                        .email-body h2 {
+                                            color: rgb(255, 112, 129);
+                                        }
+                                        .email-body p {
+                                            line-height: 1.2;
+                                        }
+                                        .email-footer {
+                                            padding: 20px;
+                                            font-size: 12px;
+                                            color: #777;
+                                            border-top: 1px solid #eaeaea;
+                                        }
+                                        .email-footer .copyright {
+                                            text-align: center;
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class=""email-container"">
+                                        <div class=""email-header"">
+                                            Thông Báo Tài Khoản Đã Được Mở Khóa
+                                        </div>
+                                        <div class=""email-body"">
+                                            <h2>Xin chào Quý khách hàng,</h2>
+                                            <p>Chúng tôi xin thông báo rằng tài khoản của bạn đã được mở khóa sau khi xem xét.</p>
+                                            <p> Tài khoản của bạn đã bị cấm trước đó vào ngày: <strong>{BanDate}</strong>.</p>
+                                            <p> Thời gian mở khóa: <strong>{UnbanDate}</strong>.</p>                                           
+                                            <p> Mô tả: <strong>{Description}</strong>.</p>
+                                            <p>Chúng tôi rất mong bạn tiếp tục tham gia vào cộng đồng của chúng tôi và duy trì các quy tắc để đảm bảo một môi trường an toàn và lành mạnh.</p>    
+                                        </div>
+                                        <div class=""email-footer"">
+                                            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                            <p>Trân trọng,<br><br>{projectName}</p>
+                                            <div class=""copyright"">
+                                                <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </body>
+                                </html>
+                                ";
         #endregion
 
         #region CampaignStart

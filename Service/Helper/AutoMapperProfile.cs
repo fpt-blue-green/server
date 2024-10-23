@@ -97,6 +97,9 @@ namespace Service
             #region AdminAction
             CreateMap<AdminAction, AdminActionDTO>().ReverseMap();
             #endregion
+            #region BannedUser
+            CreateMap<BannedUser, BannedUserDTO>().ReverseMap();
+            #endregion
         }
     }
 }

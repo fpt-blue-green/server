@@ -1,11 +1,9 @@
-﻿using Repositories.Implement;
-using Repositories;
+﻿using AutoMapper;
 using BusinessObjects;
-using AutoMapper;
-using Newtonsoft.Json;
-using OfficeOpenXml;
 using BusinessObjects.Models;
-using Service.Helper;
+using OfficeOpenXml;
+using Repositories;
+using Repositories.Implement;
 
 namespace Service
 {
@@ -19,14 +17,14 @@ namespace Service
 
         public async Task<IEnumerable<AdminActionDTO>> GetAdminAction()
         {
-            var adminActions = (await _adminActionRepository.GetAdminActions()).Take(200).ToList();
+            var adminActions = (await _adminActionRepository.GetAdminActions()).Take(100).ToList();
             return _mapper.Map<IEnumerable<AdminActionDTO>>(adminActions);
         }
 
         public async Task<(byte[] fileContent, string fileName)> GetDataFile()
         {
             var adminActions = await _adminActionRepository.GetAdminActions();
-            var data =  CreateExcel(adminActions);
+            var data = CreateExcel(adminActions);
             return (data, $"AdminAction_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.csv");
         }
 
