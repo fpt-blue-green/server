@@ -54,6 +54,8 @@ namespace Service
             }
             #endregion
 
+            int totalCount = jobs.Count();
+
             #region paging
             int pageSize = filter.PageSize;
             jobs = jobs
@@ -78,11 +80,10 @@ namespace Service
 
             return new JobResponseDTO
             {
-                TotalCount = jobs.Count(),
+                TotalCount = totalCount,
                 Jobs = _mapper.Map<IEnumerable<JobDTO>>(jobDTOs)
             };
         }
-
 
         public async Task BrandPaymentJob(Guid jobId, UserDTO userDto)
         {
