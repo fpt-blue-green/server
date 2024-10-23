@@ -12,7 +12,7 @@ namespace BusinessObjects
 
         public EJobStatus Status { get; set; }
 
-        public string? JobContent { get; set; }
+        public virtual OfferDTO Offer { get; set; } = null!;
 
         public virtual CampaignDTO Campaign { get; set; } = null!;
 
