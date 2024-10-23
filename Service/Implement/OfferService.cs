@@ -43,20 +43,36 @@ namespace Service
             {
                 throw new InvalidOperationException("Nhãn hàng không tồn tại, hãy kiểm tra lại.");
             }
-            else
+
+            if (campagin.Status != (int)ECampaignStatus.Active && campagin.Status != (int)ECampaignStatus.Published)
             {
-                if (campagin.Status != (int)ECampaignStatus.Active && campagin.Status != (int)ECampaignStatus.Published)
-                {
-                    throw new InvalidOperationException("Nhãn hàng này chưa đi vào hoạt động, hãy bắt đầu trước.");
-                }
+                throw new InvalidOperationException("Nhãn hàng này chưa đi vào hoạt động, hãy bắt đầu trước.");
             }
+
             if (userDTO.Role == AuthEnumContainer.ERole.Influencer)
             {
                 var influencer = await _influencerRepository.GetByUserId(userDTO.Id) ?? throw new KeyNotFoundException();
                 offerCreateRequestDTO.Job.InfluencerId = influencer.Id;
             }
+
+            var influencerOffer = await _offerRepository.GetOfferByCampaignAndInfluencerId(offerCreateRequestDTO.Job.CampaignId,
+                                                                                           offerCreateRequestDTO.Job.InfluencerId!.Value);
+            if(influencerOffer.Any(i => i.ContentType == (int)offerCreateRequestDTO.Offer.ContentType 
+                                    && i.Platform == (int)offerCreateRequestDTO.Offer.Platform))
+            {
+                if (userDTO.Role == AuthEnumContainer.ERole.Influencer)
+                {
+                    throw new InvalidOperationException("Bạn không thể tham gia chiến dịch này vì đã có công việc thuộc cùng nền tảng và thể loại.");
+                }
+                else
+                {
+                    throw new InvalidOperationException("Bạn không thể tạo yêu cầu mời tham gia chiến dịch này vì đã có công việc thuộc cùng nền tảng và thể loại.");
+                }
+            }
+
             //Create Job First
             var jobnew = _mapper.Map<Job>(offerCreateRequestDTO.Job);
+            jobnew.JobContent = offerCreateRequestDTO.Offer.ContentType.GetEnumDescription();
             await _jobRepository.Create(jobnew);
 
             //Create offer

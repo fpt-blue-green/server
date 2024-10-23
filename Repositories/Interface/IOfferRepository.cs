@@ -9,5 +9,6 @@ namespace Repositories
         Task Update(Offer offer);
         Task UpdateJobAndOffer(Offer offer);
         Task<IEnumerable<Offer>> GetByJobId(Guid jobId);
+        Task<IEnumerable<Offer>> GetOfferByCampaignAndInfluencerId(Guid campaignId, Guid influencerId);
     }
 }

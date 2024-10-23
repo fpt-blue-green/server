@@ -12,6 +12,8 @@ namespace BusinessObjects
 
         public EJobStatus Status { get; set; }
 
+        public string? JobContent { get; set; }
+
         public virtual CampaignDTO Campaign { get; set; } = null!;
 
         public virtual InfluencerDTO Influencer { get; set; } = null!;
