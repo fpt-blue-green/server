@@ -72,7 +72,6 @@ namespace Service
 
             //Create Job First
             var jobnew = _mapper.Map<Job>(offerCreateRequestDTO.Job);
-            jobnew.JobContent = offerCreateRequestDTO.Offer.ContentType.GetEnumDescription();
             await _jobRepository.Create(jobnew);
 
             //Create offer

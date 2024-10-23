@@ -44,7 +44,21 @@ namespace Service
                 jobs = await _jobRepository.GetJobBrandByUserId(user.Id);
             }
 
-            return _mapper.Map<IEnumerable<JobDTO>>(jobs);
+            // Map từng job và chọn offer có CreateAt mới nhất
+            var jobDTOs = jobs.Select(job =>
+            {
+                var latestOffer = job.Offers.OrderByDescending(offer => offer.CreatedAt).FirstOrDefault();
+                var jobDTO = _mapper.Map<JobDTO>(job);
+
+                if (jobDTO != null && latestOffer != null)
+                {
+                    jobDTO.Offer = _mapper.Map<OfferDTO>(latestOffer);
+                }
+
+                return jobDTO;
+            });
+
+            return jobDTOs!;
         }
 
 
