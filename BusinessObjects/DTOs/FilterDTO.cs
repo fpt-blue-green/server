@@ -30,6 +30,7 @@ namespace BusinessObjects
     {
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+        public OfferDTO? offerRequest { get; set; }
         public ECampaignStatus? CampaignStatus { get; set; }
         public EJobStatus? JobStatus { get; set; }
     }

@@ -9,5 +9,6 @@ namespace Service
         Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO);
         Task BrandCancelJob(Guid jobId, UserDTO userDTO);
         Task<JobResponseDTO> GetAllJobByCurrentAccount(UserDTO user, JobFilterDto filter);
+        Task<List<JobStatistical>> Statistical(UserDTO user);
     }
 }

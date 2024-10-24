@@ -40,4 +40,10 @@ namespace BusinessObjects
         public IEnumerable<JobDTO> Jobs { get; set; }
     }
 
+    public class JobStatistical
+    {
+        public EJobStatus JobStatus { get; set; }  // Enum EJobStatus
+        public int Count { get; set; }
+    }
+
 }

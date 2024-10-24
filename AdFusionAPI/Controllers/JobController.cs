@@ -52,5 +52,14 @@ namespace AdFusionAPI.Controllers
             var result = await _offerService.GetOfferByJobId(id);
             return Ok(result);
         }
+
+        [AuthRequired]
+        [HttpGet("statistical")]
+        public async Task<ActionResult<List<JobStatistical>>> JobStatistical()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _jobService.Statistical(user);
+            return Ok(result);
+        }
     }
 }
