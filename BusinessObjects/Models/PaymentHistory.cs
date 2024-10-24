@@ -11,13 +11,15 @@ public partial class PaymentHistory
 
     public decimal? Amount { get; set; }
 
+    public string BankInformation { get; set; }
+
     public int? Status { get; set; }
 
     public int Type { get; set; }
 
     public DateTime? Date { get; set; }
 
-    public string? Description { get; set; }
+    public string? AdminMessage { get; set; }
 
     public virtual User? User { get; set; }
 }

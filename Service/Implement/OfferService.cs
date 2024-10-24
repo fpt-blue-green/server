@@ -90,7 +90,7 @@ namespace Service
         public async Task ReOffer(Guid id, UserDTO userDTO, ReOfferDTO reOfferDTO)
         {
             //set status old offer to reject
-            var oldOffer = await _offerRepository.GetById(id);
+            var oldOffer = await _offerRepository.GetById(id) ?? throw new KeyNotFoundException();
             if (oldOffer.From == (int)userDTO.Role)
             {
                 throw new AccessViolationException();
@@ -121,7 +121,7 @@ namespace Service
 
         public async Task ApproveOffer(Guid id, UserDTO userDTO)
         {
-            var offer = await _offerRepository.GetById(id);
+            var offer = await _offerRepository.GetById(id) ?? throw new KeyNotFoundException();
 
             if (offer.From == (int)userDTO.Role)
             {
@@ -146,7 +146,7 @@ namespace Service
 
         public async Task RejectOffer(Guid id, UserDTO userDTO)
         {
-            var offer = await _offerRepository.GetById(id);
+            var offer = await _offerRepository.GetById(id) ?? throw new KeyNotFoundException();
 
             if (offer.From == (int)userDTO.Role)
             {

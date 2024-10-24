@@ -77,6 +77,8 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<CampaignImage> CampaignImages { get; set; }
 
+    public virtual DbSet<CampaignMeetingRoom> CampaignMeetingRooms { get; set; }
+
     public virtual DbSet<Channel> Channels { get; set; }
 
     public virtual DbSet<Favorite> Favorites { get; set; }
@@ -116,10 +118,9 @@ public partial class PostgresContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
-        modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false); 
+        modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
         modelBuilder.Entity<Campaign>().HasQueryFilter(u => u.IsDeleted == false);
         modelBuilder.Entity<InfluencerReport>().HasQueryFilter(u => u.ReportStatus == (int)EReportStatus.Pending);
-
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
@@ -159,12 +160,14 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.BanDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsActive)
+                .IsRequired()
+                .HasDefaultValueSql("true");
+
             entity.HasOne(d => d.BannedBy).WithMany(p => p.BannedUserBannedBies)
                 .HasForeignKey(d => d.BannedById)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("bannedusers_bannedbyid_fkey");
-
 
             entity.HasOne(d => d.User).WithMany(p => p.BannedUserUsers)
                 .HasForeignKey(d => d.UserId)
@@ -244,6 +247,22 @@ public partial class PostgresContext : DbContext
                 .HasForeignKey(d => d.CampaignId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("images_campaignid_fkey");
+        });
+
+        modelBuilder.Entity<CampaignMeetingRoom>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("video_call_rooms_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasIndex(e => e.RoomName)
+           .IsUnique()
+           .HasName("CampaignMeetingRooms_RoomName_key");
+
+            entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignMeetingRooms)
+                .HasForeignKey(d => d.CampaignId)
+                .HasConstraintName("video_call_rooms_campaignid_fkey");
         });
 
         modelBuilder.Entity<Channel>(entity =>

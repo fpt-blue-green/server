@@ -7,7 +7,7 @@ namespace BusinessObjects
         public enum EJobStatus
         {
             [Description("Đang chờ xử lý")]
-            Pending = 0,          // Offer đang được xem xét
+            Pending = 0,          // Job đang trong quá trình khởi tạo
 
             [Description("Đang triển khai")]
             InProgress = 1,       // Job đang được thực hiện

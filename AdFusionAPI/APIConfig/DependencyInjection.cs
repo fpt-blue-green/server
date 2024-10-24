@@ -14,7 +14,7 @@ namespace AdFusionAPI
             services.AddScoped<IInfluencerService, InfluencerService>();
             services.AddSingleton<ISecurityService, SecurityService>();
             services.AddScoped<IJobDetailService, JobDetailService>();
-            services.AddScoped<IVideoCallService, VideoCallService>();
+            services.AddScoped<CampaignMeetingRoomService, CampaignMeetingRoomService>();
             services.AddScoped<IFeedBackService, FeedBackService>();
             services.AddScoped<ICampaignService, CampaignService>();
             services.AddScoped<IFavoriteService, FavoriteService>();
@@ -33,5 +33,5 @@ namespace AdFusionAPI
             services.AddScoped<ConfigManager>();
 
         }
-	}
+    }
 }

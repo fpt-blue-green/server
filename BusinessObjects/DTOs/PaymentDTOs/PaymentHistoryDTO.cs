@@ -8,13 +8,15 @@
 
         public decimal? Amount { get; set; }
 
-        public int? Status { get; set; }
+        public string BankInformation { get; set; }
 
-        public int? Type { get; set; }
+        public EPaymentStatus? Status { get; set; }
+
+        public EPaymentType Type { get; set; }
 
         public DateTime? Date { get; set; }
 
-        public string? Description { get; set; }
+        public string? AdminMessage { get; set; }
 
         public UserDTO User { get; set; }
     }

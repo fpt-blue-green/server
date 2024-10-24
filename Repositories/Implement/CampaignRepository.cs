@@ -51,6 +51,7 @@ namespace Repositories
 					.Include(s => s.Brand).ThenInclude(s => s.User)
                     .Include(s => s.Tags)
 					.Include(s => s.CampaignImages)
+					.Include(s => s.CampaignMeetingRooms)
 					.Include(s => s.CampaignContents).ToListAsync();
 				return campaigns!;
 			}
@@ -64,8 +65,9 @@ namespace Repositories
 					.Include(s => s.Brand).ThenInclude(s => s.User)
 					.Include(s => s.Tags)
 					.Include(s => s.CampaignImages)
+					.Include(s => s.CampaignMeetingRooms)
 					.Include(s => s.CampaignContents)
-					.Where(s => s.BrandId == id).ToListAsync();
+                    .Where(s => s.BrandId == id).ToListAsync();
 				return campaigns;
 			}
 		}
@@ -78,8 +80,9 @@ namespace Repositories
 					.Include(s => s.Brand).ThenInclude(s => s.User)
                     .Include(s => s.Tags)
 					.Include(s => s.CampaignImages)
+					.Include(s => s.CampaignMeetingRooms)
 					.Include(s => s.CampaignContents)
-					.FirstOrDefaultAsync(i => i.Id == id);
+                    .FirstOrDefaultAsync(i => i.Id == id);
 				return campaign;
 			}
 		}
