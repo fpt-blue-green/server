@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Serilog;
+using Supabase.Gotrue;
 using System.Transactions;
 using static BusinessObjects.AuthEnumContainer;
 using static BusinessObjects.JobEnumContainer;
@@ -83,6 +84,44 @@ namespace Service
                 TotalCount = totalCount,
                 Jobs = _mapper.Map<IEnumerable<JobDTO>>(jobDTOs)
             };
+        }
+
+        public async Task<List<JobStatistical>> Statistical(UserDTO user)
+        {
+
+            IEnumerable<Job> jobs = Enumerable.Empty<Job>();
+
+            if (user.Role == ERole.Influencer)
+            {
+                jobs = await _jobRepository.GetJobInfluencerByUserId(user.Id);
+            }
+            else
+            {
+                jobs = await _jobRepository.GetJobBrandByUserId(user.Id);
+            }
+
+            var result = Enum.GetValues(typeof(EJobStatus))
+                     .Cast<EJobStatus>()
+                     .Select(status => new JobStatistical
+                     {
+                         JobStatus = status,
+                         Count = 0
+                     }).ToList();
+
+            var jobCounts = jobs.GroupBy(j => (EJobStatus)j.Status)
+                                   .Select(g => new JobStatistical
+                                   {
+                                       JobStatus = g.Key,
+                                       Count = g.Count()
+                                   });
+
+            foreach (var jobCount in jobCounts)
+            {
+                var item = result.First(r => r.JobStatus == jobCount.JobStatus);
+                item.Count = jobCount.Count;
+            }
+
+            return result;
         }
 
         public async Task BrandPaymentJob(Guid jobId, UserDTO userDto)
