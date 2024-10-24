@@ -55,7 +55,7 @@ namespace AdFusionAPI.Controllers
 
         [AuthRequired]
         [HttpGet("statistical")]
-        public async Task<ActionResult<IEnumerable<OfferDTO>>> JobStatistical()
+        public async Task<ActionResult<List<JobStatistical>>> JobStatistical()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _jobService.Statistical(user);
