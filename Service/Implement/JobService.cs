@@ -46,9 +46,9 @@ namespace Service
             }
 
             #region filter
-            if (filter.offerRequest?.From.HasValue == true)
+            if (filter.From.HasValue == true)
             {
-                jobs = jobs.Where(i => i.Offers.Any(o => o.From == (int)filter.offerRequest.From));
+                jobs = jobs.Where(i => i.Offers.Any(o => o.From == (int)filter.From));
             }
 
             if (filter.JobStatus.HasValue || filter.CampaignStatus.HasValue)

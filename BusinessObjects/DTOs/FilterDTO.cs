@@ -1,4 +1,5 @@
 ﻿
+using static BusinessObjects.AuthEnumContainer;
 using static BusinessObjects.JobEnumContainer;
 
 namespace BusinessObjects
@@ -30,7 +31,7 @@ namespace BusinessObjects
     {
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 10;
-        public OfferDTO? offerRequest { get; set; }
+        public ERole? From { get; set; }
         public ECampaignStatus? CampaignStatus { get; set; }
         public EJobStatus? JobStatus { get; set; }
     }
