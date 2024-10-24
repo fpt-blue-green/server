@@ -91,7 +91,7 @@ namespace Service
         {
             //set status old offer to reject
             var oldOffer = await _offerRepository.GetById(id);
-            if (oldOffer.From != (int)userDTO.Role)
+            if (oldOffer.From == (int)userDTO.Role)
             {
                 throw new AccessViolationException();
             }
@@ -123,7 +123,7 @@ namespace Service
         {
             var offer = await _offerRepository.GetById(id);
 
-            if (offer.From != (int)userDTO.Role)
+            if (offer.From == (int)userDTO.Role)
             {
                 throw new AccessViolationException();
             }
@@ -148,7 +148,7 @@ namespace Service
         {
             var offer = await _offerRepository.GetById(id);
 
-            if (offer.From != (int)userDTO.Role)
+            if (offer.From == (int)userDTO.Role)
             {
                 throw new AccessViolationException();
             }
