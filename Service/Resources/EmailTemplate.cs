@@ -1057,5 +1057,113 @@
                                         </html>
                                         ";
         #endregion
+
+        #region MeetingNotification
+        public string meetingNotificationTemplate = @"<!DOCTYPE html>
+                                    <html lang=""vi"">
+                                    <head>
+                                        <meta charset=""UTF-8"">
+                                        <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                                        <title>Thông Báo Cuộc Họp Sắp Diễn Ra</title>
+                                        <style>
+                                            body {
+                                                font-family: Arial, sans-serif;
+                                                background-color: #f4f4f4;
+                                                margin: 0;
+                                                padding: 0;
+                                            }
+                                            .email-container {
+                                                background-color: white;
+                                                max-width: 600px;
+                                                margin: 0 auto;
+                                                border-radius: 8px;
+                                                border: 0.3px solid rgba(0, 0, 0, 0.2);
+                                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+                                                overflow: hidden;
+                                            }
+                                            .email-header {
+                                                background-color: rgb(255, 112, 129);
+                                                color: white;
+                                                text-align: center;
+                                                padding: 25px;
+                                                font-size: 22px;
+                                                font-weight: bold;
+                                            }
+                                            .email-body {
+                                                padding: 20px;
+                                                color: #333;
+                                            }
+                                            .email-body h2 {
+                                                color: rgb(255, 112, 129);
+                                            }
+                                            .email-body p {
+                                                line-height: 1.6;
+                                            }
+                                            .email-body ul {
+                                                padding-left: 20px;
+                                            }
+                                            .button-container {
+                                                text-align: center;
+                                                margin: 20px 0;
+                                            }
+                                            .button {
+                                                background-color: rgb(255, 112, 129);
+                                                color: white !important;
+                                                padding: 10px 20px;
+                                                text-align: center;
+                                                text-decoration: none;
+                                                display: inline-block;
+                                                border-radius: 5px;
+                                                font-weight: bold;
+                                            }
+                                            .email-footer {
+                                                padding: 20px;
+                                                font-size: 12px;
+                                                color: #777;
+                                                border-top: 1px solid #eaeaea;
+                                            }
+                                            .email-footer .copyright {
+                                                text-align: center;
+                                            }
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class=""email-container"">
+                                            <div class=""email-header"">
+                                                Thông Báo Cuộc Họp Sắp Diễn Ra
+                                            </div>
+                                            <div class=""email-body"">
+                                                <h2>Xin chào Nhà sáng tạo nội dung,</h2>
+                                                <p>Nhãn hàng <strong>{BrandName}</strong> đã tạo một cuộc họp cho chiến dịch <strong>{CampaignName}</strong>.</p>
+                                                <p>Vui lòng tham gia đúng giờ để thảo luận và hoàn thành các nội dung quan trọng.</p>
+                                                <p>Thông tin chi tiết về cuộc họp:</p>
+                                                <ul>
+                                                    <li>Chiến dịch: {CampaignName}</li>
+                                                    <li>Nhãn hàng: {BrandName}</li>
+                                                    <li>Thời gian bắt đầu: {StartTime}</li>
+                                                    <li>Thời gian kết thúc: {EndTime}</li>
+		                                    <li>Mô tả: {Description}</li>
+                                                </ul>
+	                                        <p>
+		                                    <strong>Lưu ý quan trọng:</strong> Việc tham gia cuộc họp này là rất cần thiết để đảm bảo tiến độ và chất lượng công việc của chiến dịch 
+		                                    <strong>{CampaignName}</strong>. Đây là cơ hội để trao đổi, cập nhật thông tin, và giải quyết các vấn đề cần thiết. 
+		                                    Sự vắng mặt của bạn có thể ảnh hưởng đến tiến độ chung, vì vậy vui lòng đảm bảo có mặt đúng giờ để cuộc họp diễn ra suôn sẻ.
+	                                        </p>
+                                                <div class=""button-container"">
+                                                    <a href=""{MeetingLink}"" class=""button"">Tham Gia Cuộc Họp</a>
+                                                </div>
+                                            </div>
+                                            <div class=""email-footer"">
+                                                <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                                <p>Trân trọng,<br><br>{ProjectName}</p>
+                                                <div class=""copyright"">
+                                                    <p>© 2024 Bản quyền thuộc về {ProjectName}.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </body>
+                                    </html>
+                                    ";
+        #endregion
     }
 }

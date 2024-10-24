@@ -1,4 +1,6 @@
-﻿namespace BusinessObjects
+﻿using BusinessObjects.Models;
+
+namespace BusinessObjects
 {
     public class CampaignDTO
     {
@@ -14,6 +16,7 @@
 		public virtual ICollection<CampaignContentResDto> Contents { get; set; } = new List<CampaignContentResDto>();
 		public virtual ICollection<CampaignImageDto> Images { get; set; } = new List<CampaignImageDto>();
 		public virtual ICollection<TagDTO> Tags { get; set; } = new List<TagDTO>();
+        public virtual ICollection<CampaignMeetingRoomDTO> CampaignMeetingRooms { get; set; } = new List<CampaignMeetingRoomDTO>();
 
-	}
+    }
 }

@@ -1,4 +1,5 @@
-﻿using BusinessObjects;
+﻿using AdFusionAPI.APIConfig;
+using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -9,9 +10,9 @@ namespace AdFusionAPI.Controllers
     public class UtilityController : Controller
     {
         private readonly IUtilityService _utilityService;
-        private readonly IVideoCallService _videoCallService;
+        private readonly CampaignMeetingRoomService _videoCallService;
 
-        public UtilityController(IUtilityService utilityService, IVideoCallService videoCallService)
+        public UtilityController(IUtilityService utilityService, CampaignMeetingRoomService videoCallService)
         {
             this._utilityService = utilityService;
             this._videoCallService = videoCallService;
@@ -44,22 +45,24 @@ namespace AdFusionAPI.Controllers
             return Ok(info);
         }
 
-        [HttpPost("videoRoom/{name}")]
-        public async Task<ActionResult<string>> CreateVideoCallRoom(string name)
+        [HttpPost("meetingRoom")]
+        [BrandRequired]
+        public async Task<ActionResult<string>> CreateVideoCallRoom(RoomDataRequest dataRequest)
         {
-            var info = await _videoCallService.CreateRoom(name);
-            return Ok(info);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _videoCallService.CreateRoom(dataRequest, user);
+            return Ok();
         }
 
-        [HttpGet("videoRoom/log")]
-        public async Task<IActionResult> DownloadLogFile()
+        [HttpGet("meetingRoom/{name}/log")]
+        public async Task<IActionResult> DownloadLogFile(string name)
         {
-            var fileContent = await _videoCallService.GetLogFile();
+            var fileContent = await _videoCallService.GetLogFile(name);
 
             return File(fileContent.fileContent, "application/octet-stream", fileContent.fileName);
         }
 
-        [HttpDelete("videoRoom/{name}")]
+        [HttpDelete("meetingRoom/{name}")]
         public async Task<ActionResult<string>> DeleteVideoRoom(string name)
         {
             await _videoCallService.DeleteRoomAsync(name);

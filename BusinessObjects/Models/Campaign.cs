@@ -35,6 +35,8 @@ public partial class Campaign
 
     public virtual ICollection<CampaignImage> CampaignImages { get; set; } = new List<CampaignImage>();
 
+    public virtual ICollection<CampaignMeetingRoom> CampaignMeetingRooms { get; set; } = new List<CampaignMeetingRoom>();
+
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
 
     public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();

@@ -100,6 +100,10 @@ namespace Service
             #region BannedUser
             CreateMap<BannedUser, BannedUserDTO>().ReverseMap();
             #endregion
+            #region CampaignMeetingRoom
+            CreateMap<CampaignMeetingRoomDTO, CampaignMeetingRoom>().ReverseMap();
+            #endregion
+
         }
     }
 }

@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Repositories;
 using Serilog;
 using Service.Helper;
+using Supabase.Gotrue;
 using System.Reflection;
+using System.Transactions;
 using static BusinessObjects.JobEnumContainer;
 
 namespace Service
@@ -16,6 +18,7 @@ namespace Service
         private static readonly IBrandRepository _brandRepository = new BrandRepository();
         private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
         private static readonly ICampaignImageRepository _campaignImagesRepository = new CampaignImageRepository();
+        private static readonly ICampaignMeetingRoomService _campaignMeetingRoomService = new CampaignMeetingRoomService();
         private static readonly IJobRepository _jobRepository = new JobRepository();
         private readonly IMapper _mapper;
         private static readonly ILogger _loggerService = new LoggerService().GetDbLogger();
@@ -29,36 +32,51 @@ namespace Service
         }
         public async Task<Guid> CreateCampaign(Guid userId, CampaignResDto campaignDto)
         {
-            var brand = await _brandRepository.GetByUserId(userId);
-            var campaigns = (await _campaignRepository.GetByBrandId(brand.Id));
-
-            if (brand.IsPremium == false && campaigns.Count > 2)
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 2 chiến dịch. Vui lòng nâng cấp để tiếp tục sử dụng.");
-            }
+                try
+                {
+                    var brand = await _brandRepository.GetByUserId(userId);
+                    var campaigns = (await _campaignRepository.GetByBrandId(brand.Id));
 
-            if (campaigns.Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase)).Any())
-            {
-                throw new InvalidOperationException("Tên chiến dịch không được trùng lặp.");
+                    if (brand.IsPremium == false && campaigns.Count > 2)
+                    {
+                        throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 2 chiến dịch. Vui lòng nâng cấp để tiếp tục sử dụng.");
+                    }
+
+                    if (campaigns.Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase)).Any())
+                    {
+                        throw new InvalidOperationException("Tên chiến dịch không được trùng lặp.");
+                    }
+                    var campaign = new Campaign();
+                    /*if (campaignDto.Id == null)
+                    {*/
+                    //create
+                    campaign = _mapper.Map<Campaign>(campaignDto);
+                    campaign.BrandId = brand.Id;
+                    campaign.Status = (int)ECampaignStatus.Draft;
+                    await _campaignRepository.Create(campaign);
+                    /*}
+                    else
+                    {
+                        //update
+                        campaign = _mapper.Map<Campaign>(campaignDto);
+                        campaign.BrandId = brand.Id;
+                        await _campaignRepository.Update(campaign);
+                    }*/
+
+                    await _campaignMeetingRoomService.CreateFirstTimeRoom(campaign.Id);
+                    _loggerService.Information("Tạo campaign thành công");
+
+                    scope.Complete();
+
+                    return campaign.Id;
+                }
+                catch
+                {
+                    throw;
+                }
             }
-            var campaign = new Campaign();
-            /*if (campaignDto.Id == null)
-			{*/
-            //create
-            campaign = _mapper.Map<Campaign>(campaignDto);
-            campaign.BrandId = brand.Id;
-            campaign.Status = (int)ECampaignStatus.Draft;
-            await _campaignRepository.Create(campaign);
-            /*}
-			else
-			{
-				//update
-				campaign = _mapper.Map<Campaign>(campaignDto);
-				campaign.BrandId = brand.Id;
-				await _campaignRepository.Update(campaign);
-			}*/
-            _loggerService.Information("Tạo campaign thành công");
-            return campaign.Id;
         }
 
         public async Task<CampaignDTO> GetCampaign(Guid campaignId)
