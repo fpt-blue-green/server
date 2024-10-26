@@ -72,6 +72,7 @@ namespace Service
 
             //Create Job First
             var jobnew = _mapper.Map<Job>(offerCreateRequestDTO.Job);
+            jobnew.Status = (int)JobEnumContainer.EJobStatus.Pending;
             await _jobRepository.Create(jobnew);
 
             //Create offer
@@ -135,7 +136,7 @@ namespace Service
             }
 
             offer.Status = (int)JobEnumContainer.EOfferStatus.WaitingPayment;
-            job.Status = (int)EJobStatus.InProgress;
+            job.Status = (int)EJobStatus.Pending;
             offer.Job = job;
 
             await _offerRepository.UpdateJobAndOffer(offer);
