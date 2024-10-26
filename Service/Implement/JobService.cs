@@ -46,9 +46,14 @@ namespace Service
             }
 
             #region filter
+            // Chỉ lọc các job có Offer mới nhất thỏa mãn filter.From nếu filter.From có giá trị
             if (filter.From.HasValue)
             {
-                jobs = jobs.Where(i => i.Offers.Any(o => o.From == (int)filter.From));
+                jobs = jobs.Where(job =>
+                    job.Offers
+                        .OrderByDescending(o => o.CreatedAt)
+                        .FirstOrDefault()?.From == (int)filter.From
+                );
             }
 
             if (filter.JobStatuses != null && filter.JobStatuses.Any())
@@ -68,16 +73,20 @@ namespace Service
             int pageSize = filter.PageSize;
             jobs = jobs
                 .Skip((filter.PageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+                .Take(pageSize);
             #endregion
 
-            // Map từng job và chọn offer có CreateAt mới nhất
+            // Map từng job và chọn offer có CreateAt mới nhất thỏa mãn điều kiện filter.From
             var jobDTOs = jobs.Select(job =>
             {
-                var latestOffer = job.Offers.OrderByDescending(offer => offer.CreatedAt).FirstOrDefault();
+                // Lấy offer mới nhất cho mỗi job (không cần kiểm tra điều kiện From vì đã lọc ở trên)
+                var latestOffer = job.Offers
+                    .OrderByDescending(offer => offer.CreatedAt)
+                    .FirstOrDefault();
+
                 var jobDTO = _mapper.Map<JobDTO>(job);
 
+                // Chỉ ánh xạ offer mới nhất vào JobDTO
                 if (jobDTO != null && latestOffer != null)
                 {
                     jobDTO.Offer = _mapper.Map<OfferDTO>(latestOffer);
@@ -89,10 +98,9 @@ namespace Service
             return new JobResponseDTO
             {
                 TotalCount = totalCount,
-                Jobs = _mapper.Map<IEnumerable<JobDTO>>(jobDTOs)
+                Jobs = jobDTOs
             };
         }
-
 
         public async Task<List<JobStatistical>> Statistical(UserDTO user)
         {
