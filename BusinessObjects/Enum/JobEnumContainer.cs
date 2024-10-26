@@ -9,18 +9,22 @@ namespace BusinessObjects
             [Description("Đang chờ xử lý")]
             Pending = 0,          // Job đang trong quá trình khởi tạo
 
+            [Description("Đã chấp thuận")]
+            Approved = 1,         // Job đã được chấp thuận
+
             [Description("Đang triển khai")]
-            InProgress = 1,       // Job đang được thực hiện
+            InProgress = 2,       // Job đang được thực hiện
 
             [Description("Đã hoàn thành")]
-            Completed = 2,        // Job đã hoàn thành
+            Completed = 3,        // Job đã hoàn thành
 
             [Description("Bị thất bại")]
-            Failed = 3,           // Job thất bại
+            Failed = 4,           // Job thất bại
 
             [Description("Bị hủy bỏ")]
-            NotCreated = 4,       // Job không thành công do không có offer nào được đồng ý
+            NotCreated = 5        // Job không thành công do không có offer nào được đồng ý
         }
+
 
         public enum EOfferStatus
         {

@@ -46,17 +46,19 @@ namespace Service
             }
 
             #region filter
-            if (filter.From.HasValue == true)
+            if (filter.From.HasValue)
             {
                 jobs = jobs.Where(i => i.Offers.Any(o => o.From == (int)filter.From));
             }
 
-            if (filter.JobStatus.HasValue || filter.CampaignStatus.HasValue)
+            if (filter.JobStatuses != null && filter.JobStatuses.Any())
             {
-                jobs = jobs.Where(i =>
-                    (!filter.JobStatus.HasValue || i.Status == (int)filter.JobStatus) &&
-                    (!filter.CampaignStatus.HasValue || i.Campaign.Status == (int)filter.CampaignStatus)
-                );
+                jobs = jobs.Where(i => filter.JobStatuses.Contains((EJobStatus)i.Status));
+            }
+
+            if (filter.CampaignStatuses != null && filter.CampaignStatuses.Any())
+            {
+                jobs = jobs.Where(i => filter.CampaignStatuses.Contains((ECampaignStatus)i.Campaign.Status));
             }
             #endregion
 
@@ -90,6 +92,7 @@ namespace Service
                 Jobs = _mapper.Map<IEnumerable<JobDTO>>(jobDTOs)
             };
         }
+
 
         public async Task<List<JobStatistical>> Statistical(UserDTO user)
         {
@@ -145,10 +148,10 @@ namespace Service
 
                     var user = job.Campaign.Brand.User;
 
-                    if (userDto.Id != user.Id)
-                    {
-                        throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
-                    }
+                    //if (userDto.Id != user.Id)
+                    //{
+                    //    throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
+                    //}
 
                     if (user.Wallet < offer.Price)
                     {
@@ -157,7 +160,15 @@ namespace Service
 
                     user.Wallet -= offer.Price;
                     await _userRepository.UpdateUser(user);
-                    job.Status = (int)EJobStatus.InProgress;
+                    if(job.Campaign.Status == (int)ECampaignStatus.Active)
+                    {
+                        job.Status = (int)EJobStatus.InProgress;
+                    }
+                    else
+                    {
+                        job.Status = (int)EJobStatus.Approved;
+                    }
+
                     job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.WaitingPayment)!.Status = (int)EOfferStatus.Done;
                     await _jobRepository.UpdateJobAndOffer(job);
 
@@ -170,6 +181,7 @@ namespace Service
                     });
 
                     var influencerUser = job.Influencer.User;
+                    scope.Complete();
 
                     //send mail
                     await SendMail(job, offer, "được thanh toán", "được thanh toán", "Bạn có thể bắt đầu công việc ngay khi chiến dịch được khởi động.");

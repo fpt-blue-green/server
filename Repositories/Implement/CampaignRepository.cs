@@ -131,7 +131,11 @@ namespace Repositories
 			using (var context = new PostgresContext())
 			{
 				context.Entry<Campaign>(campaign).State = EntityState.Modified;
-				await context.SaveChangesAsync();
+                foreach (var job in campaign.Jobs)
+                {
+                    context.Entry(job).State = EntityState.Modified;
+                }
+                await context.SaveChangesAsync();
 			}
 		}
 	}
