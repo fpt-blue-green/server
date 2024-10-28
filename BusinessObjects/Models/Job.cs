@@ -17,7 +17,7 @@ public partial class Job
 
     public virtual Influencer Influencer { get; set; } = null!;
 
-    public virtual ICollection<JobDetail> JobDetails { get; set; } = new List<JobDetail>();
+    public virtual ICollection<JobDetails> JobDetails { get; set; } = new List<JobDetails>();
 
     public virtual ICollection<Offer> Offers { get; set; } = new List<Offer>();
 

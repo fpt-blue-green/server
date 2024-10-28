@@ -4,7 +4,7 @@ namespace Repositories
 {
     public interface IJobDetailRepository
     {
-        Task Create(JobDetail detail);
-        Task<JobDetail> GetByDate(DateTime dateTime, Guid jobId);
+        Task Create(JobDetails detail);
+        Task<JobDetails> GetByDate(DateTime dateTime, Guid jobId);
     }
 }

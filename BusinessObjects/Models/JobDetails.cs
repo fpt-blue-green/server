@@ -1,6 +1,6 @@
 ﻿namespace BusinessObjects.Models;
 
-public partial class JobDetail
+public partial class JobDetails
 {
     public Guid Id { get; set; }
 

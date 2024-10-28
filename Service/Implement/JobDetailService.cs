@@ -55,13 +55,13 @@ namespace Service
                 data.LikesCount -= oldData.LikesCount;
             }
 
-            var jobDetail = _mapper.Map<JobDetail>(data);
+            var jobDetail = _mapper.Map<JobDetails>(data);
             jobDetail.JobId = job.Id;
             jobDetail.Link = link;
             await _jobDetailRepository.Create(jobDetail);
         }
 
-        public static async Task<JobDetail> GetJobDetailByDate(DateTime dateTime, Guid jobId)
+        public static async Task<JobDetails> GetJobDetailByDate(DateTime dateTime, Guid jobId)
         {
             return await _jobDetailRepository.GetByDate(dateTime, jobId);
         }

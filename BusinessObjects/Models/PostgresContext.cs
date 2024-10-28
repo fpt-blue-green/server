@@ -15,8 +15,7 @@ public partial class PostgresContext : DbContext
         : base(options)
     {
     }
-
-    // Override SaveChangesAsync
+ // Override SaveChangesAsync
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // Gọi hàm tùy chỉnh để cập nhật ModifiedAt trước khi lưu thay đổi
@@ -73,6 +72,8 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<Campaign> Campaigns { get; set; }
 
+    public virtual DbSet<CampaignChat> CampaignChats { get; set; }
+
     public virtual DbSet<CampaignContent> CampaignContents { get; set; }
 
     public virtual DbSet<CampaignImage> CampaignImages { get; set; }
@@ -80,6 +81,8 @@ public partial class PostgresContext : DbContext
     public virtual DbSet<CampaignMeetingRoom> CampaignMeetingRooms { get; set; }
 
     public virtual DbSet<Channel> Channels { get; set; }
+
+    public virtual DbSet<ChatRoom> ChatRooms { get; set; }
 
     public virtual DbSet<Favorite> Favorites { get; set; }
 
@@ -93,7 +96,7 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<Job> Jobs { get; set; }
 
-    public virtual DbSet<JobDetail> JobDetails { get; set; }
+    public virtual DbSet<JobDetails> JobDetails { get; set; }
 
     public virtual DbSet<Offer> Offers { get; set; }
 
@@ -117,7 +120,7 @@ public partial class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
+		DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
         modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
         modelBuilder.Entity<Campaign>().HasQueryFilter(u => u.IsDeleted == false);
         modelBuilder.Entity<InfluencerReport>().HasQueryFilter(u => u.ReportStatus == (int)EReportStatus.Pending);
@@ -220,6 +223,24 @@ public partial class PostgresContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<CampaignChat>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("CampaignChat_pkey");
+
+            entity.ToTable("CampaignChat");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.SendTime).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignChats)
+                .HasForeignKey(d => d.CampaignId)
+                .HasConstraintName("CampaignChat_CampaignId_fkey");
+
+            entity.HasOne(d => d.Sender).WithMany(p => p.CampaignChats)
+                .HasForeignKey(d => d.SenderId)
+                .HasConstraintName("CampaignChat_SenderId_fkey");
+        });
+
         modelBuilder.Entity<CampaignContent>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("CampaignContents_pkey");
@@ -253,12 +274,14 @@ public partial class PostgresContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("video_call_rooms_pkey");
 
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-
             entity.HasIndex(e => e.RoomName, "CampaignMeetingRooms_RoomName_key").IsUnique();
 
-            entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignMeetingRooms)
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.IsFirstTime).HasDefaultValueSql("false");
+
+ 			entity.HasIndex(e => e.RoomName, "CampaignMeetingRooms_RoomName_key").IsUnique();
+ 			entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignMeetingRooms)
                 .HasForeignKey(d => d.CampaignId)
                 .HasConstraintName("video_call_rooms_campaignid_fkey");
         });
@@ -275,6 +298,27 @@ public partial class PostgresContext : DbContext
                 .HasForeignKey(d => d.InfluencerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("channels_influencerid_fkey");
+        });
+
+        modelBuilder.Entity<ChatRoom>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ChatRoom_pkey");
+
+            entity.ToTable("ChatRoom");
+
+            entity.HasIndex(e => e.Id, "ChatRoom_id_key").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+
+            entity.HasOne(d => d.Receiver).WithMany(p => p.ChatRoomReceivers)
+                .HasForeignKey(d => d.ReceiverId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ChatRoom_ReceiverId_fkey");
+
+            entity.HasOne(d => d.Sender).WithMany(p => p.ChatRoomSenders)
+                .HasForeignKey(d => d.SenderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ChatRoom_SenderId_fkey");
         });
 
         modelBuilder.Entity<Favorite>(entity =>
@@ -364,9 +408,8 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.Reason).HasDefaultValueSql("0");
+			entity.Property(e => e.Reason).HasDefaultValueSql("0");
             entity.Property(e => e.ReportStatus).HasDefaultValueSql("0");
-
             entity.HasOne(d => d.Influencer).WithMany(p => p.InfluencerReports)
                 .HasForeignKey(d => d.InfluencerId)
                 .HasConstraintName("InfluencerReports_InfluencerId_fkey");
@@ -393,7 +436,7 @@ public partial class PostgresContext : DbContext
                 .HasConstraintName("jobs_influencerid_fkey");
         });
 
-        modelBuilder.Entity<JobDetail>(entity =>
+        modelBuilder.Entity<JobDetails>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("jobdetails_pkey");
 
@@ -417,8 +460,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Job).WithMany(p => p.Offers)
                 .HasForeignKey(d => d.JobId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("offer_jobid_fkey");
+                .HasConstraintName("Offer_JobId_fkey");
         });
 
         modelBuilder.Entity<Package>(entity =>
@@ -455,7 +497,7 @@ public partial class PostgresContext : DbContext
             entity.ToTable("PaymentHistory");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+  			entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.Type).HasDefaultValueSql("'5'::numeric");
             entity.Property(e => e.Status).HasDefaultValueSql("'0'::numeric");
 
