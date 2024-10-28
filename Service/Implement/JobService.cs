@@ -17,7 +17,7 @@ namespace Service
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
         private static IUserRepository _userRepository = new UserRepository();
-        private static IPaymentBookingRepository _paymentBookingRepository = new PaymentBookingRepository();
+        private static IPaymentRepository _paymentBookingRepository = new PaymentRepository();
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
 
@@ -32,7 +32,7 @@ namespace Service
             await _jobRepository.Create(jobnew);
         }
 
-        public async Task<JobResponseDTO> GetAllJobByCurrentAccount(UserDTO user, JobFilterDto filter)
+        public async Task<JobResponseDTO> GetAllJobByCurrentAccount(UserDTO user, JobFilterDTO filter)
         {
             IEnumerable<Job> jobs = Enumerable.Empty<Job>();
 
@@ -181,7 +181,7 @@ namespace Service
                     await _jobRepository.UpdateJobAndOffer(job);
 
                     //Save Payment data.
-                    await _paymentBookingRepository.Create(new PaymentBooking
+                    await _paymentBookingRepository.CreatePaymentBooking(new PaymentBooking
                     {
                         JobId = jobId,
                         Amount = offer.Price,

@@ -18,4 +18,10 @@
 
         public DateTime? ModifiedAt { get; set; }
     }
+
+    public class ReportResponseDTO
+    {
+        public int TotalCount { get; set; }
+        public IEnumerable<ReportDTO> Reports { get; set; }
+    }
 }

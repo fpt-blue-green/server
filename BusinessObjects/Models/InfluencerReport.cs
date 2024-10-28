@@ -11,11 +11,11 @@ public partial class InfluencerReport
 
     public Guid InfluencerId { get; set; }
 
-    public int? Reason { get; set; }
+    public int Reason { get; set; }
 
     public string Description { get; set; } = null!;
 
-    public int? ReportStatus { get; set; }
+    public int ReportStatus { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

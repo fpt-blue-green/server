@@ -14,6 +14,8 @@
 
         public Guid BannedById { get; set; }
 
+        public virtual UserDTO User { get; set; } = null!;
+
         public virtual UserDTO BannedBy { get; set; } = null!;
 
     }

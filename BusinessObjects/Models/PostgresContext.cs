@@ -256,9 +256,7 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
-            entity.HasIndex(e => e.RoomName)
-           .IsUnique()
-           .HasName("CampaignMeetingRooms_RoomName_key");
+            entity.HasIndex(e => e.RoomName, "CampaignMeetingRooms_RoomName_key").IsUnique();
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignMeetingRooms)
                 .HasForeignKey(d => d.CampaignId)
@@ -457,8 +455,9 @@ public partial class PostgresContext : DbContext
             entity.ToTable("PaymentHistory");
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.Date).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.Type).HasDefaultValueSql("5");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Type).HasDefaultValueSql("'5'::numeric");
+            entity.Property(e => e.Status).HasDefaultValueSql("'0'::numeric");
 
             entity.HasOne(d => d.User).WithMany(p => p.PaymentHistories)
                 .HasForeignKey(d => d.UserId)

@@ -110,7 +110,7 @@ namespace Service
             return result;
         }
 
-        public async Task<List<CampaignDTO>> GetPublishBrandCampaigns(Guid brandId)
+        public async Task<List<CampaignDTO>> GetavailableBrandCampaigns(Guid brandId)
         {
             var result = new List<CampaignDTO>();
             var campaign = await _campaignRepository.GetByBrandId(brandId);
@@ -140,7 +140,7 @@ namespace Service
             var campaign = await _campaignRepository.GetById(campaignId);
             if (campaign == null)
             {
-                throw new KeyNotFoundException("Campaign không tồn tại.");
+                throw new KeyNotFoundException("Chiến dịch không tồn tại.");
             }
             if (campaign.Status == (int)ECampaignStatus.Active)
             {
@@ -160,7 +160,7 @@ namespace Service
             }
         }
 
-        public async Task<List<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDto filter)
+        public async Task<List<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDTO filter)
         {
             var result = new List<CampaignDTO>();
             var campaigns = await _campaignRepository.GetAlls();
@@ -179,8 +179,7 @@ namespace Service
                     {
                         campaignInprogres = campaignInprogres.Where(i =>
                                                 (!filter.PriceFrom.HasValue || i.Budget >= filter.PriceFrom) &&
-                                                (!filter.PriceTo.HasValue || i.Budget <= filter.PriceTo)
-                                            );
+                                                (!filter.PriceTo.HasValue || i.Budget <= filter.PriceTo));
                     }
                     catch (Exception e) { }
 

@@ -12,7 +12,7 @@ namespace Service.Helper
     {
         private static IAdminActionRepository _adminActionRepository = new AdminActionRepository();
 
-        public async Task CreateNotification<T>(UserDTO userDTO, EAdminAction? actionType, T? newData, T? oldData, string? objectType = null, bool isReport = false)
+        public async Task CreateNotification<T>(UserDTO userDTO, EAdminActionType? actionType, T? newData, T? oldData, string? objectType = null, bool isReport = false)
         {
             var settings = new JsonSerializerSettings
             {
@@ -35,7 +35,7 @@ namespace Service.Helper
             }
             else
             {
-                actionType = EAdminAction.BanUser;
+                actionType = EAdminActionType.BanUser;
                 summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã cấm/hủy cấm người dùng. Thông tin chi tiết: {JsonConvert.SerializeObject(newData, settings)}";
             }
 

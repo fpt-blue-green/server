@@ -6,7 +6,7 @@ namespace Service
 {
     public interface ICampaignService
     {
-        Task<List<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDto filter);
+        Task<List<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDTO filter);
         Task<Guid> CreateCampaign(Guid userId, CampaignResDto campaign);
         Task<Guid> UpdateCampaign(Guid userId, Guid CampaignId, CampaignResDto campaign);
         Task<List<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId);
@@ -17,7 +17,7 @@ namespace Service
         Task DeleteCampaign(Guid campaignId);
         Task PublishCampaign(Guid campaignId);
         Task StartCampaign(Guid campaignId);
-        Task<List<CampaignDTO>> GetPublishBrandCampaigns(Guid brandId);
+        Task<List<CampaignDTO>> GetavailableBrandCampaigns(Guid brandId);
 
     }
 }

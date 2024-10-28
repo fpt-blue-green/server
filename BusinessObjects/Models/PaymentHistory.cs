@@ -17,7 +17,9 @@ public partial class PaymentHistory
 
     public int Type { get; set; }
 
-    public DateTime? Date { get; set; }
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? ResponseAt { get; set; }
 
     public string? AdminMessage { get; set; }
 

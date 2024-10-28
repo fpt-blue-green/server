@@ -14,6 +14,15 @@ namespace Repositories
             }
         }
 
+        public async Task UpdateMeetingRoom(CampaignMeetingRoom campaignMeetingRoom)
+        {
+            using (var context = new PostgresContext())
+            {
+                context.Entry(campaignMeetingRoom).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+            }
+        }
+
         public async Task DeleteMeetingRoom(CampaignMeetingRoom campaignMeetingRoom)
         {
             using (var context = new PostgresContext())
@@ -27,7 +36,7 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                var roomMetting = await context.CampaignMeetingRooms.FirstOrDefaultAsync(r => r.RoomName == name);
+                var roomMetting = await context.CampaignMeetingRooms.Include(m => m.Campaign).FirstOrDefaultAsync(r => r.RoomName == name);
                 return roomMetting!;
             }
         }

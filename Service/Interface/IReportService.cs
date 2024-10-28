@@ -5,7 +5,7 @@ namespace Service
 {
     public interface IReportService
     {
-        Task<IEnumerable<ReportDTO>> GetReports();
+        Task<ReportResponseDTO> GetReports(ReportFilterDTO reportFilter);
         Task<IEnumerable<ReportDTO>> GetReportsByInfluencerId(Guid influencerId);
         Task<InfluencerReport> GetReportById(Guid id);
         Task CreateInfluencerReport(Guid influencerId, ReportRequestDTO reportRequestDTO, UserDTO userDTO);
