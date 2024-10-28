@@ -41,7 +41,8 @@ namespace Service
                 {
                     Nbf = ConvertToUnixTimestamp(dataRequest.StartAt),
                     Exp = ConvertToUnixTimestamp(dataRequest.EndAt),
-                    EjectAtRoomExp = true
+                    EjectAtRoomExp = true,
+                    EnableKnocking = true,
                 },
             };
 
@@ -68,6 +69,7 @@ namespace Service
             var apiKey = await _systemSettingRepository.GetSystemSetting(_configManager.DailyVideoCallKey) ?? throw new Exception("Has error when get API VIDEO CALL Key");
             DailyVideoCallHelper dailyVideoCall = new DailyVideoCallHelper(apiKey.KeyValue!);
             var campaignName = "PhongHop";
+
             var roomData = new RoomSettingsDto
             {
                 Name = GenerateUniqueJobName(campaignName),
@@ -75,8 +77,10 @@ namespace Service
                 {
                     Nbf = ConvertToUnixTimestamp(DateTime.Now),
                     Exp = null,
-                    EjectAtRoomExp = false
+                    EjectAtRoomExp = true,
+                    EnableKnocking = true,
                 },
+                Privacy = "private"
             };
 
             var link = await dailyVideoCall.CreateRoomAsync(roomData);
@@ -123,7 +127,8 @@ namespace Service
                 {
                     Nbf = ConvertToUnixTimestamp(updateRequest.StartAt),
                     Exp = ConvertToUnixTimestamp(updateRequest.EndAt),
-                    EjectAtRoomExp = true
+                    EjectAtRoomExp = true,
+                    EnableKnocking = true,
                 },
                 Privacy = "private"
             };
@@ -190,14 +195,14 @@ namespace Service
 
         protected static void ValidateCreateRoom(RoomDataRequest dataRequest)
         {
-            if(dataRequest.StartAt < DateTime.Now)
+            if(dataRequest.StartAt < DateTime.Now.AddMinutes(5))
             {
-                throw new InvalidOperationException("Thời gian bắt đầu phải nhỏ hơn thời gian hiện tại.");
+                throw new InvalidOperationException("Thời gian bắt đầu phải lớn hơn thời gian hiện tại.");
             }
 
             if (dataRequest.StartAt.AddHours(2) >= dataRequest.EndAt)
             {
-                throw new InvalidOperationException("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc ít nhất là 2 tiếng.");
+                throw new InvalidOperationException("Thời gian của cuộc gọi tối thiểu là 2 tiếng.");
             }
 
             if (Regex.IsMatch(dataRequest.RoomName, _configManager.DailyVideoNameRegex))

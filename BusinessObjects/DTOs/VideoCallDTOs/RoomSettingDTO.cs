@@ -7,7 +7,6 @@ namespace BusinessObjects
     {
         public string Name { get; set; }
         public RoomProperties Properties { get; set; }
-
         public string Privacy { get; set; }
     }
 
@@ -18,6 +17,8 @@ namespace BusinessObjects
 
         [JsonProperty("eject_at_room_exp")]
         public bool EjectAtRoomExp { get; set; }
+
+        public bool EnableKnocking { get; set; }
     }
 
     public class RoomDataRequest
