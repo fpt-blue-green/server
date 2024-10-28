@@ -7,6 +7,7 @@ using Repositories.Interface;
 using Serilog;
 using Service.Helper;
 using System.Transactions;
+using static Quartz.Logging.OperationName;
 
 namespace Service
 {
@@ -73,15 +74,40 @@ namespace Service
             return await _reportRepository.GetById(id);
         }
 
-        public async Task<IEnumerable<ReportDTO>> GetReports()
+        public async Task<ReportResponseDTO> GetReports(ReportFilterDTO reportFilter)
         {
             var reports = await _reportRepository.GetAll();
 
-            var sortedReports = reports
+            reports = reports.OrderByDescending(r => r.CreatedAt).ToList();
+
+            #region Filter
+            if (reportFilter.ReportReasons != null && reportFilter.ReportReasons.Any())
+            {
+                reports = reports.Where(i => reportFilter.ReportReasons.Contains((EReportReason)i.Reason));
+            }
+
+            if (reportFilter.ReportStatus != null && reportFilter.ReportStatus.Any())
+            {
+                reports = reports.Where(i => reportFilter.ReportStatus.Contains((EReportStatus)i.ReportStatus));
+            }
+            #endregion
+
+            int totalCount = reports.Count();
+            #region paging
+            int pageSize = reportFilter.PageSize;
+            reports = reports
+                .Skip((reportFilter.PageIndex - 1) * pageSize)
+                .Take(pageSize);
+            #endregion
+            reports = reports
                          .OrderBy(r => r.InfluencerId)
                          .ThenByDescending(r => r.CreatedAt)
                          .ToList();
-            return _mapper.Map<IEnumerable<ReportDTO>>(sortedReports);
+            return new ReportResponseDTO
+            {
+                Reports = _mapper.Map<IEnumerable<ReportDTO>>(reports),
+                TotalCount = totalCount,
+            };
         }
 
         public async Task RejectReport(Guid id)

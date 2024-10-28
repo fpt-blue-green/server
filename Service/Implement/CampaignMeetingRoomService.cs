@@ -32,9 +32,11 @@ namespace Service
             var apiKey = await _systemSettingRepository.GetSystemSetting(_configManager.DailyVideoCallKey) ?? throw new Exception("Has error when get API VIDEO CALL Key");
             DailyVideoCallHelper dailyVideoCall = new DailyVideoCallHelper(apiKey.KeyValue!);
 
+            var roomName = GenerateUniqueJobName(dataRequest.RoomName);
+
             var roomData = new RoomSettingsDto
             {
-                Name = dataRequest.Name,
+                Name = roomName,
                 Properties = new RoomProperties
                 {
                     Nbf = ConvertToUnixTimestamp(dataRequest.StartAt),
@@ -48,7 +50,7 @@ namespace Service
             var meetingRoom = new CampaignMeetingRoom
             {
                 CampaignId = dataRequest.CampaignId!.Value,
-                RoomName = GenerateUniqueJobName(dataRequest.Name),
+                RoomName = roomName,
                 CreatedBy = user.Name!,
                 Description = dataRequest.Description,
                 StartAt = dataRequest.StartAt,
@@ -91,6 +93,46 @@ namespace Service
             await _campaignMeetingRoomRepository.CreateMeetingRoom(meetingRoom);
         }
 
+        public async Task UpdateRoom(RoomDataUpdateRequest updateRequest)
+        {
+            var curRoom = await _campaignMeetingRoomRepository.GetMeetingRoomByName(updateRequest.RoomName) ?? throw new KeyNotFoundException();
+
+            if (curRoom.IsFirstTime)
+            {
+                throw new InvalidOperationException("Không thể chỉnh sửa phòng mặc định của chiến dịch.");
+            }
+
+            curRoom.StartAt = updateRequest.StartAt;
+            curRoom.EndAt = updateRequest.EndAt;
+            curRoom.Description = updateRequest.Description;
+            curRoom.Participants = string.Join(",", updateRequest.Participators);
+
+            await _campaignMeetingRoomRepository.UpdateMeetingRoom(curRoom);
+
+            var apiKey = await _systemSettingRepository.GetSystemSetting(_configManager.DailyVideoCallKey) ?? throw new Exception("Has error when get API VIDEO CALL Key");
+
+            //Delete old Room in the Daily
+            DailyVideoCallHelper dailyVideoCall = new DailyVideoCallHelper(apiKey.KeyValue!);
+            await dailyVideoCall.DeleteRoomAsync(curRoom.RoomName);
+
+            //Create new Room in Daily
+            var roomData = new RoomSettingsDto
+            {
+                Name = curRoom.RoomName,
+                Properties = new RoomProperties
+                {
+                    Nbf = ConvertToUnixTimestamp(updateRequest.StartAt),
+                    Exp = ConvertToUnixTimestamp(updateRequest.EndAt),
+                    EjectAtRoomExp = true
+                },
+                Privacy = "private"
+            };
+
+            await dailyVideoCall.CreateRoomAsync(roomData);
+
+            await SendMail(curRoom, curRoom.Campaign.Name);
+        }
+
         public async Task<(byte[] fileContent, string fileName)> GetLogFile(string roomName)
         {
             if (Regex.IsMatch(roomName, _configManager.DailyVideoNameRegex))
@@ -101,6 +143,28 @@ namespace Service
             DailyVideoCallHelper dailyVideoCall = new DailyVideoCallHelper(apiKey.KeyValue!);
             var data = await dailyVideoCall.FetchRoomLogAsync(roomName);
             return (data, $"{roomName}_{DateTime.Now.ToString("dd.MM.yyyy")}.csv");
+        }
+
+        public async Task<string> GetAccessLinkByRole(string roomName, UserDTO userDTO)
+        {
+            if (Regex.IsMatch(roomName, _configManager.DailyVideoNameRegex))
+            {
+                throw new Exception("Tên phòng không hợp lệ! Chỉ cho phép chữ cái, số, dấu gạch dưới _ và dấu gạch nối - ");
+            }
+
+            var result = await _campaignMeetingRoomRepository.GetMeetingRoomByName(roomName) ?? throw new Exception();
+
+            if (userDTO.Role == AuthEnumContainer.ERole.Influencer)
+            {
+                return result.RoomLink;
+            }
+            else
+            {
+                var apiKey = await _systemSettingRepository.GetSystemSetting(_configManager.DailyVideoCallKey) ?? throw new Exception("Has error when get API VIDEO CALL Key");
+                DailyVideoCallHelper dailyVideoCall = new DailyVideoCallHelper(apiKey.KeyValue!);
+                var token = await dailyVideoCall.GetOwnerTokenAsync(roomName);
+                return result.RoomLink + $"?t={token}";
+            }
         }
 
         public async Task DeleteRoomAsync(string roomName)
@@ -136,7 +200,7 @@ namespace Service
                 throw new InvalidOperationException("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc ít nhất là 2 tiếng.");
             }
 
-            if (Regex.IsMatch(dataRequest.Name, _configManager.DailyVideoNameRegex))
+            if (Regex.IsMatch(dataRequest.RoomName, _configManager.DailyVideoNameRegex))
             {
                 throw new InvalidOperationException("Tên phòng không hợp lệ! Chỉ cho phép chữ cái, số, dấu gạch dưới _ và dấu gạch nối - .");
             }
