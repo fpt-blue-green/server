@@ -54,6 +54,14 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
+        [HttpPut("meetingRoom")]
+        [BrandRequired]
+        public async Task<ActionResult<string>> UpdateVideoCallRoom(RoomDataUpdateRequest dataRequest)
+        {
+            await _videoCallService.UpdateRoom(dataRequest);
+            return Ok();
+        }
+
         [HttpGet("meetingRoom/{name}/log")]
         public async Task<IActionResult> DownloadLogFile(string name)
         {
@@ -67,6 +75,15 @@ namespace AdFusionAPI.Controllers
         {
             await _videoCallService.DeleteRoomAsync(name);
             return Ok();
+        }
+
+        [AuthRequired]
+        [HttpGet("meetingRoom/{name}/token")]
+        public async Task<ActionResult<string>> GetAccessLinkByRole(string name)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var link = await _videoCallService.GetAccessLinkByRole(name, user);
+            return Ok(link);
         }
     }
 }
