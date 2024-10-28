@@ -24,6 +24,33 @@ namespace Service
             return _mapper.Map<IEnumerable<TagDTO>>(tags);
         }
 
+        public async Task<TagResponseDTO> GetAllTagsWithFilter(TagFilterDTO tagFilter)
+        {
+            var tags = await _tagRepository.GetAlls();
+
+            int totalCount = tags.Count();
+
+            #region Filter
+            if (tagFilter.IsPremium != null)
+            {
+                tags = tags.Where(x => x.IsPremium == tagFilter.IsPremium);
+            }
+            #endregion
+
+            #region paging
+            int pageSize = tagFilter.PageSize;
+            tags = tags
+                .Skip((tagFilter.PageIndex - 1) * pageSize)
+                .Take(pageSize);
+            #endregion
+
+            return new TagResponseDTO
+            {
+                Tags = _mapper.Map<IEnumerable<TagDTO>>(tags),
+                TotalCount = totalCount,
+            };
+        }
+
         public async Task CreateTag(TagRequestDTO tagDTO, UserDTO user)
         {
             try
@@ -31,7 +58,7 @@ namespace Service
                 var tag = _mapper.Map<Tag>(tagDTO);
                 await _tagRepository.Create(tag);
 
-                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Create, tag, null);
+                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminActionType.Create, tag, null);
             }
             catch (Exception ex)
             {
@@ -57,7 +84,7 @@ namespace Service
                 }
                 await _tagRepository.Delete(tag);
 
-                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Delete, null, tag);
+                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminActionType.Delete, null, tag);
             }
             catch (Exception ex)
             {
@@ -84,7 +111,7 @@ namespace Service
                 var newTag = _mapper.Map(tagDTO, tag);
                 await _tagRepository.Update(tag);
 
-                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminAction.Update, newTag, tag);
+                await adminActionNotificationHelper.CreateNotification<Tag>(user, EAdminActionType.Update, newTag, tag);
             }
             catch (Exception ex)
             {
