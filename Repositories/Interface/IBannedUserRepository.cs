@@ -7,5 +7,6 @@ namespace Repositories
         Task CreateBannedUserData(BannedUser user);
         Task UpdateBannedUserData(BannedUser user);
         Task<IEnumerable<BannedUser>> GetBannedUsers();
+        Task<BannedUser> GetBannedUserById(Guid id);
     }
 }

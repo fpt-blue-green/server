@@ -6,6 +6,7 @@ using Serilog;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using static BusinessObjects.VideoCallSessionModelDTO;
 
@@ -86,8 +87,8 @@ namespace Service.Helper
                 throw new Exception("Failed to get owner token");
             }
 
-            var responseData = await response.Content.ReadAsStringAsync();
-            return responseData;
+            var responseData = JsonObject.Parse(await response.Content.ReadAsStringAsync());
+            return responseData["token"]!.ToString();
         }
 
         // Xóa phòng họp

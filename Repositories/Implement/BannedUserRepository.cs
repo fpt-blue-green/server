@@ -32,5 +32,14 @@ namespace Repositories
             }
         }
 
+        public async Task<BannedUser> GetBannedUserById(Guid id)
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.BannedUsers.Include(i => i.BannedBy).Include(i => i.User).FirstOrDefaultAsync(i => i.Id == id);
+                return result;
+            }
+        }
+
     }
 }
