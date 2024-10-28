@@ -28,6 +28,12 @@ namespace Service
             return _mapper.Map<IEnumerable<BannedUserDTO>>(bannedUsers);
         }
 
+        public async Task<BannedUserDTO> GetBannedUserById(Guid id)
+        {
+            var bannedUser = await _bannedUserRepository.GetBannedUserById(id);
+            return _mapper.Map<BannedUserDTO>(bannedUser);
+        }
+
         public async Task<BannedUser> BanUserBaseOnReport(User user, BannedUserRequestDTO userRequestDTO, UserDTO userDTO)
         {
             if(userRequestDTO.Reason.Length > 350)

@@ -10,5 +10,6 @@ namespace Service
         Task UnBanUser(Guid userId, BannedUserRequestDTO userRequestDTO, UserDTO userDTO);
         Task<IEnumerable<BannedUserDTO>> GetBannedUsers();
         Task<(byte[] fileContent, string fileName)> GetDataFile();
+        Task<BannedUserDTO> GetBannedUserById(Guid id);
     }
 }

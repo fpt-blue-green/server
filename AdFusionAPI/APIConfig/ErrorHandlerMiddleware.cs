@@ -33,7 +33,7 @@ namespace AdFusionAPI.APIConfig
             context.Response.ContentType = "application/json";
 
             var statusCode = HttpStatusCode.InternalServerError;
-            var exceptionMessage = $"Đã xảy ra lỗi hệ thống. Vui lòng liên hệ bộ phận hỗ trợ nếu vấn đề vẫn tiếp tục. Mã lỗi: {context.TraceIdentifier}";
+            var exceptionMessage = "Đã xảy ra lỗi hệ thống. Vui lòng liên hệ bộ phận hỗ trợ nếu vấn đề vẫn tiếp tục.";
 
             if (exception is UnauthorizedAccessException)
             {
