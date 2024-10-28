@@ -56,5 +56,6 @@ namespace BusinessObjects
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 15;
         public EPaymentStatus[] PaymentStatus { get; set; }
+        public EPaymentType[] PaymentType { get; set; }
     }
 }
