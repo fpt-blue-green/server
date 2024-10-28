@@ -103,6 +103,10 @@ namespace Service
             #region CampaignMeetingRoom
             CreateMap<CampaignMeetingRoomDTO, CampaignMeetingRoom>().ReverseMap();
             #endregion
+            #region Payment
+            CreateMap<PaymentHistory, PaymentHistoryDTO>().ReverseMap();
+
+            #endregion
 
         }
     }
