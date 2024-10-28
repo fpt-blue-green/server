@@ -27,6 +27,7 @@
         public readonly List<string> AdminReportHandler = new List<string> { "nguyenhoang062017@gmail.com", "nguyendactamminh@gmail.com" };
 
         public readonly string DailyVideoCallEnpoint = @"https://api.daily.co/v1/rooms";
+        public readonly string DailyVideoCallTokenEnpoint = @"https://api.daily.co/v1/meeting-tokens";
         public readonly string DailyVideoCallKey = "VideoCallAPIKey";
         public readonly string DailyVideoNameRegex= @"[^A-Za-z0-9_-]";
     }

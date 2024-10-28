@@ -1165,5 +1165,237 @@
                                     </html>
                                     ";
         #endregion
+
+        #region RequestWithdraw
+        public string requestWithDrawTemplate = @"<!DOCTYPE html>
+                                        <html lang=""vi"">
+
+                                        <head>
+                                            <meta charset=""UTF-8"" />
+                                            <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+                                            <title>Thông Báo Yêu Cầu Rút Tiền</title>
+                                            <style>
+                                                body {
+                                                    font-family: Arial, sans-serif;
+                                                    background-color: #f4f4f4;
+                                                    margin: 0;
+                                                    padding: 0;
+                                                }
+
+                                                .email-container {
+                                                    background-color: white;
+                                                    max-width: 600px;
+                                                    margin: 0 auto;
+                                                    border-radius: 8px;
+                                                    border: 0.3px solid rgba(0, 0, 0, 0.2);
+                                                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+                                                    overflow: hidden;
+                                                }
+
+                                                .email-header {
+                                                    background-color: rgb(255, 112, 129);
+                                                    color: white;
+                                                    text-align: center;
+                                                    padding: 25px;
+                                                    font-size: 22px;
+                                                    font-weight: bold;
+                                                }
+
+                                                .email-body {
+                                                    padding: 20px;
+                                                    color: #333;
+                                                }
+
+                                                .email-body h2 {
+                                                    color: rgb(255, 112, 129);
+                                                }
+
+                                                .email-body p {
+                                                    line-height: 1.6;
+                                                }
+
+                                                .email-body ul {
+                                                    padding-left: 20px;
+                                                }
+
+                                                .button-container {
+                                                    text-align: center;
+                                                    margin: 20px 0;
+                                                }
+
+                                                .button {
+                                                    background-color: rgb(255, 112, 129);
+                                                    color: white;
+                                                    padding: 10px 20px;
+                                                    text-align: center;
+                                                    text-decoration: none;
+                                                    display: inline-block;
+                                                    border-radius: 5px;
+                                                    font-weight: bold;
+                                                }
+
+                                                .email-footer {
+                                                    padding: 20px;
+                                                    font-size: 12px;
+                                                    color: #777;
+                                                    border-top: 1px solid #eaeaea;
+                                                }
+
+                                                .email-footer .copyright {
+                                                    text-align: center;
+                                                }
+                                            </style>
+                                        </head>
+
+                                        <body>
+                                            <div class=""email-container"">
+                                                <div class=""email-header"">Thông Báo Nhà sáng tạo nội dung yêu cầu rút tiền</div>
+                                                <div class=""email-body"">
+                                                    <h2>Xin chào Admin,</h2>
+                                                    <p>
+                                                        Người dùng <strong>{DisplayName}</strong> đã gửi yêu cầu rút tiền từ tài khoản của mình. 
+                                                    </p>
+                                                    <p>Thông tin chi tiết về yêu cầu:</p>
+                                                    <ul>
+                                                        <li>Số tiền: {Amount} VND</li>
+                                                        <li>Số dư khả dụng trong hệ thống: {Money} VND</li>
+                                                        <li>Tài khoản ngân hàng: {BankAccount}</li>
+                                                        <li>Thời gian yêu cầu : {CreatedAt}</li>
+                                                    </ul>
+                                                    <p>
+                                                        Vui lòng xem xét và xử lý yêu cầu này theo quy trình để đảm bảo giao dịch được thực hiện chính xác và kịp thời.
+                                                    </p>
+                                                    <div class=""button-container"">
+                                                        <a href=""{Link}"" class=""button"">Xem Chi Tiết</a>
+                                                    </div>
+                                                </div>
+                                                <div class=""email-footer"">
+                                                    <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                                    <p>Trân trọng,<br /><br />{projectName}</p>
+                                                    <div class=""copyright"">
+                                                        <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </body>
+
+                                        </html>";
+        #endregion
+
+        #region ResponseWithdraw
+        public string responseWithDrawTemplate = @"<!DOCTYPE html>
+                                    <html lang=""vi"">
+
+                                    <head>
+                                        <meta charset=""UTF-8"" />
+                                        <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+                                        <title>Thông Báo Phản Hồi Yêu Cầu Rút Tiền</title>
+                                        <style>
+                                            body {
+                                                font-family: Arial, sans-serif;
+                                                background-color: #f4f4f4;
+                                                margin: 0;
+                                                padding: 0;
+                                            }
+
+                                            .email-container {
+                                                background-color: white;
+                                                max-width: 600px;
+                                                margin: 0 auto;
+                                                border-radius: 8px;
+                                                border: 0.3px solid rgba(0, 0, 0, 0.2);
+                                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+                                                overflow: hidden;
+                                            }
+
+                                            .email-header {
+                                                background-color: rgb(255, 112, 129);
+                                                color: white;
+                                                text-align: center;
+                                                padding: 25px;
+                                                font-size: 22px;
+                                                font-weight: bold;
+                                            }
+
+                                            .email-body {
+                                                padding: 20px;
+                                                color: #333;
+                                            }
+
+                                            .email-body h2 {
+                                                color: rgb(255, 112, 129);
+                                            }
+
+                                            .email-body p {
+                                                line-height: 1.6;
+                                            }
+
+                                            .email-body ul {
+                                                padding-left: 20px;
+                                            }
+
+                                            .button-container {
+                                                text-align: center;
+                                                margin: 20px 0;
+                                            }
+
+                                            .button {
+                                                background-color: rgb(255, 112, 129);
+                                                color: white;
+                                                padding: 10px 20px;
+                                                text-align: center;
+                                                text-decoration: none;
+                                                display: inline-block;
+                                                border-radius: 5px;
+                                                font-weight: bold;
+                                            }
+
+                                            .email-footer {
+                                                padding: 20px;
+                                                font-size: 12px;
+                                                color: #777;
+                                                border-top: 1px solid #eaeaea;
+                                            }
+
+                                            .email-footer .copyright {
+                                                text-align: center;
+                                            }
+                                        </style>
+                                    </head>
+
+                                    <body>
+                                        <div class=""email-container"">
+                                            <div class=""email-header"">Thông Báo Phản Hồi về yêu cầu rút tiền</div>
+                                            <div class=""email-body"">
+                                                <h2>Xin chào <strong>{DisplayName}</strong>,</h2>
+                                                <p>
+                                                    Chúng tôi xin thông báo rằng yêu cầu rút tiền của bạn đã {Status}.
+                                                </p>
+                                                <p>Thông tin chi tiết về yêu cầu:</p>
+                                                <ul>
+                                                    <li>Số tiền: {Withdraw} VND</li>
+                                                    <li>Số dư khả dụng: {Money} VND</li>
+		                                    <li>Thông tin ngân hàng: {BankAccount}</li>
+                                                    <li>Thời gian yêu cầu: {CreatedAt}</li>
+ 		                                    <li>Thời gian phản hồi: {ResponseAt}</li>
+                                                    <li>Phản hồi từ quản trị viên: {Description}</li>
+                                                </ul>
+                                                <div class=""button-container"">
+                                                    <a href=""{Link}"" class=""button"">Xem Chi Tiết</a>
+                                                </div>
+ 	                                      <p>Các yêu cầu đã được xem xét rất kỹ dựa trên điều khoản dịch vụ của hệ thống. Tuy nhiên, nếu cảm thấy quyết định này chưa thỏa đáng, vui lòng liên hệ ngay với quản trị viên.</p>
+                                            </div>
+                                            <div class=""email-footer"">
+                                                <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                                <p>Trân trọng,<br /><br />{projectName}</p>
+                                                <div class=""copyright"">
+                                                    <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </body>
+
+                                    </html>";
+        #endregion
     }
 }

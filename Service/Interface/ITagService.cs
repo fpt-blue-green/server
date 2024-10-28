@@ -4,6 +4,7 @@ namespace Service
 {
     public interface ITagService
     {
+        Task<TagResponseDTO> GetAllTagsWithFilter(TagFilterDTO tagFilter);
         Task<IEnumerable<TagDTO>> GetAllTags();
         Task<IEnumerable<TagDTO>> GetTagById(Guid Id);
         Task CreateTag(TagRequestDTO tagDTO, UserDTO user);

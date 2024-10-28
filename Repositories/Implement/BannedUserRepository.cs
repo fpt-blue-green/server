@@ -27,7 +27,7 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                var result = await context.BannedUsers.Include(i => i.BannedBy).ToListAsync();
+                var result = await context.BannedUsers.Include(i => i.BannedBy).Include(i => i.User).ToListAsync();
                 return result;
             }
         }

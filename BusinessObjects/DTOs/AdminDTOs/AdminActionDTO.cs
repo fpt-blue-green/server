@@ -8,7 +8,7 @@ namespace BusinessObjects
 
         public Guid UserId { get; set; }
 
-        public int ActionType { get; set; }
+        public EAdminActionType ActionType { get; set; }
 
         public string ActionDetails { get; set; } = null!;
 

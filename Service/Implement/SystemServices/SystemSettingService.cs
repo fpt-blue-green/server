@@ -48,7 +48,7 @@ namespace Service
             systemSetting.Description = systemSettingDTO.Description;
             await _systemSettingRepository.UpdateSystemSettingKeyValue(systemSetting);
 
-            await adminActionNotificationHelper.CreateNotification<String>(user, EAdminAction.Update,
+            await adminActionNotificationHelper.CreateNotification<String>(user, EAdminActionType.Update,
                                                     $"KeyValue: {oldKeyData}, Description: {oldDesData}",
                                                     $"KeyValue: {systemSettingDTO.KeyValue}, Description: {systemSettingDTO.Description}",
                                                     "SystemSetting");

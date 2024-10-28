@@ -6,7 +6,7 @@ namespace Service
     public interface IInfluencerService
     {
         Task<List<InfluencerDTO>> GetAllInfluencers();
-        Task<InfluencersResponseDTO> GetAllInfluencers(InfluencerFilterDto filter);
+        Task<InfluencersResponseDTO> GetAllInfluencers(InfluencerFilterDTO filter);
         Task<InfluencerDTO> GetInfluencerById(Guid id);
         Task<InfluencerDTO> GetInfluencerBySlug(string slug);
         Task<List<TagDTO>> GetTagsByInfluencer(UserDTO user);

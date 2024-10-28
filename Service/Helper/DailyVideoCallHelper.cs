@@ -16,14 +16,17 @@ namespace Service.Helper
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly string _roomEndpoint;
+        private readonly string _roomTookenEndpoint;
         private static ConfigManager _configManager = new ConfigManager();
         private static ILogger _logger = new LoggerService().GetDbLogger();
 
         public DailyVideoCallHelper(string apiKey)
         {
             _apiKey = apiKey;
-            _httpClient = new HttpClient();
             _roomEndpoint = _configManager.DailyVideoCallEnpoint;
+            _roomTookenEndpoint = _configManager.DailyVideoCallTokenEnpoint;
+
+            _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -31,27 +34,60 @@ namespace Service.Helper
         // Tạo phòng họp mới
         public async Task<string> CreateRoomAsync(RoomSettingsDto settings)
         {
-            
             var options = new JsonSerializerSettings
             {
                 ContractResolver = new DefaultContractResolver
                 {
                     NamingStrategy = new SnakeCaseNamingStrategy()
                 },
-                NullValueHandling = NullValueHandling.Ignore 
+                NullValueHandling = NullValueHandling.Ignore
             };
+
             var content = new StringContent(JsonConvert.SerializeObject(settings, options), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(_roomEndpoint, content);
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.Error($"Failed to create room: {response.ReasonPhrase}");
-                throw new Exception();
+                throw new Exception($"Failed to create room: {response.ReasonPhrase}");
             }
 
             var responseData = await response.Content.ReadAsStringAsync();
             var url = JsonDocument.Parse(responseData).RootElement.GetProperty("url").GetString();
             return url ?? throw new Exception();
+        }
+
+        //  Lấy token cho Owner
+        public async Task<string> GetOwnerTokenAsync(string roomName)
+        {
+            var options = new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new SnakeCaseNamingStrategy()
+                },
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            var requestBody = new
+            {
+                properties = new
+                {
+                    room_name = roomName,
+                    is_owner = true
+                }
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(requestBody, options), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(_roomTookenEndpoint, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorData = await response.Content.ReadAsStringAsync();
+                throw new Exception("Failed to get owner token");
+            }
+
+            var responseData = await response.Content.ReadAsStringAsync();
+            return responseData;
         }
 
         // Xóa phòng họp

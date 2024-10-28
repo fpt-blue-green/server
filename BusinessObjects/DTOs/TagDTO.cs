@@ -20,4 +20,10 @@ namespace BusinessObjects
 
         public bool IsPremium { get; set; }
     }
+
+    public class TagResponseDTO
+    {
+        public int TotalCount { get; set; }
+        public IEnumerable<TagDTO> Tags { get; set; }
+    }
 }

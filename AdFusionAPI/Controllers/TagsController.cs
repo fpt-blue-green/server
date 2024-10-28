@@ -24,23 +24,8 @@ namespace AdFusionAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TagDTO>>> GetListTag()
         {
-            var result = new List<TagDTO>();
-            try
-            {
-                var tags = await _tagService.GetAllTags();
-                if (tags.Any())
-                {
-                    foreach (var item in tags)
-                    {
-                        result = _mapper.Map<List<TagDTO>>(tags);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            return Ok(result);
+            var tags = await _tagService.GetAllTags();
+            return Ok(tags);
         }
 
         [HttpGet("{id}")]
@@ -51,6 +36,14 @@ namespace AdFusionAPI.Controllers
         }
 
         #region Tag Management
+        [AdminRequired]
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<TagDTO>>> GetListTagWithFilter([FromQuery] TagFilterDTO filter)
+        {
+            var tags = await _tagService.GetAllTagsWithFilter(filter);
+            return Ok(tags);
+        }
+
         [AdminRequired]
         [HttpPost]
         public async Task<ActionResult> CreateTag(TagRequestDTO tagDTO)

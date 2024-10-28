@@ -2,9 +2,9 @@
 
 namespace Repositories
 {
-    public class PaymentBookingRepository : IPaymentBookingRepository
+    public class PaymentRepository : IPaymentRepository
     {
-        public async Task Create(PaymentBooking paymentBooking)
+        public async Task CreatePaymentBooking(PaymentBooking paymentBooking)
         {
             using (var context = new PostgresContext())
             {

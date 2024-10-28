@@ -25,7 +25,7 @@ namespace Service
         {
             var adminActions = await _adminActionRepository.GetAdminActions();
             var data = CreateExcel(adminActions);
-            return (data, $"AdminAction_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.csv");
+            return (data, $"AdminActionData_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.csv");
         }
 
         public static byte[] CreateExcel(IEnumerable<AdminAction> adminActions)
@@ -49,7 +49,7 @@ namespace Service
                 foreach (var action in adminActions)
                 {
                     worksheet.Cells[row, 1].Value = action.Id;
-                    worksheet.Cells[row, 2].Value = action.ActionType;
+                    worksheet.Cells[row, 2].Value = ((EAdminActionType)action.ActionType).GetEnumDescription();
                     worksheet.Cells[row, 3].Value = action.ActionDate.ToString("yyyy-MM-dd HH:mm:ss");
                     worksheet.Cells[row, 4].Value = action.ObjectType;
                     worksheet.Cells[row, 5].Value = action.User?.DisplayName;

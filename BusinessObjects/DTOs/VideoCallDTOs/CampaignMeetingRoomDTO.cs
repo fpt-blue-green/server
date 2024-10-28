@@ -12,8 +12,6 @@
 
         public DateTime? EndAt { get; set; }
 
-        public string RoomLink { get; set; } = null!;
-
         public string Participants { get; set; } = null!;
 
         public string Description { get; set; } = null!;

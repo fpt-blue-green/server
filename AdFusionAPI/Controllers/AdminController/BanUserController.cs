@@ -34,10 +34,19 @@ namespace AdFusionAPI.Controllers.AdminController
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BannedUserDTO>>> GetAdminAction()
+        public async Task<ActionResult<IEnumerable<BannedUserDTO>>> GetBannedUserData()
         {
             var result = await _banService.GetBannedUsers();
             return Ok(result);
+        }
+
+        [HttpGet("export")]
+        [AdminRequired]
+        public async Task<IActionResult> DownloadDataFile()
+        {
+            var fileContent = await _banService.GetDataFile();
+
+            return File(fileContent.fileContent, "application/octet-stream", fileContent.fileName);
         }
     }
 }
