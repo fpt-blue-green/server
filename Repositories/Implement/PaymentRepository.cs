@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Repositories
@@ -38,7 +39,21 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                return await context.PaymentHistories.FirstOrDefaultAsync(p => p.Id == id);
+                var result =  await context.PaymentHistories
+                                           .Include(p => p.User)
+                                           .FirstOrDefaultAsync(p => p.Id == id);
+                return result!;
+            }
+        }
+
+        public async Task<PaymentHistory> GetPaymentHistoryPedingById(Guid id)
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.PaymentHistories
+                                           .Include(p => p.User)
+                                           .FirstOrDefaultAsync(p => p.Id == id && p.Status == (int)EPaymentStatus.Pending);
+                return result!;
             }
         }
 
