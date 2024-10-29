@@ -60,10 +60,10 @@ namespace AdFusionAPI.Controllers
 
         [HttpGet("campaigns")]
         [AuthRequired]
-        public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns()
+        public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns([FromQuery] BrandCampaignFilterDTO filter)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _campaignService.GetBrandCampaignsByUserId(user.Id);
+            var result = await _campaignService.GetBrandCampaignsByUserId(user.Id, filter);
             return Ok(result);
         }
 

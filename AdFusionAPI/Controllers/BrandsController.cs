@@ -28,7 +28,7 @@ namespace AdFusionAPI.Controllers
         [HttpGet("{id}/campaigns")]
         public async Task<ActionResult<List<CampaignDTO>>> GetBrandCampaigns(Guid id)
         {
-            var result = await _campaignService.GetavailableBrandCampaigns(id);
+            var result = await _campaignService.GetAvailableBrandCampaigns(id);
             return Ok(result);
         }
 

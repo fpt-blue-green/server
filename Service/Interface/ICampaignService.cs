@@ -6,10 +6,10 @@ namespace Service
 {
     public interface ICampaignService
     {
-        Task<FilterListResponse<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDTO filter);
+        Task<FilterListResponse<CampaignDTO>> GetCampaignsInProgress(CampaignFilterDTO filter);
         Task<Guid> CreateCampaign(Guid userId, CampaignResDto campaign);
         Task<Guid> UpdateCampaign(Guid userId, Guid CampaignId, CampaignResDto campaign);
-        Task<List<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId);
+        Task<FilterListResponse<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId, BrandCampaignFilterDTO filter);
         Task<CampaignDTO> GetCampaign(Guid campaignId);
         //Task<List<TagDTO>> GetTagsOfCampaign(Guid campaignId);
         Task UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds);
@@ -17,7 +17,7 @@ namespace Service
         Task DeleteCampaign(Guid campaignId);
         Task PublishCampaign(Guid campaignId);
         Task StartCampaign(Guid campaignId);
-        Task<List<CampaignDTO>> GetavailableBrandCampaigns(Guid brandId);
+        Task<List<CampaignDTO>> GetAvailableBrandCampaigns(Guid brandId);
 
     }
 }
