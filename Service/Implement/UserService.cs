@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Repositories;
@@ -19,6 +20,12 @@ namespace Service
         public UserService(IMapper mapper)
         {
             _mapper = mapper;
+        }
+
+        public async Task<User> GetUserById(Guid userId)
+        {
+            var user = await _userRepository.GetUserById(userId);
+            return user;
         }
 
         public async Task<string> UploadAvatarAsync(IFormFile file, string folder, UserDTO user)

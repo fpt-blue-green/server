@@ -6,7 +6,7 @@ namespace Repositorie
 {
     public class JobDetailRepository : IJobDetailRepository
     {
-        public async Task Create(JobDetail detail)
+        public async Task Create(JobDetails detail)
         {
             using (var context = new PostgresContext())
             {
@@ -15,7 +15,7 @@ namespace Repositorie
             }
         }
 
-        public async Task<JobDetail> GetByDate(DateTime dateTime, Guid jobId)
+        public async Task<JobDetails> GetByDate(DateTime dateTime, Guid jobId)
         {
             using (var context = new PostgresContext())
             {
