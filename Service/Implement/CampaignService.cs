@@ -7,6 +7,7 @@ using Repositories;
 using Serilog;
 using Service.Helper;
 using Supabase.Gotrue;
+using System.Linq;
 using System.Reflection;
 using System.Transactions;
 using static BusinessObjects.JobEnumContainer;
@@ -94,24 +95,39 @@ namespace Service
             return result;
         }
 
-        public async Task<List<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId)
+        public async Task<List<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId, BrandCampaignFilterDTO filter)
         {
             var result = new List<CampaignDTO>();
             var brand = await _brandRepository.GetByUserId(userId);
             if (brand != null)
             {
-                var campaign = await _campaignRepository.GetByBrandId(brand.Id);
-                if (campaign == null)
+                var campaigns = await _campaignRepository.GetByBrandId(brand.Id);
+                if (campaigns == null)
                 {
                     throw new KeyNotFoundException("Campaign không tồn tại.");
                 }
 
-                result = _mapper.Map<List<CampaignDTO>>(campaign);
+                #region filter
+                if (filter.CampaignStatus != null && filter.CampaignStatus.Any())
+                {
+                    campaigns = campaigns.Where(i => filter.CampaignStatus.Contains((ECampaignStatus)i.Status!)).ToList();
+                }
+                #endregion
+
+                #region Paging
+                int pageSize = filter.PageSize;
+                campaigns = campaigns
+                    .Skip((filter.PageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+                #endregion
+
+                result = _mapper.Map<List<CampaignDTO>>(campaigns);
             }
             return result;
         }
 
-        public async Task<List<CampaignDTO>> GetavailableBrandCampaigns(Guid brandId)
+        public async Task<List<CampaignDTO>> GetAvailableBrandCampaigns(Guid brandId)
         {
             var result = new List<CampaignDTO>();
             var campaign = await _campaignRepository.GetByBrandId(brandId);
@@ -161,7 +177,7 @@ namespace Service
             }
         }
 
-        public async Task<FilterListResponse<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDTO filter)
+        public async Task<FilterListResponse<CampaignDTO>> GetCampaignsInProgress(CampaignFilterDTO filter)
         {
             var result = new List<CampaignDTO>();
             var campaigns = await _campaignRepository.GetAlls();
