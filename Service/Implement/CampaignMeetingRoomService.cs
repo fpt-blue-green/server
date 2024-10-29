@@ -3,6 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Service.Helper;
+using Supabase.Gotrue;
 using System.Text.RegularExpressions;
 
 namespace Service
@@ -14,6 +15,7 @@ namespace Service
         private static readonly IEmailService _emailService = new EmailService();
         private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
         private static ICampaignMeetingRoomRepository _campaignMeetingRoomRepository = new CampaignMeetingRoomRepository();
+        private static IBrandRepository _brandRepository = new BrandRepository();
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<AutoMapperProfile>();
@@ -27,7 +29,7 @@ namespace Service
 
         public async Task CreateRoom(RoomDataRequest dataRequest, UserDTO user)
         {
-            ValidateCreateRoom(dataRequest);
+            await ValidateCreateRoom(dataRequest.StartAt, dataRequest.EndAt, dataRequest.RoomName, dataRequest.Participators, user.Id);
 
             var apiKey = await _systemSettingRepository.GetSystemSetting(_configManager.DailyVideoCallKey) ?? throw new Exception("Has error when get API VIDEO CALL Key");
             DailyVideoCallHelper dailyVideoCall = new DailyVideoCallHelper(apiKey.KeyValue!);
@@ -78,9 +80,8 @@ namespace Service
                     Nbf = ConvertToUnixTimestamp(DateTime.Now),
                     Exp = null,
                     EjectAtRoomExp = true,
-                    EnableKnocking = true,
                 },
-                Privacy = "private"
+                Privacy = "public"
             };
 
             var link = await dailyVideoCall.CreateRoomAsync(roomData);
@@ -97,8 +98,10 @@ namespace Service
             await _campaignMeetingRoomRepository.CreateMeetingRoom(meetingRoom);
         }
 
-        public async Task UpdateRoom(RoomDataUpdateRequest updateRequest)
+        public async Task UpdateRoom(RoomDataUpdateRequest updateRequest, UserDTO user)
         {
+            await ValidateCreateRoom(updateRequest.StartAt, updateRequest.EndAt, updateRequest.RoomName, updateRequest.Participators, user.Id);
+
             var curRoom = await _campaignMeetingRoomRepository.GetMeetingRoomByName(updateRequest.RoomName) ?? throw new KeyNotFoundException();
 
             if (curRoom.IsFirstTime)
@@ -159,7 +162,7 @@ namespace Service
 
             var result = await _campaignMeetingRoomRepository.GetMeetingRoomByName(roomName) ?? throw new Exception();
 
-            if (userDTO.Role == AuthEnumContainer.ERole.Influencer)
+            if (userDTO.Role == AuthEnumContainer.ERole.Influencer || result.IsFirstTime)
             {
                 return result.RoomLink;
             }
@@ -193,27 +196,35 @@ namespace Service
             return ((DateTimeOffset)dateTime).ToUnixTimeSeconds();
         }
 
-        protected static void ValidateCreateRoom(RoomDataRequest dataRequest)
+        protected static async Task ValidateCreateRoom(DateTime startAt, DateTime endAt, string roomName, List<string> participators, Guid id)
         {
-            if(dataRequest.StartAt < DateTime.Now.AddMinutes(5))
+            if(startAt < DateTime.Now.AddMinutes(5))
             {
                 throw new InvalidOperationException("Thời gian bắt đầu phải lớn hơn thời gian hiện tại.");
             }
 
-            if (dataRequest.StartAt.AddHours(2) >= dataRequest.EndAt)
+            if (startAt.AddHours(2) >= endAt)
             {
                 throw new InvalidOperationException("Thời gian của cuộc gọi tối thiểu là 2 tiếng.");
             }
 
-            if (Regex.IsMatch(dataRequest.RoomName, _configManager.DailyVideoNameRegex))
+            if (Regex.IsMatch(roomName, _configManager.DailyVideoNameRegex))
             {
                 throw new InvalidOperationException("Tên phòng không hợp lệ! Chỉ cho phép chữ cái, số, dấu gạch dưới _ và dấu gạch nối - .");
             }
 
-            if (!dataRequest.Participators.Any())
+            if (participators.Any())
             {
                 throw new InvalidOperationException("Để tạo cuộc họp, ít nhất cần phải có một người tham gia (ngoại trừ chủ phòng).");
             }
+
+            var user = await _brandRepository.GetByUserId(id) ?? throw new Exception();
+
+            if(user.IsPremium == false)
+            {
+                throw new AccessViolationException();
+            }
+
         }
 
         protected static string GenerateUniqueJobName(string name)
