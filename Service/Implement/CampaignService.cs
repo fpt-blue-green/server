@@ -10,6 +10,7 @@ using Supabase.Gotrue;
 using System.Reflection;
 using System.Transactions;
 using static BusinessObjects.JobEnumContainer;
+using static Quartz.Logging.OperationName;
 
 namespace Service
 {
@@ -160,11 +161,12 @@ namespace Service
             }
         }
 
-        public async Task<List<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDTO filter)
+        public async Task<FilterListResponse<CampaignDTO>> GetCampaignsInprogres(CampaignFilterDTO filter)
         {
             var result = new List<CampaignDTO>();
             var campaigns = await _campaignRepository.GetAlls();
             var campaignInprogres = campaigns.Where(s => /*(s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now) &&*/ (s.Status == (int)ECampaignStatus.Active || s.Status == (int)ECampaignStatus.Published));
+            var totalCount = 0;
             if (campaignInprogres.Any())
             {
                 if (filter.TagIds != null && filter.TagIds.Any())
@@ -201,14 +203,20 @@ namespace Service
                             : (List<Campaign>)campaignInprogres.OrderByDescending(i => propertyInfo.GetValue(i, null));
                     }
                 }
+                totalCount = campaignInprogres.Count();
+                #region paging
                 int pageSize = filter.PageSize;
-                var pagedInfluencers = campaignInprogres
+                campaignInprogres = campaignInprogres
                     .Skip((filter.PageIndex - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
+                    .Take(pageSize);
+                #endregion
                 result = _mapper.Map<List<CampaignDTO>>(campaignInprogres);
             }
-            return result;
+            return new FilterListResponse<CampaignDTO>
+            {
+                TotalCount = totalCount,
+                Items = result
+            };
         }
 
         /*public async Task<List<TagDTO>> GetTagsOfCampaign(Guid campaignId)

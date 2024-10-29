@@ -18,7 +18,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpGet]
         [AdminRequired]
-        public async Task<ActionResult<ReportResponseDTO>> GetAll([FromQuery] ReportFilterDTO filter)
+        public async Task<ActionResult<FilterListResponse<ReportDTO>>> GetAll([FromQuery] ReportFilterDTO filter)
         {
             var report = await _reportService.GetReports(filter);
             return Ok(report);

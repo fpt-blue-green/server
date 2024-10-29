@@ -7,6 +7,14 @@ namespace Repositories.Implement
 {
     public class UserDeviceRepository : IUserDeviceRepository
     {
+        public async Task<IEnumerable<UserDevice>> GetAll()
+        {
+            using (var context = new PostgresContext())
+            {
+                var userDevices = await context.UserDevices.ToListAsync();
+                return userDevices!;
+            }
+        }
 
         public async Task<IEnumerable<UserDevice>> GetByUserId(Guid userId)
         {
@@ -16,6 +24,7 @@ namespace Repositories.Implement
                 return userDevices!;
             }
         }
+
         public async Task<UserDevice> GetUserDeviceByAgentAndToken(BrowserInfo userAgentConverted, string refreshToken)
         {
             using (var context = new PostgresContext())

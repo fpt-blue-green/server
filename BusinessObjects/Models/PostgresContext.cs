@@ -531,6 +531,7 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.Wallet).HasDefaultValueSql("'0'::numeric");
             entity.Property(e => e.Email).HasMaxLength(100);
         });
 

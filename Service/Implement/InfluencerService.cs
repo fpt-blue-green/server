@@ -58,7 +58,7 @@ namespace Service
             }
             return result;
         }
-        public async Task<InfluencersResponseDTO> GetAllInfluencers(InfluencerFilterDTO filter)
+        public async Task<FilterListResponse<InfluencerDTO>> GetAllInfluencers(InfluencerFilterDTO filter)
         {
             try
             {
@@ -128,10 +128,10 @@ namespace Service
                     .ToList();
                 #endregion
 
-                return new InfluencersResponseDTO
+                return new FilterListResponse<InfluencerDTO>
                 {
                     TotalCount = allInfluencers.Count(),
-                    Influencers = _mapper.Map<List<InfluencerDTO>>(pagedInfluencers)
+                    Items = _mapper.Map<List<InfluencerDTO>>(pagedInfluencers)
                 };
             }
             catch (Exception ex)

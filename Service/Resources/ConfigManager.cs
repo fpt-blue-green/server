@@ -17,6 +17,11 @@
         public readonly string WebApiBaseUrl = "https://localhost:7073/api";
 
         public readonly List<string> AdminEmails = new List<string> { "nguyenhoang062017@gmail.com", "nguyendactamminh@gmail.com" };
+        public readonly List<string> AdminReportHandler = new List<string> { "nguyenhoang062017@gmail.com", "nguyendactamminh@gmail.com" };
+        public readonly List<string> AdminPaymentHandler = new List<string> { "nguyenhoang062017@gmail.com" };
+
+
+
         public readonly string LogLink = "https://supabase.com/dashboard/project/uucyeumznprpthpykxwv/editor";
 
         public readonly string TikTokUrl = "https://www.tiktok.com/@";
@@ -24,11 +29,13 @@
         public readonly string YoutubeUrl = "https://www.youtube.com/@";
 
         public readonly string SlugRegex = @"^[a-z0-9]+(?:-[a-z0-9]+)*$";
-        public readonly List<string> AdminReportHandler = new List<string> { "nguyenhoang062017@gmail.com", "nguyendactamminh@gmail.com" };
 
         public readonly string DailyVideoCallEnpoint = @"https://api.daily.co/v1/rooms";
         public readonly string DailyVideoCallTokenEnpoint = @"https://api.daily.co/v1/meeting-tokens";
         public readonly string DailyVideoCallKey = "VideoCallAPIKey";
         public readonly string DailyVideoNameRegex= @"[^A-Za-z0-9_-]";
+
+        public readonly string WithDrawFeeKey= @"WithDrawPee";
+
     }
 }

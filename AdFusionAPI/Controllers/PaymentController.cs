@@ -25,19 +25,21 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("responseWithdraw")]
-        [AuthRequired]
+        [HttpPost("responseWithdraw/{id}")]
+        [AdminRequired]
         public async Task<ActionResult> ResponseWithDraw(AdminPaymentResponse adminPaymentResponse, Guid id)
         {
-            await _paymentService.ResponseWithDraw(adminPaymentResponse, id);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _paymentService.ProcessWithdrawalApproval(adminPaymentResponse, id, user);
             return Ok();
         }
 
         [HttpGet]
-        //[AdminRequired]
-        public async Task<ActionResult<PaymentResponseDTO>> GetExplorePaymentHistory([FromQuery] PaymentWithDrawFilterDTO filter)
+        [AdminRequired]
+        public async Task<ActionResult<FilterListResponse<PaymentHistoryDTO>>> GetExplorePaymentHistory([FromQuery] PaymentWithDrawFilterDTO filter)
         {
-            var result = await _paymentService.GeAllPayment(filter);
+
+            var result = await _paymentService.GetAllPayment(filter);
             return Ok(result);
         }
     }

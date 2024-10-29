@@ -7,9 +7,11 @@ public partial class PaymentHistory
 {
     public Guid Id { get; set; }
 
-    public Guid? UserId { get; set; }
+    public Guid UserId { get; set; }
 
-    public decimal? Amount { get; set; }
+    public decimal Amount { get; set; }
+
+    public decimal? NetAmount { get; set; }
 
     public string BankInformation { get; set; }
 

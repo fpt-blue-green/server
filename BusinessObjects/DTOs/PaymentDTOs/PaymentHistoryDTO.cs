@@ -6,7 +6,9 @@
 
         public Guid? UserId { get; set; }
 
-        public decimal? Amount { get; set; }
+        public decimal Amount { get; set; }
+
+        public decimal? NetAmount { get; set; }
 
         public string BankInformation { get; set; }
 

@@ -1,17 +1,30 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using Microsoft.IdentityModel.Tokens;
 using Repositories;
+using Service.Helper;
 using System.Transactions;
-using static Quartz.Logging.OperationName;
+using Serilog;
 
 namespace Service
 {
     public class PaymentService : IPaymentService
     {
+        #region Config
+        private static readonly AdminActionNotificationHelper _adminActionNotificationHelper = new AdminActionNotificationHelper();
+        private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
         private static readonly IPaymentRepository _paymentRepository = new PaymentRepository();
         private static readonly IUserRepository _userRepository = new UserRepository();
-        private readonly IMapper _mapper;
+        private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
+        private static readonly IEmailService _emailService = new EmailService();
+        private static readonly ConfigManager _configManager = new ConfigManager();
+        private static ILogger _loggerService = new LoggerService().GetDbLogger();
+        private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<AutoMapperProfile>();
+        }).CreateMapper();
+        #endregion
 
         public async Task CreatePaymentWithDraw(UserDTO userDto, WithdrawRequestDTO withdrawRequestDTO)
         {
@@ -25,9 +38,9 @@ namespace Service
                         throw new InvalidOperationException("Số tiền vượt mức cho phép!");
                     }
 
-                    if (withdrawRequestDTO.Amount <= 10000 || withdrawRequestDTO.Amount <= 900000000)
+                    if (withdrawRequestDTO.Amount < 100000 || withdrawRequestDTO.Amount > 50000000)
                     {
-                        throw new InvalidOperationException("Số tiền phải lớn hơn 10000 và nhỏ hơn 900 triệu!");
+                        throw new InvalidOperationException("Số tiền phải từ 100 nghìn đến dưới 50 triệu!");
                     }
 
                     var paymentHistory = new PaymentHistory()
@@ -35,11 +48,11 @@ namespace Service
                         UserId = userDto.Id,
                         Amount = withdrawRequestDTO.Amount,
                         BankInformation = withdrawRequestDTO.BankNumber + " " + withdrawRequestDTO.BankName.ToString(),
-                        AdminMessage = null,
                         Type = (int)EPaymentType.WithDraw,
                     };
 
                     await _paymentRepository.CreatePaymentHistory(paymentHistory);
+                    await SendMailRequestWithDraw(user, withdrawRequestDTO);
                     scope.Complete();
                 }
                 catch
@@ -50,15 +63,15 @@ namespace Service
 
         }
 
-        public async Task<PaymentResponseDTO> GeAllPayment(PaymentWithDrawFilterDTO filter)
+        public async Task<FilterListResponse<PaymentHistoryDTO>> GetAllPayment(PaymentWithDrawFilterDTO filter)
         {
             IEnumerable<PaymentHistory> allPaymentHistories = Enumerable.Empty<PaymentHistory>();
             allPaymentHistories = await _paymentRepository.GetAll();
 
             #region Filter
-            if (filter.PaymentType != null && filter.PaymentType.Contains(EPaymentType.WithDraw))
+            if (filter.PaymentType != null && filter.PaymentType.Any())
             {
-                allPaymentHistories = allPaymentHistories.Where(i => i.Type == (int)EPaymentType.WithDraw);
+                allPaymentHistories = allPaymentHistories.Where(i => filter.PaymentType.Contains((EPaymentType)i.Status!)).ToList();
             }
 
             if (filter.PaymentStatus != null && filter.PaymentStatus.Any())
@@ -67,63 +80,63 @@ namespace Service
             }
 
             #endregion
-            int totalCount = allPaymentHistories.Count();
 
+            int totalCount = allPaymentHistories.Count();
             #region Paging
             int pageSize = filter.PageSize;
-            var pagePaymentHistories = allPaymentHistories
+            allPaymentHistories = allPaymentHistories
                 .Skip((filter.PageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
             #endregion
-            
-            return new PaymentResponseDTO
+
+            return new FilterListResponse<PaymentHistoryDTO>
             {
                 TotalCount = totalCount,
-                PaymentHistories = _mapper.Map<IEnumerable<PaymentHistoryDTO>>(pagePaymentHistories)
+                Items = _mapper.Map<IEnumerable<PaymentHistoryDTO>>(allPaymentHistories)
             };
         }
 
-        public async Task ResponseWithDraw(AdminPaymentResponse adminPaymentResponse, Guid id)
+        public async Task ProcessWithdrawalApproval(AdminPaymentResponse adminPaymentResponse, Guid id, UserDTO userDto)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var paymentHistory = await _paymentRepository.GetPaymentHistoryById(id);
-                    if (paymentHistory == null)
-                    {
-                        throw new InvalidOperationException("Không tìm thấy lịch sử giao dịch.!");
-                    }
+                    var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(id) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
+                    paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
+                    var user = paymentHistory.User ?? throw new Exception("Không tìm thấy người dùng.!");
 
                     if (adminPaymentResponse.IsApprove)
                     {
                         paymentHistory.Status = (int)EPaymentStatus.Done;
-
+                        var fee = await GetWithDrawFee();
+                        paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee}% trên tổng số tiền rút." +
+                            $" Điều này nhằm đảm bảo cho các hoạt động vận hành và duy trì dịch vụ chất lượng." +
+                            $" Vì vậy, với yêu cầu rút {paymentHistory.Amount!.ToString("N2")} VND của bạn. " +
+                            $" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - (paymentHistory.Amount * fee / 100)).ToString("N2")} VND";
+                        paymentHistory.NetAmount = (paymentHistory.Amount * fee / 100);
+                        user.Wallet = user.Wallet - (paymentHistory.Amount);
+                        await _userRepository.UpdateUser(user);
                     }
                     else
                     {
                         paymentHistory.Status = (int)EPaymentStatus.Rejected;
+                        if(adminPaymentResponse.AdminMessage.IsNullOrEmpty())
+                        {
+                            throw new InvalidOperationException("Lý do từ chối không được để trống.");
+                        }
                     }
 
-                    paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
                     paymentHistory.ResponseAt = DateTime.Now;
                     await _paymentRepository.UpdatePaymentHistory(paymentHistory);
 
-                    if (paymentHistory.UserId.HasValue)
-                    {
-                        var user = await _userRepository.GetUserById(paymentHistory.UserId.Value);
-                        if (user != null)
-                        {
-                            user.Wallet = user.Wallet - (int)paymentHistory.Amount;
-                            await _userRepository.UpdateUser(user);
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException("Không tìm thấy người dùng.!");
-                        }
-                    }
+                    paymentHistory.User = null;
+                    await _adminActionNotificationHelper.CreateNotification<PaymentHistory>(userDto,
+                        (adminPaymentResponse.IsApprove ? EAdminActionType.ApproveWithDraw : EAdminActionType.RejectWithDraw)
+                        ,paymentHistory, null) ;
 
+                    await SendMailResponseWithDraw(user, paymentHistory);
                     scope.Complete();
                 }
                 catch
@@ -132,5 +145,60 @@ namespace Service
                 }
             }
         }
+
+        protected async Task<decimal> GetWithDrawFee()
+        {
+            var fee = await _systemSettingRepository.GetSystemSetting(_configManager.WithDrawFeeKey) ?? throw new Exception("Has error when get WithDraw Fee");
+            return decimal.Parse(fee.KeyValue!.ToString()!);
+        }
+
+        #region SendMail
+        public async Task SendMailRequestWithDraw(User user, WithdrawRequestDTO withdrawRequestDTO)
+        {
+            try
+            {
+                string subject = "Thông Báo Yêu Cầu Rút Tiền";
+                var body = _emailTemplate.requestWithDrawTemplate
+                    .Replace("{DisplayName}", user.DisplayName)
+                    .Replace("{Amount}", withdrawRequestDTO.Amount.ToString("N2"))
+                    .Replace("{Money}", user.Wallet.ToString("N2"))
+                    .Replace("{BankAccount}", withdrawRequestDTO.BankNumber + " " + withdrawRequestDTO.BankName.ToString())
+                    .Replace("{CreatedAt}", DateTime.Now.ToString())
+                    .Replace("{Link}",  "")
+                    .Replace("{projectName}", _configManager.ProjectName);
+
+                _ = Task.Run(async () => await _emailService.SendEmail(_configManager.AdminPaymentHandler, subject, body));
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
+            }
+        }
+
+        public async Task SendMailResponseWithDraw(User user, PaymentHistory payment)
+        {
+            try
+            {
+                string subject = "Thông Báo Phản Hồi về yêu cầu rút tiền";
+                var body = _emailTemplate.responseWithDrawTemplate
+                    .Replace("{DisplayName}", user.DisplayName)
+                    .Replace("{Status}", payment.Status == (int)EPaymentStatus.Rejected ? "bị từ chối" : "được chấp thuận")
+                    .Replace("{Withdraw}", payment.Amount.ToString("N2"))
+                    .Replace("{Money}", user.Wallet.ToString("N2"))
+                    .Replace("{BankAccount}",payment.BankInformation)
+                    .Replace("{CreatedAt}", payment.CreatedAt.ToString())
+                    .Replace("{ResponseAt}", DateTime.Now.ToString())
+                    .Replace("{Description}", payment.AdminMessage)
+                    .Replace("{Link}", "")
+                    .Replace("{projectName}", _configManager.ProjectName);
+
+                _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { user.Email }, subject, body));
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
+            }
+        }
+        #endregion
     }
 }

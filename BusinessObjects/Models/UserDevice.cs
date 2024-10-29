@@ -13,9 +13,9 @@ public partial class UserDevice
 
     public string? BrowserName { get; set; }
 
-    public DateTime? LastLoginTime { get; set; }
+    public DateTime LastLoginTime { get; set; }
 
-    public DateTime? RefreshTokenTime { get; set; }
+    public DateTime RefreshTokenTime { get; set; }
 
     public string? DeviceOperatingSystem { get; set; }
 

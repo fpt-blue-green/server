@@ -39,6 +39,15 @@ namespace Repositories
             }
         }
 
+        public async Task<IEnumerable<Brand>> GetAllExpiredPremiumBrands()
+        {
+            using (var context = new PostgresContext())
+            {
+                var brands = await context.Brands.Where(b => b.PremiumValidTo!.Value.AddHours(-2).ToUniversalTime() < DateTime.Now.ToUniversalTime()).ToListAsync();
+                return brands;
+            }
+        }
+
         public async Task<Brand> GetByUserId(Guid id)
         {
             using (var context = new PostgresContext())

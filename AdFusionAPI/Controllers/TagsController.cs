@@ -38,7 +38,7 @@ namespace AdFusionAPI.Controllers
         #region Tag Management
         [AdminRequired]
         [HttpGet("filter")]
-        public async Task<ActionResult<IEnumerable<TagDTO>>> GetListTagWithFilter([FromQuery] TagFilterDTO filter)
+        public async Task<ActionResult<FilterListResponse<TagDTO>>> GetListTagWithFilter([FromQuery] TagFilterDTO filter)
         {
             var tags = await _tagService.GetAllTagsWithFilter(filter);
             return Ok(tags);

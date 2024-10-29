@@ -58,7 +58,8 @@ namespace AdFusionAPI.Controllers
         [BrandRequired]
         public async Task<ActionResult<string>> UpdateVideoCallRoom(RoomDataUpdateRequest dataRequest)
         {
-            await _videoCallService.UpdateRoom(dataRequest);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _videoCallService.UpdateRoom(dataRequest, user);
             return Ok();
         }
 

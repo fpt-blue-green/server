@@ -9,6 +9,7 @@ namespace AdFusionAPI
             services.AddScoped<CampaignMeetingRoomService, CampaignMeetingRoomService>();
             services.AddScoped<ICloudinaryStorageService, CloudinaryStorageService>();
             services.AddScoped<ICampaignContentService, CampaignContentService>();
+            services.AddScoped<IAdminStatisticService, AdminStatisticService>();
             services.AddScoped<ISystemSettingService, SystemSettingService>();
             services.AddScoped<IAdminActionService, AdminActionService>();
             services.AddScoped<IBannedUserService, BannedUserService>();

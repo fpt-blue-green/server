@@ -114,7 +114,7 @@ namespace Service
                 result = banUser;
             }
 
-            await adminActionNotificationHelper.CreateNotification<BannedUser>(userDTO, null, result, null, null, true);
+            await adminActionNotificationHelper.CreateNotification<BannedUser>(userDTO, EAdminActionType.BanUser, result, null, null, true);
 
             await SendBannedMailToUser(user.Email, result.Reason, false);
         }
@@ -131,7 +131,7 @@ namespace Service
             await _bannedUserRepository.UpdateBannedUserData(banUserData);
 
             banUserData.Reason = userRequestDTO.Reason;
-            await adminActionNotificationHelper.CreateNotification<BannedUser>(userDTO, null, banUserData, null, null, true);
+            await adminActionNotificationHelper.CreateNotification<BannedUser>(userDTO, EAdminActionType.BanUser, banUserData, null, null, true);
 
             await SendBannedMailToUser(user.Email, banUserData.Reason, true);
         }
