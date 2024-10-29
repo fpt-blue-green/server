@@ -7,7 +7,7 @@ public partial class PaymentBooking
 {
     public Guid Id { get; set; }
 
-    public Guid? JobId { get; set; }
+    public Guid JobId { get; set; }
 
     public decimal? Amount { get; set; }
 

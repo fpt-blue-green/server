@@ -24,7 +24,7 @@ namespace Service
             return _mapper.Map<IEnumerable<TagDTO>>(tags);
         }
 
-        public async Task<TagResponseDTO> GetAllTagsWithFilter(TagFilterDTO tagFilter)
+        public async Task<FilterListResponse<TagDTO>> GetAllTagsWithFilter(TagFilterDTO tagFilter)
         {
             var tags = await _tagRepository.GetAlls();
 
@@ -44,9 +44,9 @@ namespace Service
                 .Take(pageSize);
             #endregion
 
-            return new TagResponseDTO
+            return new FilterListResponse<TagDTO>
             {
-                Tags = _mapper.Map<IEnumerable<TagDTO>>(tags),
+                Items = _mapper.Map<IEnumerable<TagDTO>>(tags),
                 TotalCount = totalCount,
             };
         }

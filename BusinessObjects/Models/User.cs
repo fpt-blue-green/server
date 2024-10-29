@@ -17,7 +17,7 @@ public partial class User
 
     public int Role { get; set; }
 
-    public int Wallet { get; set; }
+    public decimal Wallet { get; set; }
 
     public int Provider { get; set; }
 

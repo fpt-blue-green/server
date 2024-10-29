@@ -16,9 +16,9 @@ namespace Service
         private static IJobDetailService _jobDetailService = new JobDetailService();
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
+        private static readonly ConfigManager _configManager = new ConfigManager();
         private static IUserRepository _userRepository = new UserRepository();
         private static IPaymentRepository _paymentBookingRepository = new PaymentRepository();
-        private static readonly ConfigManager _configManager = new ConfigManager();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
 
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
@@ -32,7 +32,7 @@ namespace Service
             await _jobRepository.Create(jobnew);
         }
 
-        public async Task<JobResponseDTO> GetAllJobByCurrentAccount(UserDTO user, JobFilterDTO filter)
+        public async Task<FilterListResponse<JobDTO>> GetAllJobByCurrentAccount(UserDTO user, JobFilterDTO filter)
         {
             IEnumerable<Job> jobs = Enumerable.Empty<Job>();
 
@@ -95,10 +95,10 @@ namespace Service
                 return jobDTO;
             });
 
-            return new JobResponseDTO
+            return new FilterListResponse<JobDTO>
             {
                 TotalCount = totalCount,
-                Jobs = jobDTOs
+                Items = jobDTOs
             };
         }
 

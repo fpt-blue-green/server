@@ -34,11 +34,11 @@ namespace AdFusionAPI.APIConfig
 
             // Ghi log ra console
             _loggerService.Information("HTTP {Method} {Path} {QueryString} responded {StatusCode} in {Duration} ms",
-                context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode, duration);
+                context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode, duration.ToString("F4"));
 
             // Ghi log ra database
             _dbLoggerService.Information("HTTP {Method} {Path} {QueryString} responded {StatusCode} in {Duration} ms. Request Body: {Body}",
-                context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode, duration, requestBody);
+                context.Request.Method, context.Request.Path, context.Request.QueryString, statusCode, duration.ToString("F4"), requestBody);
         }
 
         private async Task<string> ReadRequestBodyAsync(HttpRequest request)

@@ -165,7 +165,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpGet("jobs")]
         [InfluencerRequired]
-        public async Task<ActionResult<List<JobDTO>>> GetJobs([FromQuery] JobFilterDTO filter)
+        public async Task<ActionResult<FilterListResponse<JobDTO>>> GetJobs([FromQuery] JobFilterDTO filter)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _jobService.GetAllJobByCurrentAccount(user, filter);

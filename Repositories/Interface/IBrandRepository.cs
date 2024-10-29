@@ -12,5 +12,6 @@ namespace Repositories
         Task CreateBrand(Brand brand);
         Task GetUserById(Guid id);
         Task<Brand> GetBrandWithFavoriteByUserId(Guid userId);
+        Task<IEnumerable<Brand>> GetAllExpiredPremiumBrands();
     }
 }

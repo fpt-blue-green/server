@@ -10,6 +10,7 @@ namespace BusinessObjects
         public string Avatar { get; set; } = null!;
         public string CoverImg { get; set; } = null!;
         public bool IsPremium { get; set; }
+        public DateTime? PremiumValidTo { get; set; }
         public string? Description { get; set; }
         public string Address { get; set; } = null!;
         public string WebsiteUrl { get; set; }

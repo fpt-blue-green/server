@@ -202,7 +202,7 @@ namespace Service
                 throw new KeyNotFoundException();
             }
 
-            if (userDevice.RefreshTokenTime != null && userDevice.RefreshTokenTime!.Value.AddDays(30) < DateTime.Now)
+            if (userDevice.RefreshTokenTime!.AddDays(30) < DateTime.Now)
             {
                 throw new UnauthorizedAccessException();
             }

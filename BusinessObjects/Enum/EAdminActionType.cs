@@ -16,5 +16,12 @@ namespace BusinessObjects
 
         [Description("Cập nhập thời gian cấm của 1 người dùng")]
         BanUser = 4,
+
+        [Description("Từ chối yêu cầu rút tiền")]
+        RejectWithDraw = 5,
+
+        [Description("Phê duyệt yêu cầu rút tiền")]
+        ApproveWithDraw = 6
     }
+
 }

@@ -24,11 +24,15 @@ public static class QuartzConfiguration
             );
 
             // Định nghĩa job thứ hai
-            var jobKey2 = new JobKey("UploadJobDetailDataJobService");
-            q.AddJob<UploadJobDetailDataJobService>(opts => opts.WithIdentity(jobKey2).StoreDurably()); // Đánh dấu là durable
+            var jobKey2 = new JobKey("UploadPremiumBrandJobService");
+            q.AddJob<UploadPremiumBrandJobService>(opts => opts.WithIdentity(jobKey2).StoreDurably()); // Đánh dấu là durable
 
             // Định nghĩa job thứ ba
-            var jobKey3 = new JobKey("UploadOfferDataJobService");
+            var jobKey3 = new JobKey("UploadJobDetailDataJobService");
+            q.AddJob<UploadJobDetailDataJobService>(opts => opts.WithIdentity(jobKey2).StoreDurably()); // Đánh dấu là durable
+
+            // Định nghĩa job thứ tu
+            var jobKey4 = new JobKey("UploadOfferDataJobService");
             q.AddJob<UploadOfferDataJobService>(opts => opts.WithIdentity(jobKey3).StoreDurably()); // Đánh dấu là durable
 
             // Đăng ký JobListener

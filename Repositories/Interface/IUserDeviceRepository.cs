@@ -10,5 +10,6 @@ namespace Repositories.Interface
         Task<IEnumerable<UserDevice>> GetByUserId(Guid userId);
         Task Update(UserDevice userDevice);
         Task Create(UserDevice userDevice);
+        Task<IEnumerable<UserDevice>> GetAll();
     }
 }

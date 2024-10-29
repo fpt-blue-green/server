@@ -74,7 +74,7 @@ namespace Service
             return await _reportRepository.GetById(id);
         }
 
-        public async Task<ReportResponseDTO> GetReports(ReportFilterDTO reportFilter)
+        public async Task<FilterListResponse<ReportDTO>> GetReports(ReportFilterDTO reportFilter)
         {
             var reports = await _reportRepository.GetAll();
 
@@ -103,9 +103,9 @@ namespace Service
                          .OrderBy(r => r.InfluencerId)
                          .ThenByDescending(r => r.CreatedAt)
                          .ToList();
-            return new ReportResponseDTO
+            return new FilterListResponse<ReportDTO>
             {
-                Reports = _mapper.Map<IEnumerable<ReportDTO>>(reports),
+                Items = _mapper.Map<IEnumerable<ReportDTO>>(reports),
                 TotalCount = totalCount,
             };
         }
@@ -145,7 +145,7 @@ namespace Service
                         await _reportRepository.UpdateReports(sameTypeReports);
                     }
                     var result = await _bannedUserService.BanUserBaseOnReport(sameTypeReports!.FirstOrDefault()?.Influencer?.User!, userRequestDTO, user);
-                    await adminActionNotificationHelper.CreateNotification<BannedUser>(user, null, result, null, null, true);
+                    await adminActionNotificationHelper.CreateNotification<BannedUser>(user, EAdminActionType.BanUser, result, null, null, true);
 
                     scope.Complete();
 

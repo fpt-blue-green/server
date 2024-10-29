@@ -17,9 +17,11 @@ public partial class Brand
 
     public bool IsPremium { get; set; }
 
+    public DateTime? ModifiedAt { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
-    public DateTime? ModifiedAt { get; set; }
+    public DateTime? PremiumValidTo { get; set; }
 
     public string? CoverImg { get; set; }
 
