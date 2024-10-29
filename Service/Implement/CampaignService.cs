@@ -95,9 +95,10 @@ namespace Service
             return result;
         }
 
-        public async Task<List<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId, BrandCampaignFilterDTO filter)
+        public async Task<FilterListResponse<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId, BrandCampaignFilterDTO filter)
         {
             var result = new List<CampaignDTO>();
+            var totalCount = 0;
             var brand = await _brandRepository.GetByUserId(userId);
             if (brand != null)
             {
@@ -114,6 +115,7 @@ namespace Service
                 }
                 #endregion
 
+                totalCount = campaigns.Count();
                 #region Paging
                 int pageSize = filter.PageSize;
                 campaigns = campaigns
@@ -124,7 +126,12 @@ namespace Service
 
                 result = _mapper.Map<List<CampaignDTO>>(campaigns);
             }
-            return result;
+
+            return new FilterListResponse<CampaignDTO>
+            {
+                TotalCount = totalCount,
+                Items = result
+            };
         }
 
         public async Task<List<CampaignDTO>> GetAvailableBrandCampaigns(Guid brandId)
