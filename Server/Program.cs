@@ -21,6 +21,7 @@ builder.Services.AddSingleton<IDictionary<string, GroupUserConnection>>(opt =>
 	new Dictionary<string, GroupUserConnection>());
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IGroupChatService, GroupChatService>();
+builder.Services.AddScoped<ICampaignService, CampaignService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddAutoMapper(typeof(Program));
 var app = builder.Build();
@@ -29,5 +30,8 @@ app.UseCors();
 
 app.MapGet("/", () => "Hello World!");
 app.MapHub<ChatHub>("/chat");
+app.MapHub<GroupChatHub>("/groupchat");
+
+
 
 app.Run();

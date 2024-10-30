@@ -13,9 +13,9 @@ namespace Service
 			await _groupChatRepository.CreateOrSaveMessageAsync(roomChat);
 		}
 
-		public async Task<List<CampaignChat>> GetGroupMessageAsync( Guid roomId)
+		public async Task<List<CampaignChat>> GetGroupMessageAsync(string roomName)
 		{
-			return await _groupChatRepository.GetGroupMessageAsync( roomId);
+			return await _groupChatRepository.GetGroupMessageAsync(roomName);
 		}
 	}
 }
