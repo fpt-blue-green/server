@@ -20,7 +20,24 @@ namespace Repositories
 				return influencers;
 			}
 		}
-		public async Task<Influencer> GetById(Guid id)
+
+        public async Task<IEnumerable<Influencer>> GetInfluencerJobByCampaignId(Guid campaignId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var influencers = await context.Influencers
+												.Include(i => i.Jobs
+													.Where(j => j.Campaign.Id == campaignId))
+													.ThenInclude(j => j.Offers) // Bao gồm Offers cho mỗi Job
+												.Where(i => i.Jobs.Any(j => j.Campaign.Id == campaignId)) // Chỉ lấy Influencers có Jobs thuộc CampaignId
+												.ToListAsync();
+
+
+                return influencers;
+            }
+        }
+
+        public async Task<Influencer> GetById(Guid id)
 		{
 			using (var context = new PostgresContext())
 			{

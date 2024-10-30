@@ -15,6 +15,7 @@ namespace Service
             CreateMap<InfluencerRequestDTO, InfluencerDTO>().ReverseMap();
             CreateMap<InfluencerRequestDTO, Influencer>().ReverseMap();
             CreateMap<Channel, ChannelDTO>().ReverseMap();
+            CreateMap<InfluencerJobDTO, Influencer>().ReverseMap();
             CreateMap<InfluencerImage, ImageDTO>().ReverseMap();
             #endregion
             #region Tag
@@ -79,6 +80,7 @@ namespace Service
             #region Job
             CreateMap<Job, JobRequestDTO>().ReverseMap();
             CreateMap<Job, JobDTO>().ReverseMap();
+            CreateMap<Job, JobInfluencerDTO>().ReverseMap();
             #endregion
             #region JobDetails
             CreateMap<JobDetails, ChannelVideoStatDTO>().ReverseMap();

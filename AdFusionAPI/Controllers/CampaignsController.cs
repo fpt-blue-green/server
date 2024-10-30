@@ -11,10 +11,12 @@ namespace AdFusionAPI.Controllers
     {
         private readonly ICampaignService _campaignService;
         private readonly ICampaignContentService _campaignContentService;
-        public CampaignsController(ICampaignService campaignService, ICampaignContentService campaignContentService)
+        private readonly IInfluencerService _influencerService;
+        public CampaignsController(ICampaignService campaignService, ICampaignContentService campaignContentService, IInfluencerService influencerService)
         {
             _campaignService = campaignService;
             _campaignContentService = campaignContentService;
+            _influencerService = influencerService;
         }
         [HttpGet()]
         public async Task<ActionResult<FilterListResponse<CampaignDTO>>> GetCampaignsInProgress([FromQuery] CampaignFilterDTO filter)
@@ -22,6 +24,15 @@ namespace AdFusionAPI.Controllers
             var result = await _campaignService.GetCampaignsInProgress(filter);
             return Ok(result);
         }
+
+        [HttpGet("{id}/Influencers")]
+        [BrandRequired]
+        public async Task<ActionResult<FilterListResponse<InfluencerJobDTO>>> GetCampaignsJobInfluencer( Guid id ,[FromQuery] InfluencerJobFilterDTO filter)
+        {
+            var result = await _influencerService.GetInfluencerWithJobByCampaginId(id, filter);
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<CampaignDTO>> GetCampaign(Guid id)
         {

@@ -40,4 +40,17 @@ namespace BusinessObjects
         public int Count { get; set; }
     }
 
+    public class JobInfluencerDTO
+    {
+        public Guid Id { get; set; }
+
+        public Guid? InfluencerId { get; set; }
+
+        public Guid CampaignId { get; set; }
+
+        public EJobStatus Status { get; set; }
+        public virtual OfferDTO Offer { get; set; } = null!;
+
+    }
+
 }
