@@ -13,7 +13,7 @@ namespace BusinessObjects
     #region Filter
     public class FilterDTO
     {
-        public int PageIndex { get; set; } = 0;
+        public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 25;
         public string? Search { get; set; }
         public string? SortBy { get; set; } // Which field wanna sort
@@ -38,7 +38,7 @@ namespace BusinessObjects
 
     public class JobFilterDTO
     {
-        public int PageIndex { get; set; } = 0;
+        public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 25;
         public ERole? From { get; set; }
         public ECampaignStatus[]? CampaignStatuses { get; set; }
@@ -47,7 +47,7 @@ namespace BusinessObjects
 
     public class ReportFilterDTO
     {
-        public int PageIndex { get; set; } = 0;
+        public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 25;
         public EReportStatus[]? ReportStatus { get; set; }
         public EReportReason[]? ReportReasons { get; set; }
@@ -55,14 +55,14 @@ namespace BusinessObjects
 
     public class TagFilterDTO
     {
-        public int PageIndex { get; set; } = 0;
+        public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 15;
         public bool? IsPremium { get; set; }
     }
 
     public class PaymentWithDrawFilterDTO
     {
-        public int PageIndex { get; set; } = 0;
+        public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 15;
         public EPaymentStatus[]? PaymentStatus { get; set; }
         public EPaymentType[]? PaymentType { get; set; }
@@ -70,14 +70,14 @@ namespace BusinessObjects
 
     public class BrandCampaignFilterDTO
     {
-        public int PageIndex { get; set; } = 0;
+        public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 25;
         public ECampaignStatus[]? CampaignStatus { get; set; }
     }
 
     public class InfluencerJobFilterDTO
     {
-        public int PageIndex { get; set; } = 0;
+        public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 25;
         public EJobStatus[]? JobStatuses { get; set; }
         public EOfferStatus[]? OfferStatuses { get; set; }
