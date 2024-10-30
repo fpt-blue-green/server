@@ -9,5 +9,7 @@ namespace Service
     {
         Task<string> UploadAvatarAsync(IFormFile file, string folder, UserDTO user);
         Task<User> GetUserById(Guid userId);
+        Task<FilterListResponse<UserDetailDTO>> GetAllUsers(UserFilterDTO filter);
+
     }
 }

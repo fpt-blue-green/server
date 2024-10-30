@@ -3,9 +3,13 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Repositories;
 using Serilog;
 using Service.Helper;
+using System.Linq;
+using System.Reflection;
+using static BusinessObjects.AuthEnumContainer;
 
 namespace Service
 {
@@ -20,6 +24,67 @@ namespace Service
         public UserService(IMapper mapper)
         {
             _mapper = mapper;
+        }
+
+        public async Task<FilterListResponse<UserDetailDTO>> GetAllUsers(UserFilterDTO filter)
+        {
+            try
+            {
+                var allUsers = (await _userRepository.GetUsers()); ;
+
+                #region Filter
+
+                if (filter.Roles != null && filter.Roles.Any())
+                {
+                    allUsers = allUsers.Where(i => filter.Roles.Contains((ERole)i.Role)).ToList();
+                }
+                if (filter.Providers != null && filter.Providers.Any())
+                {
+                    allUsers = allUsers.Where(i => filter.Providers.Contains((EAccountProvider)i.Provider)).ToList();
+                }
+               
+                #endregion
+
+                #region Search
+                if (!string.IsNullOrEmpty(filter.Search))
+                {
+                    allUsers = allUsers.Where(i => i.DisplayName != null &&
+                        i.DisplayName.Contains(filter.Search, StringComparison.OrdinalIgnoreCase)
+                    );
+                }
+                #endregion
+
+                #region Sort
+                if (!string.IsNullOrEmpty(filter.SortBy))
+                {
+                    var propertyInfo = typeof(User).GetProperty(filter.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (propertyInfo != null)
+                    {
+                        allUsers = filter.IsAscending.HasValue && filter.IsAscending.Value
+                            ? allUsers.OrderBy(i => propertyInfo.GetValue(i, null))
+                            : allUsers.OrderByDescending(i => propertyInfo.GetValue(i, null));
+                    }
+                }
+                #endregion
+
+                #region Paging
+                int pageSize = filter.PageSize;
+                var pagedUsers = allUsers
+                    .Skip((filter.PageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+                #endregion
+
+                return new FilterListResponse<UserDetailDTO>
+                {
+                    TotalCount = allUsers.Count(),
+                    Items = _mapper.Map<List<UserDetailDTO>>(pagedUsers)
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Có lỗi xảy ra!", ex);
+            }
         }
 
         public async Task<User> GetUserById(Guid userId)

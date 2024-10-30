@@ -18,8 +18,6 @@ namespace BusinessObjects
         public string? Search { get; set; }
         public string? SortBy { get; set; } // Which field wanna sort
         public bool? IsAscending { get; set; } = true;
-        public decimal? PriceFrom { get; set; } = 0;
-        public decimal? PriceTo { get; set; } = 10000000;
     }
 
     public class InfluencerFilterDTO : FilterDTO
@@ -28,57 +26,53 @@ namespace BusinessObjects
         public List<Guid>? TagIds { get; set; }
         public List<EPlatform>? Platforms { get; set; }
         public int? RateStart { get; set; }
+        public decimal? PriceFrom { get; set; } = 0;
+        public decimal? PriceTo { get; set; } = 10000000;
 
     }
 
     public class CampaignFilterDTO : FilterDTO
     {
         public List<Guid>? TagIds { get; set; }
+        public decimal? PriceFrom { get; set; } = 0;
+        public decimal? PriceTo { get; set; } = 10000000;
     }
 
-    public class JobFilterDTO
+    public class JobFilterDTO : FilterDTO
     {
-        public int PageIndex { get; set; } = 1;
-        public int PageSize { get; set; } = 25;
         public ERole? From { get; set; }
         public ECampaignStatus[]? CampaignStatuses { get; set; }
         public EJobStatus[]? JobStatuses { get; set; }
     }
 
-    public class ReportFilterDTO
+    public class ReportFilterDTO : FilterDTO
     {
-        public int PageIndex { get; set; } = 1;
-        public int PageSize { get; set; } = 25;
         public EReportStatus[]? ReportStatus { get; set; }
         public EReportReason[]? ReportReasons { get; set; }
     }
 
-    public class TagFilterDTO
+    public class TagFilterDTO : FilterDTO
     {
-        public int PageIndex { get; set; } = 1;
-        public int PageSize { get; set; } = 15;
         public bool? IsPremium { get; set; }
     }
 
-    public class PaymentWithDrawFilterDTO
+    public class PaymentWithDrawFilterDTO : FilterDTO
     {
-        public int PageIndex { get; set; } = 1;
-        public int PageSize { get; set; } = 15;
         public EPaymentStatus[]? PaymentStatus { get; set; }
         public EPaymentType[]? PaymentType { get; set; }
     }
 
-    public class BrandCampaignFilterDTO
+    public class BrandCampaignFilterDTO : FilterDTO
     {
-        public int PageIndex { get; set; } = 1;
-        public int PageSize { get; set; } = 25;
         public ECampaignStatus[]? CampaignStatus { get; set; }
     }
-
-    public class InfluencerJobFilterDTO
+    public class UserFilterDTO : FilterDTO
     {
-        public int PageIndex { get; set; } = 1;
-        public int PageSize { get; set; } = 25;
+        public ERole[]? Roles { get; set; }
+        public EAccountProvider[]? Providers { get; set; }
+    }
+    public class InfluencerJobFilterDTO : FilterDTO
+    {
         public EJobStatus[]? JobStatuses { get; set; }
         public EOfferStatus[]? OfferStatuses { get; set; }
     }
