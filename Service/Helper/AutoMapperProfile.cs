@@ -29,6 +29,8 @@ namespace Service
              .ReverseMap()
              .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Image));
+
+            CreateMap<User, UserDetailDTO>().ReverseMap();
             #endregion
             #region Channel
             CreateMap<ChannelStatDTO, Channel>().ReverseMap();

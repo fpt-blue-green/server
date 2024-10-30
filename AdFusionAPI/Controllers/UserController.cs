@@ -23,5 +23,12 @@ namespace AdFusionAPI.Controllers
             var avatar = await _userService.UploadAvatarAsync(file, "Avatar", user);
             return Ok(avatar);
         }
+        [HttpGet]
+        [AuthRequired]
+        public async Task<ActionResult<FilterListResponse<UserDetailDTO>>> GetExploreInfluencer([FromQuery] UserFilterDTO filterDTO)
+        {
+            var result = await _userService.GetAllUsers(filterDTO);
+            return Ok(result);
+        }
     }
 }
