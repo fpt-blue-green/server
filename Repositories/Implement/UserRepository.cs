@@ -10,7 +10,7 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                var users = await context.Users.ToListAsync();
+                var users = await context.Users.Include(b => b.Brand).ToListAsync();
                 return users;
             }
         }

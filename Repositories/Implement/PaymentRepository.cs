@@ -35,6 +35,17 @@ namespace Repositories
             }
         }
 
+        public async Task<IEnumerable<PaymentHistory>> GetAllProfitPayment()
+        {
+            using (var context = new PostgresContext())
+            {
+                var paymentHistories = await context.PaymentHistories
+                    .Where(i => i.Type == (int)EPaymentType.BuyPremium || i.Type == (int)EPaymentType.WithDraw)
+                    .ToListAsync();
+                return paymentHistories;
+            }
+        }
+
         public async Task<PaymentHistory> GetPaymentHistoryById(Guid id)
         {
             using (var context = new PostgresContext())
