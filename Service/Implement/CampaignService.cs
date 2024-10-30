@@ -38,6 +38,11 @@ namespace Service
             {
                 try
                 {
+                    if(campaignDto.StartDate == null || campaignDto.EndDate == null)
+                    {
+                        throw new InvalidOperationException("Chiến dịch phải có đủ ngày bắt đầu và kết thúc.");
+                    }
+
                     var brand = await _brandRepository.GetByUserId(userId);
                     var campaigns = (await _campaignRepository.GetByBrandId(brand.Id));
 

@@ -10,5 +10,6 @@ namespace Repositories
         Task UpdatePaymentHistory(PaymentHistory paymentHistory);
         Task<IEnumerable<PaymentHistory>> GetAll();
         Task<PaymentHistory> GetPaymentHistoryPedingById(Guid id);
+        Task<IEnumerable<PaymentHistory>> GetAllProfitPayment();
     }
 }

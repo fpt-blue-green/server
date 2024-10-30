@@ -16,11 +16,35 @@ namespace AdFusionAPI.Controllers.AdminController
             _adminStatistic = adminStatistic;
         }
 
-        [HttpGet("/userActive")]
+        [HttpGet("userActive")]
         [AdminRequired]
-        public async Task<ActionResult<Dictionary<string, int>>> GetUserActive(int year, ETimeFrame times)
+        public async Task<ActionResult<Dictionary<string, int>>> GetUserActive(int year = 2024, ETimeFrame times = ETimeFrame.FullYear)
         {
             var result = await _adminStatistic.GetLoginCountsByTimeFrame(year, times);
+            return Ok(result);
+        }
+
+        [HttpGet("userActive/availableYear")]
+        [AdminRequired]
+        public async Task<ActionResult<List<int>>> GetAvailableYear()
+        {
+            var result = await _adminStatistic.GetAvailableYearInActiveUser();
+            return Ok(result);
+        }
+
+        [HttpGet("roleCounts")]
+        [AdminRequired]
+        public async Task<ActionResult<Dictionary<string, int>>> GetRoleCounts()
+        {
+            var result = await _adminStatistic.GetRoleData();
+            return Ok(result);
+        }
+
+        [HttpGet("monthlyMetricsTrend")]
+        [AdminRequired]
+        public async Task<ActionResult<List<MonthlyMetricsTrendDTO>>> GetMonthlyMetricsTrend()
+        {
+            var result = await _adminStatistic.GetMonthlyMetricsTrend();
             return Ok(result);
         }
     }

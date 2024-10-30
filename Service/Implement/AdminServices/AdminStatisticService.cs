@@ -1,13 +1,19 @@
 ﻿using BusinessObjects;
+using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
-using System;
+using static BusinessObjects.AuthEnumContainer;
 
 namespace Service
 {
     public class AdminStatisticService : IAdminStatisticService
     {
         private readonly IUserDeviceRepository _userDeviceRepository = new UserDeviceRepository();
+        private readonly IUserRepository _userRepository = new UserRepository();
+        private readonly IPaymentRepository _paymentRepository = new PaymentRepository();
+        private readonly ICampaignRepository _campaignRepository = new CampaignRepository();
+
+        #region GetLoginCountsByTimeFrame
         public async Task<Dictionary<string, int>> GetLoginCountsByTimeFrame(int year, ETimeFrame timeFrame)
         {
             DateTime startDate;
@@ -86,6 +92,14 @@ namespace Service
             return finalCounts;
         }
 
+        public async Task<List<int>> GetAvailableYearInActiveUser()
+        {
+            var data = await _userDeviceRepository.GetAll();
+            var year = data.Select(u => u.RefreshTokenTime.Year).Distinct().ToList();
+            return year;
+        }
+        #endregion
+
         private static string GetVietnameseMonthName(int month)
         {
             var monthNames = new[]
@@ -95,5 +109,219 @@ namespace Service
             };
             return monthNames[month - 1]; // Trả về tên tháng dựa trên chỉ số
         }
+
+        #region GetMonthlyMetricsTrend
+        public async Task<List<MonthlyMetricsTrendDTO>> GetMonthlyMetricsTrend()
+        {
+            return new List<MonthlyMetricsTrendDTO>
+            {
+               await GetRevenuetMonthlyMetricsTrend(),
+               await GetNewUserMonthlyMetricsTrend(),
+               await GetActiveUserMonthlyMetricsTrend(),
+               await GetActiveCampaignMonthlyMetricsTrend()
+            };
+            
+        }
+        protected async Task<MonthlyMetricsTrendDTO> GetRevenuetMonthlyMetricsTrend()
+        {
+            var revenueData = await _paymentRepository.GetAllProfitPayment();
+
+            // Lấy dữ liệu cho tháng hiện tại
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
+
+            var currentRevenueData = revenueData.Where(r => r.CreatedAt.Month == currentMonth && r.CreatedAt.Year == currentYear);
+            var totalRevenueNow = currentRevenueData
+                .Where(r => r.NetAmount != null) // Kiểm tra xem NetAmount không null
+                .Sum(r => r.NetAmount!.Value); // Tính tổng giá trị NetAmount
+
+            // Lấy dữ liệu cho tháng trước
+            var previousMonth = currentMonth == 1 ? 12 : currentMonth - 1;
+            var previousYear = currentMonth == 1 ? currentYear - 1 : currentYear;
+
+            var previousRevenueData = revenueData.Where(r => r.CreatedAt.Month == previousMonth && r.CreatedAt.Year == previousYear);
+            var totalRevenueLastMonth = previousRevenueData
+                .Where(r => r.NetAmount != null) // Kiểm tra xem NetAmount không null
+                .Sum(r => r.NetAmount!.Value); // Tính tổng giá trị NetAmount
+
+            // Tính chênh lệch và phần trăm thay đổi
+            var revenueDifference = totalRevenueNow - totalRevenueLastMonth;
+            var percentageChange = totalRevenueLastMonth != 0 ? (revenueDifference / totalRevenueLastMonth) * 100 : 0;
+
+            string comment = string.Empty;
+            // Đưa ra nhận xét
+            if (revenueDifference > 0)
+            {
+                comment = $"+{(percentageChange == 0 ? "#" : Math.Abs(percentageChange).ToString("F2"))}% so với tháng trước";
+            }
+            else if (revenueDifference < 0)
+            {
+                comment = $"-{(percentageChange == 0 ? "#" : Math.Abs(percentageChange).ToString("F2"))}% so với tháng trước";
+            }
+            else
+            {
+                comment = $"= Không có sự thay đổi so với tháng trước";
+            }
+
+            return new MonthlyMetricsTrendDTO
+            {
+                Comment = comment,
+                Data = totalRevenueNow.ToString("N2"),
+                Type = "Revenue"
+            };
+        }
+        protected async Task<MonthlyMetricsTrendDTO> GetNewUserMonthlyMetricsTrend()
+        {
+            var userData = await _userRepository.GetUsers();
+
+            // Lấy dữ liệu cho tháng hiện tại
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
+
+            var currentMonthUserCount = userData.Count(u => u.CreatedAt.Month == currentMonth && u.CreatedAt.Year == currentYear);
+
+            // Lấy dữ liệu cho tháng trước
+            var previousMonth = currentMonth == 1 ? 12 : currentMonth - 1;
+            var previousYear = currentMonth == 1 ? currentYear - 1 : currentYear;
+
+            var previousMonthUserCount = userData.Count(u => u.CreatedAt.Month == previousMonth && u.CreatedAt.Year == previousYear);
+
+            // Tính chênh lệch và phần trăm thay đổi
+            var userDifference = currentMonthUserCount - previousMonthUserCount;
+            var percentageChange = previousMonthUserCount != 0 ? (userDifference / (double)previousMonthUserCount) * 100 : 0;
+
+            // Đưa ra nhận xét
+            string comment;
+            if (userDifference > 0)
+            {
+                comment = $"+{(percentageChange == 0 ? "#" : Math.Abs(percentageChange).ToString("F2"))}% so với tháng trước";
+            }
+            else if (userDifference < 0)
+            {
+                comment = $"-{(percentageChange == 0 ? "#" : Math.Abs(percentageChange).ToString("F2"))}% so với tháng trước";
+            }
+            else
+            {
+                comment = "= Không có sự thay đổi.";
+            }
+
+            return new MonthlyMetricsTrendDTO
+            {
+                Comment = comment,
+                Data = currentMonthUserCount.ToString("N0"),
+                Type = "NewUsers"
+            };
+        }
+        protected async Task<MonthlyMetricsTrendDTO> GetActiveUserMonthlyMetricsTrend()
+        {
+            var userData = await _userDeviceRepository.GetAll();
+
+            // Lấy dữ liệu cho tháng hiện tại
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
+
+            var currentMonthUserCount = userData.Count(u => u.RefreshTokenTime.Month == currentMonth &&
+                                                            u.RefreshTokenTime.Year == currentYear);
+
+            // Lấy dữ liệu cho tháng trước
+            var previousMonth = currentMonth == 1 ? 12 : currentMonth - 1;
+            var previousYear = currentMonth == 1 ? currentYear - 1 : currentYear;
+
+            var previousMonthUserCount = userData.Count(u => u.RefreshTokenTime.Month == previousMonth &&
+                                                             u.RefreshTokenTime.Year == previousYear);
+
+            // Tính chênh lệch và phần trăm thay đổi
+            var userDifference = currentMonthUserCount - previousMonthUserCount;
+            var percentageChange = previousMonthUserCount != 0 ? (userDifference / (double)previousMonthUserCount) * 100 : 0;
+
+            // Đưa ra nhận xét
+            string comment;
+            if (userDifference > 0)
+            {
+                comment = $"+{(percentageChange == 0 ? "#" : Math.Abs(percentageChange).ToString("F2"))}% so với tháng trước";
+            }
+            else if (userDifference < 0)
+            {
+                comment = $"-{(percentageChange == 0 ? "#" : Math.Abs(percentageChange).ToString("F2"))}% so với tháng trước";
+            }
+            else
+            {
+                comment = "= Không có sự thay đổi";
+            }
+
+            return new MonthlyMetricsTrendDTO
+            {
+                Comment = comment,
+                Data = currentMonthUserCount.ToString("N0"),
+                Type = "ActiveUsers"
+            };
+        }
+        protected async Task<MonthlyMetricsTrendDTO> GetActiveCampaignMonthlyMetricsTrend()
+        {
+            var campaignData = await _campaignRepository.GetAlls();
+
+            // Lấy dữ liệu cho tháng hiện tại
+            var currentDate = DateTime.Now;
+            var currentMonth = currentDate.Month;
+            var currentYear = currentDate.Year;
+
+            // Lọc các chiến dịch có EndDate trong tháng hiện tại
+            var currentMonthCampaignCount = campaignData.Count(c =>
+                c.EndDate.Month == currentMonth &&
+                c.EndDate.Year == currentYear &&
+                c.EndDate <= currentDate);
+
+            // Tính toán cho tháng trước
+            var previousMonth = currentMonth == 1 ? 12 : currentMonth - 1;
+            var previousYear = currentMonth == 1 ? currentYear - 1 : currentYear;
+
+            // Lọc các chiến dịch có EndDate trong tháng trước
+            var previousMonthCampaignCount = campaignData.Count(c =>
+                c.EndDate.Month == previousMonth &&
+                c.EndDate.Year == previousYear);
+
+            // Tính chênh lệch và phần trăm thay đổi
+            var campaignDifference = currentMonthCampaignCount - previousMonthCampaignCount;
+            var percentageChange = previousMonthCampaignCount != 0
+                ? (campaignDifference / (double)previousMonthCampaignCount) * 100
+                : 0;
+
+            // Đưa ra nhận xét
+            string comment;
+            if (campaignDifference > 0)
+            {
+                comment = $"+{(percentageChange == 0 ? "#" : Math.Abs(percentageChange).ToString("F2"))}% so với tháng trước";
+            }
+            else if (campaignDifference < 0)
+            {
+                comment = $"-{(percentageChange == 0 ? "#" : Math.Abs(percentageChange).ToString("F2"))}% so với tháng trước";
+            }
+            else
+            {
+                comment = "= Không có sự thay đổi";
+            }
+
+            return new MonthlyMetricsTrendDTO
+            {
+                Comment = comment,
+                Data = currentMonthCampaignCount.ToString("N0"),
+                Type = "ActiveCampaigns"
+            };
+        }
+        #endregion
+        
+        public async Task<Dictionary<string, int>> GetRoleData()
+        {
+            var data = await _userRepository.GetUsers();
+            return new Dictionary<string, int>
+            {
+                {"Nhà sáng tạo nội dung", data.Where(u => u.Role == (int)ERole.Influencer).Count() },
+                {"Nhãn hàng", data.Where( user => user.Role == (int)ERole.Brand && user.Brand != null && user.Brand.IsPremium == false).ToList().Count },
+                {"Nhãn hàng trả phí", data.Where(user => user.Role == (int)ERole.Brand && user.Brand != null && user.Brand.IsPremium == true).ToList().Count },
+                {"Quản trị viên", data.Where(u => u.Role == (int)ERole.Admin).Count() },
+            };
+        }
+
+
     }
 }

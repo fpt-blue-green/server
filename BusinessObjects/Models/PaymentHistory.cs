@@ -19,7 +19,7 @@ public partial class PaymentHistory
 
     public int Type { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public DateTime? ResponseAt { get; set; }
 
