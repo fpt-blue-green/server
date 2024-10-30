@@ -9,8 +9,11 @@ using Repositories.Interface;
 using Serilog;
 using Service.Helper;
 using Supabase;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using static BusinessObjects.JobEnumContainer;
+using static Quartz.Logging.OperationName;
 using static Supabase.Gotrue.Constants;
 
 namespace Service
@@ -429,5 +432,62 @@ namespace Service
             var result = _mapper.Map<IEnumerable<UserDeviceDTO>>(userDevices);
             return result;
         }
+
+        public async Task<FilterListResponse<InfluencerJobDTO>> GetInfluencerWithJobByCampaginId(Guid campaignId, InfluencerJobFilterDTO filter)
+        {
+            var influencers = await _influencerRepository.GetInfluencerJobByCampaignId(campaignId);
+
+            var influencerJobDTOs = influencers.Select(influencer =>
+            {
+                // Ánh xạ influencer sang InfluencerJobDTO
+                var influencerJobDTO = _mapper.Map<InfluencerJobDTO>(influencer);
+
+                // Lấy danh sách JobDTO cho từng influencer và áp dụng filter
+                influencerJobDTO.Jobs = influencer.Jobs
+                    .Where(job => (filter.JobStatuses == null || !filter.JobStatuses.Any() || filter.JobStatuses.Contains((EJobStatus)job.Status)) &&
+                                  (filter.OfferStatuses == null || !filter.OfferStatuses.Any() || job.Offers.Any(offer => filter.OfferStatuses.Contains((EOfferStatus)offer.Status))))
+                    .Select(job =>
+                    {
+                        // Lấy offer mới nhất cho từng job
+                        var latestOffer = job.Offers
+                            .OrderByDescending(offer => offer.CreatedAt)
+                            .FirstOrDefault();
+
+                        // Ánh xạ Job sang JobInfluencerDTO
+                        var jobDTO = _mapper.Map<JobInfluencerDTO>(job);
+
+                        // Chỉ ánh xạ offer mới nhất vào JobDTO
+                        if (jobDTO != null && latestOffer != null)
+                        {
+                            jobDTO.Offer = _mapper.Map<OfferDTO>(latestOffer);
+                        }
+
+                        return jobDTO;
+                    }).ToList()!;
+
+                return influencerJobDTO;
+            }).ToList();
+
+            // Lọc Influencer nếu không còn Jobs
+            influencerJobDTOs = influencerJobDTOs.Where(i => i.Jobs.Any()).ToList();
+
+            int totalCount = influencerJobDTOs.Count();
+
+            #region paging
+            int pageSize = filter.PageSize;
+            influencerJobDTOs = influencerJobDTOs
+                .Skip((filter.PageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            #endregion
+
+            return new FilterListResponse<InfluencerJobDTO>
+            {
+                TotalCount = totalCount,
+                Items = influencerJobDTOs
+            };
+        }
+
+
     }
 }

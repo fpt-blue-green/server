@@ -6,6 +6,7 @@ namespace Repositories
     public interface IInfluencerRepository
     {
         Task<IEnumerable<Influencer>> GetAlls();
+        Task<IEnumerable<Influencer>> GetInfluencerJobByCampaignId(Guid campaignId);
         Task<Influencer> GetById(Guid id);
         Task<Influencer> GetByUserId(Guid id);
         Task<Influencer> GetBySlug(string slug);

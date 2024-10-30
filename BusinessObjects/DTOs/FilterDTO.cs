@@ -75,5 +75,12 @@ namespace BusinessObjects
         public ECampaignStatus[]? CampaignStatus { get; set; }
     }
 
+    public class InfluencerJobFilterDTO
+    {
+        public int PageIndex { get; set; } = 0;
+        public int PageSize { get; set; } = 25;
+        public EJobStatus[]? JobStatuses { get; set; }
+        public EOfferStatus[]? OfferStatuses { get; set; }
+    }
     #endregion
 }
