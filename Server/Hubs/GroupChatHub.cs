@@ -63,21 +63,7 @@ namespace Server.Hubs
 				var sender = await _userService.GetUserById(senderId);
 				var roomMessage = await _groupChatService.GetGroupMessageAsync(roomId);
 				var roomName = roomMessage.Select(x => x.RoomName).FirstOrDefault();
-				var campaignId = roomMessage.Select(x => x.CampaignId).FirstOrDefault();
-				/*if (roomMessage.IsNullOrEmpty())
-				{
-					//create
-					var room = new CampaignChat
-					{
-						RoomName = $"{campaign.Name}_{Guid.NewGuid()}",
-						CampaignId = campaignId,
-						Message = campaign.Name
-					};
-					await _groupChatService.CreateOrSaveMessageAsync(room);
-
-				}
-				else
-				{*/
+				var campaignId = roomMessage.Select(x => x.CampaignId).FirstOrDefault();				
 				var sendMessage = new CampaignChat
 				{
 					Message = message,
@@ -90,15 +76,6 @@ namespace Server.Hubs
 				await _groupChatService.CreateOrSaveMessageAsync(sendMessage);
 				await Clients.Group(userConnection.RoomId)
 						.ReceiveMessage(userConnection.Username, message);
-
-
-				/*// Send message to the specific receiver if they're online
-				var receiverConnection = _connections.Values.FirstOrDefault(c => c.Username == userConnection.Username);
-				if (receiverConnection != null)
-				{
-					await Clients.Client(receiverConnection.Username)
-						.ReceiveMessage(sender.DisplayName, message);
-				}*/
 			}
 		}
 
