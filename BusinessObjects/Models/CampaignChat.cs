@@ -17,7 +17,7 @@ public partial class CampaignChat
 
     public string? SenderName { get; set; }
 
-    public Guid? CampaignId { get; set; }
+    public Guid CampaignId { get; set; }
 
     public virtual Campaign? Campaign { get; set; }
 
