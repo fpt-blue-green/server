@@ -23,14 +23,13 @@ namespace Server.Hubs
 			_campaignService = comapaignService;
 		}
 
-		private async Task LoadMessages(Guid userId, string roomId)
+		private async Task LoadMessages(Guid userId, string roomId,Guid campaignId)
 		{
 			
 			var receiver = await _userService.GetUserById(userId);
 			var messages = await _groupChatService.GetGroupMessageAsync(roomId);
 			if(messages.IsNullOrEmpty())
 			{
-				var campaignId = Guid.Parse("f9a81449-f6d7-4b39-91b4-59b1a20c87a3");
 				var room = new CampaignChat
 				{
 					RoomName = roomId,
@@ -41,7 +40,7 @@ namespace Server.Hubs
 			}
 			foreach (var message in messages)
 			{
-				await Clients.Caller.ReceiveMessage(message.SenderName, message.Message);
+				await Clients.Caller.ReceiveMessage(message.SenderId?.ToString()??"", message.Sender?.DisplayName ?? "", message?.Message??"");
 			}
 		}
 
@@ -49,7 +48,7 @@ namespace Server.Hubs
 		{
 			_connections[Context.ConnectionId] = userConnection;
 			await Groups.AddToGroupAsync(Context.ConnectionId, userConnection.RoomId);
-			await LoadMessages(Guid.Parse(userConnection.Username), userConnection.RoomId);
+			await LoadMessages(Guid.Parse(userConnection.Username), userConnection.RoomId,userConnection.campaignId);
 			await SendUsersConnected(userConnection.RoomId);
 		}
 
@@ -75,7 +74,7 @@ namespace Server.Hubs
 				};
 				await _groupChatService.CreateOrSaveMessageAsync(sendMessage);
 				await Clients.Group(userConnection.RoomId)
-						.ReceiveMessage(userConnection.Username, message);
+						.ReceiveMessage(userConnection.Username,sender.DisplayName, message);
 			}
 		}
 

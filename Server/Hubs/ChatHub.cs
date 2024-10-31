@@ -23,7 +23,7 @@ public class ChatHub : Hub<IChatClient>
 		var messages = await _chatService.GetMessagesAsync(userId, receiverId);
 		foreach (var message in messages)
 		{
-			await Clients.Caller.ReceiveMessage(message.SenderName, message.Message);
+			await Clients.Caller.ReceiveMessage(userId.ToString(), message.SenderName, message.Message);
 		}
 	}
 
@@ -58,14 +58,14 @@ public class ChatHub : Hub<IChatClient>
 			await _chatService.SaveMessageAsync(chatRoom);
 
 			// Gửi tin nhắn đến người gửi (hiển thị tin nhắn đã gửi)
-			await Clients.Caller.ReceiveMessage(sender.DisplayName, message);
+			await Clients.Caller.ReceiveMessage(userConnection.Username, sender.DisplayName, message);
 
 			// Gửi tin nhắn đến người nhận nếu họ đang trực tuyến
 			var receiverConnection = _connections.FirstOrDefault(c => c.Value.Username == userConnection.ReceiverId).Key;
 			if (receiverConnection != null)
 			{
 				await Clients.Client(receiverConnection)
-					.ReceiveMessage(sender.DisplayName, message);
+					.ReceiveMessage(userConnection.Username, sender.DisplayName, message);
 			}
 		}
 	}

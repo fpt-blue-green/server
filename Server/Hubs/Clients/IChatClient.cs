@@ -2,6 +2,6 @@
 
 public interface IChatClient
 {
-    Task ReceiveMessage(string username, string message);
+    Task ReceiveMessage(string userId,string name, string message);
     Task ReceiveUsersInRoom(string[] users);
 }

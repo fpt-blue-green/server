@@ -21,6 +21,7 @@ namespace Repositories
 			using (var _context = new PostgresContext())
 			{
 				return await _context.CampaignChats
+				.Include(s => s.Sender)
 				.Where(c =>c.RoomName!= null  && c.RoomName.ToLower() == roomName.ToLower())
 				.OrderBy(c => c.SendTime)
 				.ToListAsync();
