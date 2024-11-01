@@ -18,9 +18,9 @@ namespace AdFusionAPI.Controllers.AdminController
 
         [HttpGet]
         [AdminRequired]
-        public async Task<ActionResult<IEnumerable<AdminActionDTO>>> GetAdminAction()
+        public async Task<ActionResult<IEnumerable<AdminActionDTO>>> GetAdminAction([FromQuery] FilterDTO filter)
         {
-            var result = await _adminActionService.GetAdminAction();
+            var result = await _adminActionService.GetAdminAction(filter);
             return Ok(result);
         }
 
