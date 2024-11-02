@@ -3,7 +3,6 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Serilog;
-using Supabase.Gotrue;
 using System.Transactions;
 using static BusinessObjects.AuthEnumContainer;
 using static BusinessObjects.JobEnumContainer;
@@ -168,7 +167,7 @@ namespace Service
 
                     user.Wallet -= offer.Price;
                     await _userRepository.UpdateUser(user);
-                    if(job.Campaign.Status == (int)ECampaignStatus.Active)
+                    if (job.Campaign.Status == (int)ECampaignStatus.Active)
                     {
                         job.Status = (int)EJobStatus.InProgress;
                     }
@@ -214,7 +213,7 @@ namespace Service
             var user = job.Campaign.Brand.User;
             if (userDto.Id != user.Id)
             {
-                throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
+                throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang từ chối thanh toán có Id bị bất thường {userDto.Id}");
             }
 
             job.Status = (int)EJobStatus.NotCreated;
@@ -223,6 +222,42 @@ namespace Service
 
             //send mail
             await SendMail(job, offer, "bị từ chối thanh toán", "bị từ chối", "Rất tiếc, thanh toán cho chiến dịch đã bị hủy, do đó bạn không thể bắt đầu công việc.");
+        }
+
+        public async Task BrandCompleteJob(Guid jobId, UserDTO userDto)
+        {
+            var job = await _jobRepository.GetJobFullDetailById(jobId);
+
+            var user = job.Campaign.Brand.User;
+            if (userDto.Id != user.Id)
+            {
+                throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đánh giấu hoàn thành Công việc có Id bị bất thường {userDto.Id}");
+            }
+
+            job.Status = (int)EJobStatus.Completed;
+            await _jobRepository.UpdateJobAndOffer(job);
+
+            //send mail
+            var resultMessage = "Lưu ý: Khoản tiền công của bạn sẽ được chuyển khoản sau 3 ngày làm việc, trừ khi có phản hồi từ phía Nhãn hàng trong thời gian này. Điều này nhằm đảm bảo rằng mọi công việc và thanh toán đều được xử lý nhanh chóng và minh bạch. Chúng tôi rất mong nhận được sự hợp tác của bạn và luôn sẵn sàng hỗ trợ nếu bạn có bất kỳ thắc mắc nào liên quan đến quá trình thanh toán.";
+            await SendMailStatus(job, "Đã hoàn thành", resultMessage);
+        }
+
+        public async Task BrandFaliedJob(Guid jobId, UserDTO userDto)
+        {
+            var job = await _jobRepository.GetJobFullDetailById(jobId);
+
+            var user = job.Campaign.Brand.User;
+            if (userDto.Id != user.Id)
+            {
+                throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đang đánh giấu Công việc thất bại có Id bị bất thường {userDto.Id}");
+            }
+
+            job.Status = (int)EJobStatus.Failed;
+            await _jobRepository.UpdateJobAndOffer(job);
+
+            //send mail
+            var resultMessage = "Lưu ý: Công việc của bạn đã bị đánh dấu là thất bại. Tuy nhiên, bạn vẫn có 3 ngày để phản hồi với Nhãn hàng nếu có bất kỳ sai sót hoặc vấn đề nào cần được xem xét lại. Đây là cơ hội để đảm bảo rằng mọi thông tin đều chính xác và minh bạch. Nếu cần hỗ trợ thêm hoặc có câu hỏi nào, vui lòng liên hệ với chúng tôi.";
+            await SendMailStatus(job, "Đã thất bại", resultMessage);
         }
 
         public async Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO)
@@ -268,6 +303,36 @@ namespace Service
             catch (Exception ex)
             {
                 _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
+            }
+        }
+
+        public async Task SendMailStatus(Job job, string status, string resultMessage)
+        {
+            try
+            {
+                string subject = "Thông báo trạng thái Công Việc";
+                var influencerUser = job.Influencer.User;
+                var brandUser = job.Campaign.Brand.User;
+                var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.Done);
+
+                var body = _emailTemplate.brandPaymentOffer
+                    .Replace("{InfluencerName}", influencerUser.DisplayName)
+                    .Replace("{CampaignName}", job.Campaign.Name)
+                    .Replace("{JobStatus}", status)
+                    .Replace("{JobTitle}", ((EContentType)offer!.ContentType).GetEnumDescription())
+                    .Replace("{Description}", _configManager.ProjectName)
+                    .Replace("{Price}", offer.Price.ToString("N0"))
+                    .Replace("{StartDate}", job.Campaign.StartDate.ToString())
+                    .Replace("{EndDate}", job.Campaign.EndDate.ToString())
+                    .Replace("{JobDetailsLink}", "")
+                    .Replace("{ResultMessage}", resultMessage)
+                    .Replace("{projectName}", _configManager.ProjectName);
+
+                _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { influencerUser.Email }, subject, body));
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Lỗi khi gửi mail trạng thái Công Việc" + ex);
             }
         }
     }

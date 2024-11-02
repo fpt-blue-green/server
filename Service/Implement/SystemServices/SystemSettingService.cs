@@ -23,9 +23,10 @@ namespace Service
             return await _systemSettingRepository.GetSystemSetting(_configManager.JWTKey);
         }
 
-        public async Task<IEnumerable<SystemSetting>> GetSystemSettings()
+        public async Task<IEnumerable<SystemSettingDTO>> GetSystemSettings()
         {
-            return await _systemSettingRepository.GetAll();
+            var result = await _systemSettingRepository.GetAll();
+            return _mapper.Map<IEnumerable<SystemSettingDTO>>(result);
         }
 
         public async Task<SystemSettingDTO> GetSystemSetting(string keyName)

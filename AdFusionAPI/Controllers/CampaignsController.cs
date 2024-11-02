@@ -12,11 +12,13 @@ namespace AdFusionAPI.Controllers
         private readonly ICampaignService _campaignService;
         private readonly ICampaignContentService _campaignContentService;
         private readonly IInfluencerService _influencerService;
-        public CampaignsController(ICampaignService campaignService, ICampaignContentService campaignContentService, IInfluencerService influencerService)
+        private readonly IJobDetailService _jobDetailService;
+        public CampaignsController(ICampaignService campaignService, ICampaignContentService campaignContentService, IInfluencerService influencerService, IJobDetailService jobDetailService)
         {
             _campaignService = campaignService;
             _campaignContentService = campaignContentService;
             _influencerService = influencerService;
+            _jobDetailService = jobDetailService;
         }
         [HttpGet()]
         public async Task<ActionResult<FilterListResponse<CampaignDTO>>> GetCampaignsInProgress([FromQuery] CampaignFilterDTO filter)
@@ -40,6 +42,31 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
+
+        [HttpGet("{id}/jobDetails")]
+        [AuthRequired]
+        public async Task<ActionResult<CampaignJobDetailDTO>> GetCampaignJobDetails(Guid id, [FromQuery]FilterDTO filter)
+        {
+            var result = await _jobDetailService.GetCampaignJobDetail(id, filter);
+            return Ok(result);
+        }
+
+        [HttpGet("{id}/jobDetailBase")]
+        [AuthRequired]
+        public async Task<ActionResult<CampaignJobDetailBaseDTO>> GetCampaignJobDetailBase(Guid id)
+        {
+            var result = await _jobDetailService.GetCampaignJobDetailBaseData(id);
+            return Ok(result);
+        }
+
+        [HttpGet("{id}/jobDetailStatistic")]
+        [AuthRequired]
+        public async Task<ActionResult<List<CampaignDailyStatsDTO>>> GetCampaignJobDetailStatistic(Guid id)
+        {
+            var result = await _jobDetailService.GetCampaignDailyStats(id);
+            return Ok(result);
+        }
+
         [HttpPost("")]
         [BrandRequired]
         public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignResDto campaign)
@@ -59,14 +86,14 @@ namespace AdFusionAPI.Controllers
         }
         [HttpPut("{id}/start")]
         [BrandRequired]
-        public async Task<ActionResult<Guid>> StartCampaign(Guid id)
+        public async Task<ActionResult> StartCampaign(Guid id)
         {
             await _campaignService.StartCampaign(id);
             return Ok();
         }
         [HttpPut("{id}/publish")]
         [BrandRequired]
-        public async Task<ActionResult<Guid>> PublishCampaign(Guid id)
+        public async Task<ActionResult> PublishCampaign(Guid id)
         {
             await _campaignService.PublishCampaign(id);
             return Ok();

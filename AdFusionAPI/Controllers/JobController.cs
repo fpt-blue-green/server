@@ -36,6 +36,24 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
+        [BrandRequired]
+        [HttpPut("{id}/complete")]
+        public async Task<ActionResult> BrandComplete(Guid id)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _jobService.BrandCompleteJob(id, user);
+            return Ok();
+        }
+
+        [BrandRequired]
+        [HttpPut("{id}/fail")]
+        public async Task<ActionResult> BrandFail(Guid id)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _jobService.BrandFaliedJob(id, user);
+            return Ok();
+        }
+
         [InfluencerRequired]
         [HttpPut("{id}/link")]
         public async Task<ActionResult> AttachLink(Guid id, [FromBody] JobLinkDTO jobLinkDTO)
