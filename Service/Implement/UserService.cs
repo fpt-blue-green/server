@@ -97,9 +97,23 @@ namespace Service
             }
         }
 
-     
+		public async Task<UserDetailDTO> GetUserById(Guid userId)
+		{
+			var user = await _userRepository.GetUserById(userId);
+			return new UserDetailDTO
+			{
+				Id = user.Id,
+				Email = user.Email,
+				DisplayName = user?.DisplayName,
+				Avatar = user?.Avatar,
+				Role = user.Role,
+				Wallet = user.Wallet,
+				Provider = user.Provider,
+				CreatedAt = user.CreatedAt
+			};
+		}
 
-        public async Task<string> UploadAvatarAsync(IFormFile file, string folder, UserDTO user)
+		public async Task<string> UploadAvatarAsync(IFormFile file, string folder, UserDTO user)
         {
             _loggerService.Information("Start to upload image.");
 

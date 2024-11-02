@@ -110,8 +110,12 @@ namespace Service
             #region Payment
             CreateMap<PaymentHistory, PaymentHistoryDTO>().ReverseMap();
 
-            #endregion
+			#endregion
+			#region chat
+			CreateMap<CampaignChat, CampaignChatDTO>().ReverseMap();
 
-        }
-    }
+			CreateMap<User, UserMessage>().ReverseMap();
+			#endregion
+		}
+	}
 }

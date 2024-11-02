@@ -5,7 +5,7 @@ namespace Service
 {
     public interface IChatService
     {
-        Task SaveMessageAsync(ChatRoom roomChat);
-        Task<List<ChatRoom>> GetMessagesAsync(Guid sender, Guid receiver);
+        Task SaveMessageAsync(UserChat userChat);
+        Task<List<UserChat>> GetMessagesAsync(Guid sender, Guid receiver);
     }
 }

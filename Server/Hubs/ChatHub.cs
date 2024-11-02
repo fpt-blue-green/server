@@ -45,7 +45,7 @@ public class ChatHub : Hub<IChatClient>
 			var sender = await _userService.GetUserById(senderId);
 			var receiver = await _userService.GetUserById(receiverId);
 
-			var chatRoom = new ChatRoom
+			var chatRoom = new UserChat
 			{
 				Message = message,
 				ReceiverId = receiverId,

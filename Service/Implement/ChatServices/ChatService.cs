@@ -10,15 +10,15 @@ namespace Service
 {
     public class ChatService : IChatService
     {
-        private readonly IChatRepository _roomChatRepository = new ChatRepository();
+        private readonly IUserChatRepository _userUserChatRepository = new UserChatRepository();
 
-        public async Task<List<ChatRoom>> GetMessagesAsync(Guid sender, Guid receiver)
+        public async Task<List<UserChat>> GetMessagesAsync(Guid sender, Guid receiver)
         {
-            return await _roomChatRepository.GetMessagesAsync(sender, receiver);
+            return await _userUserChatRepository.GetMessagesAsync(sender, receiver);
         }
-        public async Task SaveMessageAsync(ChatRoom roomChat)
+        public async Task SaveMessageAsync(UserChat userChat)
         {
-            await _roomChatRepository.SaveMessageAsync(roomChat);
+            await _userUserChatRepository.SaveMessageAsync(userChat);
         }
     }
 }

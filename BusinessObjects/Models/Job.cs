@@ -13,6 +13,8 @@ public partial class Job
 
     public int Status { get; set; }
 
+    public DateTime? CompleteAt { get; set; }
+
     public virtual Campaign Campaign { get; set; } = null!;
 
     public virtual Influencer Influencer { get; set; } = null!;

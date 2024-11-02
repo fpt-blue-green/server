@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using Server.Hubs.Clients;
@@ -7,7 +8,7 @@ using Service;
 
 namespace Server.Hubs
 {
-	public class GroupChatHub : Hub<IChatClient>
+	public class GroupChatHub : Hub<IGroupChatClient>
 	{
 		private readonly IDictionary<string, GroupUserConnection> _connections;
 		private readonly IGroupChatService _groupChatService;
@@ -23,16 +24,16 @@ namespace Server.Hubs
 			_campaignService = comapaignService;
 		}
 
-		private async Task LoadMessages(Guid userId, string roomId,Guid campaignId)
+		private async Task LoadMessages(Guid userId, string roomId, Guid campaignId)
 		{
-			
-			var receiver = await _userService.GetUserById(userId);
+
 			var messages = await _groupChatService.GetGroupMessageAsync(roomId);
-			if(messages.IsNullOrEmpty())
+			if (messages.IsNullOrEmpty())
 			{
-				var room = new CampaignChat
+				var room = new CampaignChatDTO
 				{
 					RoomName = roomId,
+					SenderId = userId,
 					CampaignId = campaignId,
 					Message = "Ni hao"
 				};
@@ -40,7 +41,7 @@ namespace Server.Hubs
 			}
 			foreach (var message in messages)
 			{
-				await Clients.Caller.ReceiveMessage(message.SenderId?.ToString()??"", message.Sender?.DisplayName ?? "", message?.Message??"");
+				await Clients.Caller.ReceiveGroupMessage(message);
 			}
 		}
 
@@ -48,7 +49,7 @@ namespace Server.Hubs
 		{
 			_connections[Context.ConnectionId] = userConnection;
 			await Groups.AddToGroupAsync(Context.ConnectionId, userConnection.RoomId);
-			await LoadMessages(Guid.Parse(userConnection.Username), userConnection.RoomId,userConnection.campaignId);
+			await LoadMessages(Guid.Parse(userConnection.Username), userConnection.RoomId, userConnection.campaignId);
 			await SendUsersConnected(userConnection.RoomId);
 		}
 
@@ -62,19 +63,19 @@ namespace Server.Hubs
 				var sender = await _userService.GetUserById(senderId);
 				var roomMessage = await _groupChatService.GetGroupMessageAsync(roomId);
 				var roomName = roomMessage.Select(x => x.RoomName).FirstOrDefault();
-				var campaignId = roomMessage.Select(x => x.CampaignId).FirstOrDefault();				
-				var sendMessage = new CampaignChat
+				var campaignId = roomMessage.Select(x => x.CampaignId).FirstOrDefault();
+				var sendMessage = new CampaignChatDTO
 				{
 					Message = message,
 					CampaignId = campaignId,
 					RoomName = roomName,
 					SenderId = senderId,
-					SenderName = sender.DisplayName,
 					SendTime = DateTime.UtcNow,
 				};
 				await _groupChatService.CreateOrSaveMessageAsync(sendMessage);
-				await Clients.Group(userConnection.RoomId)
-						.ReceiveMessage(userConnection.Username,sender.DisplayName, message);
+				var campainChat = await _groupChatService.GetLastMessage(campaignId, senderId);
+				await Clients.Group(userConnection.RoomId).
+						ReceiveGroupMessage(campainChat);
 			}
 		}
 
