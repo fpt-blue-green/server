@@ -1,5 +1,4 @@
 ﻿using BusinessObjects;
-using BusinessObjects
 
 namespace Service
 {
