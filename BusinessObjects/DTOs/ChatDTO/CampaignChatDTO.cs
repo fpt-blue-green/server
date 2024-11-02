@@ -18,7 +18,7 @@ namespace BusinessObjects
 	{
 		public Guid Id { get; set; }
 		public string Email { get; set; } = null!;
-		public string? DisplayName { get; set; }
+		public string? Name { get; set; }
 		public string? Avatar { get; set; }
 	}
 }

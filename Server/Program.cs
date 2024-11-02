@@ -8,12 +8,12 @@ builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
-    {
-        builder.WithOrigins("http://localhost:3000")
-                .AllowAnyHeader()
+	{
+        builder.WithOrigins("http://localhost:3000","*")
+			  .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
-    });
+	});
 });
 builder.Services.AddSingleton<IDictionary<string, UserConnection>>(opt =>
     new Dictionary<string, UserConnection>());
