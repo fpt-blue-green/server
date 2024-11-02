@@ -15,10 +15,13 @@ namespace Service
             cfg.AddProfile<AutoMapperProfile>();
         }).CreateMapper();
 
-        public async Task<IEnumerable<AdminActionDTO>> GetAdminAction(FilterDTO filter)
+        public async Task<FilterListResponse<AdminActionDTO>> GetAdminAction(FilterDTO filter)
         {
+            var result = new List<AdminActionDTO>();
+            var totalCount = 0;
             var adminActions = (await _adminActionRepository.GetAdminActions()).Take(100).ToList();
 
+            totalCount = adminActions.Count();
             #region Paging
             int pageSize = filter.PageSize;
             adminActions = adminActions
@@ -27,7 +30,13 @@ namespace Service
                 .ToList();
             #endregion
 
-            return _mapper.Map<IEnumerable<AdminActionDTO>>(adminActions);
+            result = _mapper.Map<List<AdminActionDTO>>(adminActions);
+            
+            return new FilterListResponse<AdminActionDTO>
+            {
+                TotalCount = totalCount,
+                Items = result
+            };
         }
 
         public async Task<(byte[] fileContent, string fileName)> GetDataFile()

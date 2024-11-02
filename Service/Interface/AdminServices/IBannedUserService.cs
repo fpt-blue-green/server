@@ -8,7 +8,7 @@ namespace Service
         Task<BannedUser> BanUserBaseOnReport(User user, BannedUserRequestDTO userRequestDTO, UserDTO userDTO);
         Task BanUser(Guid userId, BannedUserRequestDTO userRequestDTO, UserDTO userDTO);
         Task UnBanUser(Guid userId, BannedUserRequestDTO userRequestDTO, UserDTO userDTO);
-        Task<IEnumerable<BannedUserDTO>> GetBannedUsers(FilterDTO filter);
+        Task<FilterListResponse<BannedUserDTO>> GetBannedUsers(FilterDTO filter);
         Task<(byte[] fileContent, string fileName)> GetDataFile();
         Task<BannedUserDTO> GetBannedUserById(Guid id);
     }

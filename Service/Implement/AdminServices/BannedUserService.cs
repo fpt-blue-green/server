@@ -22,9 +22,13 @@ namespace Service
             cfg.AddProfile<AutoMapperProfile>();
         }).CreateMapper();
 
-        public async Task<IEnumerable<BannedUserDTO>> GetBannedUsers(FilterDTO filter)
+        public async Task<FilterListResponse<BannedUserDTO>> GetBannedUsers(FilterDTO filter)
         {
+            var result = new List<BannedUserDTO>();
+            var totalCount = 0;
             var bannedUsers = (await _bannedUserRepository.GetBannedUsers()).Take(100).ToList();
+
+            totalCount = bannedUsers.Count();
 
             #region Paging
             int pageSize = filter.PageSize;
@@ -34,7 +38,13 @@ namespace Service
                 .ToList();
             #endregion
 
-            return _mapper.Map<IEnumerable<BannedUserDTO>>(bannedUsers);
+            result =  _mapper.Map<List<BannedUserDTO>>(bannedUsers);
+
+            return new FilterListResponse<BannedUserDTO>
+            {
+                TotalCount = totalCount,
+                Items = result
+            };
         }
 
         public async Task<BannedUserDTO> GetBannedUserById(Guid id)
