@@ -24,7 +24,7 @@ namespace AdFusionAPI.Controllers
             return Ok(avatar);
         }
         [HttpGet]
-        [AuthRequired]
+        [AdminRequired]
         public async Task<ActionResult<FilterListResponse<UserDetailDTO>>> GetExploreInfluencer([FromQuery] UserFilterDTO filterDTO)
         {
             var result = await _userService.GetAllUsers(filterDTO);
