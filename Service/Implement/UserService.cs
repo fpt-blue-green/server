@@ -26,6 +26,16 @@ namespace Service
             _mapper = mapper;
         }
 
+        public async Task DeleteUser(Guid userId)
+        {
+            var userGet = await _userRepository.GetUserById(userId);
+            if (userGet == null)
+            {
+                throw new InvalidOperationException("Người dùng không tồn tại");
+            }
+            await _userRepository.DeleteUser(userId);
+        }
+
         public async Task<FilterListResponse<UserDetailDTO>> GetAllUsers(UserFilterDTO filter)
         {
             try
@@ -87,11 +97,7 @@ namespace Service
             }
         }
 
-        public async Task<User> GetUserById(Guid userId)
-        {
-            var user = await _userRepository.GetUserById(userId);
-            return user;
-        }
+     
 
         public async Task<string> UploadAvatarAsync(IFormFile file, string folder, UserDTO user)
         {

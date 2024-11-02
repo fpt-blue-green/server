@@ -30,5 +30,12 @@ namespace AdFusionAPI.Controllers
             var result = await _userService.GetAllUsers(filterDTO);
             return Ok(result);
         }
+        [HttpPost("delete")]
+        [AuthRequired]
+        public async Task<ActionResult<string>> DeleteUser(Guid userId)
+        {
+            await _userService.DeleteUser(userId);
+            return Ok();
+        }
     }
 }

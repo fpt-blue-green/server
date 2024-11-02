@@ -21,7 +21,11 @@ namespace BusinessObjects
         RejectWithDraw = 5,
 
         [Description("Phê duyệt yêu cầu rút tiền")]
-        ApproveWithDraw = 6
+        ApproveWithDraw = 6,
+        [Description("Phê duyệt yêu cầu nâng cấp tài khoản Premium")]
+        ApproveUpdatePremium = 7,
+        [Description("Từ chối yêu cầu nâng cấp tài khoản Premium")]
+        RejectUpdatePremium = 8
     }
 
 }

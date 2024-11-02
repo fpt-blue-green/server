@@ -27,10 +27,10 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("responseWithdraw/{id}")]
         [AdminRequired]
-        public async Task<ActionResult> ResponseWithDraw(AdminPaymentResponse adminPaymentResponse, Guid id)
+        public async Task<ActionResult> ResponseWithDraw(Guid paymentId,AdminPaymentResponse adminPaymentResponse)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            await _paymentService.ProcessWithdrawalApproval(adminPaymentResponse, id, user);
+            await _paymentService.ProcessWithdrawalApproval(paymentId, adminPaymentResponse, user);
             return Ok();
         }
 

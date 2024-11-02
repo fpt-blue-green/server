@@ -102,5 +102,20 @@ namespace Repositories
                 return user;
             }
         }
+
+        public async Task DeleteUser(Guid userId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var user = await context.Users
+                                         .Where(c => c.Id == userId)
+                                         .FirstOrDefaultAsync();
+                if (user != null)
+                {
+                    user.IsDeleted = true;
+                    await context.SaveChangesAsync(); 
+                }
+            }
+        }
     }
 }

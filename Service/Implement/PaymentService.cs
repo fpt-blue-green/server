@@ -97,13 +97,13 @@ namespace Service
             };
         }
 
-        public async Task ProcessWithdrawalApproval(AdminPaymentResponse adminPaymentResponse, Guid id, UserDTO userDto)
+        public async Task ProcessWithdrawalApproval(Guid paymentId,AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(id) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
+                    var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
                     paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
                     var user = paymentHistory.User ?? throw new Exception("Không tìm thấy người dùng.!");
 
@@ -152,6 +152,26 @@ namespace Service
             return decimal.Parse(fee.KeyValue!.ToString()!);
         }
 
+        public async Task UpdateVipPaymentRequest(Guid userId,UpdateVipRequestDTO updateVipRequest)
+        {
+            var user = await _userRepository.GetUserById(userId) ?? throw new KeyNotFoundException();
+            //tren 3 thang thi discount 15%
+            var discount = await _systemSettingRepository.GetSystemSetting(_configManager.UpdatePremiumDiscount) ?? throw new Exception("Has error when get Discount");
+            var discountValue = decimal.Parse(discount.KeyValue!.ToString()!);
+            var totalAmount = updateVipRequest.NumberMonthsRegis <3 ? updateVipRequest.Amount * updateVipRequest.NumberMonthsRegis: updateVipRequest.Amount * updateVipRequest.NumberMonthsRegis * discountValue;
+            var paymentHistory = new PaymentHistory()
+            {
+                UserId = userId,
+                Amount = totalAmount,
+                BankInformation = user.Email,
+                NetAmount = totalAmount,
+                Type =(int) EPaymentType.BuyPremium,
+                Status = (int)EPaymentStatus.Pending,
+
+            };
+            await _paymentRepository.CreatePaymentHistory(paymentHistory);
+
+        }
         #region SendMail
         public async Task SendMailRequestWithDraw(User user, WithdrawRequestDTO withdrawRequestDTO)
         {
@@ -199,6 +219,75 @@ namespace Service
                 _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
             }
         }
+        public async Task SendMailResponseUpdatePremium(User user, PaymentHistory payment)
+        {
+            try
+            {
+                string subject = "Thông Báo Phản Hồi về yêu cầu rút tiền";
+                var body = _emailTemplate.responseWithDrawTemplate
+                    .Replace("{BrandName}", user.DisplayName)
+                    .Replace("{validDate}", user.Brand.PremiumValidTo.ToString())
+                    .Replace("{Link}", "")
+                    .Replace("{projectName}", _configManager.ProjectName);
+
+                _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { user.Email }, subject, body));
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
+            }
+        }
+
         #endregion
+        public async Task ProcessUpdatePremiumApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
+                    paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
+                    var user = paymentHistory.User ?? throw new Exception("Không tìm thấy người dùng.!");
+
+                    if (adminPaymentResponse.IsApprove)
+                    {
+                        paymentHistory.Status = (int)EPaymentStatus.Done;
+
+                        paymentHistory.AdminMessage = $"Yêu cầu trở thành Premium Brand của bạn đã được hoàn tất, hiệu lực tới ngày {DateOnly.FromDateTime(paymentHistory.ResponseAt)}, hãy cùng khám phá trải nghiệm của Premium nào!";
+                        var premiumPrice = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Premium Price Fee");
+                        if( decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
+                        {
+                            user.Brand.PremiumValidTo = DateTime.UtcNow.AddMonths(1);
+                        }
+                        else
+                        {
+                            user.Brand.PremiumValidTo = DateTime.UtcNow.AddMonths(3);
+                        }
+                        await _userRepository.UpdateUser(user);
+                        await SendMailResponseUpdatePremium(user, paymentHistory);
+                    }
+                    else
+                    {
+                        paymentHistory.Status = (int)EPaymentStatus.Rejected;
+                        if (adminPaymentResponse.AdminMessage.IsNullOrEmpty())
+                        {
+                            throw new InvalidOperationException("Lý do từ chối không được để trống.");
+                        }
+                    }
+                    paymentHistory.ResponseAt = DateTime.Now;
+                    await _paymentRepository.UpdatePaymentHistory(paymentHistory);
+                    paymentHistory.User = null;
+                    await _adminActionNotificationHelper.CreateNotification<PaymentHistory>(userDto,
+                        (adminPaymentResponse.IsApprove ? EAdminActionType.ApproveUpdatePremium : EAdminActionType.RejectUpdatePremium)
+                        , paymentHistory, null);
+
+                    scope.Complete();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
     }
 }

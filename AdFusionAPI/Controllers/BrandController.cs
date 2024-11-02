@@ -13,13 +13,15 @@ namespace AdFusionAPI.Controllers
         private readonly ICampaignService _campaignService;
         private readonly IFavoriteService _favoriteService;
         private readonly IJobService _jobService;
+        private readonly IPaymentService _paymentService;
 
-        public BrandController(IBrandService brandService, ICampaignService campaignService, IFavoriteService favoriteService, IJobService jobService)
+        public BrandController(IBrandService brandService, ICampaignService campaignService, IFavoriteService favoriteService, IJobService jobService, IPaymentService paymentService)
         {
             _brandService = brandService;
             _campaignService = campaignService;
             _favoriteService = favoriteService;
             _jobService = jobService;
+            _paymentService = paymentService;
         }
 
         [HttpGet]
@@ -103,6 +105,14 @@ namespace AdFusionAPI.Controllers
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _jobService.GetAllJobByCurrentAccount(user, filter);
             return Ok(result);
+        }
+
+        [HttpPost("updatepremium")]
+        [BrandRequired]
+        public async Task UpdatePremiumBrand(UpdateVipRequestDTO updateVipRequest)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _paymentService.UpdateVipPaymentRequest(user.Id, updateVipRequest);
         }
     }
 }
