@@ -22,10 +22,29 @@ namespace Service
             cfg.AddProfile<AutoMapperProfile>();
         }).CreateMapper();
 
-        public async Task<IEnumerable<BannedUserDTO>> GetBannedUsers()
+        public async Task<FilterListResponse<BannedUserDTO>> GetBannedUsers(FilterDTO filter)
         {
+            var result = new List<BannedUserDTO>();
+            var totalCount = 0;
             var bannedUsers = (await _bannedUserRepository.GetBannedUsers()).Take(100).ToList();
-            return _mapper.Map<IEnumerable<BannedUserDTO>>(bannedUsers);
+
+            totalCount = bannedUsers.Count();
+
+            #region Paging
+            int pageSize = filter.PageSize;
+            bannedUsers = bannedUsers
+                .Skip((filter.PageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            #endregion
+
+            result =  _mapper.Map<List<BannedUserDTO>>(bannedUsers);
+
+            return new FilterListResponse<BannedUserDTO>
+            {
+                TotalCount = totalCount,
+                Items = result
+            };
         }
 
         public async Task<BannedUserDTO> GetBannedUserById(Guid id)

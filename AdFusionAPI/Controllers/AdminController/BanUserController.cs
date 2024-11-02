@@ -34,9 +34,9 @@ namespace AdFusionAPI.Controllers.AdminController
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BannedUserDTO>>> GetBannedUserData()
+        public async Task<ActionResult<IEnumerable<BannedUserDTO>>> GetBannedUserData([FromQuery] FilterDTO filter)
         {
-            var result = await _banService.GetBannedUsers();
+            var result = await _banService.GetBannedUsers(filter);
             return Ok(result);
         }
 
