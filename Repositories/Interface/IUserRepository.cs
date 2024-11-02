@@ -13,5 +13,6 @@ namespace Repositories
         Task CreateUser(User user);
         Task<User> GetUserByCampaignId(Guid campaignId);
         Task<User> GetUserByInfluencerId(Guid influencerId);
+        Task DeleteUser(Guid userId);
     }
 }
