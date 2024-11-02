@@ -15,7 +15,8 @@ namespace Service
             CreateMap<InfluencerRequestDTO, InfluencerDTO>().ReverseMap();
             CreateMap<InfluencerRequestDTO, Influencer>().ReverseMap();
             CreateMap<Channel, ChannelDTO>().ReverseMap();
-            CreateMap<InfluencerJobDTO, Influencer>().ReverseMap();
+            CreateMap<InfluencerJobDTO, Influencer>().ReverseMap()
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar));
             CreateMap<InfluencerImage, ImageDTO>().ReverseMap();
             #endregion
             #region Tag

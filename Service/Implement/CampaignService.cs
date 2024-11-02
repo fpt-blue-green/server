@@ -412,6 +412,7 @@ namespace Service
             }
 
             campaign!.Status = (int)ECampaignStatus.Active;
+            campaign.StartDate = DateTime.Now;
             await _campaignRepository.Update(campaign);
 
             // Gửi mail thông báo trong một tác vụ nền
