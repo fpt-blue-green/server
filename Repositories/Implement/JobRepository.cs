@@ -19,6 +19,16 @@ namespace Repositories
             }
         }
 
+        public async Task<IEnumerable<Job>> GetAllJob()
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs
+                    .ToListAsync();
+                return jobs;
+            }
+        }
+
         public async Task Create(Job job)
         {
             using (var context = new PostgresContext())
@@ -96,10 +106,27 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                var jobs = await context.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress && j.Campaign.Status != (int)ECampaignStatus.Completed)
+                var jobs = await context.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress)
                                             .Include(j => j.Offers)
                                             .Include(j => j.Campaign)
-                                            .Include(j => j.Influencer).ThenInclude(i => i.User)
+                                            .Include(j => j.Influencer)
+                                                .ThenInclude(i => i.User)
+                                            .ToListAsync();
+                return jobs!;
+            }
+        }
+
+        public async Task<IEnumerable<Job>> GetAllJobDone()
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.Where(j => j.Status == (int)EJobStatus.Completed
+                                                    && j.CompleteAt.HasValue 
+                                                    && j.CompleteAt.Value.AddDays(3).ToUniversalTime() <= DateTime.Now.ToUniversalTime())
+                                            .Include(j => j.Offers)
+                                            .Include(j => j.Campaign)
+                                            .Include(j => j.Influencer)
+                                                .ThenInclude(i => i.User)
                                             .ToListAsync();
                 return jobs!;
             }

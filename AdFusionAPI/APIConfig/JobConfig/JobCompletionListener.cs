@@ -29,11 +29,15 @@ namespace AdFusionAPI.APIConfig.JobConfig
 
                 // Trigger job thứ ba
                 var job3Key = new JobKey("UploadJobDetailDataJobService");
-                await scheduler.TriggerJob(job2Key);
-
-                // Trigger job 4
-                var job4Key = new JobKey("UploadOfferDataJobService");
                 await scheduler.TriggerJob(job3Key);
+
+                // Trigger job thứ tư
+                var job4Key = new JobKey("UploadOfferDataJobService");
+                await scheduler.TriggerJob(job4Key);
+
+                // Trigger job thứ năm
+                var job5Key = new JobKey("UploadJobPaymentJobService");
+                await scheduler.TriggerJob(job5Key);
             }
         }
     }

@@ -4,6 +4,7 @@ namespace Repositories
 {
     public interface IJobRepository
     {
+        Task<IEnumerable<Job>> GetAllJob();
         Task<IEnumerable<Job>> GetAllPedingJob();
         Task<IEnumerable<Job>> GetAllJobInProgress();
         Task<IEnumerable<string>> GetLinkJobInProgress(Guid id);
@@ -15,5 +16,6 @@ namespace Repositories
         Task Update(Job job);
         Task<IEnumerable<Job>> GetJobInfluencerByUserId(Guid userId);
         Task<IEnumerable<Job>> GetJobBrandByUserId(Guid userId);
+        Task<IEnumerable<Job>> GetAllJobDone();
     }
 }

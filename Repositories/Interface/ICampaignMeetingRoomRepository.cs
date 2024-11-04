@@ -7,7 +7,7 @@ namespace Repositories
         Task CreateMeetingRoom(CampaignMeetingRoom campaignMeetingRoom);
         Task DeleteMeetingRoom(CampaignMeetingRoom campaignMeetingRoom);
         Task<CampaignMeetingRoom> GetMeetingRoomByName(string name);
-        Task<CampaignMeetingRoom> GetMeetingRoomByCampaignId(Guid campaignId);
+        Task<IEnumerable<CampaignMeetingRoom>> GetMeetingRoomsByCampaignId(Guid campaignId);
         Task UpdateMeetingRoom(CampaignMeetingRoom campaignMeetingRoom);
     }
 }

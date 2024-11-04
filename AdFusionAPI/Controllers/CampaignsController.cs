@@ -13,12 +13,15 @@ namespace AdFusionAPI.Controllers
         private readonly ICampaignContentService _campaignContentService;
         private readonly IInfluencerService _influencerService;
         private readonly IJobDetailService _jobDetailService;
-        public CampaignsController(ICampaignService campaignService, ICampaignContentService campaignContentService, IInfluencerService influencerService, IJobDetailService jobDetailService)
+        private readonly ICampaignMeetingRoomService _campaignMeetingRoomService;
+        public CampaignsController(ICampaignService campaignService, ICampaignContentService campaignContentService,
+            IInfluencerService influencerService, IJobDetailService jobDetailService, ICampaignMeetingRoomService campaignMeetingRoomService)
         {
             _campaignService = campaignService;
             _campaignContentService = campaignContentService;
             _influencerService = influencerService;
             _jobDetailService = jobDetailService;
+            _campaignMeetingRoomService = campaignMeetingRoomService;
         }
         [HttpGet()]
         public async Task<ActionResult<FilterListResponse<CampaignDTO>>> GetCampaignsInProgress([FromQuery] CampaignFilterDTO filter)
@@ -64,6 +67,14 @@ namespace AdFusionAPI.Controllers
         public async Task<ActionResult<List<CampaignDailyStatsDTO>>> GetCampaignJobDetailStatistic(Guid id)
         {
             var result = await _jobDetailService.GetCampaignDailyStats(id);
+            return Ok(result);
+        }
+
+        [HttpGet("{id}/meetingRoom")]
+        [AuthRequired]
+        public async Task<ActionResult<IEnumerable<CampaignMeetingRoomDTO>>> GetCampaignMeetingRoom(Guid id)
+        {
+            var result = await _campaignMeetingRoomService.GetMeetingRooms(id);
             return Ok(result);
         }
 

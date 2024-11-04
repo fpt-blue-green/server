@@ -37,5 +37,15 @@ namespace AdFusionAPI.Controllers
             await _userService.DeleteUser(userId);
             return Ok();
         }
+
+        [HttpGet("loginHistory")]
+        [AuthRequired]
+        public async Task<ActionResult<IEnumerable<UserDeviceDTO>>> GetInfluencerLoginHistory()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _userService.GetUserLoginHistory(user);
+            return Ok(result);
+
+        }
     }
 }

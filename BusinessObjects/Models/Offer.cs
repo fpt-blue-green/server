@@ -31,7 +31,5 @@ public partial class Offer
 
     public int TargetReaction { get; set; }
 
-    public DateTime? ModifiedAt { get; set; }
-
     public virtual Job Job { get; set; } = null!;
 }

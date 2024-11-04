@@ -40,6 +40,14 @@ namespace AdFusionAPI.Controllers.AdminController
             return Ok(result);
         }
 
+        [HttpGet("jobStatusCounts")]
+        [AdminRequired]
+        public async Task<ActionResult<Dictionary<string, int>>> GetJobStatusCounts()
+        {
+            var result = await _adminStatistic.GetJobStatusData();
+            return Ok(result);
+        }
+
         [HttpGet("monthlyMetricsTrend")]
         [AdminRequired]
         public async Task<ActionResult<List<MonthlyMetricsTrendDTO>>> GetMonthlyMetricsTrend()
