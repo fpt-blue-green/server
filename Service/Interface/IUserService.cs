@@ -11,5 +11,7 @@ namespace Service
         Task<FilterListResponse<UserDetailDTO>> GetAllUsers(UserFilterDTO filter);
         Task DeleteUser(Guid userId);
 		Task<UserDetailDTO> GetUserById(Guid userId);
-	}
+        Task<IEnumerable<UserDeviceDTO>> GetUserLoginHistory(UserDTO user);
+
+    }
 }
