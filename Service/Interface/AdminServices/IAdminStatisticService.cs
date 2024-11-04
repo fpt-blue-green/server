@@ -8,5 +8,6 @@ namespace Service
         Task<List<int>> GetAvailableYearInActiveUser();
         Task<Dictionary<string, int>> GetRoleData();
         Task<List<MonthlyMetricsTrendDTO>> GetMonthlyMetricsTrend();
+        Task<Dictionary<string, int>> GetJobStatusData();
     }
 }

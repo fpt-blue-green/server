@@ -1397,12 +1397,14 @@
 
                                     </html>";
         #endregion
- #region update premium
+
+        #region update premium
         public string ApproveUpdatePremium =
             "" +
             "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\r\n    <title>Document</title>\r\n  </head>\r\n  <style>\r\n    body {\r\n      font-family: Arial, sans-serif;\r\n      background-color: #f4f4f4;\r\n      margin: 0;\r\n      padding: 0;\r\n    }\r\n\r\n    .email-container {\r\n      background-color: white;\r\n      max-width: 600px;\r\n      margin: 0 auto;\r\n      border-radius: 8px;\r\n      border: 0.3px solid rgba(0, 0, 0, 0.2);\r\n      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);\r\n      overflow: hidden;\r\n    }\r\n\r\n    .email-header {\r\n      background-color: rgb(54, 245, 63);\r\n      color: rgb(0, 0, 0);\r\n      text-align: center;\r\n      padding: 25px;\r\n      font-size: 22px;\r\n      font-weight: bold;\r\n    }\r\n\r\n    .email-body {\r\n      padding: 20px;\r\n      color: #333;\r\n    }\r\n\r\n    .email-body h2 {\r\n      color: rgb(255, 38, 0);\r\n    }\r\n\r\n    .email-body p {\r\n      line-height: 1.6;\r\n    }\r\n\r\n    .email-body ul {\r\n      padding-left: 20px;\r\n    }\r\n\r\n    .button-container {\r\n      text-align: center;\r\n      margin: 20px 0;\r\n    }\r\n\r\n    .button {\r\n      background-color: rgb(255, 112, 129);\r\n      color: white;\r\n      padding: 10px 20px;\r\n      text-align: center;\r\n      text-decoration: none;\r\n      display: inline-block;\r\n      border-radius: 5px;\r\n      font-weight: bold;\r\n    }\r\n\r\n    .email-footer {\r\n      padding: 20px;\r\n      font-size: 12px;\r\n      color: #777;\r\n      border-top: 1px solid #eaeaea;\r\n    }\r\n\r\n    .email-footer .copyright {\r\n      text-align: center;\r\n    }\r\n  </style>\r\n  <body>\r\n    <div class=\"email-container\">\r\n      <div class=\"email-header\">Thông báo nâng cấp tài khoản</div>\r\n      <div class=\"email-body\">\r\n        <h2>Xin chào {BrandName},</h2>\r\n        <p>\r\n          Yêu cầu nâng cấp tài khoản Premium của bạn đã được xác nhận. Tài khoản\r\n          của bạn sẽ trở thành Premium đến hết ngày {validDate}\r\n        </p>\r\n        <p>Hãy tận hưởng những đặc quyền của Premium .</p>\r\n        <div class=\"button-container\">\r\n          <a href=\"{Link}\" class=\"button\">Xem Chi Tiết</a>\r\n        </div>\r\n      </div>\r\n      <div class=\"email-footer\">\r\n        <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>\r\n        <p>Trân trọng,<br /><br />{projectName}</p>\r\n        <div class=\"copyright\">\r\n          <p>© 2024 Bản quyền thuộc về {projectName}.</p>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </body>\r\n</html>\r\n" +
             "";
         #endregion
+
         #region JobStatus
         public string jobStatusTemplate = @"<!DOCTYPE html>
                                             <html lang=""vi"">
@@ -1503,6 +1505,104 @@
                                             </body>
                                             </html>
                                             ";
+        #endregion
+
+        #region JobPaymentMessage
+        public string jobPaymentMessageTempalte = @"<!DOCTYPE html>
+                                <html lang=""vi"">
+                                <head>
+                                    <meta charset=""UTF-8"">
+                                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                                    <title>Thông Báo Chuyển Tiền</title>
+                                    <style>
+                                        body {
+                                            font-family: Arial, sans-serif;
+                                            background-color: #f4f4f4;
+                                            margin: 0;
+                                            padding: 0;
+                                        }
+                                        .email-container {
+                                            background-color: white;
+                                            max-width: 600px;
+                                            margin: 0 auto;
+                                            border-radius: 8px;
+                                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                            overflow: hidden;
+                                        }
+                                        .email-header {
+                                            background-color: #ff7081;
+                                            color: white;
+                                            text-align: center;
+                                            padding: 25px;
+                                            font-size: 22px;
+                                            font-weight: bold;
+                                        }
+                                        .email-body {
+                                            padding: 20px;
+                                            color: #333;
+                                        }
+                                        .email-body h2 {
+                                            color: #ff7081;
+                                        }
+                                        .email-body p {
+                                            line-height: 1.6;
+                                        }
+                                        .email-body ul {
+                                            padding-left: 20px;
+                                        }
+                                        .button-container {
+                                            text-align: center;
+                                            margin: 20px 0;
+                                        }
+                                        .button {
+                                            background-color: #ff7081;
+                                            color: white;
+                                            padding: 10px 20px;
+                                            text-align: center;
+                                            text-decoration: none;
+                                            display: inline-block;
+                                            border-radius: 5px;
+                                            font-weight: bold;
+                                        }
+                                        .email-footer {
+                                            padding: 20px;
+                                            font-size: 12px;
+                                            color: #777;
+                                            border-top: 1px solid #eaeaea;
+                                        }
+                                        .email-footer .copyright {
+                                            text-align: center;
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class=""email-container"">
+                                        <div class=""email-header"">
+                                            Thông Báo Chuyển Tiền
+                                        </div>
+                                        <div class=""email-body"">
+                                            <h2>Xin chào {InfluencerName},</h2>
+                                            <p>Chúng tôi xin thông báo rằng tiền đã được chuyển vào ví của bạn sau khi hoàn thành công việc trong chiến dịch <strong>{CampaignName}</strong>.</p>
+           
+                                            <p>Thông tin chi tiết về giao dịch của bạn:</p>
+                                            <ul>
+                                                <li>Số tiền: {Amount} VND</li>
+                                                <li>Ngày chuyển: {TransferDate}</li>
+                                                <li>Mô tả: {Description}</li>
+                                            </ul>
+     	                                    <p>Chúc mừng bạn! Đây là một bước tiến mới trong sự nghiệp của bạn.Cảm ơn bạn đã đồng hành cùng chúng tôi. Chúc bạn sẽ gặt hái thêm nhiều thành công trong tương lai!</p>
+	                                    <p><strong>Lưu ý:</strong> Vui lòng kiểm tra ví của bạn trên hệ thống. Nếu số tiền chưa được cộng hoặc có bất kỳ sai sót nào, hãy liên hệ với chúng tôi ngay để được hỗ trợ kịp thời.</p>
+                                        <div class=""email-footer"">
+                                            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                                            <p>Trân trọng,<br><br>{ProjectName}</p>
+                                            <div class=""copyright"">
+                                                <p>© 2024 Bản quyền thuộc về {ProjectName}.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </body>
+                                </html>
+                                ";
         #endregion
     }
 }

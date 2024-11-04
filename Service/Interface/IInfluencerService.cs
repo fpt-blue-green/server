@@ -21,7 +21,6 @@ namespace Service
         Task<bool> VerifyPhoneOtp(UserDTO user, string phone, string otp);
         Task DeleteInfluencer(Guid id);
         Task<List<string>> UploadContentImages(List<Guid> imageIds, List<IFormFile> contentFiles, UserDTO user, string folder);
-        Task<IEnumerable<UserDeviceDTO>> GetInfluencerLoginHistory(UserDTO user);
         Task<FilterListResponse<InfluencerJobDTO>> GetInfluencerWithJobByCampaginId(Guid campaignId, InfluencerJobFilterDTO filter);
     }
 }
