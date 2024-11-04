@@ -50,7 +50,7 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpPost("registerwiththirdparty")]
-        public async Task<ActionResult<string>> RegisterWithThirdParty([FromBody] RegisterThirdPartyDTO userDTO)
+        public async Task<ActionResult> RegisterWithThirdParty([FromBody] RegisterThirdPartyDTO userDTO)
         {
             await _authenService.RegisterWithThirdParty(userDTO);
             return Ok();

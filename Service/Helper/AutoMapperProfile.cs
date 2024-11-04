@@ -4,31 +4,34 @@ using BusinessObjects.Models;
 
 namespace Service
 {
-	public class AutoMapperProfile : Profile
-	{
-		public AutoMapperProfile()
-		{
-			#region Influencer
-			CreateMap<Influencer, InfluencerDTO>()
-				.ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.InfluencerImages))
-				.ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar)).ReverseMap();
-			CreateMap<InfluencerRequestDTO, InfluencerDTO>().ReverseMap();
-			CreateMap<InfluencerRequestDTO, Influencer>().ReverseMap();
-			CreateMap<Channel, ChannelDTO>().ReverseMap();
-			CreateMap<InfluencerJobDTO, Influencer>().ReverseMap();
-			CreateMap<InfluencerImage, ImageDTO>().ReverseMap();
-			#endregion
-			#region Tag
-			CreateMap<Tag, TagDTO>().ReverseMap();
-			CreateMap<Tag, TagRequestDTO>().ReverseMap();
-			#endregion
-			#region User
-			CreateMap<User, UserDTO>()
-			 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.DisplayName))
-			 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Avatar))
-			 .ReverseMap()
-			 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name))
-			 .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Image));
+
+    public class AutoMapperProfile : Profile
+    {
+        public AutoMapperProfile()
+        {
+            #region Influencer
+            CreateMap<Influencer, InfluencerDTO>()
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.InfluencerImages))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar)).ReverseMap();
+            CreateMap<InfluencerRequestDTO, InfluencerDTO>().ReverseMap();
+            CreateMap<InfluencerRequestDTO, Influencer>().ReverseMap();
+            CreateMap<Channel, ChannelDTO>().ReverseMap();
+            CreateMap<InfluencerJobDTO, Influencer>().ReverseMap()
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar));
+            CreateMap<InfluencerImage, ImageDTO>().ReverseMap();
+            #endregion
+            #region Tag
+            CreateMap<Tag, TagDTO>().ReverseMap();
+            CreateMap<Tag, TagRequestDTO>().ReverseMap();
+            #endregion
+            #region User
+            CreateMap<User, UserDTO>()
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.DisplayName))
+             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Avatar))
+             .ReverseMap()
+             .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Image));
+
 
 			CreateMap<User, UserDetailDTO>().ReverseMap();
 			#endregion

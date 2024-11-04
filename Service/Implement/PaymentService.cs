@@ -253,7 +253,7 @@ namespace Service
                     {
                         paymentHistory.Status = (int)EPaymentStatus.Done;
 
-                        paymentHistory.AdminMessage = $"Yêu cầu trở thành Premium Brand của bạn đã được hoàn tất, hiệu lực tới ngày {DateOnly.FromDateTime((DateTime)paymentHistory.ResponseAt)}, hãy cùng khám phá trải nghiệm của Premium nào!";
+                        paymentHistory.AdminMessage = $"Yêu cầu trở thành Premium Brand của bạn đã được hoàn tất, hiệu lực tới ngày {DateOnly.FromDateTime(paymentHistory.ResponseAt!.Value)}, hãy cùng khám phá trải nghiệm của Premium nào!";
                         var premiumPrice = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Premium Price Fee");
                         if( decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
                         {

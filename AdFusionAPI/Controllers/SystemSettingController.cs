@@ -35,7 +35,7 @@ namespace AdFusionAPI.Controllers
 
         [AdminRequired]
         [HttpPut()]
-        public async Task<ActionResult<string>> UpdateSystemSetting(SystemSettingDTO settingDTO)
+        public async Task<ActionResult> UpdateSystemSetting(SystemSettingDTO settingDTO)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _systemSettingService.UpdateSystemSetting(settingDTO, user);

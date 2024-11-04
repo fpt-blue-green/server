@@ -5,6 +5,6 @@ namespace Repositories
     public interface IJobDetailRepository
     {
         Task Create(JobDetails detail);
-        Task<JobDetails> GetByDate(DateTime dateTime, Guid jobId);
+        Task<(int totalViews, int totalLikes, int totalComments)> GetTotalMetricsByLinkAndJobId(string link, Guid jobId);
     }
 }

@@ -98,6 +98,7 @@ namespace Repositories
             {
                 var jobs = await context.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress && j.Campaign.Status != (int)ECampaignStatus.Completed)
                                             .Include(j => j.Offers)
+                                            .Include(j => j.Campaign)
                                             .Include(j => j.Influencer).ThenInclude(i => i.User)
                                             .ToListAsync();
                 return jobs!;

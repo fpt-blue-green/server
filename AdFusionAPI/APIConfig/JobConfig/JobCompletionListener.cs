@@ -31,17 +31,9 @@ namespace AdFusionAPI.APIConfig.JobConfig
                 var job3Key = new JobKey("UploadJobDetailDataJobService");
                 await scheduler.TriggerJob(job2Key);
 
-                // Lấy ngày hiện tại
-                var currentDate = DateTime.Now;
-
-                // Kiểm tra xem hôm nay có phải là ngày chạy của job 4 không
-                if (currentDate.Day % 2 == 0) // Chạy mỗi 2 ngày một lần
-                {
-                    var job4Key = new JobKey("UploadOfferDataJobService");
-
-                    // Trigger job 4
-                    await scheduler.TriggerJob(job3Key);
-                }
+                // Trigger job 4
+                var job4Key = new JobKey("UploadOfferDataJobService");
+                await scheduler.TriggerJob(job3Key);
             }
         }
     }

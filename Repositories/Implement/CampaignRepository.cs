@@ -138,5 +138,25 @@ namespace Repositories
                 await context.SaveChangesAsync();
 			}
 		}
-	}
+
+        public async Task<Campaign> GetCampaignJobDetails(Guid campaignId)
+        {
+            using (var context = new PostgresContext())
+            {
+                // Lấy campaign theo campaignId
+                var campaign = await context.Campaigns
+                                            .Include(c => c.Jobs)
+                                                .ThenInclude(j => j.Offers)
+                                            .Include(c => c.Jobs)
+                                                .ThenInclude(j => j.JobDetails)
+											.Include(c => c.Jobs)
+												.ThenInclude(j => j.Influencer)
+													.ThenInclude(i => i.User)
+                                            .Where(c => c.Id == campaignId).FirstOrDefaultAsync();
+                return campaign;
+
+            }
+
+        }
+    }
 }

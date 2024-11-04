@@ -27,7 +27,7 @@ namespace AdFusionAPI.Controllers
 
         #region search/filter Influencer
         [HttpGet("top")]
-        public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetTopInfluencer()
+        public async Task<ActionResult<List<InfluencerDTO>>> GetTopInfluencer()
         {
             var result = await _influencerService.GetTopInfluencer();
             return Ok(result);
