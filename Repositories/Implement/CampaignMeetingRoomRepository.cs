@@ -41,12 +41,12 @@ namespace Repositories
             }
         }
 
-        public async Task<CampaignMeetingRoom> GetMeetingRoomByCampaignId(Guid campaignId)
+        public async Task<IEnumerable<CampaignMeetingRoom>> GetMeetingRoomsByCampaignId(Guid campaignId)
         {
             using (var context = new PostgresContext())
             {
-                var roomMetting = await context.CampaignMeetingRooms.FirstOrDefaultAsync(r => r.CampaignId == campaignId);
-                return roomMetting!;
+                var roomMettings = await context.CampaignMeetingRooms.Where(r => r.CampaignId == campaignId).ToListAsync();
+                return roomMettings!;
             }
         }
     }

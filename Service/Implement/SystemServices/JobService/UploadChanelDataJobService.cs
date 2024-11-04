@@ -41,7 +41,7 @@ namespace Service
 
                 // Gửi thông báo qua email cho các admin.
                 var body = _emailTempalte.uploadDataErrorTemplate.Replace("{projectName}", _configManager.ProjectName)
-                                                                 .Replace("{timeHappend}", DateTime.UtcNow.AddHours(7).ToString() + " UTC+07")
+                                                                 .Replace("{timeHappend}", DateTime.Now.ToString() + " UTC+07")
                                                                  .Replace("{logLink}", _configManager.LogLink)
                                                                  .Replace("{keyWord}", jobID);
                 await _emailService.SendEmail(_configManager.AdminEmails, "Thông Báo Lỗi Upload Channel", body);

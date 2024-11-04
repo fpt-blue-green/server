@@ -60,6 +60,20 @@ namespace Repositories.Implement
             }
         }
 
+        public async Task UpdateRange(List<UserDevice> userDevices)
+        {
+            using (var context = new PostgresContext())
+            {
+                foreach (var userDevice in userDevices)
+                {
+                    context.Entry(userDevice).State = EntityState.Modified;
+                }
+
+                await context.SaveChangesAsync();
+            }
+        }
+
+
         public async Task Create(UserDevice userDevice)
         {
             using (var context = new PostgresContext())

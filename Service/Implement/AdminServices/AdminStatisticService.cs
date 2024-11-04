@@ -1,8 +1,10 @@
 ﻿using BusinessObjects;
+using BusinessObjects.Models;
 using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
 using static BusinessObjects.AuthEnumContainer;
+using static BusinessObjects.JobEnumContainer;
 
 namespace Service
 {
@@ -12,6 +14,7 @@ namespace Service
         private readonly IUserRepository _userRepository = new UserRepository();
         private readonly IPaymentRepository _paymentRepository = new PaymentRepository();
         private readonly ICampaignRepository _campaignRepository = new CampaignRepository();
+        private readonly IJobRepository _jobRepository = new JobRepository();
 
         #region GetLoginCountsByTimeFrame
         public async Task<Dictionary<string, int>> GetLoginCountsByTimeFrame(int year, ETimeFrame timeFrame)
@@ -319,6 +322,20 @@ namespace Service
                 {"Nhãn hàng", data.Where( user => user.Role == (int)ERole.Brand && user.Brand != null && user.Brand.IsPremium == false).ToList().Count },
                 {"Nhãn hàng trả phí", data.Where(user => user.Role == (int)ERole.Brand && user.Brand != null && user.Brand.IsPremium == true).ToList().Count },
                 {"Quản trị viên", data.Where(u => u.Role == (int)ERole.Admin).Count() },
+            };
+        }
+
+        public async Task<Dictionary<string, int>> GetJobStatusData()
+        {
+            var data = await _jobRepository.GetAllJob();
+            return new Dictionary<string, int>
+            {
+                {(EJobStatus.Pending).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Pending).Count() },
+                {(EJobStatus.Approved).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Approved).Count() },
+                {(EJobStatus.InProgress).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.InProgress).Count() },
+                {(EJobStatus.Completed).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Completed).Count() },
+                {(EJobStatus.Failed).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Failed).Count() },
+                {(EJobStatus.NotCreated).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.NotCreated).Count() },
             };
         }
 

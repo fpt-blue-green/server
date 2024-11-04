@@ -1,6 +1,7 @@
 ﻿
 using BusinessObjects;
 using HtmlAgilityPack;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using System.Net;
@@ -313,9 +314,9 @@ namespace Service
                     // Tạo đối tượng ChannelStatDTO với các dữ liệu từ API
                     return new ChannelStatDTO
                     {
-                        FollowersCount = (int?)statistics["subscriberCount"],
-                        ViewsCount = (int?)statistics["viewCount"],
-                        PostsCount = (int?)statistics["videoCount"],
+                        FollowersCount = (int?)statistics["subscriberCount"] ?? 0,
+                        ViewsCount = (int?)statistics["viewCount"] ?? 0,
+                        PostsCount = (int?)statistics["videoCount"] ?? 0,
                     };
                 }
             }
@@ -371,6 +372,10 @@ namespace Service
 
         public static int ConvertToNumber(string input)
         {
+            if (input.IsNullOrEmpty())
+            {
+                return 0;
+            }
             input = input.Replace(",", "");
 
             if (input == "0")

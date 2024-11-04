@@ -4,28 +4,30 @@ using Newtonsoft.Json;
 using Quartz;
 using Repositories;
 using Serilog;
+using System.Transactions;
 
 namespace Service
 {
-    public class UploadJobDetailDataJobService : IJob
+    public class UploadJobPaymentJobService : IJob
     {
         private static readonly IJobRepository _jobRepository = new JobRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static IEmailService _emailService = new EmailService();
         private static ConfigManager _configManager = new ConfigManager();
         private static EmailTemplate _emailTempalte = new EmailTemplate();
-        private static IJobDetailService _jobDetailService = new JobDetailService();
+        private static IUserRepository _userRepository = new UserRepository();
+        private static IPaymentRepository _paymentRepository = new PaymentRepository();
 
         public async Task Execute(IJobExecutionContext context)
         {
             string jobID = Guid.NewGuid().ToString();
-            _loggerService.Information($"Job {jobID}: JobDetails data upload start.");
+            _loggerService.Information($"Job {jobID}: PaymentJobs data upload start.");
             var result = new JobResult();
 
             try
             {
                 // Gọi Service Update data
-                result = await UpdateJobDetailslInfor(jobID);
+                result = await PaymentJobsInfor(jobID);
 
                 if (result.Failure > 0)
                     throw new Exception();
@@ -39,12 +41,12 @@ namespace Service
                                                                  .Replace("{timeHappend}", DateTime.Now.ToString() + " UTC+07")
                                                                  .Replace("{logLink}", _configManager.LogLink)
                                                                  .Replace("{keyWord}", jobID);
-                await _emailService.SendEmail(_configManager.AdminEmails, "Thông Báo Lỗi JobDetails", body);
+                await _emailService.SendEmail(_configManager.AdminEmails, "Thông Báo Lỗi PaymentJobs", body);
             }
-            _loggerService.Information($"Job {jobID}: JobDetails data upload Finished. Result: {JsonConvert.SerializeObject(result)}");
+            _loggerService.Information($"Job {jobID}: PaymentJobs data upload Finished. Result: {JsonConvert.SerializeObject(result)}");
         }
 
-        public static async Task<JobResult> UpdateJobDetailslInfor(string cronJobId)
+        public static async Task<JobResult> PaymentJobsInfor(string cronJobId)
         {
             const int maxRetryAttempts = 3; // Số lần retry tối đa
             const int batchSize = 10; // Kích thước lô
@@ -53,7 +55,7 @@ namespace Service
             try
             {
                 // Lấy toàn bộ danh sách Job và các Offer liên quan
-                var jobs = await _jobRepository.GetAllJobInProgress();
+                var jobs = await _jobRepository.GetAllJobDone();
                 if (jobs.Any())
                 {
                     // Chia jobs thành các lô (batch) để xử lý
@@ -90,21 +92,46 @@ namespace Service
 
                 foreach (var job in batch)
                 {
-                    try
+                    using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await _jobDetailService.UpdateJobDetailData(job, null);
-                        // Nếu thành công, tăng biến Success
-                        jobResult.Success++;
-                    }
-                    catch (Exception ex)
-                    {
-                        // Nếu thất bại, thêm JobDetails vào danh sách cần retry
-                        failedJobs.Add(job);
-                        _loggerService.Error($"Job {jobId}: Update JobDetails {job.Id} failed. Exception: {ex}");
+                        try
+                        {
+                            var offer = job.Offers.FirstOrDefault(o => o.Status == (int)JobEnumContainer.EOfferStatus.Done);
+                            var user = await _userRepository.GetUserByInfluencerId(job.InfluencerId) ?? throw new KeyNotFoundException();
+                            user.Wallet += offer!.Price;
+                            await _userRepository.UpdateUser(user);
+
+                            var paymentBooking = new PaymentBooking
+                            {
+                                Amount = offer!.Price,
+                                JobId = job.Id,
+                                PaymentDate = DateTime.Now,
+                                Type = (int)EPaymentType.InfluencerPayment,
+                            };
+                            await _paymentRepository.CreatePaymentBooking(paymentBooking);
+                            // Nếu thành công, tăng biến Success
+                            jobResult.Success++;
+
+                            scope.Complete();
+
+                            var body = _emailTempalte.uploadDataErrorTemplate.Replace("{ProjectName}", _configManager.ProjectName)
+                                                                 .Replace("{TransferDate}", DateTime.Now.ToString())
+                                                                 .Replace("{InfluencerName}", job.Influencer.User.DisplayName)
+                                                                 .Replace("{CampaignName}", job.Campaign.Name)
+                                                                 .Replace("{Description}", "Thanh toán công việc đã hoàn thành")
+                                                                 .Replace("{Amount}", offer!.Price.ToString("N0"));
+                            await _emailService.SendEmail(new List<string> { job.Influencer.User.DisplayName! }, "Thông Báo Chuyển Tiền", body);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Nếu thất bại, thêm PaymentJobs vào danh sách cần retry
+                            failedJobs.Add(job);
+                            _loggerService.Error($"Job {jobId}: Update PaymentJobs {job.Id} failed. Exception: {ex}");
+                        }
                     }
                 }
 
-                // Nếu không còn JobDetails nào thất bại, kết thúc vòng lặp retry
+                // Nếu không còn PaymentJobs nào thất bại, kết thúc vòng lặp retry
                 if (!failedJobs.Any())
                 {
                     break;
@@ -113,14 +140,14 @@ namespace Service
                 retryAttempt++;
                 if (retryAttempt < maxRetryAttempts)
                 {
-                    _loggerService.Warning($"Job {jobId}: Retry attempt {retryAttempt} for {failedJobs.Count} JobDetailss. JobDetails Data: {string.Join(';', failedJobs.Select(c => c.Id))}");
+                    _loggerService.Warning($"Job {jobId}: Retry attempt {retryAttempt} for {failedJobs.Count} PaymentJobs. PaymentJobs Data: {string.Join(';', failedJobs.Select(c => c.Id))}");
                     await Task.Delay(TimeSpan.FromSeconds(3));
                     batch = failedJobs;
                 }
                 else
                 {
                     jobResult.Failure = size - jobResult.Success;
-                    _loggerService.Error($"Job {jobId}: Max retry attempts reached for batch. {failedJobs.Count} JobDetailss failed.");
+                    _loggerService.Error($"Job {jobId}: Max retry attempts reached for batch. {failedJobs.Count} PaymentJobs failed.");
                 }
             }
         }

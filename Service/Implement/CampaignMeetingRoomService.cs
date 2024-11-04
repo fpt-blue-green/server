@@ -3,7 +3,7 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Service.Helper;
-using Supabase.Gotrue;
+using System;
 using System.Text.RegularExpressions;
 
 namespace Service
@@ -23,8 +23,8 @@ namespace Service
 
         public async Task<IEnumerable<CampaignMeetingRoomDTO>> GetMeetingRooms(Guid campaignId)
         {
-            var result = await _campaignMeetingRoomRepository.GetMeetingRoomByCampaignId(campaignId);
-            return _mapper.Map<IEnumerable<CampaignMeetingRoomDTO>>(result);
+            var meetingRooms = await _campaignMeetingRoomRepository.GetMeetingRoomsByCampaignId(campaignId);
+            return _mapper.Map<IEnumerable<CampaignMeetingRoomDTO>>(meetingRooms);
         }
 
         public async Task CreateRoom(RoomDataRequest dataRequest, UserDTO user)
@@ -46,6 +46,7 @@ namespace Service
                     EjectAtRoomExp = true,
                     EnableKnocking = true,
                 },
+                Privacy = "private"
             };
 
             var link = await dailyVideoCall.CreateRoomAsync(roomData);
@@ -66,7 +67,7 @@ namespace Service
             await SendMail(meetingRoom, dataRequest.CampaignName);
         }
 
-        public async Task CreateFirstTimeRoom( Guid campaignId)
+        public async Task CreateFirstTimeRoom(Guid campaignId)
         {
             var apiKey = await _systemSettingRepository.GetSystemSetting(_configManager.DailyVideoCallKey) ?? throw new Exception("Has error when get API VIDEO CALL Key");
             DailyVideoCallHelper dailyVideoCall = new DailyVideoCallHelper(apiKey.KeyValue!);
@@ -198,7 +199,13 @@ namespace Service
 
         protected static async Task ValidateCreateRoom(DateTime startAt, DateTime endAt, string roomName, List<string> participators, Guid id)
         {
-            if(startAt < DateTime.Now.AddMinutes(5))
+            if (startAt.Kind == DateTimeKind.Utc)
+            {
+                startAt = startAt.AddHours(7);
+                endAt = endAt.AddHours(7);
+            }
+
+            if (startAt < DateTime.Now.AddMinutes(-5))
             {
                 throw new InvalidOperationException("Thời gian bắt đầu phải lớn hơn thời gian hiện tại.");
             }
@@ -213,17 +220,17 @@ namespace Service
                 throw new InvalidOperationException("Tên phòng không hợp lệ! Chỉ cho phép chữ cái, số, dấu gạch dưới _ và dấu gạch nối - .");
             }
 
-            if (participators.Any())
+            if (participators.Count > 1)
             {
                 throw new InvalidOperationException("Để tạo cuộc họp, ít nhất cần phải có một người tham gia (ngoại trừ chủ phòng).");
             }
 
             var user = await _brandRepository.GetByUserId(id) ?? throw new Exception();
 
-            if(user.IsPremium == false)
-            {
-                throw new AccessViolationException();
-            }
+            //if (user.IsPremium == false)
+            //{
+            //    throw new AccessViolationException();
+            //}
 
         }
 

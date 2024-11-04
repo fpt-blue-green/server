@@ -2,12 +2,11 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using Repositories;
+using Repositories.Implement;
+using Repositories.Interface;
 using Serilog;
 using Service.Helper;
-using System.Linq;
 using System.Reflection;
 using static BusinessObjects.AuthEnumContainer;
 
@@ -15,6 +14,7 @@ namespace Service
 {
     public class UserService : IUserService
     {
+        private static IUserDeviceRepository _userDeviceRepository = new UserDeviceRepository();
         private static readonly IUserRepository _userRepository = new UserRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISecurityService _securityService = new SecurityService();
@@ -52,7 +52,7 @@ namespace Service
                 {
                     allUsers = allUsers.Where(i => filter.Providers.Contains((EAccountProvider)i.Provider)).ToList();
                 }
-               
+
                 #endregion
 
                 #region Search
@@ -97,23 +97,23 @@ namespace Service
             }
         }
 
-		public async Task<UserDetailDTO> GetUserById(Guid userId)
-		{
-			var user = await _userRepository.GetUserById(userId);
-			return new UserDetailDTO
-			{
-				Id = user.Id,
-				Email = user.Email,
-				DisplayName = user?.DisplayName,
-				Avatar = user?.Avatar,
-				Role = user.Role,
-				Wallet = user.Wallet,
-				Provider = user.Provider,
-				CreatedAt = user.CreatedAt
-			};
-		}
+        public async Task<UserDetailDTO> GetUserById(Guid userId)
+        {
+            var user = await _userRepository.GetUserById(userId);
+            return new UserDetailDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                DisplayName = user?.DisplayName,
+                Avatar = user?.Avatar,
+                Role = user.Role,
+                Wallet = user.Wallet,
+                Provider = user.Provider,
+                CreatedAt = user.CreatedAt
+            };
+        }
 
-		public async Task<string> UploadAvatarAsync(IFormFile file, string folder, UserDTO user)
+        public async Task<string> UploadAvatarAsync(IFormFile file, string folder, UserDTO user)
         {
             _loggerService.Information("Start to upload image.");
 
@@ -138,6 +138,17 @@ namespace Service
             _loggerService.Information("End to upload image.");
 
             return avatar.ToString();
+        }
+
+        public async Task<IEnumerable<UserDeviceDTO>> GetUserLoginHistory(UserDTO user)
+        {
+            var userDevices = await _userDeviceRepository.GetByUserId(user.Id);
+            if (userDevices == null)
+            {
+                throw new KeyNotFoundException();
+            }
+            var result = _mapper.Map<IEnumerable<UserDeviceDTO>>(userDevices);
+            return result;
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Repositories.Interface
         Task<UserDevice> GetUserDeviceByAgentAndUserID(BrowserInfo userAgentConverted, Guid userId);
         Task<IEnumerable<UserDevice>> GetByUserId(Guid userId);
         Task Update(UserDevice userDevice);
+        Task UpdateRange(List<UserDevice> userDevices);
         Task Create(UserDevice userDevice);
         Task<IEnumerable<UserDevice>> GetAll();
     }

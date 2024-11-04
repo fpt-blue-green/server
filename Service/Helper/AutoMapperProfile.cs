@@ -108,7 +108,7 @@ namespace Service
 			CreateMap<BannedUser, BannedUserDTO>().ReverseMap();
 			#endregion
 			#region CampaignMeetingRoom
-			CreateMap<CampaignMeetingRoomDTO, CampaignMeetingRoom>().ReverseMap();
+			CreateMap<CampaignMeetingRoom, CampaignMeetingRoomDTO>().ReverseMap();
 			#endregion
 			#region Payment
 			CreateMap<PaymentHistory, PaymentHistoryDTO>().ReverseMap();

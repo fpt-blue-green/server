@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
+using static BusinessObjects.JobEnumContainer;
 
 namespace Repositories
 {
@@ -143,20 +144,21 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                // Lấy campaign theo campaignId
+                // Lấy campaign theo campaignId với điều kiện job.Status khác NotCreated
                 var campaign = await context.Campaigns
-                                            .Include(c => c.Jobs)
-                                                .ThenInclude(j => j.Offers)
-                                            .Include(c => c.Jobs)
-                                                .ThenInclude(j => j.JobDetails)
-											.Include(c => c.Jobs)
-												.ThenInclude(j => j.Influencer)
-													.ThenInclude(i => i.User)
-                                            .Where(c => c.Id == campaignId).FirstOrDefaultAsync();
+                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated))
+                        .ThenInclude(j => j.Offers)
+                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated))
+                        .ThenInclude(j => j.JobDetails)
+                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated))
+                        .ThenInclude(j => j.Influencer)
+                            .ThenInclude(i => i.User)
+                    .Where(c => c.Id == campaignId)
+                    .FirstOrDefaultAsync();
+
                 return campaign;
-
             }
-
         }
+
     }
 }

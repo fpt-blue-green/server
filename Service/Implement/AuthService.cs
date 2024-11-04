@@ -6,6 +6,7 @@ using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
+using System.Transactions;
 using UAParser;
 using static BusinessObjects.AuthEnumContainer;
 
@@ -29,10 +30,10 @@ namespace Service
         public async Task<UserTokenDTO> Login(LoginDTO loginDTO, string userAgent)
         {
             var user = new User();
-            if(loginDTO.Password == null)
+            if (loginDTO.Password == null)
             {
                 user = await _userRepository.GetUserByEmail(loginDTO.Email);
-                if(user.Provider== (int)EAccountProvider.AdFusionAccount)
+                if (user.Provider == (int)EAccountProvider.AdFusionAccount)
                 {
                     throw new Exception();
                 }
@@ -164,7 +165,7 @@ namespace Service
             }
             var user = await _userRepository.GetUserByEmail(registerDTO.Email);
 
-            if(user != null)
+            if (user != null)
             {
                 throw new InvalidOperationException("Email đã tồn tại trong hệ thống. Vui lòng sử dụng tài khoản khác để đăng ký.");
             }
@@ -197,9 +198,9 @@ namespace Service
             var userAgentConverted = GetBrowserInfo(userAgent);
             var userDevice = await _userDeviceRepository.GetUserDeviceByAgentAndUserID(userAgentConverted, userDTO!.Id);
 
-            if (userDevice == null)
+            if (userDevice == null || userDevice.RefreshToken == null)
             {
-                throw new KeyNotFoundException();
+                throw new UnauthorizedAccessException();
             }
 
             if (userDevice.RefreshTokenTime!.AddDays(30) < DateTime.Now)
@@ -367,16 +368,44 @@ namespace Service
 
         public async Task ValidateChangePass(string token)
         {
-            var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
-            var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
-            await _userRepository.UpdateUser(user!);
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
+                    var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
+                    await _userRepository.UpdateUser(user!);
+
+                    var userDevices = await _userDeviceRepository.GetByUserId(user!.Id);
+                    await _userDeviceRepository.UpdateRange(userDevices.ToList());
+                    scope.Complete();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
         }
 
         public async Task ValidateForgotPass(string token)
         {
-            var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
-            var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
-            await _userRepository.UpdateUser(user!);
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
+                    var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
+                    await _userRepository.UpdateUser(user!);
+
+                    var userDevices = await _userDeviceRepository.GetByUserId(user!.Id);
+                    await _userDeviceRepository.UpdateRange(userDevices.ToList());
+                    scope.Complete();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
         }
     }
 }

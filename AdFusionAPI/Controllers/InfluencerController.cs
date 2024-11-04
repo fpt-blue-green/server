@@ -152,16 +152,7 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
         #endregion
-
-        [HttpGet("loginHistory")]
-        [AuthRequired]
-        public async Task<ActionResult<IEnumerable<UserDeviceDTO>>> GetInfluencerLoginHistory()
-        {
-            var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _influencerService.GetInfluencerLoginHistory(user);
-            return Ok(result);
-
-        }
+   
 
         [HttpGet("jobs")]
         [InfluencerRequired]

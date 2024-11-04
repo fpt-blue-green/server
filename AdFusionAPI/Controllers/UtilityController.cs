@@ -10,9 +10,9 @@ namespace AdFusionAPI.Controllers
     public class UtilityController : Controller
     {
         private readonly IUtilityService _utilityService;
-        private readonly CampaignMeetingRoomService _videoCallService;
+        private readonly ICampaignMeetingRoomService _videoCallService;
 
-        public UtilityController(IUtilityService utilityService, CampaignMeetingRoomService videoCallService)
+        public UtilityController(IUtilityService utilityService, ICampaignMeetingRoomService videoCallService)
         {
             this._utilityService = utilityService;
             this._videoCallService = videoCallService;
