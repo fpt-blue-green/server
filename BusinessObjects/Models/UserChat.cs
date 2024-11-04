@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 namespace BusinessObjects.Models;
 
-public partial class ChatRoom
+/// <summary>
+/// </summary>
+public partial class UserChat
 {
-    public long Id { get; set; }
-
-    public Guid SenderId { get; set; }
+	public Guid Id { get; set; }
+	public Guid SenderId { get; set; }
 
     public Guid ReceiverId { get; set; }
 
@@ -18,6 +19,7 @@ public partial class ChatRoom
     public string? SenderName { get; set; }
 
     public string? ReceiverName { get; set; }
+
 
     public virtual User Receiver { get; set; } = null!;
 

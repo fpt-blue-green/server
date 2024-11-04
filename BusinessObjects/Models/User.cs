@@ -39,10 +39,6 @@ public partial class User
 
     public virtual ICollection<CampaignChat> CampaignChats { get; set; } = new List<CampaignChat>();
 
-    public virtual ICollection<ChatRoom> ChatRoomReceivers { get; set; } = new List<ChatRoom>();
-
-    public virtual ICollection<ChatRoom> ChatRoomSenders { get; set; } = new List<ChatRoom>();
-
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
     public virtual Influencer? Influencer { get; set; }
@@ -50,6 +46,10 @@ public partial class User
     public virtual ICollection<InfluencerReport> InfluencerReports { get; set; } = new List<InfluencerReport>();
 
     public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
+
+    public virtual ICollection<UserChat> UserChatReceivers { get; set; } = new List<UserChat>();
+
+    public virtual ICollection<UserChat> UserChatSenders { get; set; } = new List<UserChat>();
 
     public virtual ICollection<UserDevice> UserDevices { get; set; } = new List<UserDevice>();
 }

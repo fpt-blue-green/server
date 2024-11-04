@@ -23,13 +23,15 @@ public partial class Offer
 
     public int From { get; set; }
 
-    public int TargetReaction { get; set; }
-
     public DateTime CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
 
     public int? Quantity { get; set; }
+
+    public int TargetReaction { get; set; }
+
+    public DateTime? ModifiedAt { get; set; }
 
     public virtual Job Job { get; set; } = null!;
 }

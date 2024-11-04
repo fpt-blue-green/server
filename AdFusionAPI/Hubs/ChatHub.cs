@@ -7,7 +7,7 @@ namespace AdFusionAPI.Hubs;
 public class ChatHub : Hub<IChatClient>
 {
     private readonly IDictionary<string, UserConnection> _connections;
-    private readonly IChatRepository _roomChatRepository = new ChatRepository();
+    private readonly IUserChatRepository _userChatRepository = new UserChatRepository();
     private readonly IUserRepository _userRepository = new UserRepository();
 
     public ChatHub(IDictionary<string, UserConnection> connections)
@@ -17,7 +17,7 @@ public class ChatHub : Hub<IChatClient>
 
 	private async Task LoadMessages(Guid userId, Guid receiverId)
 	{
-		var messages = await _roomChatRepository.GetMessagesAsync(userId, receiverId);
+		var messages = await _userChatRepository.GetMessagesAsync(userId, receiverId);
 		foreach (var message in messages)
 		{
 			await Clients.Caller.ReceiveMessage(message.SenderName, message.Message);
@@ -42,7 +42,7 @@ public class ChatHub : Hub<IChatClient>
 			var sender = await _userRepository.GetUserById(senderId);
 			var receiver = await _userRepository.GetUserById(receiverId);
 
-			var chatRoom = new ChatRoom
+			var chatRoom = new UserChat
 			{
 				Message = message,
 				ReceiverId = receiverId,
@@ -52,7 +52,7 @@ public class ChatHub : Hub<IChatClient>
 				DateSent = DateTime.UtcNow
 			};
 
-			await _roomChatRepository.SaveMessageAsync(chatRoom);
+			await _userChatRepository.SaveMessageAsync(chatRoom);
 
 			// Gửi tin nhắn đến người gửi (hiển thị tin nhắn đã gửi)
 			await Clients.Caller.ReceiveMessage(sender.DisplayName, message);

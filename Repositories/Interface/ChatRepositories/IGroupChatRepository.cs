@@ -4,9 +4,10 @@ using BusinessObjects.Models;
 
 namespace Repositories
 {
-	public interface IGroupChatRepository
+	public interface IGroupUserChatRepository
 	{
 		Task<List<CampaignChat>> GetGroupMessageAsync(string roomName);
-		Task CreateOrSaveMessageAsync(CampaignChat roomChat);
+		Task CreateOrSaveMessageAsync(CampaignChat userChat);
+		Task<CampaignChat> GetLastMessage(Guid campaignId, Guid senderId);
 	}
 }

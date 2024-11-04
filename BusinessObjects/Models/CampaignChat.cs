@@ -15,8 +15,6 @@ public partial class CampaignChat
 
     public DateTime SendTime { get; set; }
 
-    public string? SenderName { get; set; }
-
     public Guid CampaignId { get; set; }
 
     public virtual Campaign? Campaign { get; set; }
