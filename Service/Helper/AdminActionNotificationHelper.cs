@@ -36,6 +36,12 @@ namespace Service.Helper
                 case (int)EAdminActionType.RejectWithDraw:
                     summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã Từ chối yêu cầu rút tiền. Thông tin chi tiết: {JsonConvert.SerializeObject(newData, settings)}";
                     break;
+                case (int)EAdminActionType.ApproveUpdatePremium:
+                    summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã Phê duyệt yêu cầu nâng cấp tài khoản Premium. Thông tin chi tiết: {JsonConvert.SerializeObject(newData, settings)}";
+                    break;
+                case (int)EAdminActionType.RejectUpdatePremium:
+                    summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã Từ chối yêu cầu rút tiền. nâng cấp tài khoản Premium: {JsonConvert.SerializeObject(newData, settings)}";
+                    break;
                 default:
                     string action = ((EAdminActionType)actionType!).GetEnumDescription();
                     summary = $"Vào lúc {formattedDateTime}, Admin {userDTO.Name} đã thực hiện thao tác [{action}] trên model {objectType ?? typeof(T).Name}. " +

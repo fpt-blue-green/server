@@ -6,6 +6,7 @@ using Repositories;
 using Service.Helper;
 using System.Transactions;
 using Serilog;
+using System.Drawing.Drawing2D;
 
 namespace Service
 {
@@ -15,6 +16,7 @@ namespace Service
         private static readonly AdminActionNotificationHelper _adminActionNotificationHelper = new AdminActionNotificationHelper();
         private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
         private static readonly IPaymentRepository _paymentRepository = new PaymentRepository();
+        private static readonly IBrandRepository _brandRepository = new BrandRepository();
         private static readonly IUserRepository _userRepository = new UserRepository();
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
@@ -158,7 +160,10 @@ namespace Service
             //tren 3 thang thi discount 15%
             var discount = await _systemSettingRepository.GetSystemSetting(_configManager.UpdatePremiumDiscount) ?? throw new Exception("Has error when get Discount");
             var discountValue = decimal.Parse(discount.KeyValue!.ToString()!);
-            var totalAmount = updateVipRequest.NumberMonthsRegis <3 ? updateVipRequest.Amount * updateVipRequest.NumberMonthsRegis: updateVipRequest.Amount * updateVipRequest.NumberMonthsRegis * discountValue;
+            var amount = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Discount");
+            var amountValue = decimal.Parse(amount.KeyValue!.ToString()!);
+
+            var totalAmount = updateVipRequest.NumberMonthsRegis <3 ? amountValue * updateVipRequest.NumberMonthsRegis: amountValue * updateVipRequest.NumberMonthsRegis *(1 - discountValue);
             var paymentHistory = new PaymentHistory()
             {
                 UserId = userId,
@@ -219,18 +224,30 @@ namespace Service
                 _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
             }
         }
-        public async Task SendMailResponseUpdatePremium(User user, PaymentHistory payment)
+        public async Task SendMailResponseUpdatePremium(Brand user, PaymentHistory payment,bool isApprove,string adminMessage)
         {
             try
             {
-                string subject = "Thông Báo Phản Hồi về yêu cầu rút tiền";
-                var body = _emailTemplate.responseWithDrawTemplate
-                    .Replace("{BrandName}", user.DisplayName)
-                    .Replace("{validDate}", user.Brand.PremiumValidTo.ToString())
+                string subject = "Thông Báo Phản Hồi về yêu cầu nâng cấp tài khoản Premium";
+                var body = string.Empty;
+                if (isApprove)
+                {
+                    body = _emailTemplate.ApproveUpdatePremium
+                    .Replace("{BrandName}", user.User.DisplayName)
+                    .Replace("{validDate}", user.PremiumValidTo.ToString())
                     .Replace("{Link}", "")
                     .Replace("{projectName}", _configManager.ProjectName);
+                }
+                else
+                {
+                    body = _emailTemplate.RejectUpdatePremium
+                    .Replace("{BrandName}", user.User.DisplayName)
+                    .Replace("{Link}", "")
+                    .Replace("{adminMessage}", adminMessage)
+                    .Replace("{projectName}", _configManager.ProjectName);
+                }
 
-                _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { user.Email }, subject, body));
+                _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { user.User.Email }, subject, body ));
             }
             catch (Exception ex)
             {
@@ -241,30 +258,50 @@ namespace Service
         #endregion
         public async Task ProcessUpdatePremiumApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
         {
+            var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
+            var brand = await _brandRepository.GetByUserId(paymentHistory.UserId) ?? throw new Exception("Không tìm thấy người dùng.!");
+
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
                     paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
-                    var user = paymentHistory.User ?? throw new Exception("Không tìm thấy người dùng.!");
-
                     if (adminPaymentResponse.IsApprove)
                     {
                         paymentHistory.Status = (int)EPaymentStatus.Done;
+                        paymentHistory.AdminMessage = $"Yêu cầu trở thành nhãn hàng Premium đã được hoàn tất.";
+                        var premiumPrice = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Premium Price");
+                        try
+                        {
+                            if (brand.PremiumValidTo.HasValue)
+                            {
+                                if (decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
+                                {
+                                    brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
+                                }
+                                else
+                                {
+                                    brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
+                                }
+                            }
+                            else
+                            {
+                                if (decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
+                                {
+                                    (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
+                                }
+                                else
+                                {
+                                    (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            throw new InvalidOperationException("Có lỗi khi nâng cấp tài khoản này lên tài khoản Premium , hãy kiểm tra lại.");
+                        }
 
-                        paymentHistory.AdminMessage = $"Yêu cầu trở thành Premium Brand của bạn đã được hoàn tất, hiệu lực tới ngày {DateOnly.FromDateTime(paymentHistory.ResponseAt!.Value)}, hãy cùng khám phá trải nghiệm của Premium nào!";
-                        var premiumPrice = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Premium Price Fee");
-                        if( decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
-                        {
-                            user.Brand.PremiumValidTo = DateTime.UtcNow.AddMonths(1);
-                        }
-                        else
-                        {
-                            user.Brand.PremiumValidTo = DateTime.UtcNow.AddMonths(3);
-                        }
-                        await _userRepository.UpdateUser(user);
-                        await SendMailResponseUpdatePremium(user, paymentHistory);
+                        await _brandRepository.UpdateBrand(brand);
                     }
                     else
                     {
@@ -288,6 +325,7 @@ namespace Service
                     throw;
                 }
             }
+            await SendMailResponseUpdatePremium(brand, paymentHistory, adminPaymentResponse.IsApprove, adminPaymentResponse.AdminMessage);
         }
     }
 }
