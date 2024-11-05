@@ -42,5 +42,13 @@ namespace AdFusionAPI.Controllers
             var result = await _paymentService.GetAllPayment(filter);
             return Ok(result);
         }
+        [HttpPost("responseupdatepremium/{paymentId}")]
+        [AdminRequired]
+        public async Task<ActionResult> ResponseUpdatePremium(Guid paymentId, AdminPaymentResponse adminPaymentResponse)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _paymentService.ProcessUpdatePremiumApproval(paymentId, adminPaymentResponse, user);
+            return Ok();
+        }
     }
 }

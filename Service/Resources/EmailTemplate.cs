@@ -1396,13 +1396,217 @@
                                     </body>
 
                                     </html>";
-        #endregion
+		#endregion
+		#region updatePremium
+		public string ApproveUpdatePremium = @"
+        <!DOCTYPE html>
+        <html lang=""en"">
+          <head>
+            <meta charset=""UTF-8"" />
+            <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+            <title>Document</title>
+        <style>
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              margin: 0;
+              padding: 0;
+            }
+            .email-container {
+              background-color: white;
+              max-width: 600px;
+              margin: 0 auto;
+              border-radius: 8px;
+              border: 0.3px solid rgba(0, 0, 0, 0.2);
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+              overflow: hidden;
+            }
 
-        #region update premium
-        public string ApproveUpdatePremium =
-            "" +
-            "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\r\n    <title>Document</title>\r\n  </head>\r\n  <style>\r\n    body {\r\n      font-family: Arial, sans-serif;\r\n      background-color: #f4f4f4;\r\n      margin: 0;\r\n      padding: 0;\r\n    }\r\n\r\n    .email-container {\r\n      background-color: white;\r\n      max-width: 600px;\r\n      margin: 0 auto;\r\n      border-radius: 8px;\r\n      border: 0.3px solid rgba(0, 0, 0, 0.2);\r\n      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);\r\n      overflow: hidden;\r\n    }\r\n\r\n    .email-header {\r\n      background-color: rgb(54, 245, 63);\r\n      color: rgb(0, 0, 0);\r\n      text-align: center;\r\n      padding: 25px;\r\n      font-size: 22px;\r\n      font-weight: bold;\r\n    }\r\n\r\n    .email-body {\r\n      padding: 20px;\r\n      color: #333;\r\n    }\r\n\r\n    .email-body h2 {\r\n      color: rgb(255, 38, 0);\r\n    }\r\n\r\n    .email-body p {\r\n      line-height: 1.6;\r\n    }\r\n\r\n    .email-body ul {\r\n      padding-left: 20px;\r\n    }\r\n\r\n    .button-container {\r\n      text-align: center;\r\n      margin: 20px 0;\r\n    }\r\n\r\n    .button {\r\n      background-color: rgb(255, 112, 129);\r\n      color: white;\r\n      padding: 10px 20px;\r\n      text-align: center;\r\n      text-decoration: none;\r\n      display: inline-block;\r\n      border-radius: 5px;\r\n      font-weight: bold;\r\n    }\r\n\r\n    .email-footer {\r\n      padding: 20px;\r\n      font-size: 12px;\r\n      color: #777;\r\n      border-top: 1px solid #eaeaea;\r\n    }\r\n\r\n    .email-footer .copyright {\r\n      text-align: center;\r\n    }\r\n  </style>\r\n  <body>\r\n    <div class=\"email-container\">\r\n      <div class=\"email-header\">Thông báo nâng cấp tài khoản</div>\r\n      <div class=\"email-body\">\r\n        <h2>Xin chào {BrandName},</h2>\r\n        <p>\r\n          Yêu cầu nâng cấp tài khoản Premium của bạn đã được xác nhận. Tài khoản\r\n          của bạn sẽ trở thành Premium đến hết ngày {validDate}\r\n        </p>\r\n        <p>Hãy tận hưởng những đặc quyền của Premium .</p>\r\n        <div class=\"button-container\">\r\n          <a href=\"{Link}\" class=\"button\">Xem Chi Tiết</a>\r\n        </div>\r\n      </div>\r\n      <div class=\"email-footer\">\r\n        <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>\r\n        <p>Trân trọng,<br /><br />{projectName}</p>\r\n        <div class=\"copyright\">\r\n          <p>© 2024 Bản quyền thuộc về {projectName}.</p>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </body>\r\n</html>\r\n" +
-            "";
+            .email-header {
+              background-color: rgb(255, 112, 129);
+              color:#f4f4f4;
+              text-align: center;
+              padding: 25px;
+              font-size: 22px;
+              font-weight: bold;
+            }
+
+            .email-body {
+              padding: 20px;
+              color: #333;
+            }
+
+            .email-body h2 {
+              color:rgb(255, 112, 129);
+            }
+
+            .email-body p {
+              line-height: 1.6;
+            }
+
+            .email-body ul {
+              padding-left: 20px;
+            }
+
+            .button-container {
+              text-align: center;
+              margin: 20px 0;
+            }
+
+            .button {
+              background-color: rgb(255, 112, 129);
+              color: white;
+              padding: 10px 20px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              border-radius: 5px;
+              font-weight: bold;
+            }
+
+            .email-footer {
+              padding: 20px;
+              font-size: 12px;
+              color: #777;
+              border-top: 1px solid #eaeaea;
+            }
+
+            .email-footer .copyright {
+              text-align: center;
+            }
+          </style>
+          </head>
+          
+          <body>
+            <div class=""email-container"">
+              <div class=""email-header"">Thông báo nâng cấp tài khoản</div>
+              <div class=""email-body"">
+                <h2>Xin chào {BrandName},</h2>
+                <p>
+                  Yêu cầu nâng cấp tài khoản Premium của bạn đã được xác nhận. Tài khoản
+                  của bạn sẽ trở thành Premium đến hết ngày {validDate}
+                </p>
+                <p>Hãy tận hưởng những đặc quyền của Premium .</p>
+                <div class=""button-container"">
+                  <a href=""{Link}"" class=""button"">Xem Chi Tiết</a>
+                </div>
+              </div>
+              <div class=""email-footer"">
+                <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                <p>Trân trọng,<br /><br />{projectName}</p>
+                <div class=""copyright"">
+                  <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                </div>
+              </div>
+            </div>
+          </body>
+        </html>
+        ";
+        public string RejectUpdatePremium = @"<!DOCTYPE html>
+            <html lang=""en"">
+              <head>
+                <meta charset=""UTF-8"" />
+                <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
+                <title>Document</title>
+                <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                  margin: 0;
+                  padding: 0;
+                }
+
+                .email-container {
+                  background-color: white;
+                  max-width: 600px;
+                  margin: 0 auto;
+                  border-radius: 8px;
+                  border: 0.3px solid rgba(0, 0, 0, 0.2);
+                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+                  overflow: hidden;
+                }
+
+                .email-header {
+                  background-color: rgb(255, 112, 129);
+                  color:  #f4f4f4;
+                  text-align: center;
+                  padding: 25px;
+                  font-size: 22px;
+                  font-weight: bold;
+                }
+
+                .email-body {
+                  padding: 20px;
+                  color: #333;
+                }
+
+                .email-body h2 {
+                  color: rgb(255, 112, 129);
+                }
+
+                .email-body p {
+                  line-height: 1.6;
+                }
+
+                .email-body ul {
+                  padding-left: 20px;
+                }
+
+                .button-container {
+                  text-align: center;
+                  margin: 20px 0;
+                }
+
+                .button {
+                  background-color: rgb(255, 112, 129);
+                  color: white;
+                  padding: 10px 20px;
+                  text-align: center;
+                  text-decoration: none;
+                  display: inline-block;
+                  border-radius: 5px;
+                  font-weight: bold;
+                }
+
+                .email-footer {
+                  padding: 20px;
+                  font-size: 12px;
+                  color: #777;
+                  border-top: 1px solid #eaeaea;
+                }
+
+                .email-footer .copyright {
+                  text-align: center;
+                }
+              </style>
+              </head>
+              <body>
+                <div class=""email-container"">
+                  <div class=""email-header"">Thông báo nâng cấp tài khoản</div>
+                  <div class=""email-body"">
+                    <h2>Xin chào {BrandName},</h2>
+                    <p>
+                      Yêu cầu nâng cấp tài khoản Premium của bạn đã bị từ chối.
+                    </p>
+                    <h5>Lí do : {adminMessage} </h5>
+                    <p>Hãy đảm bảo bạn đã thanh toán đúng cách và liên hệ với Admin để xác nhận nếu bạn
+                      đã hoàn thành đúng bước.</p>
+                    <p>Hãy tận hưởng những đặc quyền của Premium .</p>
+                    <div class=""button-container"">
+                      <a href=""{Link}"" class=""button"">Xem Chi Tiết</a>
+                    </div>
+                  </div>
+                  <div class=""email-footer"">
+                    <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                    <p>Trân trọng,<br /><br />{projectName}</p>
+                    <div class=""copyright"">
+                      <p>© 2024 Bản quyền thuộc về {projectName}.</p>
+                    </div>
+                  </div>
+                </div>
+              </body>
+            </html>
+            ";
         #endregion
 
         #region JobStatus

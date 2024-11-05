@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdFusionAPI", "AdFusionAPI\AdFusionAPI.csproj", "{D628F76E-5A7F-4B43-B391-4CFDD67CC65F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csproj", "{BCC5987F-09A7-437B-850F-9E96FF4173C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdFusionHubs", "AdFusionHub\AdFusionHubs.csproj", "{BCC5987F-09A7-437B-850F-9E96FF4173C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
