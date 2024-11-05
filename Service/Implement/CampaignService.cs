@@ -384,7 +384,7 @@ namespace Service
         public async Task PublishCampaign(Guid campaignId)
         {
             var campaign = await _campaignRepository.GetById(campaignId);
-            if (campaign.Status != (int)ECampaignStatus.Published)
+            if (campaign.Status != (int)ECampaignStatus.Draft)
             {
                 throw new InvalidOperationException("Chỉ những chiến dịch đang có trạng thái đang chuẩn bị mới có thể công khai.");
             }
