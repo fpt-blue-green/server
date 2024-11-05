@@ -401,7 +401,7 @@ namespace Service
                 throw new InvalidOperationException("Chỉ những chiến dịch đang có trạng thái công khai mới có thể bắt đầu.");
             }
 
-            if (campaign?.Jobs?.Any(s => s.Status == (int)EJobStatus.InProgress) != true)
+            if (campaign?.Jobs?.Any(s => s.Status == (int)EJobStatus.Approved) != true)
             {
                 throw new InvalidOperationException("Cần có ít nhất 1 công việc đã được thanh toán để có thể bắt đầu chiến dịch.");
             }
