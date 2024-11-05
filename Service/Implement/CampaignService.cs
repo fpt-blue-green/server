@@ -151,7 +151,7 @@ namespace Service
         public async Task<Guid> UpdateCampaign(Guid userId, Guid campaignId, CampaignResDto campaignDto)
         {
             var brand = await _brandRepository.GetByUserId(userId);
-            var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
+            var campaignDuplicateNames = (await _campaignRepository.GetByBrandId(brand.Id)).Where(s => s.Id != campaignId && string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase));
             if (campaignDuplicateNames.Any())
             {
                 throw new InvalidOperationException("Tên chiến dịch không được trùng lặp.");
