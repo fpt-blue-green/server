@@ -8,6 +8,8 @@ namespace BusinessObjects
         public string? UserProfileImage { get; set; } 
         public Guid? CampaignId { get; set; }         
         public string? CampaignName { get; set; }     
-        public DateTime? LastInteractionTime { get; set; } 
-    }
+        public DateTime? LastInteractionTime { get; set; }
+		public string? LastMessage { get; set; }
+
+	}
 }
