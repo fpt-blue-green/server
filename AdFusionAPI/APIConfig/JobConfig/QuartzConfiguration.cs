@@ -23,21 +23,21 @@ public static class QuartzConfiguration
                 //.WithCronSchedule("0 * * ? * *") // Cron Expression cho 1p
             );
 
-            //// Định nghĩa job thứ hai
-            //var jobKey2 = new JobKey("UploadPremiumBrandJobService");
-            //q.AddJob<UploadPremiumBrandJobService>(opts => opts.WithIdentity(jobKey2).StoreDurably()); // Đánh dấu là durable
+            // Định nghĩa job thứ hai
+            var jobKey2 = new JobKey("UploadPremiumBrandJobService");
+            q.AddJob<UploadPremiumBrandJobService>(opts => opts.WithIdentity(jobKey2).StoreDurably()); // Đánh dấu là durable
 
-            //// Định nghĩa job thứ ba
-            //var jobKey3 = new JobKey("UploadJobDetailDataJobService");
-            //q.AddJob<UploadJobDetailDataJobService>(opts => opts.WithIdentity(jobKey3).StoreDurably()); // Đánh dấu là durable
+            // Định nghĩa job thứ ba
+            var jobKey3 = new JobKey("UploadJobDetailDataJobService");
+            q.AddJob<UploadJobDetailDataJobService>(opts => opts.WithIdentity(jobKey3).StoreDurably()); // Đánh dấu là durable
 
-            //// Định nghĩa job thứ tư
-            //var jobKey4 = new JobKey("UploadOfferDataJobService");
-            //q.AddJob<UploadOfferDataJobService>(opts => opts.WithIdentity(jobKey4).StoreDurably()); // Đánh dấu là durable
+            // Định nghĩa job thứ tư
+            var jobKey4 = new JobKey("UploadOfferDataJobService");
+            q.AddJob<UploadOfferDataJobService>(opts => opts.WithIdentity(jobKey4).StoreDurably()); // Đánh dấu là durable
 
-            //// Định nghĩa job thứ năm
-            //var jobKey5 = new JobKey("UploadJobPaymentJobService");
-            //q.AddJob<UploadJobPaymentJobService>(opts => opts.WithIdentity(jobKey5).StoreDurably()); // Đánh dấu là durable
+            // Định nghĩa job thứ năm
+            var jobKey5 = new JobKey("UploadJobPaymentJobService");
+            q.AddJob<UploadJobPaymentJobService>(opts => opts.WithIdentity(jobKey5).StoreDurably()); // Đánh dấu là durable
 
             // Đăng ký JobListener
             q.AddJobListener<JobCompletionListener>();
