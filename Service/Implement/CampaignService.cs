@@ -405,7 +405,7 @@ namespace Service
             {
                 throw new InvalidOperationException("Cần có ít nhất 1 công việc đã được thanh toán để có thể bắt đầu chiến dịch.");
             }
-            var jobs = campaign.Jobs;
+            var jobs = campaign.Jobs.Where(job => job.Status == (int)EJobStatus.Approve).ToList();
             foreach (var job in jobs)
             {
                 job.Status = (int)EJobStatus.InProgress;
