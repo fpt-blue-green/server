@@ -82,6 +82,8 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<Channel> Channels { get; set; }
 
+    public virtual DbSet<ChatMember> ChatMembers { get; set; }
+
     public virtual DbSet<Favorite> Favorites { get; set; }
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
@@ -95,6 +97,8 @@ public partial class PostgresContext : DbContext
     public virtual DbSet<Job> Jobs { get; set; }
 
     public virtual DbSet<JobDetails> JobDetails { get; set; }
+
+    public virtual DbSet<Message> Messages { get; set; }
 
     public virtual DbSet<Offer> Offers { get; set; }
 
@@ -110,8 +114,6 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    public virtual DbSet<UserChat> UserChats { get; set; }
-
     public virtual DbSet<UserDevice> UserDevices { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -120,10 +122,11 @@ public partial class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
+DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
         modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
         modelBuilder.Entity<Campaign>().HasQueryFilter(u => u.IsDeleted == false);
-        modelBuilder.Entity<InfluencerReport>().HasQueryFilter(u => u.ReportStatus == (int)EReportStatus.Pending);        modelBuilder
+        modelBuilder.Entity<InfluencerReport>().HasQueryFilter(u => u.ReportStatus == (int)EReportStatus.Pending); 
+        modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
             .HasPostgresEnum("auth", "factor_status", new[] { "unverified", "verified" })
@@ -224,23 +227,17 @@ public partial class PostgresContext : DbContext
 
         modelBuilder.Entity<CampaignChat>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("campaignchat_pkey");
+            entity.HasKey(e => e.Id).HasName("CampaignChat_pkey");
 
             entity.ToTable("CampaignChat");
 
-            entity.Property(e => e.Id)
-                .HasDefaultValueSql("gen_random_uuid()")
-                .HasColumnName("id");
-            entity.Property(e => e.SendTime).HasDefaultValueSql("now()");
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignChats)
                 .HasForeignKey(d => d.CampaignId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("campaignchat_campaignid_fkey");
-
-            entity.HasOne(d => d.Sender).WithMany(p => p.CampaignChats)
-                .HasForeignKey(d => d.SenderId)
-                .HasConstraintName("campaignchat_senderid_fkey");
+                .HasConstraintName("CampaignChat_CampaignId_fkey");
         });
 
         modelBuilder.Entity<CampaignContent>(entity =>
@@ -280,7 +277,6 @@ public partial class PostgresContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
-            entity.Property(e => e.IsFirstTime).HasDefaultValueSql("false");
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.CampaignMeetingRooms)
                 .HasForeignKey(d => d.CampaignId)
@@ -297,8 +293,24 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Channels)
                 .HasForeignKey(d => d.InfluencerId)
+                .HasConstraintName("Channels_InfluencerId_fkey");
+        });
+
+        modelBuilder.Entity<ChatMember>(entity =>
+        {
+            entity.HasKey(e => new { e.CampaignChatId, e.UserId }).HasName("ChatMembers_pkey");
+
+            entity.Property(e => e.JoinAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+
+            entity.HasOne(d => d.CampaignChat).WithMany(p => p.ChatMembers)
+                .HasForeignKey(d => d.CampaignChatId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("channels_influencerid_fkey");
+                .HasConstraintName("ChatMembers_CampaignChatId_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ChatMembers)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ChatMembers_UserId_fkey");
         });
 
         modelBuilder.Entity<Favorite>(entity =>
@@ -328,13 +340,11 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.InfluencerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("feedbacks_influencerid_fkey");
+                .HasConstraintName("Feedbacks_InfluencerId_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("feedbacks_userid_fkey");
+                .HasConstraintName("Feedbacks_UserId_fkey");
         });
 
         modelBuilder.Entity<Influencer>(entity =>
@@ -349,7 +359,6 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.User).WithOne(p => p.Influencer)
                 .HasForeignKey<Influencer>(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Influencers_UserId_fkey");
 
             entity.HasMany(d => d.Tags).WithMany(p => p.Influencers)
@@ -360,8 +369,7 @@ public partial class PostgresContext : DbContext
                         .HasConstraintName("InfluencerTags_TagId_fkey"),
                     l => l.HasOne<Influencer>().WithMany()
                         .HasForeignKey("InfluencerId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("influencertags_influencerid_fkey"),
+                        .HasConstraintName("InfluencerTags_InfluencerId_fkey"),
                     j =>
                     {
                         j.HasKey("InfluencerId", "TagId").HasName("InfluencerTags_pkey");
@@ -378,8 +386,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.InfluencerImages)
                 .HasForeignKey(d => d.InfluencerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("images_influencerid_fkey");
+                .HasConstraintName("InfluencerImages_InfluencerId_fkey");
         });
 
         modelBuilder.Entity<InfluencerReport>(entity =>
@@ -406,13 +413,11 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Campaign).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.CampaignId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("jobs_campaignid_fkey");
+                .HasConstraintName("Jobs_CampaignId_fkey");
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.InfluencerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("jobs_influencerid_fkey");
+                .HasConstraintName("Jobs_InfluencerId_fkey");
         });
 
         modelBuilder.Entity<JobDetails>(entity =>
@@ -426,6 +431,31 @@ public partial class PostgresContext : DbContext
                 .HasForeignKey(d => d.JobId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("jobdetails_jobid_fkey");
+        });
+
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("Messages_pkey");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.SentAt)
+                .HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)")
+                .HasColumnName("sentAt");
+
+            entity.HasOne(d => d.CampaignChat).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.CampaignChatId)
+                .HasConstraintName("Messages_CampaignChatId_fkey");
+
+            entity.HasOne(d => d.Receiver).WithMany(p => p.MessageReceivers)
+                .HasForeignKey(d => d.ReceiverId)
+                .HasConstraintName("Messages_ReceiverId_fkey");
+
+            entity.HasOne(d => d.Sender).WithMany(p => p.MessageSenders)
+                .HasForeignKey(d => d.SenderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Messages_SenderId_fkey");
         });
 
         modelBuilder.Entity<Offer>(entity =>
@@ -450,8 +480,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Influencer).WithMany(p => p.Packages)
                 .HasForeignKey(d => d.InfluencerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("packages_influencerid_fkey");
+                .HasConstraintName("Packages_InfluencerId_fkey");
         });
 
         modelBuilder.Entity<PaymentBooking>(entity =>
@@ -466,8 +495,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.Job).WithMany(p => p.PaymentBookings)
                 .HasForeignKey(d => d.JobId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("payments_brandid_fkey");
+                .HasConstraintName("PaymentBooking_JobId_fkey");
         });
 
         modelBuilder.Entity<PaymentHistory>(entity =>
@@ -482,8 +510,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.PaymentHistories)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("payments_userid_fkey");
+                .HasConstraintName("PaymentHistory_UserId_fkey");
         });
 
         modelBuilder.Entity<SystemSetting>(entity =>
@@ -514,25 +541,6 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100);
         });
 
-        modelBuilder.Entity<UserChat>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("UserChat_pkey");
-
-            entity.ToTable("UserChat", tb => tb.HasComment("This is a duplicate of UserChat"));
-
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
-
-            entity.HasOne(d => d.Receiver).WithMany(p => p.UserChatReceivers)
-                .HasForeignKey(d => d.ReceiverId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("UserChat_duplicate_ReceiverId_fkey");
-
-            entity.HasOne(d => d.Sender).WithMany(p => p.UserChatSenders)
-                .HasForeignKey(d => d.SenderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("UserChat_duplicate_SenderId_fkey");
-        });
-
         modelBuilder.Entity<UserDevice>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("UserDevices_pkey");
@@ -542,6 +550,7 @@ public partial class PostgresContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.UserDevices)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("UserDevices_UserId_fkey");
         });
 

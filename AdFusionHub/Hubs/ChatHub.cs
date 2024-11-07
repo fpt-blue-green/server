@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.SignalR;
 using Server.Hubs.Clients;
 using Server.Models;
@@ -8,21 +9,21 @@ namespace Server.Hubs;
 public class ChatHub : Hub<IChatClient>
 {
     private readonly IDictionary<string, UserConnection> _connections;
-	private readonly IChatService _chatService;
+	private readonly IMessageService _messageService;
 	private readonly IUserService _userService;
-    public ChatHub(IDictionary<string, UserConnection> connections, IChatService chatService, IUserService userService)
+    public ChatHub(IDictionary<string, UserConnection> connections, IMessageService chatService, IUserService userService)
     {
         _connections = connections;
-        _chatService = chatService;
+        _messageService = chatService;
         _userService = userService;
     }
 
     private async Task LoadMessages(Guid userId, Guid receiverId)
 	{
-		var messages = await _chatService.GetMessagesAsync(userId, receiverId);
+		var messages = await _messageService.GetMessagesAsync(userId, receiverId);
 		foreach (var message in messages)
 		{
-			await Clients.Caller.ReceiveMessage(userId.ToString(), message.SenderName, message.Message);
+			await Clients.Caller.ReceiveMessage(message);
 		}
 	}
 
@@ -30,7 +31,7 @@ public class ChatHub : Hub<IChatClient>
 	public async Task StartChat(UserConnection userConnection)
 	{
 		_connections[Context.ConnectionId] = userConnection;
-		await LoadMessages(Guid.Parse(userConnection.Username), Guid.Parse(userConnection.ReceiverId));
+		await LoadMessages(userConnection.SenderId, userConnection.ReceiverId);
 	}
 
 	// Gửi tin nhắn trực tiếp từ người gửi đến người nhận
@@ -38,33 +39,29 @@ public class ChatHub : Hub<IChatClient>
 	{
 		if (_connections.TryGetValue(Context.ConnectionId, out var userConnection))
 		{
-			var senderId = Guid.Parse(userConnection.Username);
-			var receiverId = Guid.Parse(userConnection.ReceiverId);
+			var senderId = userConnection.SenderId;
+			var receiverId = userConnection.ReceiverId;
 
-			var sender = await _userService.GetUserById(senderId);
-			var receiver = await _userService.GetUserById(receiverId);
 
-			var chatRoom = new UserChat
+			var msg = new MessageResDTO
 			{
-				Message = message,
+				Content = message,
 				ReceiverId = receiverId,
 				SenderId = senderId,
-				ReceiverName = receiver.DisplayName,
-				SenderName = sender.DisplayName,
-				DateSent = DateTime.UtcNow
 			};
 
-			await _chatService.SaveMessageAsync(chatRoom);
+			await _messageService.SaveMessageAsync(msg);
+            var lastMessage = await _messageService.GetLastMessage(senderId, receiverId);
 
-			// Gửi tin nhắn đến người gửi (hiển thị tin nhắn đã gửi)
-			await Clients.Caller.ReceiveMessage(userConnection.Username, sender.DisplayName, message);
+            // Gửi tin nhắn đến người gửi (hiển thị tin nhắn đã gửi)
+            //await Clients.Caller.ReceiveMessage(userConnection.Username, sender.DisplayName, message);
 
-			// Gửi tin nhắn đến người nhận nếu họ đang trực tuyến
-			var receiverConnection = _connections.FirstOrDefault(c => c.Value.Username == userConnection.ReceiverId).Key;
+            // Gửi tin nhắn đến người nhận nếu họ đang trực tuyến
+            var receiverConnection = _connections.FirstOrDefault(c => c.Value.SenderId == userConnection.ReceiverId).Key;
 			if (receiverConnection != null)
 			{
 				await Clients.Client(receiverConnection)
-					.ReceiveMessage(userConnection.Username, sender.DisplayName, message);
+					.ReceiveMessage(lastMessage);
 			}
 		}
 	}

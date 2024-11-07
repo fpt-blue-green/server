@@ -1,3 +1,3 @@
 ﻿namespace Server.Models;
 
-public record UserConnection(string Username, string ReceiverId);
+public record UserConnection(Guid SenderId, Guid ReceiverId);

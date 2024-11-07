@@ -121,7 +121,9 @@ namespace Service
 			 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.DisplayName))
 			 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Avatar))
 			 .ReverseMap();
-			#endregion
-		}
-	}
+			CreateMap<Message, MessageDTO>().ReverseMap();
+            CreateMap<ChatMember, ChatMemberDTO>().ReverseMap();
+            #endregion
+        }
+    }
 }

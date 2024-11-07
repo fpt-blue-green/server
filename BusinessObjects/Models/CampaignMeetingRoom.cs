@@ -21,11 +21,11 @@ public partial class CampaignMeetingRoom
 
     public string? Description { get; set; }
 
-    public bool IsFirstTime { get; set; }
-
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public Guid CampaignId { get; set; }
+
+    public bool IsFirstTime { get; set; }
 
     public virtual Campaign Campaign { get; set; } = null!;
 }

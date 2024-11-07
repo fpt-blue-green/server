@@ -5,7 +5,7 @@ namespace Server
 {
 	public interface IGroupChatClient
 	{
-		Task ReceiveGroupMessage(CampaignChatDTO campaignChat);
-		Task ReceiveUsersInRoom(string[] users);
+		Task ReceiveGroupMessage(MessageDTO campaignMessage);
+		Task ReceiveUsersInRoom(Guid[] users);
 	}
 }

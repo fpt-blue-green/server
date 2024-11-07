@@ -9,7 +9,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
 	{
-        builder.WithOrigins("http://localhost:3000","*")
+        builder.WithOrigins("http://localhost:3000", "http://localhost:7070","*")
 			  .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
@@ -19,8 +19,9 @@ builder.Services.AddSingleton<IDictionary<string, UserConnection>>(opt =>
     new Dictionary<string, UserConnection>());
 builder.Services.AddSingleton<IDictionary<string, GroupUserConnection>>(opt =>
 	new Dictionary<string, GroupUserConnection>());
-builder.Services.AddScoped<IChatService, ChatService>();
-builder.Services.AddScoped<IGroupChatService, GroupChatService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<ICampaignChatService, CampaignChatService>();
+builder.Services.AddScoped<IChatMemberService, ChatMemberService>();
 builder.Services.AddScoped<ICampaignService, CampaignService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddAutoMapper(typeof(Program));
