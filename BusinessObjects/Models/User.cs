@@ -37,7 +37,7 @@ public partial class User
 
     public virtual Brand? Brand { get; set; }
 
-    public virtual ICollection<CampaignChat> CampaignChats { get; set; } = new List<CampaignChat>();
+    public virtual ICollection<ChatMember> ChatMembers { get; set; } = new List<ChatMember>();
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
@@ -45,11 +45,11 @@ public partial class User
 
     public virtual ICollection<InfluencerReport> InfluencerReports { get; set; } = new List<InfluencerReport>();
 
+    public virtual ICollection<Message> MessageReceivers { get; set; } = new List<Message>();
+
+    public virtual ICollection<Message> MessageSenders { get; set; } = new List<Message>();
+
     public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
-
-    public virtual ICollection<UserChat> UserChatReceivers { get; set; } = new List<UserChat>();
-
-    public virtual ICollection<UserChat> UserChatSenders { get; set; } = new List<UserChat>();
 
     public virtual ICollection<UserDevice> UserDevices { get; set; } = new List<UserDevice>();
 }

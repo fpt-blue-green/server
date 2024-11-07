@@ -32,7 +32,10 @@ namespace AdFusionAPI
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<ConfigManager>();
-
+            services.AddScoped<IChatMemberService, ChatMemberService>();
+            services.AddScoped<ICampaignChatService , CampaignChatService>();
+            services.AddScoped<IMessageService , MessageService>();
+            services.AddScoped<IChatContactService , ChatContactService>();
 
             services.AddSingleton<ISecurityService, SecurityService>();
         }
