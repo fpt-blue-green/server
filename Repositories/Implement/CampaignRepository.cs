@@ -160,5 +160,16 @@ namespace Repositories
             }
         }
 
-    }
+		public async Task<Campaign> GetByCampaignChatId(Guid campaignChatId)
+		{
+			using (var _context = new PostgresContext())
+			{
+				var campaignChat = await _context.CampaignChats
+					.Include(c => c.Campaign) // Bao gồm Campaign liên quan
+					.FirstOrDefaultAsync(c => c.Id == campaignChatId); // Lọc theo campaignChatId
+
+				return campaignChat?.Campaign; // Trả về Campaign từ CampaignChat, hoặc null nếu không tìm thấy
+			}
+		}
+	}
 }

@@ -16,6 +16,8 @@ namespace Repositories
 		Task Update(Campaign campaign);
 		Task Delete(Campaign campaign);
 		Task<Campaign> GetCampaignJobDetails(Guid campaignId);
+		Task<Campaign> GetByCampaignChatId(Guid campaignChatId);
 
-    }
+
+	}
 }

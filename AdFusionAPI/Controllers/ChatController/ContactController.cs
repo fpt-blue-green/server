@@ -1,4 +1,5 @@
-﻿using BusinessObjects;
+﻿using AdFusionAPI.APIConfig;
+using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 
@@ -6,21 +7,21 @@ namespace AdFusionAPI.Controllers.ChatController
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GroupChatController : Controller
+    public class ContactController : Controller
     {
         private readonly IMessageService _messageService;
-        private readonly ChatContactService _chatContactService;
+        private readonly IChatContactService _chatContactService;
         private readonly IChatMemberService _chatMemberService;
         private readonly ICampaignChatService _campaignChatService;
-        public GroupChatController(IMessageService messageService, IChatMemberService chatMemberService, ICampaignChatService campaignChatService, ChatContactService chatContactService)
+        public ContactController(IMessageService messageService, IChatMemberService chatMemberService, ICampaignChatService campaignChatService, IChatContactService chatContactService)
         {
             _messageService = messageService;
             _chatMemberService = chatMemberService;
             _campaignChatService = campaignChatService;
             _chatContactService = chatContactService;
         }
-
-        [HttpPost("group/save")]
+		#region test api
+		[HttpPost("group/save")]
         public async Task<IActionResult> SaveMessage([FromBody] MessageResDTO messageRes)
         {
             await _messageService.SaveMessageAsync(messageRes);
@@ -79,19 +80,20 @@ namespace AdFusionAPI.Controllers.ChatController
             }
             return Ok(campaignChat);
         }
-
-        [HttpPost("room/create")]
+#endregion
+		[HttpPost("campaignChat/create")]
         public async Task<IActionResult> CreateCampaignChatRoom([FromBody] CampaignChatResDTO campaignChat)
         {
             await _campaignChatService.CreateCampaignChatRoom(campaignChat);
             return Ok("Campaign chat room created successfully.");
         }
-        [HttpGet("chat/contact")]
+        [HttpGet("chat/contacts")]
+        [AuthRequired]
         public async Task<IActionResult> GetChatContact()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            await _chatContactService.GetChatContactsAsync(user.Id);
-            return Ok("Campaign chat room created successfully.");
+            var result =  await _chatContactService.GetChatContactsAsync(user.Id);
+            return Ok(result);
         }
     }
 }
