@@ -84,7 +84,7 @@ namespace Repositories
                         }
                     })
                     .FirstOrDefaultAsync();
-                    }
+            }
         }
 
         public async Task<List<Message>> GetMessagesByUserIdAsync(Guid userId)
@@ -92,7 +92,8 @@ namespace Repositories
             using (var _context = new PostgresContext())
             {
                 return await _context.Messages
-                    .Where(c => c.SenderId == userId )
+                    .Where(m => m.SenderId == userId || m.ReceiverId == userId || m.CampaignChat.ChatMembers.Any((mem) => mem.UserId == userId))
+                    .Include(m => m.Sender)
                     .OrderBy(c => c.SentAt)
                     .ToListAsync();
             }

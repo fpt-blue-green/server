@@ -20,8 +20,8 @@ namespace AdFusionAPI.Controllers.ChatController
             _campaignChatService = campaignChatService;
             _chatContactService = chatContactService;
         }
-		#region test api
-		[HttpPost("group/save")]
+        #region test api
+        [HttpPost("group/save")]
         public async Task<IActionResult> SaveMessage([FromBody] MessageResDTO messageRes)
         {
             await _messageService.SaveMessageAsync(messageRes);
@@ -80,8 +80,8 @@ namespace AdFusionAPI.Controllers.ChatController
             }
             return Ok(campaignChat);
         }
-#endregion
-		[HttpPost("campaignChat/create")]
+        #endregion
+        [HttpPost("campaignChat/create")]
         public async Task<IActionResult> CreateCampaignChatRoom([FromBody] CampaignChatResDTO campaignChat)
         {
             await _campaignChatService.CreateCampaignChatRoom(campaignChat);
@@ -89,10 +89,10 @@ namespace AdFusionAPI.Controllers.ChatController
         }
         [HttpGet("chat/contacts")]
         [AuthRequired]
-        public async Task<IActionResult> GetChatContact()
+        public async Task<ActionResult<IEnumerable<ChatPartnerDTO>>> GetChatContact()
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result =  await _chatContactService.GetChatContactsAsync(user.Id);
+            var result = await _chatContactService.GetChatContactsAsync(user.Id);
             return Ok(result);
         }
     }

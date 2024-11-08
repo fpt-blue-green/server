@@ -8,17 +8,17 @@ namespace Server.Hubs;
 
 public class ChatHub : Hub<IChatClient>
 {
-    private readonly IDictionary<string, UserConnection> _connections;
+	private readonly IDictionary<string, UserConnection> _connections;
 	private readonly IMessageService _messageService;
 	private readonly IUserService _userService;
-    public ChatHub(IDictionary<string, UserConnection> connections, IMessageService chatService, IUserService userService)
-    {
-        _connections = connections;
-        _messageService = chatService;
-        _userService = userService;
-    }
+	public ChatHub(IDictionary<string, UserConnection> connections, IMessageService chatService, IUserService userService)
+	{
+		_connections = connections;
+		_messageService = chatService;
+		_userService = userService;
+	}
 
-    private async Task LoadMessages(Guid userId, Guid receiverId)
+	private async Task LoadMessages(Guid userId, Guid receiverId)
 	{
 		var messages = await _messageService.GetMessagesAsync(userId, receiverId);
 		foreach (var message in messages)
@@ -51,13 +51,13 @@ public class ChatHub : Hub<IChatClient>
 			};
 
 			await _messageService.SaveMessageAsync(msg);
-            var lastMessage = await _messageService.GetLastMessage(senderId, receiverId);
+			var lastMessage = await _messageService.GetLastMessage(senderId, receiverId);
 
-            // Gửi tin nhắn đến người gửi (hiển thị tin nhắn đã gửi)
-            //await Clients.Caller.ReceiveMessage(userConnection.Username, sender.DisplayName, message);
+			// Gửi tin nhắn đến người gửi (hiển thị tin nhắn đã gửi)
+			await Clients.Caller.ReceiveMessage(lastMessage);
 
-            // Gửi tin nhắn đến người nhận nếu họ đang trực tuyến
-            var receiverConnection = _connections.FirstOrDefault(c => c.Value.SenderId == userConnection.ReceiverId).Key;
+			// Gửi tin nhắn đến người nhận nếu họ đang trực tuyến
+			var receiverConnection = _connections.FirstOrDefault(c => c.Value.SenderId == userConnection.ReceiverId).Key;
 			if (receiverConnection != null)
 			{
 				await Clients.Client(receiverConnection)
