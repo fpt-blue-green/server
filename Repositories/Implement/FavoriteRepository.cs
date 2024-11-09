@@ -40,6 +40,7 @@ namespace Repositories
                 var favorites = await context.Favorites
                     .Where(f => f.Brand.UserId == userId)
                     .Include(f => f.Influencer)
+                        .ThenInclude(i => i.User)
                     .ToListAsync();
                 return favorites;
             }
