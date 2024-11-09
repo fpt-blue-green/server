@@ -12,11 +12,11 @@ namespace Service
         Task<FilterListResponse<CampaignDTO>> GetBrandCampaignsByUserId(Guid userId, BrandCampaignFilterDTO filter);
         Task<CampaignDTO> GetCampaign(Guid campaignId);
         //Task<List<TagDTO>> GetTagsOfCampaign(Guid campaignId);
-        Task UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds);
-        Task<List<string>> UploadCampaignImages(Guid campaignId, List<Guid> imageIds, List<IFormFile> contentFiles, string folder);
-        Task DeleteCampaign(Guid campaignId);
-        Task PublishCampaign(Guid campaignId);
-        Task StartCampaign(Guid campaignId);
+        Task UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds, UserDTO userDTO);
+        Task<List<string>> UploadCampaignImages(Guid campaignId, List<Guid> imageIds, List<IFormFile> contentFiles, string folder, UserDTO userDTO);
+        Task DeleteCampaign(Guid campaignId, UserDTO userDTO);
+        Task PublishCampaign(Guid campaignId, UserDTO userDTO);
+        Task StartCampaign(Guid campaignId, UserDTO userDTO);
         Task<List<CampaignDTO>> GetAvailableBrandCampaigns(Guid brandId);
 
     }

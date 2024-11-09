@@ -18,6 +18,8 @@ namespace Service
     {
         private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
         private static readonly IInfluencerImageRepository _influencerImagesRepository = new InfluencerImageRepository();
+        private static readonly IBrandRepository _brandRepository = new BrandRepository();
+        private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
         //private static readonly ITagRepository _tagRepository = new TagRepository();
 
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
@@ -417,8 +419,15 @@ namespace Service
             return true;
         }
 
-        public async Task<FilterListResponse<InfluencerJobDTO>> GetInfluencerWithJobByCampaginId(Guid campaignId, InfluencerJobFilterDTO filter)
+        public async Task<FilterListResponse<InfluencerJobDTO>> GetInfluencerWithJobByCampaginId(Guid campaignId, InfluencerJobFilterDTO filter, UserDTO user)
         {
+            var currentBrand = await _brandRepository.GetByUserId(user.Id);
+            var campaignAuthor = await _campaignRepository.GetById(campaignId);
+
+            if (currentBrand.Id != campaignAuthor.BrandId)
+            {
+                throw new AccessViolationException();
+            }
             var influencers = await _influencerRepository.GetInfluencerJobByCampaignId(campaignId);
 
             var influencerJobDTOs = influencers.Select(influencer =>
