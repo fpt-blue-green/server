@@ -52,27 +52,6 @@ namespace Service
 
             var data = await _utilityService.GetVideoInformation(offer!.Platform!, link);
 
-            if(offer.TargetReaction > 0 && (data.LikesCount + data.ViewCount + data.CommentCount) >= offer.TargetReaction)
-            {
-                if(isJobUpdate)
-                {
-                    job.Status = (int)EJobStatus.Completed;
-                    job.CompleteAt = DateTime.Now;
-                    await _jobRepository.Update(job);
-                    return;
-                }
-            }
-            else if (offer.TargetReaction > 0 && (data.LikesCount + data.ViewCount + data.CommentCount) < offer.TargetReaction)
-            {
-                if(job.Campaign.EndDate.ToUniversalTime() <= DateTime.Now.ToUniversalTime())
-                {
-                    job.Status = (int)EJobStatus.Failed;
-                    job.CompleteAt = DateTime.Now;
-                    await _jobRepository.Update(job);
-                    return;
-                }
-            }
-
             var oldData = await GetOldJobDetailData(link, job.Id);
             data.ViewCount -= oldData.totalViews;
             data.CommentCount -= oldData.totalComments;

@@ -34,7 +34,8 @@ namespace AdFusionAPI.Controllers
         [BrandRequired]
         public async Task<ActionResult<FilterListResponse<InfluencerJobDTO>>> GetCampaignsJobInfluencer( Guid id ,[FromQuery] InfluencerJobFilterDTO filter)
         {
-            var result = await _influencerService.GetInfluencerWithJobByCampaginId(id, filter);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _influencerService.GetInfluencerWithJobByCampaginId(id, filter, user);
             return Ok(result);
         }
 
@@ -95,18 +96,31 @@ namespace AdFusionAPI.Controllers
             var result = await _campaignService.UpdateCampaign(user.Id, id, campaign);
             return Ok(result);
         }
+
         [HttpPut("{id}/start")]
         [BrandRequired]
         public async Task<ActionResult> StartCampaign(Guid id)
         {
-            await _campaignService.StartCampaign(id);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _campaignService.StartCampaign(id, user);
             return Ok();
         }
+
         [HttpPut("{id}/publish")]
         [BrandRequired]
         public async Task<ActionResult> PublishCampaign(Guid id)
         {
-            await _campaignService.PublishCampaign(id);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _campaignService.PublishCampaign(id, user);
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        [BrandRequired]
+        public async Task<ActionResult> DeleteCampaign(Guid id)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _campaignService.DeleteCampaign(id, user);
             return Ok();
         }
         #region tag
@@ -122,7 +136,8 @@ namespace AdFusionAPI.Controllers
         [BrandRequired]
         public async Task<ActionResult> UpdateTagsOfCampaign(Guid id, List<Guid> listTags)
         {
-            await _campaignService.UpdateTagsForCampaign(id, listTags);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _campaignService.UpdateTagsForCampaign(id, listTags, user);
             return Ok();
         }
         #endregion
@@ -131,7 +146,8 @@ namespace AdFusionAPI.Controllers
         [BrandRequired]
         public async Task<ActionResult<List<string>>> UploadImages([FromForm] List<Guid> imageIds, [FromForm] List<IFormFile> images, Guid id)
         {
-            var result = await _campaignService.UploadCampaignImages(id, imageIds, images, "CampaignImages");
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _campaignService.UploadCampaignImages(id, imageIds, images, "CampaignImages", user);
             return Ok(result);
         }
         #endregion
@@ -141,7 +157,8 @@ namespace AdFusionAPI.Controllers
         [BrandRequired]
         public async Task<ActionResult> CreateCampaignContents([FromBody] List<CampaignContentDto> contents, Guid id)
         {
-            await _campaignContentService.CreateCampaignContents(id, contents);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _campaignContentService.CreateCampaignContents(id, contents, user);
             return Ok();
         }
         /*[HttpPut("contents/{contentId}")]
@@ -155,16 +172,11 @@ namespace AdFusionAPI.Controllers
         [BrandRequired]
         public async Task<ActionResult<List<CampaignContentDto>>> GetCampaignContents(Guid id)
         {
-            var result = await _campaignContentService.GetCampaignContents(id);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _campaignContentService.GetCampaignContents(id, user);
             return Ok(result);
         }
-        [HttpDelete("{id}")]
-        [BrandRequired]
-        public async Task<ActionResult> DeleteCampaign(Guid id)
-        {
-            await _campaignService.DeleteCampaign(id);
-            return Ok();
-        }
+        
         /*[HttpGet("contents/{contentId}")]
 		[AuthRequired]
 		public async Task<ActionResult<PackageDTO>> GetCampaignContent(Guid contentId)

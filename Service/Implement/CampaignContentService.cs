@@ -10,14 +10,15 @@ namespace Service
     {
         private static readonly ICampaignContentRepository _campaignContentRepository = new CampaignContentRepository();
         private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
+        private static readonly IBrandRepository _brandRepository = new BrandRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
-        public async Task CreateCampaignContents(Guid campaginId, List<CampaignContentDto> campaignContents)
+        public async Task CreateCampaignContents(Guid campaginId, List<CampaignContentDto> campaignContents, UserDTO userDTO)
         {
             var createContents = new List<CampaignContentDto>();
             var updateContents = new List<CampaignContentDto>();
             var deleteContents = new List<CampaignContentDto>();
             //get all content of campaign
-            var allContents = await GetCampaignContents(campaginId);
+            var allContents = await GetCampaignContents(campaginId, userDTO);
             var allContentsIds = allContents.Select(p => p.Id).ToList();
 
             foreach (var content in campaignContents)
@@ -130,15 +131,17 @@ namespace Service
             return result;
         }
 
-        public async Task<List<CampaignContentDto>> GetCampaignContents(Guid campaignId)
+        public async Task<List<CampaignContentDto>> GetCampaignContents(Guid campaignId, UserDTO userDTO)
         {
             var result = new List<CampaignContentDto>();
             var campaign = (await _campaignRepository.GetById(campaignId));
             if (campaign == null)
             {
-                _loggerService.Information("Campaign không tồn tại.");
                 throw new InvalidOperationException("Chiến dịch không tồn tại.");
             }
+            var currentBrand = await _brandRepository.GetByUserId(userDTO.Id);
+            ValidateBrandAccess(currentBrand.Id, campaign.Brand.Id);
+
             var campaignContents = (await _campaignContentRepository.GetAlls()).Where(s => s.CampaignId == campaign.Id);
             if (campaignContents.IsNullOrEmpty())
             {
@@ -159,6 +162,14 @@ namespace Service
                 });
             }
             return result;
+        }
+
+        protected void ValidateBrandAccess(Guid currentBrand, Guid authorBrand)
+        {
+            if (currentBrand != authorBrand)
+            {
+                throw new AccessViolationException();
+            }
         }
 
         /*public async Task<string> UpdateCampaignContent(Guid campaignId, Guid campaignContentId, CampaignContentResDto campaignContentDto)

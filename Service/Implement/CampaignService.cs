@@ -158,19 +158,28 @@ namespace Service
             }
             var campaign = await _campaignRepository.GetById(campaignId);
 
-            _mapper.Map(campaignDto, campaign);
-            await _campaignRepository.Update(campaign);
-            _loggerService.Information("Cập nhật chiến dịch thành công");
-            return campaign.Id;
+            ValidateBrandAccess(brand.Id, campaign.Brand.Id);
+            if (campaign.Status == (int)ECampaignStatus.Draft || campaign.Status == (int)ECampaignStatus.Published)
+            {
+                _mapper.Map(campaignDto, campaign);
+                await _campaignRepository.Update(campaign);
+                _loggerService.Information("Cập nhật chiến dịch thành công");
+                return campaign.Id;
+            }
+            throw new InvalidOperationException("Chỉ có thể chỉnh sửa chiến dịch chuẩn bị hoặc đang tuyển thành viên");
         }
 
-        public async Task DeleteCampaign(Guid campaignId)
+        public async Task DeleteCampaign(Guid campaignId, UserDTO userDTO)
         {
             var campaign = await _campaignRepository.GetById(campaignId);
             if (campaign == null)
             {
                 throw new KeyNotFoundException("Chiến dịch không tồn tại.");
             }
+
+            var currentBrand = await _brandRepository.GetByUserId(userDTO.Id);
+            ValidateBrandAccess(currentBrand.Id, campaign.Brand.Id);
+
             if (campaign.Status == (int)ECampaignStatus.Active)
             {
                 throw new InvalidOperationException("Chiến dịch này đang hoạt động, không thể xoá.");
@@ -263,7 +272,7 @@ namespace Service
 			return listTagsRes;
 		}*/
 
-        public async Task UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds)
+        public async Task UpdateTagsForCampaign(Guid campaignId, List<Guid> tagIds, UserDTO userDTO)
         {
             var duplicateTagIds = tagIds.GroupBy(t => t)
                                 .Where(g => g.Count() > 1)
@@ -281,6 +290,9 @@ namespace Service
             }
             else
             {
+                var currentBrand = await _brandRepository.GetByUserId(userDTO.Id);
+                ValidateBrandAccess(currentBrand.Id, campaign.Brand.Id);
+
                 var existingTags = await _campaignRepository.GetTagsOfCampaign(campaignId);
                 var deleteTags = existingTags.Where(p => !tagIds.Contains((Guid)p.Id)).ToList();
                 var newTags = tagIds.Except(existingTags.Select(t => t.Id)).ToList();
@@ -304,16 +316,19 @@ namespace Service
             }
         }
 
-        public async Task<List<string>> UploadCampaignImages(Guid campaignId, List<Guid> imageIds, List<IFormFile> contentFiles, string folder)
+        public async Task<List<string>> UploadCampaignImages(Guid campaignId, List<Guid> imageIds, List<IFormFile> contentFiles, string folder, UserDTO userDTO)
         {
             var contentDownloadUrls = new List<string>();
-
 
             var campaign = await _campaignRepository.GetById(campaignId);
             if (campaign == null)
             {
                 throw new InvalidOperationException("Chiến dịch không tồn tại");
             }
+
+            var currentBrand = await _brandRepository.GetByUserId(userDTO.Id);
+
+            ValidateBrandAccess(currentBrand.Id, campaign.Brand.Id);
 
             // Lấy danh sách các ảnh hiện có của influencer từ DB
             var existingImages = await _campaignImagesRepository.GetByCampaignId(campaign.Id);
@@ -381,9 +396,13 @@ namespace Service
             return contentDownloadUrls;
         }
 
-        public async Task PublishCampaign(Guid campaignId)
+        public async Task PublishCampaign(Guid campaignId, UserDTO userDTO)
         {
+            var currentBrand = await _brandRepository.GetByUserId(userDTO.Id);
             var campaign = await _campaignRepository.GetById(campaignId);
+
+            ValidateBrandAccess(currentBrand.Id, campaign.Brand.Id);
+
             if (campaign.Status != (int)ECampaignStatus.Draft)
             {
                 throw new InvalidOperationException("Chỉ những chiến dịch đang có trạng thái đang chuẩn bị mới có thể công khai.");
@@ -392,9 +411,12 @@ namespace Service
             await _campaignRepository.Update(campaign);
         }
 
-        public async Task StartCampaign(Guid campaignId)
+        public async Task StartCampaign(Guid campaignId, UserDTO userDTO)
         {
+            var currentBrand = await _brandRepository.GetByUserId(userDTO.Id);
             var campaign = await _campaignRepository.GetFullDetailCampaignJobById(campaignId) ?? throw new KeyNotFoundException();
+
+            ValidateBrandAccess(currentBrand.Id, campaign.Brand.Id);
 
             if (campaign.Status != (int)ECampaignStatus.Published)
             {
@@ -449,6 +471,14 @@ namespace Service
             catch (Exception ex)
             {
                 _loggerService.Error("Lỗi khi gửi mail Start Campaign" + ex);
+            }
+        }
+
+        protected void ValidateBrandAccess(Guid currentBrand, Guid authorBrand)
+        {
+            if(currentBrand != authorBrand)
+            {
+                throw new AccessViolationException();
             }
         }
     }
