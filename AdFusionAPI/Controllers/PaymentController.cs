@@ -27,7 +27,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("responseWithdraw/{id}")]
         [AdminRequired]
-        public async Task<ActionResult> ResponseWithDraw(Guid paymentId,AdminPaymentResponse adminPaymentResponse)
+        public async Task<ActionResult> ResponseWithDraw(Guid paymentId, AdminPaymentResponse adminPaymentResponse)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _paymentService.ProcessWithdrawalApproval(paymentId, adminPaymentResponse, user);
@@ -38,7 +38,6 @@ namespace AdFusionAPI.Controllers
         [AdminRequired]
         public async Task<ActionResult<FilterListResponse<PaymentHistoryDTO>>> GetExplorePaymentHistory([FromQuery] PaymentWithDrawFilterDTO filter)
         {
-
             var result = await _paymentService.GetAllPayment(filter);
             return Ok(result);
         }
@@ -49,6 +48,14 @@ namespace AdFusionAPI.Controllers
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _paymentService.ProcessUpdatePremiumApproval(paymentId, adminPaymentResponse, user);
             return Ok();
+        }
+
+        [HttpPost("CollectionLink")]
+        [AuthRequired]
+        public async Task<ActionResult<PaymentCollectionLinkResponse>> PaymentCollectionLink(CollectionLinkRequestDTO collectionLinkRequestDTO)
+        {
+            var result = await _paymentService.PaymentCollectionLink(collectionLinkRequestDTO);
+            return Ok(result);
         }
     }
 }
