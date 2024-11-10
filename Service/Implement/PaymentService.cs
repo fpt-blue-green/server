@@ -344,6 +344,8 @@ namespace Service
             request.partnerCode = "MOMO";
             request.redirectUrl = "";
             request.ipnUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+            // ghi duong link web minh vao day nhe
+            //TODO:
             request.redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
             request.amount = collectionLinkRequestDTO.amount;
             request.orderId = myuuidAsString;
@@ -365,6 +367,8 @@ namespace Service
             var quickPayResponse = await client.PostAsync("https://test-payment.momo.vn/v2/gateway/api/create", httpContent);
             var contents = quickPayResponse.Content.ReadAsStringAsync().Result;
             var responseDto = JsonSerializer.Deserialize<PaymentCollectionLinkResponse>(contents);
+            // cong tien vao cho user 
+            //TODO:
             return responseDto;
         }
 
