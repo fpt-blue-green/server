@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using HtmlAgilityPack;
 using Repositories;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,41 @@ namespace Service
 		private readonly IMessageRepository _messageRepository = new MessageRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly ICampaignRepository _campaignRepository = new CampaignRepository();
+		private readonly ICampaignMeetingRoomRepository _campaignChatRepository = new CampaignMeetingRoomRepository();
+
+		public async Task<ChatPartnerDTO> GetChatContactByIdAsync(Guid chatId)
+		{
+			var campaignChat = await _campaignChatRepository.GetMeetingRoomById(chatId);
+			if (campaignChat != null)
+			{
+				return new ChatPartnerDTO
+				{
+					ChatId = chatId,
+					ChatName = campaignChat.RoomName,
+					ChatImage = null,
+					isCampaign = true,
+					LastMessage = "",
+					SentAt = new DateTime()
+				};
+			}
+
+			var user = await _userRepository.GetUserById(chatId);
+			if (user != null)
+			{
+
+				return new ChatPartnerDTO
+				{
+					ChatId = chatId,
+					ChatName = user.DisplayName,
+					ChatImage = user.Avatar,
+					isCampaign = false,
+					LastMessage = "",
+					SentAt = new DateTime()
+				};
+			}
+
+			throw new KeyNotFoundException();
+		}
 
 		public async Task<List<ChatPartnerDTO>> GetChatContactsAsync(Guid userId)
 		{
@@ -43,7 +79,6 @@ namespace Service
 					.Where(m => (m.SenderId == contactUserId || m.ReceiverId == contactUserId) && !m.CampaignChatId.HasValue)
 					.OrderByDescending(m => m.SentAt)
 					.FirstOrDefault();
-					Console.WriteLine(lastMessage.Sender.Id);
 					contacts.Add(new ChatPartnerDTO
 					{
 						ChatId = user.Id,

@@ -18,7 +18,7 @@ namespace BusinessObjects
         public Guid? ChatId { get; set; }
         public string ChatName { get; set; }
         public string? ChatImage { get; set; }
-        public UserDTO Sender { get; set; }
+        public UserDTO? Sender { get; set; }
         public string LastMessage { get; set; }
         public DateTime SentAt { get; set; }
         public bool isCampaign { get; set; }
