@@ -9,6 +9,7 @@ namespace Service
         Task<Dictionary<string, int>> GetRoleData();
         Task<List<MonthlyMetricsTrendDTO>> GetMonthlyMetricsTrend();
         Task<Dictionary<string, int>> GetJobStatusData();
-        Task<List<TopFiveStatisticDTO>> GetTopFiveUser();
+        Task<List<TopFiveStatisticDTO>> GetTopFiveInfluencerUser();
+        Task<List<TopFiveStatisticDTO>> GetTopFiveBrandUser();
     }
 }

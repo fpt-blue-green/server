@@ -17,7 +17,7 @@ namespace Repositories
 		Task Delete(Campaign campaign);
 		Task<Campaign> GetCampaignJobDetails(Guid campaignId);
 		Task<Campaign> GetByCampaignChatId(Guid campaignChatId);
+		Task<IEnumerable<Campaign>> GetAllsIgnoreFilter();
 
-
-	}
+    }
 }

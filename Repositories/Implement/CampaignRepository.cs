@@ -58,7 +58,21 @@ namespace Repositories
 			}
 		}
 
-		public async Task<List<Campaign>> GetByBrandId(Guid id)
+        public async Task<IEnumerable<Campaign>> GetAllsIgnoreFilter()
+        {
+            using (var context = new PostgresContext())
+            {
+                var campaigns = await context.Campaigns
+                    .Include(s => s.Brand).ThenInclude(s => s.User)
+                    .Include(s => s.Tags)
+                    .Include(s => s.CampaignImages)
+                    .Include(s => s.CampaignMeetingRooms)
+                    .Include(s => s.CampaignContents).IgnoreQueryFilters().ToListAsync();
+                return campaigns!;
+            }
+        }
+
+        public async Task<List<Campaign>> GetByBrandId(Guid id)
 		{
 			using (var context = new PostgresContext())
 			{

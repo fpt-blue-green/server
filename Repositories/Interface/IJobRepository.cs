@@ -17,5 +17,6 @@ namespace Repositories
         Task<IEnumerable<Job>> GetJobInfluencerByUserId(Guid userId);
         Task<IEnumerable<Job>> GetJobBrandByUserId(Guid userId);
         Task<IEnumerable<Job>> GetAllJobDone();
+        Task<IEnumerable<Job>> GetAllJobIgnoreFilter();
     }
 }

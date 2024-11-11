@@ -42,7 +42,7 @@ namespace Service
                     throw new Exception("Invalid time frame specified.");
             }
 
-            var data = await _userDeviceRepository.GetAll();
+            var data = await _userDeviceRepository.GetAllIgnoreFilter();
 
             // Lấy dữ liệu từ cơ sở dữ liệu
             var results = data
@@ -98,7 +98,7 @@ namespace Service
 
         public async Task<List<int>> GetAvailableYearInActiveUser()
         {
-            var data = await _userDeviceRepository.GetAll();
+            var data = await _userDeviceRepository.GetAllIgnoreFilter();
             var year = data.Select(u => u.RefreshTokenTime.Year).Distinct().ToList();
             return year;
         }
@@ -128,7 +128,7 @@ namespace Service
         }
         protected async Task<MonthlyMetricsTrendDTO> GetRevenuetMonthlyMetricsTrend()
         {
-            var revenueData = await _paymentRepository.GetAllProfitPayment();
+            var revenueData = await _paymentRepository.GetAllProfitPaymentIgnoreFilter();
 
             // Lấy dữ liệu cho tháng hiện tại
             var currentMonth = DateTime.Now.Month;
@@ -176,7 +176,7 @@ namespace Service
         }
         protected async Task<MonthlyMetricsTrendDTO> GetNewUserMonthlyMetricsTrend()
         {
-            var userData = await _userRepository.GetUsers();
+            var userData = await _userRepository.GetUsersIgnoreFilter();
 
             // Lấy dữ liệu cho tháng hiện tại
             var currentMonth = DateTime.Now.Month;
@@ -218,7 +218,7 @@ namespace Service
         }
         protected async Task<MonthlyMetricsTrendDTO> GetActiveUserMonthlyMetricsTrend()
         {
-            var userData = await _userDeviceRepository.GetAll();
+            var userData = await _userDeviceRepository.GetAllIgnoreFilter();
 
             // Lấy dữ liệu cho tháng hiện tại
             var currentMonth = DateTime.Now.Month;
@@ -262,7 +262,7 @@ namespace Service
         }
         protected async Task<MonthlyMetricsTrendDTO> GetActiveCampaignMonthlyMetricsTrend()
         {
-            var campaignData = await _campaignRepository.GetAlls();
+            var campaignData = await _campaignRepository.GetAllsIgnoreFilter();
 
             // Lấy dữ liệu cho tháng hiện tại
             var currentDate = DateTime.Now;
@@ -318,7 +318,7 @@ namespace Service
 
         public async Task<Dictionary<string, int>> GetRoleData()
         {
-            var data = await _userRepository.GetUsers();
+            var data = await _userRepository.GetUsersIgnoreFilter();
             return new Dictionary<string, int>
             {
                 {"Nhà sáng tạo nội dung", data.Where(u => u.Role == (int)ERole.Influencer).Count() },
@@ -330,7 +330,7 @@ namespace Service
 
         public async Task<Dictionary<string, int>> GetJobStatusData()
         {
-            var data = await _jobRepository.GetAllJob();
+            var data = await _jobRepository.GetAllJobIgnoreFilter();
             return new Dictionary<string, int>
             {
                 {(EJobStatus.Pending).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Pending).Count() },
@@ -344,12 +344,25 @@ namespace Service
         #endregion
 
         #region TOP 5
-        public async Task<List<TopFiveStatisticDTO>> GetTopFiveUser()
+        public async Task<List<TopFiveStatisticDTO>> GetTopFiveInfluencerUser()
         {
             var result = await _userRepository.GetInfluencerUsersWithPaymentHistory();
             return result.Select(u => new TopFiveStatisticDTO
             {
                 Amount = u.Wallet + u.PaymentHistories.Where(p => p.Type == (int)EPaymentType.WithDraw && p.Status == (int)EPaymentStatus.Done).Sum(u => u.Amount),
+                DisplayName = u.DisplayName ?? "Unknow",
+                Email = u.Email,
+                Avatar = u.Avatar!
+            }).OrderByDescending(u => u.Amount).Take(5).ToList();
+        }
+        public async Task<List<TopFiveStatisticDTO>> GetTopFiveBrandUser()
+        {
+            var result = await _userRepository.GetBrandUsersWithPaymentHistory();
+            return result.Select(u => new TopFiveStatisticDTO
+            {
+                Amount = u.Wallet + u.PaymentHistories
+                                            .Where(p => (p.Type == (int)EPaymentType.WithDraw || p.Type == (int)EPaymentType.BuyPremium) 
+                                                        && p.Status == (int)EPaymentStatus.Done).Sum(u => u.Amount),
                 DisplayName = u.DisplayName ?? "Unknow",
                 Email = u.Email,
                 Avatar = u.Avatar!
