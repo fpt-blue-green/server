@@ -28,8 +28,6 @@ namespace Service
         {
             var tags = await _tagRepository.GetAlls();
 
-            int totalCount = tags.Count();
-
             #region Filter
             if (tagFilter.IsPremium != null)
             {
@@ -37,6 +35,7 @@ namespace Service
             }
             #endregion
 
+            int totalCount = tags.Count();
             #region paging
             int pageSize = tagFilter.PageSize;
             tags = tags
