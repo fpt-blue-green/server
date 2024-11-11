@@ -12,5 +12,6 @@ namespace Repositories.Interface
         Task UpdateRange(List<UserDevice> userDevices);
         Task Create(UserDevice userDevice);
         Task<IEnumerable<UserDevice>> GetAll();
+        Task<IEnumerable<UserDevice>> GetAllIgnoreFilter();
     }
 }

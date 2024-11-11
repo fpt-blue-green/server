@@ -15,6 +15,14 @@ namespace Repositories
                 return users;
             }
         }
+        public async Task<IEnumerable<User>> GetUsersIgnoreFilter()
+        {
+            using (var context = new PostgresContext())
+            {
+                var users = await context.Users.Include(b => b.Brand).IgnoreQueryFilters().ToListAsync();
+                return users;
+            }
+        }
 
         public async Task<IEnumerable<User>> GetInfluencerUsersWithPaymentHistory()
         {
@@ -23,7 +31,20 @@ namespace Repositories
                 var users = await context.Users
                     .Include(b => b.Brand)
                     .Include(u => u.PaymentHistories)
-                    .Where(u => u.Role == (int)ERole.Influencer)
+                    .Where(u => u.Role == (int)ERole.Influencer).IgnoreQueryFilters()
+                    .ToListAsync();
+                return users;
+            }
+        }
+
+        public async Task<IEnumerable<User>> GetBrandUsersWithPaymentHistory()
+        {
+            using (var context = new PostgresContext())
+            {
+                var users = await context.Users
+                    .Include(b => b.Brand)
+                    .Include(u => u.PaymentHistories)
+                    .Where(u => u.Role == (int)ERole.Brand).IgnoreQueryFilters()
                     .ToListAsync();
                 return users;
             }

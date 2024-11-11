@@ -6,6 +6,7 @@ namespace Repositories
     public interface IUserRepository
     {
         Task<IEnumerable<User>> GetUsers();
+        Task<IEnumerable<User>> GetUsersIgnoreFilter();
         Task<User> GetUserById(Guid userId);
         Task<User> GetUserByEmail(string email);
         Task<User> GetUserByLoginDTO(LoginDTO loginDTO);
@@ -15,5 +16,6 @@ namespace Repositories
         Task<User> GetUserByInfluencerId(Guid influencerId);
         Task DeleteUser(Guid userId);
         Task<IEnumerable<User>> GetInfluencerUsersWithPaymentHistory();
+        Task<IEnumerable<User>> GetBrandUsersWithPaymentHistory();
     }
 }

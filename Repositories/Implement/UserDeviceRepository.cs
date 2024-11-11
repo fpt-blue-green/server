@@ -16,6 +16,15 @@ namespace Repositories.Implement
             }
         }
 
+        public async Task<IEnumerable<UserDevice>> GetAllIgnoreFilter()
+        {
+            using (var context = new PostgresContext())
+            {
+                var userDevices = await context.UserDevices.IgnoreQueryFilters().ToListAsync();
+                return userDevices!;
+            }
+        }
+
         public async Task<IEnumerable<UserDevice>> GetByUserId(Guid userId)
         {
             using (var context = new PostgresContext())

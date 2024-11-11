@@ -56,11 +56,19 @@ namespace AdFusionAPI.Controllers.AdminController
             return Ok(result);
         }
 
-        [HttpGet("topFiveUser")]
+        [HttpGet("topFiveInfluencerUser")]
         [AdminRequired]
-        public async Task<ActionResult<List<TopFiveStatisticDTO>>> GetTopFiveUser()
+        public async Task<ActionResult<List<TopFiveStatisticDTO>>> GetTopFiveInfluencerUser()
         {
-            var result = await _adminStatistic.GetTopFiveUser();
+            var result = await _adminStatistic.GetTopFiveInfluencerUser();
+            return Ok(result);
+        }
+
+        [HttpGet("topFiveBrandUser")]
+        [AdminRequired]
+        public async Task<ActionResult<List<TopFiveStatisticDTO>>> GetTopFiveBrandUser()
+        {
+            var result = await _adminStatistic.GetTopFiveBrandUser();
             return Ok(result);
         }
     }

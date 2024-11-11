@@ -29,6 +29,16 @@ namespace Repositories
             }
         }
 
+        public async Task<IEnumerable<Job>> GetAllJobIgnoreFilter()
+        {
+            using (var context = new PostgresContext())
+            {
+                var jobs = await context.Jobs.IgnoreQueryFilters()
+                    .ToListAsync();
+                return jobs;
+            }
+        }
+
         public async Task Create(Job job)
         {
             using (var context = new PostgresContext())
