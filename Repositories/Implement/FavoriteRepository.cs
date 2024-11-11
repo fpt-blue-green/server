@@ -41,6 +41,8 @@ namespace Repositories
                     .Where(f => f.Brand.UserId == userId)
                     .Include(f => f.Influencer)
                         .ThenInclude(i => i.User)
+                    .Include(f => f.Influencer)
+                        .ThenInclude(i => i.Channels)
                     .ToListAsync();
                 return favorites;
             }
