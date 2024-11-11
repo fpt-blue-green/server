@@ -55,5 +55,13 @@ namespace AdFusionAPI.Controllers.AdminController
             var result = await _adminStatistic.GetMonthlyMetricsTrend();
             return Ok(result);
         }
+
+        [HttpGet("topFiveUser")]
+        [AdminRequired]
+        public async Task<ActionResult<List<TopFiveStatisticDTO>>> GetTopFiveUser()
+        {
+            var result = await _adminStatistic.GetTopFiveUser();
+            return Ok(result);
+        }
     }
 }

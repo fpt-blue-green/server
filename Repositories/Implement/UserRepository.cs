@@ -1,6 +1,7 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
+using static BusinessObjects.AuthEnumContainer;
 
 namespace Repositories
 {
@@ -11,6 +12,19 @@ namespace Repositories
             using (var context = new PostgresContext())
             {
                 var users = await context.Users.Include(b => b.Brand).ToListAsync();
+                return users;
+            }
+        }
+
+        public async Task<IEnumerable<User>> GetInfluencerUsersWithPaymentHistory()
+        {
+            using (var context = new PostgresContext())
+            {
+                var users = await context.Users
+                    .Include(b => b.Brand)
+                    .Include(u => u.PaymentHistories)
+                    .Where(u => u.Role == (int)ERole.Influencer)
+                    .ToListAsync();
                 return users;
             }
         }
