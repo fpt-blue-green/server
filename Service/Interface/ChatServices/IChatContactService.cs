@@ -6,6 +6,7 @@ namespace Service
 {
     public interface IChatContactService
     {
-        Task<List<ChatContactDTO>> GetChatContactsAsync(Guid userId);
+        Task<List<ChatPartnerDTO>> GetChatContactsAsync(Guid userId);
+        Task<ChatPartnerDTO> GetChatContactByIdAsync(Guid chatId);
     }
 }
