@@ -14,5 +14,6 @@ namespace Repositories
         Task<User> GetUserByCampaignId(Guid campaignId);
         Task<User> GetUserByInfluencerId(Guid influencerId);
         Task DeleteUser(Guid userId);
+        Task<IEnumerable<User>> GetInfluencerUsersWithPaymentHistory();
     }
 }

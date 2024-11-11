@@ -3,6 +3,7 @@ using BusinessObjects.Models;
 using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
+using System.Linq;
 using static BusinessObjects.AuthEnumContainer;
 using static BusinessObjects.JobEnumContainer;
 
@@ -312,7 +313,9 @@ namespace Service
             };
         }
         #endregion
-        
+
+        #region PIE CHART
+
         public async Task<Dictionary<string, int>> GetRoleData()
         {
             var data = await _userRepository.GetUsers();
@@ -338,7 +341,20 @@ namespace Service
                 {(EJobStatus.NotCreated).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.NotCreated).Count() },
             };
         }
+        #endregion
 
-
+        #region TOP 5
+        public async Task<List<TopFiveStatisticDTO>> GetTopFiveUser()
+        {
+            var result = await _userRepository.GetInfluencerUsersWithPaymentHistory();
+            return result.Select(u => new TopFiveStatisticDTO
+            {
+                Amount = u.Wallet + u.PaymentHistories.Where(p => p.Type == (int)EPaymentType.WithDraw && p.Status == (int)EPaymentStatus.Done).Sum(u => u.Amount),
+                DisplayName = u.DisplayName ?? "Unknow",
+                Email = u.Email,
+                Avatar = u.Avatar!
+            }).OrderByDescending(u => u.Amount).Take(5).ToList();
+        }
+        #endregion
     }
 }
