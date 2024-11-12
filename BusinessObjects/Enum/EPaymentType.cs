@@ -17,4 +17,12 @@
         Done = 2,      // Đã phê duyệt
         Error = 3,
     }
+
+    public enum EPayType 
+    {
+        qr = 0,
+        webApp = 1,
+        credit = 2,
+        napas = 3,
+    }
 }

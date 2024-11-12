@@ -50,12 +50,36 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("CollectionLink")]
-        [AuthRequired]
-        public async Task<ActionResult<PaymentCollectionLinkResponse>> PaymentCollectionLink(CollectionLinkRequestDTO collectionLinkRequestDTO)
+        [HttpPost("updatePremium/CreateCollectionLink")]
+        [BrandRequired]
+        public async Task<ActionResult<PaymentCollectionLinkResponse>> UpdatePremiumCollectionLink(UpdatePremiumRequestDTO updatePremiumRequestDTO)
         {
-            var result = await _paymentService.PaymentCollectionLink(collectionLinkRequestDTO);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _paymentService.UpdatePremium(updatePremiumRequestDTO, user);
             return Ok(result);
+        }
+
+        [HttpPost("updatePremium/callback")]
+        public async Task<IActionResult> UpdatePremiumCallback([FromBody] CallbackDTO callbackDTO)
+        {
+            await _paymentService.UpdatePremiumCallBack(callbackDTO);
+            return Ok();
+        }
+
+        [HttpPost("deposit/CreateCollectionLink")]
+        [BrandRequired]
+        public async Task<ActionResult<PaymentCollectionLinkResponse>> DepositCollectionLink(DepositRequestDTO depositRequestDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _paymentService.Deposit(depositRequestDTO, user);
+            return Ok(result);
+        }
+
+        [HttpPost("deposit/callback")]
+        public async Task<IActionResult> DepositCallback([FromBody] CallbackDTO callbackDTO)
+        {
+            await _paymentService.DepositCallBack(callbackDTO);
+            return Ok();
         }
     }
 }

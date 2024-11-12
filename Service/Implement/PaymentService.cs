@@ -54,6 +54,7 @@ namespace Service
                         Amount = withdrawRequestDTO.Amount,
                         BankInformation = withdrawRequestDTO.BankNumber + " " + withdrawRequestDTO.BankName.ToString(),
                         Type = (int)EPaymentType.WithDraw,
+                        Status = (int)EPaymentStatus.Pending
                     };
 
                     await _paymentRepository.CreatePaymentHistory(paymentHistory);
@@ -202,7 +203,6 @@ namespace Service
                 _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
             }
         }
-
         public async Task SendMailResponseWithDraw(User user, PaymentHistory payment)
         {
             try
@@ -257,7 +257,6 @@ namespace Service
                 _loggerService.Error("Lỗi khi gửi mail trạng thái thanh toán" + ex);
             }
         }
-
         #endregion
 
         public async Task ProcessUpdatePremiumApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
@@ -331,32 +330,123 @@ namespace Service
             }
             await SendMailResponseUpdatePremium(brand, paymentHistory, adminPaymentResponse.IsApprove, adminPaymentResponse.AdminMessage);
         }
-        public async Task<PaymentCollectionLinkResponse> PaymentCollectionLink(CollectionLinkRequestDTO collectionLinkRequestDTO)
+        public async Task<PaymentCollectionLinkResponse> UpdatePremium(UpdatePremiumRequestDTO updatePremiumRequestDTO, UserDTO userDto)
         {
             Guid myuuid = Guid.NewGuid();
             string myuuidAsString = myuuid.ToString();
-
-            string accessKey = "F8BBA842ECF85";
-            string secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+            string brandId = userDto.Id.ToString();
 
             CollectionLinkRequest request = new CollectionLinkRequest();
-            request.orderInfo = "pay with MoMo";
+            request.orderInfo = "UPDATE PREMIUM";
             request.partnerCode = "MOMO";
-            request.redirectUrl = "";
-            request.ipnUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+            // su dung ngrok cua chinh ban than
+            //TODO:
+            request.ipnUrl = "https://2632-2405-4802-a095-dc50-e54d-416f-df7c-571b.ngrok-free.app/api/Payment/updatePremium/callback";
             // ghi duong link web minh vao day nhe
             //TODO:
             request.redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
-            request.amount = collectionLinkRequestDTO.amount;
+            request.amount = 500000; //co dinh
             request.orderId = myuuidAsString;
             request.requestId = myuuidAsString;
             request.requestType = "payWithMethod";
-            request.extraData = "tmin";
+            request.extraData = brandId;
             request.partnerName = "MoMo Payment";
             request.storeId = "Test Store";
             request.orderGroupId = "";
             request.autoCapture = true;
             request.lang = "vi";
+
+            var response = await CreateCollectionLinkAsync(request);
+            return response;
+        }
+
+        public async Task<PaymentCollectionLinkResponse> Deposit(DepositRequestDTO depositRequestDTO, UserDTO userDto)
+        {
+            Guid myuuid = Guid.NewGuid();
+            string myuuidAsString = myuuid.ToString();
+            string brandId = userDto.Id.ToString();
+
+            CollectionLinkRequest request = new CollectionLinkRequest();
+            request.orderInfo = "DEPOSIT";
+            request.partnerCode = "MOMO";
+            // su dung ngrok cua chinh ban than
+            //TODO:
+            request.ipnUrl = "https://368f-2405-4802-a095-dc50-e54d-416f-df7c-571b.ngrok-free.app/api/Payment/deposit/callback";
+            // ghi duong link web minh vao day nhe
+            //TODO:
+            request.redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+            request.amount = depositRequestDTO.amount;
+            request.orderId = myuuidAsString;
+            request.requestId = myuuidAsString;
+            request.requestType = "payWithMethod";
+            request.extraData = brandId;
+            request.partnerName = "MoMo Payment";
+            request.storeId = "Test Store";
+            request.orderGroupId = "";
+            request.autoCapture = true;
+            request.lang = "vi";
+
+            var response = await CreateCollectionLinkAsync(request);
+            return response;
+        }
+
+        public async Task DepositCallBack(CallbackDTO callbackDTO)
+        {
+            if (callbackDTO.resultCode != 0)
+            {
+                _loggerService.Error(JsonSerializer.Serialize(callbackDTO));
+                return;
+            }
+
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var user = await _userRepository.GetUserById(Guid.Parse(callbackDTO.extraData)) ?? throw new KeyNotFoundException();
+                    user.Wallet += callbackDTO.amount * 0.8m;
+
+
+                    var paymentHistory = new PaymentHistory()
+                    {
+                        UserId = user.Id,
+                        Amount = callbackDTO.amount,
+                        BankInformation = callbackDTO.partnerCode + " " + callbackDTO.payType,
+                        Type = (int)EPaymentType.BrandPayment,
+                        Status = (int)EPaymentStatus.Done,
+                    };
+
+                    await _userRepository.UpdateUser(user);
+                    await _paymentRepository.CreatePaymentHistory(paymentHistory);
+                    scope.Complete();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+
+        }
+
+        public async Task UpdatePremiumCallBack(CallbackDTO callbackDTO)
+        {
+            if(callbackDTO.resultCode != 0)
+            {
+                _loggerService.Error(JsonSerializer.Serialize(callbackDTO));
+                return;
+            }
+
+            var updateVipRequest = new UpdateVipRequestDTO
+            {
+                NumberMonthsRegis = 1
+            };
+
+            await UpdateVipPaymentRequest(Guid.Parse(callbackDTO.extraData), updateVipRequest);
+        }
+
+        private static async Task<PaymentCollectionLinkResponse> CreateCollectionLinkAsync(CollectionLinkRequest request)
+        {
+            string accessKey = "F8BBA842ECF85";
+            string secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
 
             var rawSignature = "accessKey=" + accessKey + "&amount=" + request.amount + "&extraData=" + request.extraData + "&ipnUrl=" + request.ipnUrl
                             + "&orderId=" + request.orderId + "&orderInfo=" + request.orderInfo + "&partnerCode=" + request.partnerCode
@@ -367,8 +457,6 @@ namespace Service
             var quickPayResponse = await client.PostAsync("https://test-payment.momo.vn/v2/gateway/api/create", httpContent);
             var contents = quickPayResponse.Content.ReadAsStringAsync().Result;
             var responseDto = JsonSerializer.Deserialize<PaymentCollectionLinkResponse>(contents);
-            // cong tien vao cho user 
-            //TODO:
             return responseDto;
         }
 

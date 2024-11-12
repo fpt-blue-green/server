@@ -9,6 +9,9 @@ namespace Service
         Task<FilterListResponse<PaymentHistoryDTO>> GetAllPayment(PaymentWithDrawFilterDTO filter);
         Task UpdateVipPaymentRequest(Guid userId, UpdateVipRequestDTO updateVipRequest);
         Task ProcessUpdatePremiumApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO user);
-        Task<PaymentCollectionLinkResponse> PaymentCollectionLink(CollectionLinkRequestDTO collectionLinkRequestDTO);
+        Task<PaymentCollectionLinkResponse> UpdatePremium(UpdatePremiumRequestDTO updatePremiumRequestDTO, UserDTO userDto);
+        Task UpdatePremiumCallBack(CallbackDTO callbackDTO);
+        Task<PaymentCollectionLinkResponse> Deposit(DepositRequestDTO depositRequestDTO, UserDTO userDto);
+        Task DepositCallBack(CallbackDTO callbackDTO);
     }
 }
