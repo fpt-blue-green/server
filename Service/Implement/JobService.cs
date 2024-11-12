@@ -45,7 +45,11 @@ namespace Service
             }
 
             #region filter
-            // Chỉ lọc các job có Offer mới nhất thỏa mãn filter.From nếu filter.From có giá trị
+            if(filter.CampaignId != null)
+            {
+                jobs = jobs.Where(f => f.CampaignId == filter.CampaignId);
+            }
+
             if (filter.From.HasValue)
             {
                 jobs = jobs.Where(job =>
