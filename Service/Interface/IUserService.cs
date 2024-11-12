@@ -12,6 +12,7 @@ namespace Service
         Task DeleteUser(Guid userId);
 		Task<UserDetailDTO> GetUserById(Guid userId);
         Task<IEnumerable<UserDeviceDTO>> GetUserLoginHistory(UserDTO user);
-
+        Task<FilterListResponse<UserPaymentDTO>> GetUserPayments(UserDTO userDTO, FilterDTO filter);
+        Task<UserWalletDTO> GetUserWallet(UserDTO userDTO);
     }
 }

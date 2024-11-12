@@ -49,5 +49,14 @@ namespace Repositories
                 return roomMettings!;
             }
         }
+
+        public async Task<CampaignChat> GetMeetingRoomById(Guid chatId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var roomMettings = await context.CampaignChats.FirstOrDefaultAsync(c => c.Id == chatId);
+                return roomMettings!;
+            }
+        }
     }
 }

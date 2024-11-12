@@ -23,6 +23,7 @@ namespace AdFusionAPI.Controllers
             var avatar = await _userService.UploadAvatarAsync(file, "Avatar", user);
             return Ok(avatar);
         }
+
         [HttpGet]
         [AdminRequired]
         public async Task<ActionResult<FilterListResponse<UserDetailDTO>>> GetExploreInfluencer([FromQuery] UserFilterDTO filterDTO)
@@ -30,6 +31,7 @@ namespace AdFusionAPI.Controllers
             var result = await _userService.GetAllUsers(filterDTO);
             return Ok(result);
         }
+
         [HttpPost("delete")]
         [AuthRequired]
         public async Task<ActionResult<string>> DeleteUser(Guid userId)
@@ -46,6 +48,24 @@ namespace AdFusionAPI.Controllers
             var result = await _userService.GetUserLoginHistory(user);
             return Ok(result);
 
+        }
+
+        [HttpGet("paymentHistory")]
+        [AuthRequired]
+        public async Task<ActionResult> GetUserPayments([FromQuery] FilterDTO filter)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _userService.GetUserPayments(user, filter);
+            return Ok(result);
+        }
+
+        [HttpGet("wallet")]
+        [AuthRequired]
+        public async Task<ActionResult> GetUserWallet()
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _userService.GetUserWallet(user);
+            return Ok(result);
         }
     }
 }

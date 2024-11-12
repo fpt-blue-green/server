@@ -375,10 +375,6 @@ namespace Service
                     var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
                     var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
                     await _userRepository.UpdateUser(user!);
-
-                    var userDevices = await _userDeviceRepository.GetByUserId(user!.Id);
-                    await _userDeviceRepository.UpdateRange(userDevices.ToList());
-                    scope.Complete();
                 }
                 catch
                 {
@@ -396,10 +392,6 @@ namespace Service
                     var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
                     var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
                     await _userRepository.UpdateUser(user!);
-
-                    var userDevices = await _userDeviceRepository.GetByUserId(user!.Id);
-                    await _userDeviceRepository.UpdateRange(userDevices.ToList());
-                    scope.Complete();
                 }
                 catch
                 {

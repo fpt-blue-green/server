@@ -69,6 +69,18 @@ namespace Repositories
             }
         }
 
+        public async Task<List<PaymentHistory>> GetWithDrawPaymentHistoryByUserId(Guid id)
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.PaymentHistories
+                                           .Include(p => p.User)
+                                           .Where(p => p.UserId == id && p.Type == (int)EPaymentType.WithDraw && p.Status == (int)EPaymentStatus.Done)
+                                           .ToListAsync();
+                return result!;
+            }
+        }
+
         public async Task<PaymentHistory> GetPaymentHistoryPedingById(Guid id)
         {
             using (var context = new PostgresContext())

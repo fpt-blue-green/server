@@ -36,8 +36,8 @@ namespace BusinessObjects
 
     public class ChannelVideoStatDTO
     {
-        public int? ViewCount { get; set; }
-        public int? LikesCount { get; set; }
-        public int? CommentCount { get; set; }
+        public int ViewCount { get; set; }
+        public int LikesCount { get; set; }
+        public int CommentCount { get; set; }
     }
 }
