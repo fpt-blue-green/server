@@ -2,6 +2,7 @@
 using BusinessObjects;
 using Microsoft.AspNetCore.Mvc;
 using Service;
+using static BusinessObjects.JobEnumContainer;
 
 namespace AdFusionAPI.Controllers
 {
@@ -46,6 +47,13 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{id}/jobStatusCount")]
+        [AuthRequired]
+        public async Task<ActionResult<Dictionary<EJobStatus, int>>> GetCampaignJobStatusData(Guid id)
+        {
+            var result = await _jobDetailService.GetCampaignJobStatus(id);
+            return Ok(result);
+        }
 
         [HttpGet("{id}/jobDetails")]
         [AuthRequired]
