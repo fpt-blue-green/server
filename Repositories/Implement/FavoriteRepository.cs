@@ -43,6 +43,8 @@ namespace Repositories
                         .ThenInclude(i => i.User)
                     .Include(f => f.Influencer)
                         .ThenInclude(i => i.Channels)
+                    .Include(f => f.Influencer)
+                        .ThenInclude(i => i.InfluencerImages)
                     .ToListAsync();
                 return favorites;
             }
