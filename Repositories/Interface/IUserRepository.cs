@@ -17,5 +17,6 @@ namespace Repositories
         Task DeleteUser(Guid userId);
         Task<IEnumerable<User>> GetInfluencerUsersWithPaymentHistory();
         Task<IEnumerable<User>> GetBrandUsersWithPaymentHistory();
+        Task<IEnumerable<UserPaymentDTO>> GetUserPayments(Guid userID);
     }
 }

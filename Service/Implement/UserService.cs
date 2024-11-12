@@ -16,6 +16,7 @@ namespace Service
     {
         private static IUserDeviceRepository _userDeviceRepository = new UserDeviceRepository();
         private static readonly IUserRepository _userRepository = new UserRepository();
+        private static readonly IPaymentRepository _paymentRepository = new PaymentRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
@@ -149,6 +150,61 @@ namespace Service
             }
             var result = _mapper.Map<IEnumerable<UserDeviceDTO>>(userDevices);
             return result;
+        }
+
+        public async Task<FilterListResponse<UserPaymentDTO>> GetUserPayments(UserDTO userDTO, FilterDTO filter)
+        {
+            var userPayments = await _userRepository.GetUserPayments(userDTO.Id);
+
+            #region Sort
+            if (!string.IsNullOrEmpty(filter.SortBy))
+            {
+                var propertyInfo = typeof(UserPaymentDTO).GetProperty(filter.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (propertyInfo != null)
+                {
+                    userPayments = filter.IsAscending.HasValue && filter.IsAscending.Value
+                        ? userPayments.OrderBy(i => propertyInfo.GetValue(i, null))
+                        : userPayments.OrderByDescending(i => propertyInfo.GetValue(i, null));
+                }
+            }
+            #endregion
+
+            #region Paging
+            int pageSize = filter.PageSize;
+            int totalCount = userPayments.Count();
+            userPayments = userPayments
+                .Skip((filter.PageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            #endregion
+
+            return new FilterListResponse<UserPaymentDTO>
+            {
+                TotalCount = totalCount,
+                Items = userPayments
+            };
+        }
+
+        public async Task<UserWalletDTO> GetUserWallet(UserDTO userDTO)
+        {
+            var currentAmount = (await _userRepository.GetUserById(userDTO.Id)).Wallet;
+            var paymentWithDraw = await _paymentRepository.GetWithDrawPaymentHistoryByUserId(userDTO.Id);
+            var spendAmount = paymentWithDraw.Sum(p => p.NetAmount) ?? 0;
+
+            if (userDTO.Role == ERole.Brand)
+            {
+                var userPayments = await _userRepository.GetUserPayments(userDTO.Id);
+                spendAmount += userPayments.Where(p => p.Type == EPaymentType.BrandPayment
+                                                                || p.Type == EPaymentType.BuyPremium
+                                                                || p.Type == EPaymentType.Deposit)
+                                                           .Sum(p => p.Amount);
+            }
+            
+            return new UserWalletDTO
+            {
+                CurrentAmount = currentAmount,
+                SpendAmount = spendAmount
+            };
         }
     }
 }

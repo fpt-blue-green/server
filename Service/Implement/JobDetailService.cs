@@ -53,9 +53,9 @@ namespace Service
             var data = await _utilityService.GetVideoInformation(offer!.Platform!, link);
 
             var oldData = await GetOldJobDetailData(link, job.Id);
-            data.ViewCount -= oldData.totalViews;
-            data.CommentCount -= oldData.totalComments;
-            data.LikesCount -= oldData.totalLikes;
+            data.ViewCount = Math.Max(0, data.ViewCount - oldData.totalViews);
+            data.CommentCount = Math.Max(0, data.CommentCount - oldData.totalComments);
+            data.LikesCount = Math.Max(0, data.LikesCount - oldData.totalLikes);
 
             var jobDetail = _mapper.Map<JobDetails>(data);
             jobDetail.JobId = job.Id;

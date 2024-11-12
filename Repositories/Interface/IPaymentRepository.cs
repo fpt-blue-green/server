@@ -12,5 +12,6 @@ namespace Repositories
         Task<PaymentHistory> GetPaymentHistoryPedingById(Guid id);
         Task<IEnumerable<PaymentHistory>> GetAllProfitPayment();
         Task<IEnumerable<PaymentHistory>> GetAllProfitPaymentIgnoreFilter();
+        Task<List<PaymentHistory>> GetWithDrawPaymentHistoryByUserId(Guid id);
     }
 }
