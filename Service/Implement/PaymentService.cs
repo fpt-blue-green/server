@@ -344,7 +344,7 @@ namespace Service
             request.ipnUrl = "https://2632-2405-4802-a095-dc50-e54d-416f-df7c-571b.ngrok-free.app/api/Payment/updatePremium/callback";
             // ghi duong link web minh vao day nhe
             //TODO:
-            request.redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+            request.redirectUrl = updatePremiumRequestDTO.redirectUrl;
             request.amount = 500000; //co dinh
             request.orderId = myuuidAsString;
             request.requestId = myuuidAsString;
@@ -373,8 +373,7 @@ namespace Service
             //TODO:
             request.ipnUrl = "https://368f-2405-4802-a095-dc50-e54d-416f-df7c-571b.ngrok-free.app/api/Payment/deposit/callback";
             // ghi duong link web minh vao day nhe
-            //TODO:
-            request.redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+            request.redirectUrl = depositRequestDTO.redirectUrl;
             request.amount = depositRequestDTO.amount;
             request.orderId = myuuidAsString;
             request.requestId = myuuidAsString;
@@ -429,7 +428,7 @@ namespace Service
 
         public async Task UpdatePremiumCallBack(CallbackDTO callbackDTO)
         {
-            if(callbackDTO.resultCode != 0)
+            if (callbackDTO.resultCode != 0)
             {
                 _loggerService.Error(JsonSerializer.Serialize(callbackDTO));
                 return;
