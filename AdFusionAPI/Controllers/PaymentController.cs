@@ -27,7 +27,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpPost("responseWithdraw/{id}")]
         [AdminRequired]
-        public async Task<ActionResult> ResponseWithDraw(Guid paymentId,AdminPaymentResponse adminPaymentResponse)
+        public async Task<ActionResult> ResponseWithDraw(Guid paymentId, AdminPaymentResponse adminPaymentResponse)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _paymentService.ProcessWithdrawalApproval(paymentId, adminPaymentResponse, user);
@@ -38,7 +38,6 @@ namespace AdFusionAPI.Controllers
         [AdminRequired]
         public async Task<ActionResult<FilterListResponse<PaymentHistoryDTO>>> GetExplorePaymentHistory([FromQuery] PaymentWithDrawFilterDTO filter)
         {
-
             var result = await _paymentService.GetAllPayment(filter);
             return Ok(result);
         }
@@ -48,6 +47,38 @@ namespace AdFusionAPI.Controllers
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _paymentService.ProcessUpdatePremiumApproval(paymentId, adminPaymentResponse, user);
+            return Ok();
+        }
+
+        [HttpPost("updatePremium/CreateCollectionLink")]
+        [BrandRequired]
+        public async Task<ActionResult<PaymentCollectionLinkResponse>> UpdatePremiumCollectionLink(UpdatePremiumRequestDTO updatePremiumRequestDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _paymentService.UpdatePremium(updatePremiumRequestDTO, user);
+            return Ok(result);
+        }
+
+        [HttpPost("updatePremium/callback")]
+        public async Task<IActionResult> UpdatePremiumCallback([FromBody] CallbackDTO callbackDTO)
+        {
+            await _paymentService.UpdatePremiumCallBack(callbackDTO);
+            return Ok();
+        }
+
+        [HttpPost("deposit/CreateCollectionLink")]
+        [BrandRequired]
+        public async Task<ActionResult<PaymentCollectionLinkResponse>> DepositCollectionLink(DepositRequestDTO depositRequestDTO)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _paymentService.Deposit(depositRequestDTO, user);
+            return Ok(result);
+        }
+
+        [HttpPost("deposit/callback")]
+        public async Task<IActionResult> DepositCallback([FromBody] CallbackDTO callbackDTO)
+        {
+            await _paymentService.DepositCallBack(callbackDTO);
             return Ok();
         }
     }
