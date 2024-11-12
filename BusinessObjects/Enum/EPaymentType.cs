@@ -4,10 +4,10 @@
     {
         BrandPayment = 0,         // Thanh toán từ brand
         InfluencerPayment = 1,    // Thanh toán cho influencer
-        Refund = 3,               // Tiền hoàn trả cho Brand
-        WithDraw = 4,             // Rút tiền
-        Deposit = 5,              // Nạp tiền
-        BuyPremium = 6,
+        Refund = 2,               // Tiền hoàn trả cho Brand
+        WithDraw = 3,             // Rút tiền
+        Deposit = 4,              // Nạp tiền
+        BuyPremium = 5,
     }
 
     public enum EPaymentStatus

@@ -126,10 +126,11 @@ namespace Service
                 .Take(pageSize).ToList();
             #endregion
 
-            return new FilterListResponse<CampaignJobDetailDTO>{
+            return new FilterListResponse<CampaignJobDetailDTO>
+            {
                 Items = campaignJobDetails,
                 TotalCount = totalCount,
-            }; 
+            };
         }
 
         public async Task<CampaignJobDetailBaseDTO> GetCampaignJobDetailBaseData(Guid campaignId)
@@ -193,7 +194,27 @@ namespace Service
             return dailyStats!;
         }
 
-        #endregion
+        public async Task<Dictionary<EJobStatus, int>> GetCampaignJobStatus(Guid campaignId)
+        {
+            // Lấy dữ liệu job chi tiết cho campaign từ repository
+            var data = await _campaignRepository.GetCampaignJobDetails(campaignId);
 
+            // Khởi tạo Dictionary với tất cả các trạng thái của EJobStatus và gán giá trị mặc định là 0
+            var jobStatusCounts = Enum.GetValues(typeof(EJobStatus))
+                                      .Cast<EJobStatus>()
+                                      .ToDictionary(status => status, status => 0);
+
+            // Cập nhật số lượng job thực tế cho các trạng thái có trong dữ liệu
+            foreach (var group in data.Jobs.GroupBy(job => job.Status))
+            {
+                jobStatusCounts[(EJobStatus)group.Key] = group.Count();
+            }
+
+            return jobStatusCounts;
+        }
+
+
+
+        #endregion
     }
 }

@@ -421,13 +421,6 @@ namespace Service
 
         public async Task<FilterListResponse<InfluencerJobDTO>> GetInfluencerWithJobByCampaginId(Guid campaignId, InfluencerJobFilterDTO filter, UserDTO user)
         {
-            var currentBrand = await _brandRepository.GetByUserId(user.Id);
-            var campaignAuthor = await _campaignRepository.GetById(campaignId);
-
-            if (currentBrand.Id != campaignAuthor.BrandId)
-            {
-                throw new AccessViolationException();
-            }
             var influencers = await _influencerRepository.GetInfluencerJobByCampaignId(campaignId);
 
             var influencerJobDTOs = influencers.Select(influencer =>

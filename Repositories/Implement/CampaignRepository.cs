@@ -160,11 +160,11 @@ namespace Repositories
             {
                 // Lấy campaign theo campaignId với điều kiện job.Status khác NotCreated
                 var campaign = await context.Campaigns
-                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated))
+                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated || j.Status != (int)EJobStatus.Pending))
                         .ThenInclude(j => j.Offers)
-                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated))
+                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated || j.Status != (int)EJobStatus.Pending))
                         .ThenInclude(j => j.JobDetails)
-                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated))
+                    .Include(c => c.Jobs.Where(j => j.Status != (int)EJobStatus.NotCreated || j.Status != (int)EJobStatus.Pending))
                         .ThenInclude(j => j.Influencer)
                             .ThenInclude(i => i.User)
                     .Where(c => c.Id == campaignId)
