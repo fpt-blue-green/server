@@ -174,7 +174,27 @@ namespace Repositories
             }
         }
 
-		public async Task<Campaign> GetByCampaignChatId(Guid campaignChatId)
+        public async Task<Campaign> GetCampaignAllJobDetails(Guid campaignId)
+        {
+            using (var context = new PostgresContext())
+            {
+                // Lấy campaign theo campaignId với điều kiện job.Status khác NotCreated
+                var campaign = await context.Campaigns
+                    .Include(c => c.Jobs)
+                        .ThenInclude(j => j.Offers)
+                    .Include(c => c.Jobs)
+                        .ThenInclude(j => j.JobDetails)
+                    .Include(c => c.Jobs)
+                        .ThenInclude(j => j.Influencer)
+                            .ThenInclude(i => i.User)
+                    .Where(c => c.Id == campaignId)
+                    .FirstOrDefaultAsync();
+
+                return campaign;
+            }
+        }
+
+        public async Task<Campaign> GetByCampaignChatId(Guid campaignChatId)
 		{
 			using (var _context = new PostgresContext())
 			{

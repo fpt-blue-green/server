@@ -801,7 +801,7 @@
         #endregion
 
         #region ReportNotification
-        public string reportNotificationTempalte = @"<!DOCTYPE html>
+        public string banNotification = @"<!DOCTYPE html>
                         <html lang=""vi"">
                         <head>
                             <meta charset=""UTF-8"">

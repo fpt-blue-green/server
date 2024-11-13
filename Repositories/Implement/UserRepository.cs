@@ -165,16 +165,7 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                var localUser = context.Set<User>()
-                    .Local
-                    .FirstOrDefault(entry => entry.Id.Equals(user.Id));
-
-                if (localUser != null)
-                {
-                    context.Entry(localUser).State = EntityState.Detached;
-                }
-
-                context.Entry(user).State = EntityState.Modified;
+                context.Entry<User>(user).State = EntityState.Modified;
                 await context.SaveChangesAsync();
             }
         }

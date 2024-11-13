@@ -163,7 +163,7 @@ namespace Service
                 var title = string.Empty;
                 if (isUnban)
                 {
-                    body = _emailTemplate.reportResultTemplate.Replace("{projectName}", _configManager.ProjectName)
+                    body = _emailTemplate.unbanNotification.Replace("{projectName}", _configManager.ProjectName)
                                                       .Replace("{BanDate}", time)
                                                       .Replace("{UnbanDate}", DateTime.Now.ToString())
                                                       .Replace("{Description}", description);
@@ -171,7 +171,7 @@ namespace Service
                 }
                 else
                 {
-                    body = _emailTemplate.reportResultTemplate.Replace("{projectName}", _configManager.ProjectName)
+                    body = _emailTemplate.banNotification.Replace("{projectName}", _configManager.ProjectName)
                                                        .Replace("{UnbanDate}", time)
                                                        .Replace("{CurrenDate}", DateTime.Now.ToString())
                                                        .Replace("{Description}", description);
