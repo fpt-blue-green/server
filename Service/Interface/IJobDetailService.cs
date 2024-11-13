@@ -10,6 +10,6 @@ namespace Service
         Task<FilterListResponse<CampaignJobDetailDTO>> GetCampaignJobDetail(Guid campaignId, FilterDTO filter);
         Task<CampaignJobDetailBaseDTO> GetCampaignJobDetailBaseData(Guid campaignId);
         Task<List<CampaignDailyStatsDTO>> GetCampaignDailyStats(Guid campaignId);
-        Task<Dictionary<EJobStatus, int>> GetCampaignJobStatus(Guid campaignId);
+        Task<Dictionary<int, int>> GetCampaignJobStatus(Guid campaignId);
     }
 }

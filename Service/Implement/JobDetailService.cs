@@ -194,25 +194,71 @@ namespace Service
             return dailyStats!;
         }
 
-        public async Task<Dictionary<EJobStatus, int>> GetCampaignJobStatus(Guid campaignId)
+        public async Task<Dictionary<int, int>> GetCampaignJobStatus(Guid campaignId)
         {
             // Lấy dữ liệu job chi tiết cho campaign từ repository
-            var data = await _campaignRepository.GetCampaignJobDetails(campaignId);
+            var data = await _campaignRepository.GetCampaignAllJobDetails(campaignId);
+            
+            // Khởi tạo Dictionary với các giá trị số tương ứng với các trạng thái
+            var jobStatusCounts = new Dictionary<int, int>
+            {
+                { 0, 0 },  // Peding
+                { 1, 0 },  // Budgeting
+                { 2, 0 },  // Joined
+                { 3, 0 },  // Fulfillment
+                { 4, 0 }   // Archived
+            };
 
-            // Khởi tạo Dictionary với tất cả các trạng thái của EJobStatus và gán giá trị mặc định là 0
-            var jobStatusCounts = Enum.GetValues(typeof(EJobStatus))
-                                      .Cast<EJobStatus>()
-                                      .ToDictionary(status => status, status => 0);
+            if (data == null)
+            {
+                return jobStatusCounts;
+            }
 
             // Cập nhật số lượng job thực tế cho các trạng thái có trong dữ liệu
-            foreach (var group in data.Jobs.GroupBy(job => job.Status))
+            foreach (var job in data.Jobs)
             {
-                jobStatusCounts[(EJobStatus)group.Key] = group.Count();
+                // Lấy offer cuối cùng của job
+                var lastOffer = job.Offers.OrderByDescending(o => o.CreatedAt).FirstOrDefault();
+
+                if (lastOffer != null)
+                {
+                    var status = (EJobStatus)job.Status;
+                    var offerStatus = (EOfferStatus)lastOffer.Status;
+
+                    // Kiểm tra trạng thái và ánh xạ sang các giá trị số tương ứng
+                    if (status == EJobStatus.Pending && offerStatus == EOfferStatus.Offering)
+                    {
+                        jobStatusCounts[0]++;  // Peding
+                    }
+                    else if (status == EJobStatus.Pending && offerStatus == EOfferStatus.WaitingPayment)
+                    {
+                        jobStatusCounts[1]++;  // Budgeting
+                    }
+                    else if ( (status == EJobStatus.Approved || status == EJobStatus.InProgress) && offerStatus == EOfferStatus.Done)
+                    {
+                        jobStatusCounts[2]++;  // Joined
+                    }
+                    else if (status == EJobStatus.Completed)
+                    {
+                        jobStatusCounts[3]++;  // Fulfillment
+                    }
+                    else if (status == EJobStatus.Failed)
+                    {
+                        jobStatusCounts[3]++;  // Fulfillment
+                    }
+                    else if (status == EJobStatus.NotCreated)
+                    {
+                        jobStatusCounts[4]++;  // Archived
+                    }
+                    else
+                    {
+                        jobStatusCounts[4]++;  // Archived
+                    }
+                }
             }
 
             return jobStatusCounts;
         }
-
 
 
         #endregion

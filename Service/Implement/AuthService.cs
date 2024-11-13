@@ -279,14 +279,18 @@ namespace Service
                 throw new InvalidOperationException("Mật khẩu mới không được trùng với mật khẩu cũ.");
             }
 
-            userGet.Password = newPasswordHash;
+            var userDTO = new UserUpdatePasswordDTO
+            {
+                Id = userGet.Id,
+                NewPassword = newPasswordHash,
+            };
 
             var settings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
 
-            var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet, settings));
+            var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO, settings));
 
             var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
 
@@ -308,13 +312,17 @@ namespace Service
 
             var newPasswordHash = _securityService.ComputeSha256Hash(forgotPasswordDTO.NewPassword);
 
-            userGet.Password = newPasswordHash;
+            var userDTO = new UserUpdatePasswordDTO
+            {
+                Id = userGet.Id,
+                NewPassword = newPasswordHash,
+            };
 
             var settings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
-            var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userGet, settings));
+            var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO, settings));
 
 
             var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
@@ -337,7 +345,7 @@ namespace Service
                     await ValidateChangePass(data.Token);
                     break;
                 case EAuthAction.ForgotPassword:
-                    await ValidateForgotPass(data.Token);
+                    await ValidateChangePass(data.Token);
                     break;
                 default:
                     throw new Exception("Unvalid Validate Authen action!!");
@@ -373,25 +381,12 @@ namespace Service
                 try
                 {
                     var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
-                    var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
-                    await _userRepository.UpdateUser(user!);
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-        }
+                    var user = JsonConvert.DeserializeObject<UserUpdatePasswordDTO>(tokenDecrypt);
 
-        public async Task ValidateForgotPass(string token)
-        {
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var tokenDecrypt = await _securityService.ValidateJwtEmailToken(token);
-                    var user = JsonConvert.DeserializeObject<User>(tokenDecrypt);
-                    await _userRepository.UpdateUser(user!);
+                    var userGet = await _userRepository.GetUserById(user.Id) ?? throw new Exception("Invalid data when change password: " + token);
+                    userGet.Password = user.NewPassword;
+                    await _userRepository.UpdateUser(userGet!);
+                    scope.Complete();
                 }
                 catch
                 {

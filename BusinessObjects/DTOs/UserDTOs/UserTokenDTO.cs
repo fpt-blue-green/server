@@ -22,5 +22,11 @@ namespace BusinessObjects
         public ERole Role { get; set; }
     }
 
-    
+    public class UserUpdatePasswordDTO
+    {
+        public Guid Id { get; set; }
+        public string NewPassword {  get; set; }
+    }
+
+
 }

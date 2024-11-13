@@ -49,7 +49,7 @@ namespace AdFusionAPI.Controllers
 
         [HttpGet("{id}/jobStatusCount")]
         [AuthRequired]
-        public async Task<ActionResult<Dictionary<EJobStatus, int>>> GetCampaignJobStatusData(Guid id)
+        public async Task<ActionResult<Dictionary<int, int>>> GetCampaignJobStatusData(Guid id)
         {
             var result = await _jobDetailService.GetCampaignJobStatus(id);
             return Ok(result);
