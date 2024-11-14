@@ -14,7 +14,7 @@ namespace BusinessObjects
     public class FilterDTO
     {
         public int PageIndex { get; set; } = 1;
-        public int PageSize { get; set; } = 15;
+        public int PageSize { get; set; } = 50;
         public string? Search { get; set; }
         public string? SortBy { get; set; } // Which field wanna sort
         public bool? IsAscending { get; set; } = true;
@@ -43,6 +43,7 @@ namespace BusinessObjects
         public ERole? From { get; set; }
         public ECampaignStatus[]? CampaignStatuses { get; set; }
         public EJobStatus[]? JobStatuses { get; set; }
+        public Guid? CampaignId { get; set; }
     }
 
     public class ReportFilterDTO : FilterDTO
