@@ -12,5 +12,6 @@ namespace Service
         Task BrandFaliedJob(Guid jobId, UserDTO userDto);
         Task<FilterListResponse<JobDTO>> GetAllJobByCurrentAccount(UserDTO user, JobFilterDTO filter);
         Task<List<JobStatistical>> Statistical(UserDTO user);
+        Task<List<string>> GetJobLink(Guid jobId);
     }
 }

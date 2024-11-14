@@ -64,6 +64,14 @@ namespace AdFusionAPI.Controllers
         }
 
         [AuthRequired]
+        [HttpGet("{id}/link")]
+        public async Task<ActionResult> GetLink(Guid id)
+        {
+            var result =  await _jobService.GetJobLink(id);
+            return Ok(result);
+        }
+
+        [AuthRequired]
         [HttpGet("{id}/offer")]
         public async Task<ActionResult<IEnumerable<OfferDTO>>> GetOfferByJobId(Guid id)
         {

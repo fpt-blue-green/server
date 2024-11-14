@@ -294,7 +294,12 @@ namespace Service
                     await _jobDetailService.UpdateJobDetailData(job, item);
                 }
             }
+        }
 
+        public async Task<List<string>> GetJobLink(Guid jobId)
+        {
+            var jobDetail = await _jobDetailRepository.GetLinkByJobId(jobId);
+            return jobDetail.Select(j => j.Link).ToList()!;
         }
 
         public async Task SendMail(Job job, Offer offer, string title, string status, string endQuote)

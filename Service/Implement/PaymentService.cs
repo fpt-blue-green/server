@@ -479,5 +479,10 @@ namespace Service
 
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
+
+        public Task UpdateVipPaymentRequest(Guid userId, UpdateVipRequestDTO updateVipRequest)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
