@@ -158,22 +158,17 @@ namespace Service
             return decimal.Parse(fee.KeyValue!.ToString()!);
         }
 
-        public async Task UpdateVipPaymentRequest(Guid userId, UpdateVipRequestDTO updateVipRequest)
+        public async Task UpdateVipPaymentRequest(string requestDto)
         {
-            var user = await _userRepository.GetUserById(userId) ?? throw new KeyNotFoundException();
+            var request = JsonSerializer.Deserialize<ExtraDataDTO>(requestDto);
+            var user = await _userRepository.GetUserById(request.BrandId) ?? throw new KeyNotFoundException();
             //tren 3 thang thi discount 15%
-            var discount = await _systemSettingRepository.GetSystemSetting(_configManager.UpdatePremiumDiscount) ?? throw new Exception("Has error when get Discount");
-            var discountValue = decimal.Parse(discount.KeyValue!.ToString()!);
-            var amount = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Discount");
-            var amountValue = decimal.Parse(amount.KeyValue!.ToString()!);
-
-            var totalAmount = updateVipRequest.NumberMonthsRegis < 3 ? amountValue * updateVipRequest.NumberMonthsRegis : amountValue * updateVipRequest.NumberMonthsRegis * (1 - discountValue);
             var paymentHistory = new PaymentHistory()
             {
-                UserId = userId,
-                Amount = totalAmount,
-                BankInformation = user.Email,
-                NetAmount = totalAmount,
+                UserId = user.Id,
+                Amount = request.TotalAmount,
+                BankInformation = user.Email ?? "",
+                NetAmount = request.TotalAmount,
                 Type = (int)EPaymentType.BuyPremium,
                 Status = (int)EPaymentStatus.Pending,
 
@@ -334,8 +329,22 @@ namespace Service
         {
             Guid myuuid = Guid.NewGuid();
             string myuuidAsString = myuuid.ToString();
-            string brandId = userDto.Id.ToString();
+            Guid brandId = userDto.Id;
 
+            var amount = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Discount");
+            var amountValue = decimal.Parse(amount.KeyValue!.ToString()!);
+            var totalAmount = amountValue * updatePremiumRequestDTO.NumberMonthsRegis ;
+            if (updatePremiumRequestDTO.NumberMonthsRegis >= 3)
+            {
+                var discount = await _systemSettingRepository.GetSystemSetting(_configManager.UpdatePremiumDiscount) ?? throw new Exception("Has error when get Discount");
+                var discountValue = decimal.Parse(discount.KeyValue!.ToString()!);
+                totalAmount *= (1 - discountValue);
+            }
+            var extraData = new ExtraDataDTO()
+            {
+                BrandId = brandId,
+                TotalAmount = totalAmount
+            };
             CollectionLinkRequest request = new CollectionLinkRequest();
             request.orderInfo = "UPDATE PREMIUM";
             request.partnerCode = "MOMO";
@@ -349,9 +358,9 @@ namespace Service
             request.orderId = myuuidAsString;
             request.requestId = myuuidAsString;
             request.requestType = "payWithMethod";
-            request.extraData = brandId;
+            request.extraData = JsonSerializer.Serialize(extraData);
             request.partnerName = "MoMo Payment";
-            request.storeId = "Test Store";
+            request.storeId = "AdFusion";
             request.orderGroupId = "";
             request.autoCapture = true;
             request.lang = "vi";
@@ -434,12 +443,7 @@ namespace Service
                 return;
             }
 
-            var updateVipRequest = new UpdateVipRequestDTO
-            {
-                NumberMonthsRegis = 1
-            };
-
-            await UpdateVipPaymentRequest(Guid.Parse(callbackDTO.extraData), updateVipRequest);
+            await UpdateVipPaymentRequest(callbackDTO.extraData);
         }
 
         private static async Task<PaymentCollectionLinkResponse> CreateCollectionLinkAsync(CollectionLinkRequest request)

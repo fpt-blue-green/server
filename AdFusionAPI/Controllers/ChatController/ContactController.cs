@@ -89,10 +89,10 @@ namespace AdFusionAPI.Controllers.ChatController
         }
         [HttpGet("chat/contacts")]
         [AuthRequired]
-        public async Task<ActionResult<IEnumerable<ChatPartnerDTO>>> GetChatContact()
+        public async Task<ActionResult<IEnumerable<ChatPartnerDTO>>> GetChatContact(string? searchValue)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            var result = await _chatContactService.GetChatContactsAsync(user.Id);
+            var result = await _chatContactService.GetChatContactsAsync(user.Id, searchValue);
             return Ok(result);
         }
 

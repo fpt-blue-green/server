@@ -35,19 +35,24 @@ namespace Server.Hubs
 				await Clients.Caller.ReceiveGroupMessage(message);
 			}
 		}
-
-		public async Task JoinRoom(GroupUserConnection userConnection)
+		private async Task<bool> IsJoinGroup(Guid userId, Guid campaignChatId)
+		{
+            return await _chatMemberService.CheckExistedMember(userId, campaignChatId);
+        }
+        public async Task JoinRoom(GroupUserConnection userConnection)
 		{
 			_connections[Context.ConnectionId] = userConnection;
-			await Groups.AddToGroupAsync(Context.ConnectionId, userConnection.CampaignChatId.ToString());
-			await LoadMessages(userConnection.SenderId, userConnection.CampaignChatId);
-			await SendUsersConnected(userConnection.CampaignChatId);
-			await AddNewMember(userConnection.SenderId, userConnection.CampaignChatId);
+			var isJoinGroup = await IsJoinGroup(userConnection.SenderId, userConnection.CampaignChatId);
+			if (isJoinGroup)
+			{
+                await Groups.AddToGroupAsync(Context.ConnectionId, userConnection.CampaignChatId.ToString());
+                await LoadMessages(userConnection.SenderId, userConnection.CampaignChatId);
+                await SendUsersConnected(userConnection.CampaignChatId);
+			}
 
         }
-		private async Task AddNewMember(Guid newUserId ,Guid campaignChatId)
+		/*private async Task AddNewMember(Guid newUserId ,Guid campaignChatId)
 		{
-			var isMemberJoined = await _chatMemberService.CheckExistedMember(newUserId, campaignChatId);
 			if (!isMemberJoined)
 			{
 				var member = new ChatMemberResDTO
@@ -57,7 +62,7 @@ namespace Server.Hubs
 				};
 				await _chatMemberService.AddNewMember(member);
             }
-		}
+		}*/
 		public async Task SendMessage(string message)
 		{
 			if (_connections.TryGetValue(Context.ConnectionId, out var userConnection))
