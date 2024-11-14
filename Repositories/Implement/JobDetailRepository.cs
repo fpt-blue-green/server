@@ -36,7 +36,18 @@ namespace Repositorie
             }
         }
 
-        public async Task<(int totalViews, int totalLikes, int totalComments)> GetTotalMetricsByLinkAndJobId(string link, Guid jobId)
+        public async Task<IEnumerable<JobDetails>> GetLinkByJobId(Guid jobId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.JobDetails
+                                          .Where(j => j.JobId == jobId)
+                                          .ToListAsync();
+                return result.DistinctBy(j => j.Link);
+            }
+        }
+
+    public async Task<(int totalViews, int totalLikes, int totalComments)> GetTotalMetricsByLinkAndJobId(string link, Guid jobId)
         {
             using (var context = new PostgresContext())
             {
