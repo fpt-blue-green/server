@@ -26,6 +26,16 @@ namespace Repositorie
             }
         }
 
+        public async Task<JobDetails> GetByLinkAndJobId(string link, Guid jobId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.JobDetails
+                                    .FirstOrDefaultAsync(j => j.Link == link && j.JobId == jobId);
+                return result!;
+            }
+        }
+
         public async Task<(int totalViews, int totalLikes, int totalComments)> GetTotalMetricsByLinkAndJobId(string link, Guid jobId)
         {
             using (var context = new PostgresContext())

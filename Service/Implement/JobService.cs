@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using Repositorie;
 using Repositories;
 using Serilog;
 using System.Transactions;
@@ -12,6 +13,7 @@ namespace Service
     public class JobService : IJobService
     {
         private static IJobRepository _jobRepository = new JobRepository();
+        private static IJobDetailRepository _jobDetailRepository = new JobDetailRepository();
         private static IJobDetailService _jobDetailService = new JobDetailService();
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
@@ -45,7 +47,11 @@ namespace Service
             }
 
             #region filter
-            // Chỉ lọc các job có Offer mới nhất thỏa mãn filter.From nếu filter.From có giá trị
+            if(filter.CampaignId != null)
+            {
+                jobs = jobs.Where(f => f.CampaignId == filter.CampaignId);
+            }
+
             if (filter.From.HasValue)
             {
                 jobs = jobs.Where(job =>
@@ -263,6 +269,7 @@ namespace Service
         public async Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO)
         {
             var job = await _jobRepository.GetJobInProgress(jobId);
+
             if (job == null)
             {
                 throw new InvalidOperationException("Công việc này chưa bắt đầu hoặc đã kết thúc, không thể thêm liên kết");
@@ -273,7 +280,21 @@ namespace Service
                 throw new AccessViolationException();
             }
 
-            await _jobDetailService.UpdateJobDetailData(job, linkDTO.Link);
+            var offer = job.Offers.FirstOrDefault(o => o.Status == (int)EOfferStatus.Done) ?? throw new KeyNotFoundException();
+            if(offer.Quantity < linkDTO.Link.Count)
+            {
+                throw new InvalidOperationException("Số lượng đường dẫn video vượt qua số lượng thỏa thuận.");
+
+            }
+            foreach (var item in linkDTO.Link)
+            {
+                var isExist = (await _jobDetailRepository.GetByLinkAndJobId(item, jobId)) != null;
+                if (!isExist)
+                {
+                    await _jobDetailService.UpdateJobDetailData(job, item);
+                }
+            }
+
         }
 
         public async Task SendMail(Job job, Offer offer, string title, string status, string endQuote)

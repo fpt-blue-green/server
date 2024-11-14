@@ -31,7 +31,7 @@ namespace BusinessObjects
 
     public class JobLinkDTO
     {
-        public string Link { get; set; }
+        public List<string> Link { get; set; }
     }
 
     public class JobStatistical

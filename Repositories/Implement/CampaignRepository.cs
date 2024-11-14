@@ -87,7 +87,24 @@ namespace Repositories
 			}
 		}
 
-		public async Task<Campaign> GetById(Guid id)
+        public async Task<List<User>> GetInfluencerParticipant(Guid campaignId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var participants = await context.Jobs
+                    .Where(job => job.CampaignId == campaignId && 
+										(job.Status == (int)EJobStatus.Approved ||
+										job.Status == (int)EJobStatus.InProgress))
+                    .Select(job => job.Influencer.User)
+                    .Distinct()
+                    .ToListAsync();
+
+                return participants;
+            }
+        }
+
+
+        public async Task<Campaign> GetById(Guid id)
 		{
 			using (var context = new PostgresContext())
 			{
