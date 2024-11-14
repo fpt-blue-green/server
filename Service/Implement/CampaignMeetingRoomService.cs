@@ -29,6 +29,11 @@ namespace Service
 
         public async Task CreateRoom(RoomDataRequest dataRequest, UserDTO user)
         {
+            if (dataRequest.StartAt.Kind != DateTimeKind.Utc || dataRequest.EndAt.Kind != DateTimeKind.Utc)
+            {
+                dataRequest.StartAt = dataRequest.StartAt.ToUniversalTime();
+                dataRequest.StartAt = dataRequest.StartAt.ToUniversalTime();
+            }
             await ValidateCreateRoom(dataRequest.StartAt, dataRequest.EndAt, dataRequest.RoomName, dataRequest.Participators, user.Id);
 
             var apiKey = await _systemSettingRepository.GetSystemSetting(_configManager.DailyVideoCallKey) ?? throw new Exception("Has error when get API VIDEO CALL Key");
@@ -78,7 +83,7 @@ namespace Service
                 Name = GenerateUniqueJobName(campaignName),
                 Properties = new RoomProperties
                 {
-                    Nbf = ConvertToUnixTimestamp(DateTime.Now),
+                    Nbf = ConvertToUnixTimestamp(DateTime.UtcNow),
                     Exp = null,
                     EjectAtRoomExp = true,
                 },
@@ -101,6 +106,11 @@ namespace Service
 
         public async Task UpdateRoom(RoomDataUpdateRequest updateRequest, UserDTO user)
         {
+            if (updateRequest.StartAt.Kind != DateTimeKind.Utc || updateRequest.EndAt.Kind != DateTimeKind.Utc)
+            {
+                updateRequest.StartAt = updateRequest.StartAt.ToUniversalTime();
+                updateRequest.StartAt = updateRequest.StartAt.ToUniversalTime();
+            }
             await ValidateCreateRoom(updateRequest.StartAt, updateRequest.EndAt, updateRequest.RoomName, updateRequest.Participators, user.Id);
 
             var curRoom = await _campaignMeetingRoomRepository.GetMeetingRoomByName(updateRequest.RoomName) ?? throw new KeyNotFoundException();

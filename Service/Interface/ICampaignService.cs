@@ -18,6 +18,6 @@ namespace Service
         Task PublishCampaign(Guid campaignId, UserDTO userDTO);
         Task StartCampaign(Guid campaignId, UserDTO userDTO);
         Task<List<CampaignDTO>> GetAvailableBrandCampaigns(Guid brandId);
-
+        Task<List<UserDTO>> GetCampaignParticipantInfluencer(Guid campaignId);
     }
 }

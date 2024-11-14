@@ -87,6 +87,14 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{id}/participant")]
+        [BrandRequired]
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetCampaignParticipantInfluencer(Guid id)
+        {
+            var result = await _campaignService.GetCampaignParticipantInfluencer(id);
+            return Ok(result);
+        }
+
         [HttpPost("")]
         [BrandRequired]
         public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignResDto campaign)
@@ -149,6 +157,7 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
         #endregion
+
         #region image
         [HttpPost("{id}/images")]
         [BrandRequired]

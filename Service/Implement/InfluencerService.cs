@@ -237,11 +237,6 @@ namespace Service
             return _mapper.Map<InfluencerDTO>(result);
         }
 
-        public async Task UpdateInfluencer(Influencer influencer)
-        {
-            await _influencerRepository.Update(influencer);
-        }
-
         public async Task<List<TagDTO>> GetTagsByInfluencer(UserDTO user)
         {
             var listTagsRes = new List<TagDTO>();

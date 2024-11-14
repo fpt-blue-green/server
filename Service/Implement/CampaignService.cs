@@ -6,12 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Repositories;
 using Serilog;
 using Service.Helper;
-using Supabase.Gotrue;
-using System.Linq;
 using System.Reflection;
 using System.Transactions;
 using static BusinessObjects.JobEnumContainer;
-using static Quartz.Logging.OperationName;
 
 namespace Service
 {
@@ -38,7 +35,7 @@ namespace Service
             {
                 try
                 {
-                    if(campaignDto.StartDate == null || campaignDto.EndDate == null)
+                    if (campaignDto.StartDate == null || campaignDto.EndDate == null)
                     {
                         throw new InvalidOperationException("Chiến dịch phải có đủ ngày bắt đầu và kết thúc.");
                     }
@@ -423,11 +420,13 @@ namespace Service
                 throw new InvalidOperationException("Chỉ những chiến dịch đang có trạng thái công khai mới có thể bắt đầu.");
             }
 
-            if (campaign?.Jobs?.Any(s => s.Status == (int)EJobStatus.Approved) != true)
+            var jobs = campaign.Jobs.Where(job => job.Status == (int)EJobStatus.Approved).ToList();
+
+            if (jobs?.Any() != true)
             {
                 throw new InvalidOperationException("Cần có ít nhất 1 công việc đã được thanh toán để có thể bắt đầu chiến dịch.");
             }
-            var jobs = campaign.Jobs.Where(job => job.Status == (int)EJobStatus.Approved).ToList();
+
             foreach (var job in jobs)
             {
                 job.Status = (int)EJobStatus.InProgress;
@@ -476,10 +475,16 @@ namespace Service
 
         protected void ValidateBrandAccess(Guid currentBrand, Guid authorBrand)
         {
-            if(currentBrand != authorBrand)
+            if (currentBrand != authorBrand)
             {
                 throw new AccessViolationException();
             }
+        }
+
+        public async Task<List<UserDTO>> GetCampaignParticipantInfluencer(Guid campaignId)
+        {
+            var user = await _campaignRepository.GetInfluencerParticipant(campaignId);
+            return _mapper.Map<List<UserDTO>>(user);
         }
     }
 }

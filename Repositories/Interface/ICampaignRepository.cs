@@ -19,6 +19,7 @@ namespace Repositories
 		Task<Campaign> GetByCampaignChatId(Guid campaignChatId);
 		Task<IEnumerable<Campaign>> GetAllsIgnoreFilter();
 		Task<Campaign> GetCampaignAllJobDetails(Guid campaignId);
+		Task<List<User>> GetInfluencerParticipant(Guid campaignId);
 
     }
 }
