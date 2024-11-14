@@ -1,5 +1,6 @@
 ﻿using BusinessObjects;
 using HtmlAgilityPack;
+using Quartz.Util;
 using Repositories;
 using System;
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace Service
 			throw new KeyNotFoundException();
 		}
 
-		public async Task<List<ChatPartnerDTO>> GetChatContactsAsync(Guid userId)
+		public async Task<List<ChatPartnerDTO>> GetChatContactsAsync(Guid userId,string? searchValue)
 		{
 			var messages = await _messageRepository.GetMessagesByUserIdAsync(userId);
 
@@ -127,8 +128,12 @@ namespace Service
 					});
 				}
 			}
-
-			return contacts.OrderByDescending(c => c.SentAt).ToList();
+			var result = contacts.OrderByDescending(c => c.SentAt).ToList();
+			if(result.Count > 0 && !searchValue.IsNullOrWhiteSpace())
+			{
+                result = result.Where(s => s.ChatName.Contains(searchValue,StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            return result;
 		}
 	}
 }

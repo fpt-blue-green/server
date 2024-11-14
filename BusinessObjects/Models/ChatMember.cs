@@ -10,6 +10,7 @@ public partial class ChatMember
     public Guid UserId { get; set; }
 
     public DateTime? JoinAt { get; set; }
+    public int? Role {  get; set; }
 
     public virtual CampaignChat CampaignChat { get; set; } = null!;
 

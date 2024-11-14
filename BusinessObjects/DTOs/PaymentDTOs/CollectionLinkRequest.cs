@@ -49,10 +49,12 @@ namespace BusinessObjects
     public class UpdatePremiumRequestDTO
     {
         public string redirectUrl { get; set; }
+        public int NumberMonthsRegis {  get; set; }
     }
 
     public class ExtraDataDTO
     {
         public Guid BrandId { get; set; }
+        public decimal TotalAmount { get; set; }
     }
 }
