@@ -16,7 +16,17 @@ namespace Repositories
             }
         }
 
-        public async Task<List<ChatMember>> GetMembersInCampaignChat(Guid campaignChatId)
+		public async Task DeleteMember(Guid memberId, Guid campaignChatId)
+		{
+			using (var _context = new PostgresContext())
+			{
+                var member = await _context.ChatMembers.FirstOrDefaultAsync(s => s.UserId == memberId && s.CampaignChatId == campaignChatId);
+				_context.ChatMembers.Remove(member);
+				await _context.SaveChangesAsync();
+			}
+		}
+
+		public async Task<List<ChatMember>> GetMembersInCampaignChat(Guid campaignChatId)
         {
             using (var _context = new PostgresContext())
             {
@@ -25,5 +35,14 @@ namespace Repositories
                 return (List<ChatMember>)result;
             }
         }
-    }
+
+		public async Task<List<Guid>> GetMyGroupChat(Guid userId)
+		{
+			using(var context = new PostgresContext())
+            {
+                var groups = context.ChatMembers.Where(s => s.UserId == userId);
+                return groups.Select(s => s.CampaignChatId).ToList();
+            }
+		}
+	}
 }

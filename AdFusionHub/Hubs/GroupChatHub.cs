@@ -41,11 +41,11 @@ namespace Server.Hubs
         }
         public async Task JoinRoom(GroupUserConnection userConnection)
 		{
-			_connections[Context.ConnectionId] = userConnection;
 			var isJoinGroup = await IsJoinGroup(userConnection.SenderId, userConnection.CampaignChatId);
 			if (isJoinGroup)
 			{
-                await Groups.AddToGroupAsync(Context.ConnectionId, userConnection.CampaignChatId.ToString());
+				_connections[Context.ConnectionId] = userConnection;
+				await Groups.AddToGroupAsync(Context.ConnectionId, userConnection.CampaignChatId.ToString());
                 await LoadMessages(userConnection.SenderId, userConnection.CampaignChatId);
                 await SendUsersConnected(userConnection.CampaignChatId);
 			}

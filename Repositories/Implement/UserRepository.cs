@@ -207,5 +207,13 @@ namespace Repositories
                 }
             }
         }
+
+        public async Task<List<User>> GetUserByNameOrEmail(string nameOrEmail)
+        {
+            using(var context = new PostgresContext())
+            {
+                return await context.Users.Where(s =>s.Role !=(int) ERole.Admin && (s.DisplayName.ToLower().Contains(nameOrEmail.ToLower()) )|| (s.Email.ToLower().Contains(nameOrEmail.ToLower()))).ToListAsync();
+            }
+        }
     }
 }
