@@ -2,6 +2,7 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
@@ -205,6 +206,16 @@ namespace Service
                 CurrentAmount = currentAmount,
                 SpendAmount = spendAmount
             };
+        }
+        public async Task<List<UserDTO>> GetUserToContact(string searchContent)
+        {
+            var result =new List<UserDTO>();
+            var listContact = await _userRepository.GetUserByNameOrEmail(searchContent);
+            if (!listContact.IsNullOrEmpty())
+            {
+                result = _mapper.Map<List<UserDTO>>(listContact);
+            }
+            return result;
         }
     }
 }
