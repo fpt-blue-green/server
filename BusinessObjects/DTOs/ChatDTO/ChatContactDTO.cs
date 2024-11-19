@@ -22,5 +22,6 @@ namespace BusinessObjects
         public string? LastMessage { get; set; }
         public DateTime? SentAt { get; set; }
         public bool isCampaign { get; set; }
+        public Guid? CampaignId { get; set; }
     }
 }

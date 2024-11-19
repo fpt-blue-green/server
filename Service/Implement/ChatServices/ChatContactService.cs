@@ -29,15 +29,15 @@ namespace Service
                     CampaignChatId = campaignChatId,
                     UserId = id,
                     JoinAt = DateTime.UtcNow,
-                    Role =(int) EChatRole.Member
+                    Role = (int)EChatRole.Member
                 };
                 await _chatMemberRepository.AddNewMember(member);
 
             }
         }
 
-		public async Task DeleteMember(Guid userId, Guid campaignChatId)
-		{
+        public async Task DeleteMember(Guid userId, Guid campaignChatId)
+        {
             try
             {
                 await _chatMemberRepository.DeleteMember(userId, campaignChatId);
@@ -46,9 +46,9 @@ namespace Service
             {
 
             }
-		}
+        }
 
-		public async Task<ChatPartnerDTO> GetChatContactByIdAsync(Guid chatId)
+        public async Task<ChatPartnerDTO> GetChatContactByIdAsync(Guid chatId)
         {
             var campaignChat = await _campaignChatRepository.GetMeetingRoomById(chatId);
             if (campaignChat != null)
@@ -60,7 +60,8 @@ namespace Service
                     ChatImage = null,
                     isCampaign = true,
                     LastMessage = "",
-                    SentAt = new DateTime()
+                    SentAt = new DateTime(),
+                    CampaignId = campaignChat.CampaignId,
                 };
             }
 
@@ -98,7 +99,7 @@ namespace Service
                  .Distinct()
                  .ToList();
             campaignContacts.AddRange(campaignChats);
-			var contacts = new List<ChatPartnerDTO>();
+            var contacts = new List<ChatPartnerDTO>();
 
             // Load thông tin của từng user contact
             foreach (var contactUserId in userContacts)
@@ -141,24 +142,25 @@ namespace Service
                         .Where(m => m.CampaignChatId == campaignChatId)
                         .OrderByDescending(m => m.SentAt)
                         .FirstOrDefault();
-                    if(lastMessage != null)
+                    if (lastMessage != null)
                     {
-						contacts.Add(new ChatPartnerDTO
-						{
-							ChatId = campaignChatId,
-							ChatName = campaign.Title,
-							SentAt = lastMessage?.SentAt,
-							LastMessage = lastMessage?.Content,
-							Sender = new UserDTO
-							{
-								Id = lastMessage.SenderId,
-								Email = lastMessage.Sender.Email,
-								Image = lastMessage.Sender.Avatar,
-								Name = lastMessage.Sender.DisplayName,
-								Role = (AuthEnumContainer.ERole)lastMessage.Sender.Role
-							},
-							isCampaign = true
-						});
+                        contacts.Add(new ChatPartnerDTO
+                        {
+                            ChatId = campaignChatId,
+                            ChatName = campaign.Title,
+                            SentAt = lastMessage?.SentAt,
+                            LastMessage = lastMessage?.Content,
+                            Sender = new UserDTO
+                            {
+                                Id = lastMessage.SenderId,
+                                Email = lastMessage.Sender.Email,
+                                Image = lastMessage.Sender.Avatar,
+                                Name = lastMessage.Sender.DisplayName,
+                                Role = (AuthEnumContainer.ERole)lastMessage.Sender.Role
+                            },
+                            isCampaign = true,
+                            CampaignId = campaign.Id,
+                        });
                     }
                     else
                     {
@@ -167,8 +169,9 @@ namespace Service
                             ChatId = campaignChatId,
                             ChatName = campaign.Title,
                             isCampaign = true,
-                            SentAt = DateTime.UtcNow
-						});
+                            SentAt = DateTime.UtcNow,
+                            CampaignId = campaign.Id,
+                        });
                     }
                 }
             }

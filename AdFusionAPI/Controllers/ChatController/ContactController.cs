@@ -115,19 +115,19 @@ namespace AdFusionAPI.Controllers.ChatController
             var result = await _userService.GetUserToContact(searchValue);
             return Ok(result);
         }
-        [HttpPost("chat/contacts/addMembers")]
+        [HttpPost("chat/contacts/{id}/addMembers")]
         [BrandRequired]
-        public async Task<ActionResult<List<UserDTO>>> AddMembers(List<Guid> ids,Guid campaignChatId)
+        public async Task<ActionResult<List<UserDTO>>> AddMembers(List<Guid> ids, [FromRoute] Guid id)
         {
-            await _chatContactService.AddMemberToGroupChat(ids,campaignChatId);
+            await _chatContactService.AddMemberToGroupChat(ids, id);
             return Ok();
         }
-		[HttpPost("chat/contacts/deleteMember")]
-		[BrandRequired]
-		public async Task<ActionResult> DeleteMembers(Guid id, Guid campaignChatId)
-		{
-			await _chatContactService.DeleteMember(id, campaignChatId);
-			return Ok();
-		}
-	}
+        [HttpDelete("chat/contacts/{id}/deleteMember")]
+        [BrandRequired]
+        public async Task<ActionResult> DeleteMembers([FromRoute] Guid id, Guid userId)
+        {
+            await _chatContactService.DeleteMember(userId, id);
+            return Ok();
+        }
+    }
 }
