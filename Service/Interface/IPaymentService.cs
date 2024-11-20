@@ -13,5 +13,6 @@ namespace Service
         Task UpdatePremiumCallBack(CallbackDTO callbackDTO);
         Task<PaymentCollectionLinkResponse> Deposit(DepositRequestDTO depositRequestDTO, UserDTO userDto);
         Task DepositCallBack(CallbackDTO callbackDTO);
+        Task<string> CreateWithDrawQR(WithdrawRequestDTO withdrawRequestDTO, Guid requestId);
     }
 }

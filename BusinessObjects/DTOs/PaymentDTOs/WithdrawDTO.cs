@@ -3,8 +3,8 @@
     public class WithdrawRequestDTO
     {
         public decimal Amount {  get; set; }
-        public string BankNumber { get; set; }
-        public EBankName BankName { get; set;}
+        public string BankId { get; set; }
+        public string AccountNo { get; set;}
     }
 
     public class AdminPaymentResponse
