@@ -41,7 +41,7 @@ namespace AdFusionAPI.Controllers
             var result = await _paymentService.GetAllPayment(filter);
             return Ok(result);
         }
-        [HttpPost("responseupdatepremium/{paymentId}")]
+        [HttpPost("responseUpdatePremium/{paymentId}")]
         [AdminRequired]
         public async Task<ActionResult> ResponseUpdatePremium(Guid paymentId, AdminPaymentResponse adminPaymentResponse)
         {

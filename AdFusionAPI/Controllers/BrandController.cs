@@ -107,12 +107,12 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost("updatepremium")]
+        /*[HttpPost("updatepremium")]
         [BrandRequired]
         public async Task UpdatePremiumBrand(UpdateVipRequestDTO updateVipRequest)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             await _paymentService.UpdateVipPaymentRequest(user.Id, updateVipRequest);
-        }
+        }*/
     }
 }

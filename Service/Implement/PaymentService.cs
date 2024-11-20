@@ -33,11 +33,11 @@ namespace Service
 
         public async Task CreatePaymentWithDraw(UserDTO userDto, WithdrawRequestDTO withdrawRequestDTO)
         {
+            var user = await _userRepository.GetUserById(userDto.Id) ?? throw new KeyNotFoundException();
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var user = await _userRepository.GetUserById(userDto.Id) ?? throw new KeyNotFoundException();
                     if (withdrawRequestDTO.Amount > user.Wallet)
                     {
                         throw new InvalidOperationException("Số tiền vượt mức cho phép!");
@@ -58,7 +58,6 @@ namespace Service
                     };
 
                     await _paymentRepository.CreatePaymentHistory(paymentHistory);
-                    await SendMailRequestWithDraw(user, withdrawRequestDTO);
                     scope.Complete();
                 }
                 catch
@@ -66,7 +65,7 @@ namespace Service
                     throw;
                 }
             }
-
+            await SendMailRequestWithDraw(user, withdrawRequestDTO);
         }
 
         public async Task<FilterListResponse<PaymentHistoryDTO>> GetAllPayment(PaymentWithDrawFilterDTO filter)
@@ -105,14 +104,15 @@ namespace Service
 
         public async Task ProcessWithdrawalApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
         {
+            var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
+            paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
+            var user = paymentHistory.User ?? throw new Exception("Không tìm thấy người dùng.!");
+
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
-                    paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
-                    var user = paymentHistory.User ?? throw new Exception("Không tìm thấy người dùng.!");
-
+                  
                     if (adminPaymentResponse.IsApprove)
                     {
                         paymentHistory.Status = (int)EPaymentStatus.Done;
@@ -141,8 +141,6 @@ namespace Service
                     await _adminActionNotificationHelper.CreateNotification<PaymentHistory>(userDto,
                         (adminPaymentResponse.IsApprove ? EAdminActionType.ApproveWithDraw : EAdminActionType.RejectWithDraw)
                         , paymentHistory, null);
-
-                    await SendMailResponseWithDraw(user, paymentHistory);
                     scope.Complete();
                 }
                 catch
@@ -150,6 +148,7 @@ namespace Service
                     throw;
                 }
             }
+            await SendMailResponseWithDraw(user, paymentHistory);
         }
 
         protected async Task<decimal> GetWithDrawFee()
@@ -337,8 +336,8 @@ namespace Service
             if (updatePremiumRequestDTO.NumberMonthsRegis >= 3)
             {
                 var discount = await _systemSettingRepository.GetSystemSetting(_configManager.UpdatePremiumDiscount) ?? throw new Exception("Has error when get Discount");
-                var discountValue = decimal.Parse(discount.KeyValue!.ToString()!);
-                totalAmount *= (1 - discountValue);
+                var discountValue = 1 - decimal.Parse(discount.KeyValue!.ToString()!)/100;
+                totalAmount = totalAmount * discountValue;
             }
             var extraData = new ExtraDataDTO()
             {
@@ -350,12 +349,12 @@ namespace Service
             request.partnerCode = "MOMO";
             // su dung ngrok cua chinh ban than
             //TODO:
-            request.ipnUrl = "https://2632-2405-4802-a095-dc50-e54d-416f-df7c-571b.ngrok-free.app/api/Payment/updatePremium/callback";
+            request.ipnUrl = "https://robin-clear-eminently.ngrok-free.app/api/Payment/updatePremium/callback";
             // ghi duong link web minh vao day nhe
             //TODO:
             request.redirectUrl = updatePremiumRequestDTO.redirectUrl;
-            request.amount = 500000; //co dinh
-            request.orderId = myuuidAsString;
+            request.amount = (long) totalAmount;
+			request.orderId = myuuidAsString;
             request.requestId = myuuidAsString;
             request.requestType = "payWithMethod";
             request.extraData = JsonSerializer.Serialize(extraData);
@@ -480,9 +479,6 @@ namespace Service
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
 
-        public Task UpdateVipPaymentRequest(Guid userId, UpdateVipRequestDTO updateVipRequest)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }

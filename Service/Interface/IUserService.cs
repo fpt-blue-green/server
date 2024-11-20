@@ -14,5 +14,6 @@ namespace Service
         Task<IEnumerable<UserDeviceDTO>> GetUserLoginHistory(UserDTO user);
         Task<FilterListResponse<UserPaymentDTO>> GetUserPayments(UserDTO userDTO, FilterDTO filter);
         Task<UserWalletDTO> GetUserWallet(UserDTO userDTO);
+        Task<List<UserDTO>> GetUserToContact(string searchContent);
     }
 }

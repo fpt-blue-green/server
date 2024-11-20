@@ -1,8 +1,10 @@
 ﻿
 using BusinessObjects;
+using BusinessObjects.Helper;
 using HtmlAgilityPack;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using Serilog;
 using System.Net;
 using System.Web;
@@ -48,7 +50,7 @@ namespace Service
                         Name = city["name"]!.ToString(),
                         Country = country["name"]!.ToString()
                     })
-                     .Where(cityResult => cityResult.Name.Contains(searchTerm, StringComparison.CurrentCultureIgnoreCase)));
+                     .Where(cityResult => TextComparator.ContainsIgnoreCaseAndDiacritics(cityResult.Name, searchTerm)));
 
             return results;
         }

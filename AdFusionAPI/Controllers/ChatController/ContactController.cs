@@ -13,12 +13,15 @@ namespace AdFusionAPI.Controllers.ChatController
         private readonly IChatContactService _chatContactService;
         private readonly IChatMemberService _chatMemberService;
         private readonly ICampaignChatService _campaignChatService;
-        public ContactController(IMessageService messageService, IChatMemberService chatMemberService, ICampaignChatService campaignChatService, IChatContactService chatContactService)
+        private readonly IUserService _userService;
+
+        public ContactController(IMessageService messageService, IChatMemberService chatMemberService, ICampaignChatService campaignChatService, IChatContactService chatContactService, IUserService userService)
         {
             _messageService = messageService;
             _chatMemberService = chatMemberService;
             _campaignChatService = campaignChatService;
             _chatContactService = chatContactService;
+            _userService = userService;
         }
         #region test api
         [HttpPost("group/save")]
@@ -82,9 +85,11 @@ namespace AdFusionAPI.Controllers.ChatController
         }
         #endregion
         [HttpPost("campaignChat/create")]
+        [BrandRequired]
         public async Task<IActionResult> CreateCampaignChatRoom([FromBody] CampaignChatResDTO campaignChat)
         {
-            await _campaignChatService.CreateCampaignChatRoom(campaignChat);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _campaignChatService.CreateCampaignChatRoom(campaignChat, user);
             return Ok("Campaign chat room created successfully.");
         }
         [HttpGet("chat/contacts")]
@@ -102,6 +107,27 @@ namespace AdFusionAPI.Controllers.ChatController
         {
             var result = await _chatContactService.GetChatContactByIdAsync(id);
             return Ok(result);
+        }
+        [HttpGet("chat/contacts/search")]
+        [AuthRequired]
+        public async Task<ActionResult<List<UserDTO>>> GetChatContacts(string searchValue)
+        {
+            var result = await _userService.GetUserToContact(searchValue);
+            return Ok(result);
+        }
+        [HttpPost("chat/contacts/{id}/addMembers")]
+        [BrandRequired]
+        public async Task<ActionResult<List<UserDTO>>> AddMembers(List<Guid> ids, [FromRoute] Guid id)
+        {
+            await _chatContactService.AddMemberToGroupChat(ids, id);
+            return Ok();
+        }
+        [HttpDelete("chat/contacts/{id}/deleteMember")]
+        [BrandRequired]
+        public async Task<ActionResult> DeleteMembers([FromRoute] Guid id, Guid userId)
+        {
+            await _chatContactService.DeleteMember(userId, id);
+            return Ok();
         }
     }
 }

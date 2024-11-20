@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.Helper;
 using BusinessObjects.Models;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
@@ -102,7 +103,7 @@ namespace Service
                 if (!string.IsNullOrEmpty(filter.Search))
                 {
                     allInfluencers = allInfluencers.Where(i =>
-                        i.FullName.Contains(filter.Search, StringComparison.OrdinalIgnoreCase)
+                        TextComparator.ContainsIgnoreCaseAndDiacritics(i.FullName, filter.Search)
                     );
                 }
                 #endregion
