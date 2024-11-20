@@ -336,8 +336,8 @@ namespace Service
             if (updatePremiumRequestDTO.NumberMonthsRegis >= 3)
             {
                 var discount = await _systemSettingRepository.GetSystemSetting(_configManager.UpdatePremiumDiscount) ?? throw new Exception("Has error when get Discount");
-                var discountValue = decimal.Parse(discount.KeyValue!.ToString()!);
-                totalAmount *= (1 - discountValue);
+                var discountValue = 1 - decimal.Parse(discount.KeyValue!.ToString()!)/100;
+                totalAmount = totalAmount * discountValue;
             }
             var extraData = new ExtraDataDTO()
             {
@@ -349,12 +349,12 @@ namespace Service
             request.partnerCode = "MOMO";
             // su dung ngrok cua chinh ban than
             //TODO:
-            request.ipnUrl = "https://2632-2405-4802-a095-dc50-e54d-416f-df7c-571b.ngrok-free.app/api/Payment/updatePremium/callback";
+            request.ipnUrl = "https://robin-clear-eminently.ngrok-free.app/api/Payment/updatePremium/callback";
             // ghi duong link web minh vao day nhe
             //TODO:
             request.redirectUrl = updatePremiumRequestDTO.redirectUrl;
-            request.amount = 500000; //co dinh
-            request.orderId = myuuidAsString;
+            request.amount = (long) totalAmount;
+			request.orderId = myuuidAsString;
             request.requestId = myuuidAsString;
             request.requestType = "payWithMethod";
             request.extraData = JsonSerializer.Serialize(extraData);
@@ -479,9 +479,6 @@ namespace Service
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
 
-        public Task UpdateVipPaymentRequest(Guid userId, UpdateVipRequestDTO updateVipRequest)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }
