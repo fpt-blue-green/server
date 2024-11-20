@@ -20,8 +20,6 @@
         public readonly List<string> AdminReportHandler = new List<string> { "nguyenhoang062017@gmail.com", "nguyendactamminh@gmail.com" };
         public readonly List<string> AdminPaymentHandler = new List<string> { "nguyenhoang062017@gmail.com" };
 
-
-
         public readonly string LogLink = "https://supabase.com/dashboard/project/uucyeumznprpthpykxwv/editor";
 
         public readonly string TikTokUrl = "https://www.tiktok.com/@";
@@ -38,8 +36,5 @@
         public readonly string WithDrawFeeKey= @"WithDrawPee";
         public readonly string UpdatePremiumDiscount = "UpdatePremiumDiscount";
         public readonly string PremiumPrice = "PremiumPrice";
-
-
-
     }
 }

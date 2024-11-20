@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using Repositories;
 using Serilog;
 using Service.Helper;
+using Service.Implement.UtilityServices;
+using Service.Interface.UtilityServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -25,11 +27,27 @@ namespace Service
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static readonly HttpClient client = new HttpClient();
+        private static readonly IEnvService _envService = new EnvService(); 
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<AutoMapperProfile>();
         }).CreateMapper();
         #endregion
+
+        public async Task<string> CreateWithDrawQR(WithdrawRequestDTO withdrawRequestDTO, Guid requestId)
+        {
+            string vietQR = @"https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<DESCRIPTION>&accountName=<ACCOUNT_NAME>";
+            var request = await _paymentRepository.GetPaymentHistoryById(requestId);
+
+            vietQR = vietQR.Replace("<ACCOUNT_NO>", withdrawRequestDTO.AccountNo)
+                .Replace("<BANK_ID>", withdrawRequestDTO.BankId)
+                .Replace("<TEMPLATE>", "compact2")
+                .Replace("<AMOUNT>", withdrawRequestDTO.Amount.ToString())
+                .Replace("<DESCRIPTION>", requestId.ToString())
+                .Replace("<ACCOUNT_NAME>", request.User.DisplayName);
+
+            return vietQR;
+        }
 
         public async Task CreatePaymentWithDraw(UserDTO userDto, WithdrawRequestDTO withdrawRequestDTO)
         {
@@ -52,7 +70,7 @@ namespace Service
                     {
                         UserId = userDto.Id,
                         Amount = withdrawRequestDTO.Amount,
-                        BankInformation = withdrawRequestDTO.BankNumber + " " + withdrawRequestDTO.BankName.ToString(),
+                        BankInformation = withdrawRequestDTO.BankId + " " + withdrawRequestDTO.AccountNo.ToString(),
                         Type = (int)EPaymentType.WithDraw,
                         Status = (int)EPaymentStatus.Pending
                     };
@@ -175,6 +193,7 @@ namespace Service
             await _paymentRepository.CreatePaymentHistory(paymentHistory);
 
         }
+
         #region SendMail
         public async Task SendMailRequestWithDraw(User user, WithdrawRequestDTO withdrawRequestDTO)
         {
@@ -185,7 +204,7 @@ namespace Service
                     .Replace("{DisplayName}", user.DisplayName)
                     .Replace("{Amount}", withdrawRequestDTO.Amount.ToString("N2"))
                     .Replace("{Money}", user.Wallet.ToString("N2"))
-                    .Replace("{BankAccount}", withdrawRequestDTO.BankNumber + " " + withdrawRequestDTO.BankName.ToString())
+                    .Replace("{BankAccount}", withdrawRequestDTO.BankId + " " + withdrawRequestDTO.AccountNo.ToString())
                     .Replace("{CreatedAt}", DateTime.Now.ToString())
                     .Replace("{Link}", "")
                     .Replace("{projectName}", _configManager.ProjectName);
@@ -324,6 +343,7 @@ namespace Service
             }
             await SendMailResponseUpdatePremium(brand, paymentHistory, adminPaymentResponse.IsApprove, adminPaymentResponse.AdminMessage);
         }
+      
         public async Task<PaymentCollectionLinkResponse> UpdatePremium(UpdatePremiumRequestDTO updatePremiumRequestDTO, UserDTO userDto)
         {
             Guid myuuid = Guid.NewGuid();
@@ -347,10 +367,8 @@ namespace Service
             CollectionLinkRequest request = new CollectionLinkRequest();
             request.orderInfo = "UPDATE PREMIUM";
             request.partnerCode = "MOMO";
-            // su dung ngrok cua chinh ban than
             //TODO:
-            request.ipnUrl = "https://robin-clear-eminently.ngrok-free.app/api/Payment/updatePremium/callback";
-            // ghi duong link web minh vao day nhe
+            request.ipnUrl = _envService.GetEnv("Payment_URL") + "api/Payment/updatePremium/callback";
             //TODO:
             request.redirectUrl = updatePremiumRequestDTO.redirectUrl;
             request.amount = (long) totalAmount;
@@ -379,8 +397,7 @@ namespace Service
             request.partnerCode = "MOMO";
             // su dung ngrok cua chinh ban than
             //TODO:
-            request.ipnUrl = "https://368f-2405-4802-a095-dc50-e54d-416f-df7c-571b.ngrok-free.app/api/Payment/deposit/callback";
-            // ghi duong link web minh vao day nhe
+            request.ipnUrl = _envService.GetEnv("Payment_URL") + "api/Payment/deposit/callback";
             request.redirectUrl = depositRequestDTO.redirectUrl;
             request.amount = depositRequestDTO.amount;
             request.orderId = myuuidAsString;
@@ -388,7 +405,7 @@ namespace Service
             request.requestType = "payWithMethod";
             request.extraData = brandId;
             request.partnerName = "MoMo Payment";
-            request.storeId = "Test Store";
+            request.storeId = "AdFusion";
             request.orderGroupId = "";
             request.autoCapture = true;
             request.lang = "vi";

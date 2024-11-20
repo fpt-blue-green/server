@@ -41,6 +41,15 @@ namespace AdFusionAPI.Controllers
             var result = await _paymentService.GetAllPayment(filter);
             return Ok(result);
         }
+
+        [HttpPost("vietQR/requestId")]
+        [AdminRequired]
+        public async Task<ActionResult<string>> GetVietQr(WithdrawRequestDTO withdrawRequestDTO, Guid requestId)
+        {
+            var result = await _paymentService.CreateWithDrawQR(withdrawRequestDTO, requestId);
+            return Ok(result);
+        }
+
         [HttpPost("responseUpdatePremium/{paymentId}")]
         [AdminRequired]
         public async Task<ActionResult> ResponseUpdatePremium(Guid paymentId, AdminPaymentResponse adminPaymentResponse)
