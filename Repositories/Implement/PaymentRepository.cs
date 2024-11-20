@@ -35,6 +35,45 @@ namespace Repositories
             }
         }
 
+        public async Task<IEnumerable<PaymentHistory>> GetAllPaymentsHistory()
+        {
+            using (var context = new PostgresContext())
+            {
+                // First query: Get payment histories
+                var userPaymentHistories = await context.PaymentHistories
+                                                .Include(i => i.User)
+                                                .ToListAsync();
+
+                // Second query: Get payment bookings
+                var paymentHistories = await context.PaymentBookings
+                                                .Include(i => i.Job)
+                                                    .ThenInclude(j => j.Influencer)
+                                                        .ThenInclude(i => i.User)
+                                                .Select(pb => new PaymentHistory
+                                                {
+                                                    Id = pb.Id, 
+                                                    UserId = pb.Job!.Influencer.User.Id,
+                                                    Amount = pb.Amount ?? 0,
+                                                    NetAmount = 0,
+                                                    BankInformation = null!,
+                                                    Status = (int)EPaymentStatus.Done,
+                                                    Type = (int)pb.Type!,
+                                                    CreatedAt = pb.PaymentDate!.Value,
+                                                    ResponseAt = pb.PaymentDate!.Value,
+                                                    AdminMessage = null,
+                                                    User = pb.Job.Influencer.User 
+                                                })
+                                                .ToListAsync();
+
+
+
+                // Concatenate the three results
+                var combinedUserPayments = userPaymentHistories.Concat(paymentHistories);
+
+                return combinedUserPayments;
+            }
+        }
+
         public async Task<IEnumerable<PaymentHistory>> GetAllProfitPayment()
         {
             using (var context = new PostgresContext())

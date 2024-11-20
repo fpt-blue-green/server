@@ -4,7 +4,7 @@
     {
         public Guid Id { get; set; }
 
-        public Guid? UserId { get; set; }
+        public Guid UserId { get; set; }
 
         public decimal Amount { get; set; }
 
@@ -12,11 +12,13 @@
 
         public string BankInformation { get; set; }
 
-        public EPaymentStatus? Status { get; set; }
+        public int? Status { get; set; }
 
-        public EPaymentType Type { get; set; }
+        public int Type { get; set; }
 
-        public DateTime? Date { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime? ResponseAt { get; set; }
 
         public string? AdminMessage { get; set; }
 
