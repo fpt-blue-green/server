@@ -71,7 +71,7 @@ namespace Service
         public async Task<FilterListResponse<PaymentHistoryDTO>> GetAllPayment(PaymentWithDrawFilterDTO filter)
         {
             IEnumerable<PaymentHistory> allPaymentHistories = Enumerable.Empty<PaymentHistory>();
-            allPaymentHistories = await _paymentRepository.GetAll();
+            allPaymentHistories = await _paymentRepository.GetAllPaymentsHistory();
 
             #region Filter
             if (filter.PaymentType != null && filter.PaymentType.Any())
