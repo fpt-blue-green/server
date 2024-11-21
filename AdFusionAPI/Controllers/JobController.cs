@@ -90,6 +90,7 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
+        [AuthRequired]
         [HttpGet("{jobId}/JobDetails")]
         public async Task<ActionResult<List<CampaignDailyStatsDTO>>> JobDailyStatistical(Guid jobId, [FromQuery] string? link = null)
         {

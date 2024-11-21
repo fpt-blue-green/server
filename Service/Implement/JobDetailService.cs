@@ -157,6 +157,37 @@ namespace Service
             };
         }
 
+        public async Task<Dictionary<EPlatform, long>> GetCampaignJobDetailPlatForm(Guid campaignId)
+        {
+            var data = await _campaignRepository.GetCampaignJobDetails(campaignId);
+
+            // Khởi tạo dictionary với tất cả các nền tảng có giá trị mặc định là 0
+            var platformStats = Enum.GetValues(typeof(EPlatform))
+                .Cast<EPlatform>()
+                .ToDictionary(platform => platform, platform => 0L);  // Sử dụng 0L để chỉ định kiểu long
+
+            // Nhóm dữ liệu từ campaign và tính tổng TotalReaction theo Platform
+            var calculatedStats = data.Jobs
+                .SelectMany(j => j.Offers)
+                .GroupBy(o => o.Platform) // Nhóm theo Platform
+                .ToDictionary(
+                    g => (EPlatform)g.Key,
+                    g =>
+                    {
+                        long totalReaction = g.Sum(o => o.Job.JobDetails.Sum(jd => jd.ViewCount + jd.LikesCount + jd.CommentCount)); // Tổng tương tác
+                        return totalReaction;
+                    }
+                );
+
+            // Gộp dữ liệu từ `calculatedStats` vào `platformStats`
+            foreach (var stat in calculatedStats)
+            {
+                platformStats[stat.Key] = stat.Value;
+            }
+
+            return platformStats;
+        }
+
         public async Task<List<CampaignDailyStatsDTO>> GetCampaignDailyStats(Guid campaignId)
         {
             // Lấy dữ liệu chiến dịch bao gồm tất cả các công việc và chi tiết công việc

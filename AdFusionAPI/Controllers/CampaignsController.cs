@@ -71,6 +71,14 @@ namespace AdFusionAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{id}/jobDetailBasePlatform")]
+        [AuthRequired]
+        public async Task<ActionResult<Dictionary<EPlatform, long>>> GetCampaignJobDetailBasePlatform(Guid id)
+        {
+            var result = await _jobDetailService.GetCampaignJobDetailPlatForm(id);
+            return Ok(result);
+        }
+
         [HttpGet("{id}/jobDetailStatistic")]
         [AuthRequired]
         public async Task<ActionResult<List<CampaignDailyStatsDTO>>> GetCampaignJobDetailStatistic(Guid id)
