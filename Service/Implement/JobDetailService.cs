@@ -5,6 +5,7 @@ using Repositorie;
 using Repositories;
 using System.Globalization;
 using System.Reflection;
+using System.Web;
 using static BusinessObjects.JobEnumContainer;
 
 namespace Service
@@ -260,7 +261,53 @@ namespace Service
             return jobStatusCounts;
         }
 
+        #endregion
 
+        #region Job Statistic
+        public async Task<List<CampaignDailyStatsDTO>> GetJobDailyStats(Guid jobId, string? link)
+        {
+            var allJobDetails = new List<JobDetails>();
+
+            if (link != null)
+            {
+                link = HttpUtility.UrlDecode(link);
+                allJobDetails = await _campaignRepository.GetDailyJobStatus(jobId, link);
+            }
+            else
+            {
+                allJobDetails = await _campaignRepository.GetAllDailyJobStatus(jobId);
+            }
+
+
+            // Kiểm tra nếu không có JobDetails, trả về danh sách rỗng
+            if (!allJobDetails.Any())
+            {
+                return new List<CampaignDailyStatsDTO>();
+            }
+
+            // Lấy ngày nhỏ nhất và ngày lớn nhất từ các JobDetails
+            var startDate = allJobDetails.Min(jd => jd.UpdateDate.Date);
+            var endDate = allJobDetails.Max(jd => jd.UpdateDate.Date);
+
+            // Tạo danh sách các ngày từ ngày nhỏ nhất đến ngày lớn nhất
+            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                                     .Select(offset => startDate.AddDays(offset))
+                                     .Select(date => date.ToString("dd/MM/yyyy")) // Định dạng ngày
+                                     .ToList();
+
+            // Thống kê số liệu cho mỗi ngày
+            var dailyStats = allDates.Select(dateStr => new CampaignDailyStatsDTO
+            {
+                Date = dateStr,
+                TotalReaction = allJobDetails
+                                .Where(jd => jd.UpdateDate.ToString("dd/MM/yyyy") == dateStr) // So sánh ngày
+                                .Sum(jd => jd.ViewCount + jd.LikesCount + jd.CommentCount) // Tính tổng phản hồi
+            })
+            .OrderBy(dailyStat => DateTime.ParseExact(dailyStat.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture)) // Sắp xếp theo ngày
+            .ToList();
+
+            return dailyStats!;
+        }
         #endregion
     }
 }

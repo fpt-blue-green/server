@@ -1,6 +1,5 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Models;
-using static BusinessObjects.JobEnumContainer;
 
 namespace Service
 {
@@ -11,5 +10,6 @@ namespace Service
         Task<CampaignJobDetailBaseDTO> GetCampaignJobDetailBaseData(Guid campaignId);
         Task<List<CampaignDailyStatsDTO>> GetCampaignDailyStats(Guid campaignId);
         Task<Dictionary<int, int>> GetCampaignJobStatus(Guid campaignId);
+        Task<List<CampaignDailyStatsDTO>> GetJobDailyStats(Guid jobId, string? link);
     }
 }
