@@ -20,6 +20,7 @@ namespace Repositories
 		Task<IEnumerable<Campaign>> GetAllsIgnoreFilter();
 		Task<Campaign> GetCampaignAllJobDetails(Guid campaignId);
 		Task<List<User>> GetInfluencerParticipant(Guid campaignId);
-
+		Task<List<JobDetails>> GetDailyJobStatus(Guid jobId, string link);
+		Task<List<JobDetails>> GetAllDailyJobStatus(Guid jobId);
     }
 }

@@ -10,12 +10,14 @@ namespace AdFusionAPI.Controllers
     public class JobController : Controller
     {
         private readonly IJobService _jobService;
+        private readonly IJobDetailService _jobDetailService;
         private readonly IOfferService _offerService;
 
-        public JobController(IJobService jobService, IOfferService offerService)
+        public JobController(IJobService jobService, IOfferService offerService, IJobDetailService jobDetailService)
         {
             _jobService = jobService;
             _offerService = offerService;
+            _jobDetailService = jobDetailService;
         }
 
         [BrandRequired]
@@ -87,5 +89,13 @@ namespace AdFusionAPI.Controllers
             var result = await _jobService.Statistical(user);
             return Ok(result);
         }
+
+        [HttpGet("{jobId}/JobDetails")]
+        public async Task<ActionResult<List<CampaignDailyStatsDTO>>> JobDailyStatistical(Guid jobId, [FromQuery] string? link = null)
+        {
+            var result = await _jobDetailService.GetJobDailyStats(jobId, link);
+            return Ok(result);
+        }
+
     }
 }

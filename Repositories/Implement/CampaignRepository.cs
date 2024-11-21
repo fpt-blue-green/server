@@ -191,6 +191,30 @@ namespace Repositories
             }
         }
 
+		public async Task<List<JobDetails>>GetDailyJobStatus(Guid jobId, string link)
+		{
+            using (var context = new PostgresContext())
+            {
+                var result = await context.JobDetails
+										.Where(j => j.JobId == jobId && j.Link == link)
+										.Include(j => j.Job)
+										.ToListAsync();
+				return result;
+            }
+        }
+
+        public async Task<List<JobDetails>> GetAllDailyJobStatus(Guid jobId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.JobDetails
+                                        .Where(j => j.JobId == jobId)
+                                        .Include(j => j.Job)
+                                        .ToListAsync();
+                return result;
+            }
+        }
+
         public async Task<Campaign> GetCampaignAllJobDetails(Guid campaignId)
         {
             using (var context = new PostgresContext())
