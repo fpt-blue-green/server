@@ -240,8 +240,38 @@ namespace Service
                 throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đánh giấu hoàn thành Công việc có Id bị bất thường {userDto.Id}");
             }
 
-            job.Status = (int)EJobStatus.Completed;
-            await _jobRepository.UpdateJobAndOffer(job);
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var isPayment = await _paymentBookingRepository.GetInfluencerPaymentByJobId(jobId) == null;
+                    if (!isPayment)
+                    {
+                        var offer = job.Offers.FirstOrDefault(o => o.Status == (int)JobEnumContainer.EOfferStatus.Done);
+                        var userGet = await _userRepository.GetUserByInfluencerId(job.InfluencerId) ?? throw new KeyNotFoundException();
+                        userGet.Wallet += offer!.Price;
+                        await _userRepository.UpdateUser(user);
+
+                        var paymentBooking = new PaymentBooking
+                        {
+                            Amount = offer!.Price,
+                            JobId = job.Id,
+                            PaymentDate = DateTime.Now,
+                            Type = (int)EPaymentType.InfluencerPayment,
+                        };
+                        await _paymentBookingRepository.CreatePaymentBooking(paymentBooking);
+                    }
+                    job.Status = (int)EJobStatus.Completed;
+                    await _jobRepository.UpdateJobAndOffer(job);
+
+                    scope.Complete();
+
+                }
+                catch
+                {
+                    throw;
+                }
+            }
 
             //send mail
             var resultMessage = "Lưu ý: Khoản tiền công của bạn sẽ được chuyển khoản sau 3 ngày làm việc, trừ khi có phản hồi từ phía Nhãn hàng trong thời gian này. Điều này nhằm đảm bảo rằng mọi công việc và thanh toán đều được xử lý nhanh chóng và minh bạch. Chúng tôi rất mong nhận được sự hợp tác của bạn và luôn sẵn sàng hỗ trợ nếu bạn có bất kỳ thắc mắc nào liên quan đến quá trình thanh toán.";
@@ -257,10 +287,38 @@ namespace Service
             {
                 throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đang đánh giấu Công việc thất bại có Id bị bất thường {userDto.Id}");
             }
+           
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var isPayment = await _paymentBookingRepository.GetInfluencerPaymentByJobId(jobId) == null;
+                    if (!isPayment)
+                    {
+                        var offer = job.Offers.FirstOrDefault(o => o.Status == (int)JobEnumContainer.EOfferStatus.Done);
+                        var userGet = job.Campaign.Brand.User;
+                        userGet.Wallet += offer!.Price;
+                        await _userRepository.UpdateUser(user);
 
-            job.Status = (int)EJobStatus.Failed;
-            await _jobRepository.UpdateJobAndOffer(job);
+                        var paymentBooking = new PaymentBooking
+                        {
+                            Amount = offer!.Price,
+                            JobId = job.Id,
+                            PaymentDate = DateTime.Now,
+                            Type = (int)EPaymentType.Refund,
+                        };
+                        await _paymentBookingRepository.CreatePaymentBooking(paymentBooking);
+                    }
+                    job.Status = (int)EJobStatus.Failed;
+                    await _jobRepository.UpdateJobAndOffer(job);
 
+                    scope.Complete();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
             //send mail
             var resultMessage = "Lưu ý: Công việc của bạn đã bị đánh dấu là thất bại. Tuy nhiên, bạn vẫn có 3 ngày để phản hồi với Nhãn hàng nếu có bất kỳ sai sót hoặc vấn đề nào cần được xem xét lại. Đây là cơ hội để đảm bảo rằng mọi thông tin đều chính xác và minh bạch. Nếu cần hỗ trợ thêm hoặc có câu hỏi nào, vui lòng liên hệ với chúng tôi.";
             await SendMailStatus(job, "Đã thất bại", resultMessage);
