@@ -1,5 +1,6 @@
 ﻿using AdFusionAPI.APIConfig;
 using BusinessObjects;
+using BusinessObjects.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 using static BusinessObjects.JobEnumContainer;
@@ -72,8 +73,8 @@ namespace AdFusionAPI.Controllers
         }
 
         [HttpGet("{id}/jobDetailBasePlatform")]
-        [AuthRequired]
-        public async Task<ActionResult<Dictionary<EPlatform, long>>> GetCampaignJobDetailBasePlatform(Guid id)
+		[AuthRequired]
+        public async Task<ActionResult<List<JobPlatFormPieChartDTO>>> GetCampaignJobDetailBasePlatform(Guid id)
         {
             var result = await _jobDetailService.GetCampaignJobDetailPlatForm(id);
             return Ok(result);
