@@ -199,7 +199,7 @@ namespace Service
         {
             var result = new List<CampaignDTO>();
             var campaigns = await _campaignRepository.GetAlls();
-            var campaignInprogres = campaigns.Where(s => /*(s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now) &&*/ (s.Status == (int)ECampaignStatus.Active || s.Status == (int)ECampaignStatus.Published));
+            var campaignInprogres = campaigns.Where(s =>  (s.Status == (int)ECampaignStatus.Active || s.Status == (int)ECampaignStatus.Published));
             var totalCount = 0;
             if (campaignInprogres.Any())
             {
@@ -437,10 +437,37 @@ namespace Service
             await _campaignRepository.Update(campaign);
 
             // Gửi mail thông báo trong một tác vụ nền
-            _ = Task.Run(async () => await SendNotificationStartCampagin(campaign));
+            _ = Task.Run(async () => await SendNotificationStartCampagin(campaign, "Đã Bắt Đầu"));
         }
 
-        public async Task SendNotificationStartCampagin(Campaign campaign)
+        public async Task EndCampaign(Guid campaignId, UserDTO userDTO)
+        {
+            var currentBrand = await _brandRepository.GetByUserId(userDTO.Id);
+            var campaign = await _campaignRepository.GetFullDetailCampaignJobById(campaignId) ?? throw new KeyNotFoundException();
+
+            ValidateBrandAccess(currentBrand.Id, campaign.Brand.Id);
+
+            if (campaign.Status != (int)ECampaignStatus.Active)
+            {
+                throw new InvalidOperationException("Lỗi, chỉ những chiến dịch đang hoạt động mới có thể kết thúc.");
+            }
+
+            var runningJob = campaign.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress).ToList();
+
+            if (runningJob.Any())
+            {
+                throw new InvalidOperationException("Tồn tại các công việc chưa hoàn thành. Vui lòng đợi cho các công việc hoàn thành hoặc bạn có thể thay đổi trạng thái của công việc đó.");
+            }
+
+            campaign!.Status = (int)ECampaignStatus.Completed;
+            campaign.EndDate = DateTime.Now;
+            await _campaignRepository.Update(campaign);
+
+            // Gửi mail thông báo trong một tác vụ nền
+            _ = Task.Run(async () => await SendNotificationStartCampagin(campaign, "Đã Kết thúc"));
+        }
+
+        public async Task SendNotificationStartCampagin(Campaign campaign, string status)
         {
             try
             {
@@ -455,11 +482,12 @@ namespace Service
                     return;
                 }
 
-                string subject = "Thông Báo Campaign Đã Bắt Đầu";
+                string subject = "Thông Báo Campaign " + status;
 
                 var body = _emailTemplate.campaignStart
                     .Replace("{CampaignName}", campaign?.Name)
                     .Replace("{Title}", campaign?.Title)
+                    .Replace("{status}", status)
                     .Replace("{BrandName}", campaign?.Brand?.User?.DisplayName)
                     .Replace("{StartDate}", DateTime.Now.ToString())
                     .Replace("{EndDate}", campaign?.EndDate.ToString())

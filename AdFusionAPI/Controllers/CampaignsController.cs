@@ -130,6 +130,15 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
+        [HttpPut("{id}/end")]
+        [BrandRequired]
+        public async Task<ActionResult> EndCampaign(Guid id)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _campaignService.EndCampaign(id, user);
+            return Ok();
+        }
+
         [HttpPut("{id}/publish")]
         [BrandRequired]
         public async Task<ActionResult> PublishCampaign(Guid id)

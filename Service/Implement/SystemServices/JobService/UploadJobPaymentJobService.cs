@@ -92,41 +92,45 @@ namespace Service
 
                 foreach (var job in batch)
                 {
-                    using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    var jobBooking = await _paymentRepository.GetInfluencerPaymentByJobId(job.Id);
+                    if(jobBooking == null)
                     {
-                        try
+                        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                         {
-                            var offer = job.Offers.FirstOrDefault(o => o.Status == (int)JobEnumContainer.EOfferStatus.Done);
-                            var user = await _userRepository.GetUserByInfluencerId(job.InfluencerId) ?? throw new KeyNotFoundException();
-                            user.Wallet += offer!.Price;
-                            await _userRepository.UpdateUser(user);
-
-                            var paymentBooking = new PaymentBooking
+                            try
                             {
-                                Amount = offer!.Price,
-                                JobId = job.Id,
-                                PaymentDate = DateTime.Now,
-                                Type = (int)EPaymentType.InfluencerPayment,
-                            };
-                            await _paymentRepository.CreatePaymentBooking(paymentBooking);
-                            // Nếu thành công, tăng biến Success
-                            jobResult.Success++;
+                                var offer = job.Offers.FirstOrDefault(o => o.Status == (int)JobEnumContainer.EOfferStatus.Done);
+                                var user = await _userRepository.GetUserByInfluencerId(job.InfluencerId) ?? throw new KeyNotFoundException();
+                                user.Wallet += offer!.Price;
+                                await _userRepository.UpdateUser(user);
 
-                            scope.Complete();
+                                var paymentBooking = new PaymentBooking
+                                {
+                                    Amount = offer!.Price,
+                                    JobId = job.Id,
+                                    PaymentDate = DateTime.Now,
+                                    Type = (int)EPaymentType.InfluencerPayment,
+                                };
+                                await _paymentRepository.CreatePaymentBooking(paymentBooking);
+                                // Nếu thành công, tăng biến Success
+                                jobResult.Success++;
 
-                            var body = _emailTempalte.uploadDataErrorTemplate.Replace("{ProjectName}", _configManager.ProjectName)
-                                                                 .Replace("{TransferDate}", DateTime.Now.ToString())
-                                                                 .Replace("{InfluencerName}", job.Influencer.User.DisplayName)
-                                                                 .Replace("{CampaignName}", job.Campaign.Name)
-                                                                 .Replace("{Description}", "Thanh toán công việc đã hoàn thành")
-                                                                 .Replace("{Amount}", offer!.Price.ToString("N0"));
-                            await _emailService.SendEmail(new List<string> { job.Influencer.User.DisplayName! }, "Thông Báo Chuyển Tiền", body);
-                        }
-                        catch (Exception ex)
-                        {
-                            // Nếu thất bại, thêm PaymentJobs vào danh sách cần retry
-                            failedJobs.Add(job);
-                            _loggerService.Error($"Job {jobId}: Update PaymentJobs {job.Id} failed. Exception: {ex}");
+                                scope.Complete();
+
+                                var body = _emailTempalte.uploadDataErrorTemplate.Replace("{ProjectName}", _configManager.ProjectName)
+                                                                     .Replace("{TransferDate}", DateTime.Now.ToString())
+                                                                     .Replace("{InfluencerName}", job.Influencer.User.DisplayName)
+                                                                     .Replace("{CampaignName}", job.Campaign.Name)
+                                                                     .Replace("{Description}", "Thanh toán công việc đã hoàn thành")
+                                                                     .Replace("{Amount}", offer!.Price.ToString("N0"));
+                                await _emailService.SendEmail(new List<string> { job.Influencer.User.DisplayName! }, "Thông Báo Chuyển Tiền", body);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Nếu thất bại, thêm PaymentJobs vào danh sách cần retry
+                                failedJobs.Add(job);
+                                _loggerService.Error($"Job {jobId}: Update PaymentJobs {job.Id} failed. Exception: {ex}");
+                            }
                         }
                     }
                 }

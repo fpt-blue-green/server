@@ -35,6 +35,26 @@ namespace Repositories
             }
         }
 
+        public async Task<PaymentBooking> GetInfluencerPaymentByJobId(Guid jobId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.PaymentBookings
+                    .FirstOrDefaultAsync(j => j.JobId == jobId && j.Type == (int)EPaymentType.InfluencerPayment);
+                return result;
+            }
+        }
+
+        public async Task<PaymentBooking> GetBrandPaymentByJobId(Guid jobId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var result = await context.PaymentBookings
+                    .FirstOrDefaultAsync(j => j.JobId == jobId && j.Type == (int)EPaymentType.BrandPayment);
+                return result;
+            }
+        }
+
         public async Task<IEnumerable<PaymentHistory>> GetAllPaymentsHistory()
         {
             using (var context = new PostgresContext())

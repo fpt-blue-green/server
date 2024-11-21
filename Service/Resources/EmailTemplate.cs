@@ -1032,8 +1032,7 @@
                                                 </div>
                                                 <div class=""email-body"">
                                                     <h2>Xin chào Inluencer,</h2>
-                                                    <p>Chúng tôi xin thông báo rằng Chiến dịch <strong>{CampaignName}</strong> mà bạn tham gia đã được bắt đầu.</p>
-                                                    <p>Vui lòng chuẩn bị và triển khai công việc theo như đã thỏa thuận trước đó.</p>
+                                                    <p>Chúng tôi xin thông báo rằng Chiến dịch <strong>{CampaignName}</strong> mà bạn tham gia đã {status}.</p>
                                                     <p>Thông tin chi tiết về Chiến dịch của bạn:</p>
                                                     <ul>
                                                         <li>Chiến dịch: {CampaignName} - {Title}</li>
