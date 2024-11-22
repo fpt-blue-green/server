@@ -56,6 +56,15 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
+        [BrandRequired]
+        [HttpPut("{id}/reopen")]
+        public async Task<ActionResult> BrandReopen(Guid id)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _jobService.BrandReopenJob(id, user);
+            return Ok();
+        }
+
         [InfluencerRequired]
         [HttpPut("{id}/link")]
         public async Task<ActionResult> AttachLink(Guid id, [FromBody] JobLinkDTO jobLinkDTO)

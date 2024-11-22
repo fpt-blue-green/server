@@ -47,7 +47,7 @@ namespace Service
             }
 
             #region filter
-            if(filter.CampaignId != null)
+            if (filter.CampaignId != null)
             {
                 jobs = jobs.Where(f => f.CampaignId == filter.CampaignId);
             }
@@ -160,11 +160,6 @@ namespace Service
                     }
 
                     var user = job.Campaign.Brand.User;
-
-                    //if (userDto.Id != user.Id)
-                    //{
-                    //    throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang thanh toán có Id bị bất thường {userDto.Id}");
-                    //}
 
                     if (user.Wallet < offer.Price)
                     {
@@ -287,28 +282,11 @@ namespace Service
             {
                 throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đang đánh giấu Công việc thất bại có Id bị bất thường {userDto.Id}");
             }
-           
+
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var isPayment = await _paymentBookingRepository.GetInfluencerPaymentByJobId(jobId) == null;
-                    if (!isPayment)
-                    {
-                        var offer = job.Offers.FirstOrDefault(o => o.Status == (int)JobEnumContainer.EOfferStatus.Done);
-                        var userGet = job.Campaign.Brand.User;
-                        userGet.Wallet += offer!.Price;
-                        await _userRepository.UpdateUser(user);
-
-                        var paymentBooking = new PaymentBooking
-                        {
-                            Amount = offer!.Price,
-                            JobId = job.Id,
-                            PaymentDate = DateTime.Now,
-                            Type = (int)EPaymentType.Refund,
-                        };
-                        await _paymentBookingRepository.CreatePaymentBooking(paymentBooking);
-                    }
                     job.Status = (int)EJobStatus.Failed;
                     await _jobRepository.UpdateJobAndOffer(job);
 
@@ -323,6 +301,45 @@ namespace Service
             var resultMessage = "Lưu ý: Công việc của bạn đã bị đánh dấu là thất bại. Tuy nhiên, bạn vẫn có 3 ngày để phản hồi với Nhãn hàng nếu có bất kỳ sai sót hoặc vấn đề nào cần được xem xét lại. Đây là cơ hội để đảm bảo rằng mọi thông tin đều chính xác và minh bạch. Nếu cần hỗ trợ thêm hoặc có câu hỏi nào, vui lòng liên hệ với chúng tôi.";
             await SendMailStatus(job, "Đã thất bại", resultMessage);
         }
+
+        public async Task BrandReopenJob(Guid jobId, UserDTO userDto)
+        {
+            var job = await _jobRepository.GetJobFullDetailById(jobId);
+            var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.Done) ?? throw new KeyNotFoundException();
+
+            var user = job.Campaign.Brand.User;
+            if (userDto.Id != user.Id)
+            {
+                throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đang đánh giấu Công việc Khởi động lại có Id bị bất thường {userDto.Id}");
+            }
+
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (user.Wallet < offer.Price)
+                    {
+                        throw new InvalidOperationException("Không đủ tiền để thanh toán. Vui lòng đến trang nạp tiền để hoàn thành đề nghị.");
+                    }
+
+                    user.Wallet -= offer.Price;
+                    await _userRepository.UpdateUser(user);
+
+                    job.Status = (int)EJobStatus.InProgress;
+                    await _jobRepository.Update(job);
+
+                    scope.Complete();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+            //send mail
+            var resultMessage = "Lưu ý: Công việc của bạn đã bị đánh dấu là thất bại. Tuy nhiên, bạn vẫn có 3 ngày để phản hồi với Nhãn hàng nếu có bất kỳ sai sót hoặc vấn đề nào cần được xem xét lại. Đây là cơ hội để đảm bảo rằng mọi thông tin đều chính xác và minh bạch. Nếu cần hỗ trợ thêm hoặc có câu hỏi nào, vui lòng liên hệ với chúng tôi.";
+            await SendMailStatus(job, "Đã thất bại", resultMessage);
+        }
+
 
         public async Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO)
         {
@@ -339,7 +356,7 @@ namespace Service
             }
 
             var offer = job.Offers.FirstOrDefault(o => o.Status == (int)EOfferStatus.Done) ?? throw new KeyNotFoundException();
-            if(offer.Quantity < linkDTO.Link.Count)
+            if (offer.Quantity < linkDTO.Link.Count)
             {
                 throw new InvalidOperationException("Số lượng đường dẫn video vượt qua số lượng thỏa thuận.");
 
