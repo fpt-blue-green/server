@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects;
+using BusinessObjects.DTOs;
 using BusinessObjects.Models;
 using Repositorie;
 using Repositories;
@@ -57,6 +58,13 @@ namespace Service
             data.ViewCount = Math.Max(0, data.ViewCount - oldData.totalViews);
             data.CommentCount = Math.Max(0, data.CommentCount - oldData.totalComments);
             data.LikesCount = Math.Max(0, data.LikesCount - oldData.totalLikes);
+
+            if(offer.TargetReaction <= (data.ViewCount + data.LikesCount + data.CommentCount))
+            {
+                job.Status = (int)EJobStatus.Completed;
+                job.CompleteAt = DateTime.Now;
+                await _jobRepository.UpdateJobAndOffer(job);
+            }
 
             var jobDetail = _mapper.Map<JobDetails>(data);
             jobDetail.JobId = job.Id;
@@ -157,14 +165,15 @@ namespace Service
             };
         }
 
-        public async Task<Dictionary<EPlatform, long>> GetCampaignJobDetailPlatForm(Guid campaignId)
+        public async Task<List<JobPlatFormPieChartDTO>> GetCampaignJobDetailPlatForm(Guid campaignId)
         {
+            // Lấy dữ liệu từ repository
             var data = await _campaignRepository.GetCampaignJobDetails(campaignId);
 
             // Khởi tạo dictionary với tất cả các nền tảng có giá trị mặc định là 0
             var platformStats = Enum.GetValues(typeof(EPlatform))
                 .Cast<EPlatform>()
-                .ToDictionary(platform => platform, platform => 0L);  // Sử dụng 0L để chỉ định kiểu long
+                .ToDictionary(platform => platform, platform => 0L); // Sử dụng 0L để chỉ định kiểu long
 
             // Nhóm dữ liệu từ campaign và tính tổng TotalReaction theo Platform
             var calculatedStats = data.Jobs
@@ -174,7 +183,8 @@ namespace Service
                     g => (EPlatform)g.Key,
                     g =>
                     {
-                        long totalReaction = g.Sum(o => o.Job.JobDetails.Sum(jd => jd.ViewCount + jd.LikesCount + jd.CommentCount)); // Tổng tương tác
+                        // Tính tổng ViewCount, LikesCount và CommentCount
+                        long totalReaction = g.Sum(o => o.Job.JobDetails.Sum(jd => jd.ViewCount + jd.LikesCount + jd.CommentCount));
                         return totalReaction;
                     }
                 );
@@ -185,8 +195,18 @@ namespace Service
                 platformStats[stat.Key] = stat.Value;
             }
 
-            return platformStats;
+            // Chuyển đổi dictionary thành danh sách JobPlatFormPieChartDTO
+            var result = platformStats
+                .Select(ps => new JobPlatFormPieChartDTO
+                {
+                    Platform = ps.Key,
+                    Value = ps.Value
+                })
+                .ToList();
+
+            return result;
         }
+
 
         public async Task<List<CampaignDailyStatsDTO>> GetCampaignDailyStats(Guid campaignId)
         {
