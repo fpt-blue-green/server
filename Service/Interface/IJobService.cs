@@ -13,6 +13,6 @@ namespace Service
         Task<FilterListResponse<JobDTO>> GetAllJobByCurrentAccount(UserDTO user, JobFilterDTO filter);
         Task<List<JobStatistical>> Statistical(UserDTO user);
         Task<List<string>> GetJobLink(Guid jobId);
-        Task BrandReopenJob(Guid jobId, UserDTO userDto)
+        Task BrandReopenJob(Guid jobId, UserDTO userDto);
     }
 }
