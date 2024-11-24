@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using static BusinessObjects.JobEnumContainer;
 
@@ -82,7 +83,7 @@ namespace Repositories
 					.Include(s => s.CampaignImages)
 					.Include(s => s.CampaignMeetingRooms)
 					.Include(s => s.CampaignContents)
-                    .Where(s => s.BrandId == id).ToListAsync();
+                    .Where(s => s.BrandId == id && (s.Status == (int) ECampaignStatus.Active || s.Status == (int)ECampaignStatus.Published)).ToListAsync();
 				return campaigns;
 			}
 		}
