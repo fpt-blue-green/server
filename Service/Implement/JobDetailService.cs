@@ -31,7 +31,7 @@ namespace Service
             }
             else
             {
-                var links = await _jobRepository.GetLinkJobInProgress(job.Id);
+                var links = await _jobRepository.GetLinkJobAppovedInProgress(job.Id);
 
                 foreach (var item in links)
                 {

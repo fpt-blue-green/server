@@ -7,7 +7,7 @@ namespace Repositories
         Task<IEnumerable<Job>> GetAllJob();
         Task<IEnumerable<Job>> GetAllPedingJob();
         Task<IEnumerable<Job>> GetAllJobInProgress();
-        Task<IEnumerable<string>> GetLinkJobInProgress(Guid id);
+        Task<IEnumerable<string>> GetLinkJobAppovedInProgress(Guid id);
         Task<IEnumerable<Job>> GetCampaignJobs(Guid campaginId);
         Task<Job> GetJobInProgress(Guid id);
         Task Create(Job job);

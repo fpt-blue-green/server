@@ -97,7 +97,7 @@ namespace Repositories
             }
         }
 
-        public async Task<IEnumerable<string>> GetLinkJobInProgress(Guid id)
+        public async Task<IEnumerable<string>> GetLinkJobAppovedInProgress(Guid id)
         {
             using (var context = new PostgresContext())
             {
