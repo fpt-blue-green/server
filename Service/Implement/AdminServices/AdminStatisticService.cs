@@ -1,4 +1,5 @@
 ﻿using BusinessObjects;
+using BusinessObjects.DTOs;
 using BusinessObjects.Models;
 using Repositories;
 using Repositories.Implement;
@@ -124,7 +125,7 @@ namespace Service
                await GetActiveUserMonthlyMetricsTrend(),
                await GetActiveCampaignMonthlyMetricsTrend()
             };
-            
+
         }
         protected async Task<MonthlyMetricsTrendDTO> GetRevenuetMonthlyMetricsTrend()
         {
@@ -316,31 +317,79 @@ namespace Service
 
         #region PIE CHART
 
-        public async Task<Dictionary<string, int>> GetRoleData()
+        public async Task<List<CommomPieChartDTO>> GetRoleData()
         {
             var data = await _userRepository.GetUsersIgnoreFilter();
-            return new Dictionary<string, int>
+
+            var result = new List<CommomPieChartDTO>
             {
-                {"Nhà sáng tạo nội dung", data.Where(u => u.Role == (int)ERole.Influencer).Count() },
-                {"Nhãn hàng", data.Where( user => user.Role == (int)ERole.Brand && user.Brand != null && user.Brand.IsPremium == false).ToList().Count },
-                {"Nhãn hàng trả phí", data.Where(user => user.Role == (int)ERole.Brand && user.Brand != null && user.Brand.IsPremium == true).ToList().Count },
-                {"Quản trị viên", data.Where(u => u.Role == (int)ERole.Admin).Count() },
+                new CommomPieChartDTO
+                {
+                    Label = "Nhà sáng tạo nội dung",
+                    Value = data.Count(u => u.Role == (int)ERole.Influencer)
+                },
+                new CommomPieChartDTO
+                {
+                    Label = "Nhãn hàng",
+                    Value = data.Count(user => user.Role == (int)ERole.Brand && user.Brand != null && user.Brand.IsPremium == false)
+                },
+                new CommomPieChartDTO
+                {
+                    Label = "Nhãn hàng trả phí",
+                    Value = data.Count(user => user.Role == (int)ERole.Brand && user.Brand != null && user.Brand.IsPremium == true)
+                },
+                new CommomPieChartDTO
+                {
+                    Label = "Quản trị viên",
+                    Value = data.Count(u => u.Role == (int)ERole.Admin)
+                }
             };
+
+            return result;
         }
 
-        public async Task<Dictionary<string, int>> GetJobStatusData()
+
+        public async Task<List<CommomPieChartDTO>> GetJobStatusData()
         {
             var data = await _jobRepository.GetAllJobIgnoreFilter();
-            return new Dictionary<string, int>
+
+            var result = new List<CommomPieChartDTO>
             {
-                {(EJobStatus.Pending).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Pending).Count() },
-                {(EJobStatus.Approved).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Approved).Count() },
-                {(EJobStatus.InProgress).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.InProgress).Count() },
-                {(EJobStatus.Completed).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Completed).Count() },
-                {(EJobStatus.Failed).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.Failed).Count() },
-                {(EJobStatus.NotCreated).GetEnumDescription(), data.Where(u => u.Status == (int)EJobStatus.NotCreated).Count() },
+                new CommomPieChartDTO
+                {
+                    Label = (EJobStatus.Pending).GetEnumDescription(),
+                    Value = data.Count(u => u.Status == (int)EJobStatus.Pending)
+                },
+                new CommomPieChartDTO
+                {
+                    Label = (EJobStatus.Approved).GetEnumDescription(),
+                    Value = data.Count(u => u.Status == (int)EJobStatus.Approved)
+                },
+                new CommomPieChartDTO
+                {
+                    Label = (EJobStatus.InProgress).GetEnumDescription(),
+                    Value = data.Count(u => u.Status == (int)EJobStatus.InProgress)
+                },
+                new CommomPieChartDTO
+                {
+                    Label = (EJobStatus.Completed).GetEnumDescription(),
+                    Value = data.Count(u => u.Status == (int)EJobStatus.Completed)
+                },
+                new CommomPieChartDTO
+                {
+                    Label = (EJobStatus.Failed).GetEnumDescription(),
+                    Value = data.Count(u => u.Status == (int)EJobStatus.Failed)
+                },
+                new CommomPieChartDTO
+                {
+                    Label = (EJobStatus.NotCreated).GetEnumDescription(),
+                    Value = data.Count(u => u.Status == (int)EJobStatus.NotCreated)
+                }
             };
+
+            return result;
         }
+
         #endregion
 
         #region TOP 5
@@ -361,7 +410,7 @@ namespace Service
             return result.Select(u => new TopFiveStatisticDTO
             {
                 Amount = u.Wallet + u.PaymentHistories
-                                            .Where(p => (p.Type == (int)EPaymentType.WithDraw || p.Type == (int)EPaymentType.BuyPremium) 
+                                            .Where(p => (p.Type == (int)EPaymentType.WithDraw || p.Type == (int)EPaymentType.BuyPremium)
                                                         && p.Status == (int)EPaymentStatus.Done).Sum(u => u.Amount),
                 DisplayName = u.DisplayName ?? "Unknow",
                 Email = u.Email,

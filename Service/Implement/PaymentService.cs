@@ -7,6 +7,7 @@ using Serilog;
 using Service.Helper;
 using Service.Implement.UtilityServices;
 using Service.Interface.UtilityServices;
+using System.Drawing.Drawing2D;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -178,21 +179,60 @@ namespace Service
 
         public async Task UpdateVipPaymentRequest(string requestDto)
         {
-            var request = JsonSerializer.Deserialize<ExtraDataDTO>(requestDto);
-            var user = await _userRepository.GetUserById(request.BrandId) ?? throw new KeyNotFoundException();
-            //tren 3 thang thi discount 15%
-            var paymentHistory = new PaymentHistory()
+            try
             {
-                UserId = user.Id,
-                Amount = request.TotalAmount,
-                BankInformation = user.Email ?? "",
-                NetAmount = request.TotalAmount,
-                Type = (int)EPaymentType.BuyPremium,
-                Status = (int)EPaymentStatus.Pending,
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
 
-            };
-            await _paymentRepository.CreatePaymentHistory(paymentHistory);
+                    var request = JsonSerializer.Deserialize<ExtraDataDTO>(requestDto);
+                    //var user = await _userRepository.GetUserById(request.User.Id) ?? throw new KeyNotFoundException();
+                    var brand = await _brandRepository.GetByUserId(request.User.Id) ?? throw new KeyNotFoundException();
 
+                    var paymentHistory = new PaymentHistory()
+                    {
+                        UserId = brand.UserId,
+                        Amount = request.TotalAmount,
+                        BankInformation = brand.User.Email ?? "",
+                        NetAmount = request.TotalAmount,
+                        Type = (int)EPaymentType.BuyPremium,
+                        Status = (int)EPaymentStatus.Done,
+                        ResponseAt = DateTime.UtcNow,
+
+                        AdminMessage = $"Yêu cầu trở thành nhãn hàng Premium đã được hoàn tất."
+                    };
+                    await _paymentRepository.CreatePaymentHistory(paymentHistory);
+                    if (brand.PremiumValidTo.HasValue)
+                    {
+                        if (request.NumberMonthsRegis == 1)
+                        {
+                            brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
+                        }
+                        else if (request.NumberMonthsRegis == 3)
+                        {
+                            brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
+                        }
+                    }
+                    else
+                    {
+                        if (request.NumberMonthsRegis == 1)
+                        {
+                            (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
+
+                        }
+                        else if (request.NumberMonthsRegis == 3)
+                        {
+                            (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
+                        }
+                    }
+                    await _brandRepository.UpdateBrand(brand);
+                    scope.Complete();
+                    await SendMailResponseUpdatePremium(brand, paymentHistory, true, paymentHistory.AdminMessage);
+                }
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         #region SendMail
@@ -350,7 +390,6 @@ namespace Service
         {
             Guid myuuid = Guid.NewGuid();
             string myuuidAsString = myuuid.ToString();
-            Guid brandId = userDto.Id;
 
             var amount = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Discount");
             var amountValue = decimal.Parse(amount.KeyValue!.ToString()!);
@@ -364,8 +403,9 @@ namespace Service
 
             var extraData = new ExtraDataDTO()
             {
-                BrandId = brandId,
-                TotalAmount = totalAmount
+                User = userDto,
+                TotalAmount = totalAmount,
+                NumberMonthsRegis = updatePremiumRequestDTO.NumberMonthsRegis
             };
 
             CollectionLinkRequest request = new CollectionLinkRequest();
