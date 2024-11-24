@@ -8,5 +8,6 @@ namespace Repositories
         Task<(int totalViews, int totalLikes, int totalComments)> GetTotalMetricsByLinkAndJobId(string link, Guid jobId);
         Task<JobDetails> GetByLinkAndJobId(string link, Guid jobId);
         Task<IEnumerable<JobDetails>> GetLinkByJobId(Guid jobId);
+        Task Update(JobDetails detail);
     }
 }

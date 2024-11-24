@@ -102,7 +102,10 @@ namespace Repositories
             using (var context = new PostgresContext())
             {
                 var links = await context.Jobs
-                                        .Where(j => j.Id == id && j.Status == (int)EJobStatus.InProgress)
+                                        .Where(j => j.Id == id 
+                                                && j.Status == (int)EJobStatus.InProgress 
+                                                && j.JobDetails.Any(jd => jd.IsApprove)
+                                        )
                                         .Include(j => j.JobDetails) 
                                         .SelectMany(j => j.JobDetails.Select(jd => jd.Link))
                                         .Distinct()

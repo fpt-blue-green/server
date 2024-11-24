@@ -16,5 +16,7 @@ public partial class JobDetails
 
     public DateTime UpdateDate { get; set; }
 
+    public bool IsApprove { get; set; }
+
     public virtual Job Job { get; set; } = null!;
 }
