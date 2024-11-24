@@ -24,6 +24,33 @@ namespace Repositorie
             }
         }
 
+        public async Task<IEnumerable<JobDetails>> GetJobDetailsByJobId(Guid jobId)
+        {
+            using (var context = new PostgresContext())
+            {
+                // Truy vấn toàn bộ các đối tượng JobDetail liên quan đến JobId
+                var jobDetails = await context.JobDetails
+                                              .Where(jd => jd.JobId == jobId)
+                                              .ToListAsync();
+
+                // Loại bỏ trùng lặp nếu cần (ví dụ: dựa trên Link)
+                return jobDetails.DistinctBy(jd => jd.Link).ToList();
+            }
+        }
+
+        public async Task Delete(JobDetails detail)
+        {
+            using (var context = new PostgresContext())
+            {
+
+                if (detail != null)
+                {
+                    context.JobDetails.Remove(detail);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+
         public async Task<JobDetails> GetByDate(DateTime dateTime, Guid jobId)
         {
             using (var context = new PostgresContext())

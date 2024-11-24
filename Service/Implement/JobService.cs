@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects;
 using BusinessObjects.Models;
+using Quartz;
 using Repositorie;
 using Repositories;
 using Serilog;
@@ -239,6 +240,10 @@ namespace Service
             {
                 throw new InvalidOperationException("Chỉ những công việc đang triển khai mới có thể thực hiện hành động này");
             }
+            if (job.Campaign.Status != (int)ECampaignStatus.Active)
+            {
+                throw new InvalidOperationException("Chỉ có Chiến dịch đang triển khai mới có thể thay đổi trang thai công việc.");
+            }
 
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -291,7 +296,10 @@ namespace Service
             {
                 throw new InvalidOperationException("Chỉ những công việc đang triển khai mới có thể thực hiện hành động này");
             }
-
+            if (job.Campaign.Status != (int)ECampaignStatus.Active)
+            {
+                throw new InvalidOperationException("Chỉ có Chiến dịch đang triển khai mới có thể thay đổi trang thai công việc.");
+            }
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
@@ -320,6 +328,11 @@ namespace Service
             if (userDto.Id != user.Id)
             {
                 throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đang đánh giấu Công việc Khởi động lại có Id bị bất thường {userDto.Id}");
+            }
+
+            if(job.Campaign.Status != (int)ECampaignStatus.Active)
+            {
+                throw new InvalidOperationException("Chỉ có Chiến dịch đang triển khai mới có thể thay đổi trang thai công việc.");
             }
 
             if (job.Status != (int)EJobStatus.InProgress)
@@ -365,21 +378,41 @@ namespace Service
                 throw new AccessViolationException();
             }
 
-            var offer = job.Offers.FirstOrDefault(o => o.Status == (int)EOfferStatus.Done) ?? throw new KeyNotFoundException();
+            var offer = job.Offers.FirstOrDefault(o => o.Status == (int)EOfferStatus.Done)
+                        ?? throw new KeyNotFoundException();
+
             if (offer.Quantity < linkDTO.Link.Count)
             {
                 throw new InvalidOperationException("Số lượng đường dẫn video vượt qua số lượng thỏa thuận.");
-
             }
-            foreach (var item in linkDTO.Link)
+
+            // Lấy các liên kết đã tồn tại trong JobDetails
+            var existingLinks = await _jobDetailRepository.GetLinksByJobId(jobId);
+
+            // Cập nhật hoặc tạo mới các liên kết
+            foreach (var newLink in linkDTO.Link)
             {
-                var isExist = (await _jobDetailRepository.GetByLinkAndJobId(item, jobId)) != null;
-                if (!isExist)
+                // Kiểm tra nếu link đã tồn tại
+                var existingJobDetail = existingLinks.FirstOrDefault(jd => jd.Link == newLink);
+                if (existingJobDetail == null)
                 {
-                    await _jobDetailService.UpdateJobDetailData(job, item);
+                    // Nếu link mới không tồn tại hoặc không được phê duyệt, tạo mới hoặc cập nhật
+                    await _jobDetailService.UpdateJobDetailData(job, newLink);
                 }
             }
+
+            // Xử lý các link chưa được duyệt và không nằm trong danh sách mới
+            var unapprovedLinksToRemove = existingLinks
+                .Where(jd => !jd.IsApprove && !linkDTO.Link.Contains(jd.Link))
+                .ToList();
+
+            foreach (var removedLink in unapprovedLinksToRemove)
+            {
+                await _jobDetailRepository.Delete(removedLink);
+            }
         }
+
+
 
         public async Task ApprovePostLink(Guid jobId, string link)
         {

@@ -452,11 +452,12 @@ namespace Service
                 throw new InvalidOperationException("Lỗi, chỉ những chiến dịch đang hoạt động mới có thể kết thúc.");
             }
 
-            var runningJob = campaign.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress).ToList();
+            var runningJob = campaign.Jobs.Where(j => j.Status == (int)EJobStatus.InProgress 
+            || j.Status == (int)EJobStatus.Pending).ToList();
 
             if (runningJob.Any())
             {
-                throw new InvalidOperationException("Tồn tại các công việc chưa hoàn thành. Vui lòng đợi cho các công việc hoàn thành hoặc bạn có thể thay đổi trạng thái của công việc đó.");
+                throw new InvalidOperationException("Tồn tại các công việc chưa hoàn thành hoặc đang đàm phán. Vui lòng đợi cho các công việc hoàn thành hoặc bạn có thể thay đổi trạng thái của công việc đó.");
             }
 
             campaign!.Status = (int)ECampaignStatus.Completed;
