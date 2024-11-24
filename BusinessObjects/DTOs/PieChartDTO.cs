@@ -11,4 +11,10 @@ namespace BusinessObjects.DTOs
         public EPlatform Platform { get; set; }
         public long Value { get; set; } 
     }
+
+    public class CommomPieChartDTO
+    {
+        public string Label { get; set; }
+        public int Value { get; set; }
+    }
 }
