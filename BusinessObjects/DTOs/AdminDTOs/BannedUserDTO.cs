@@ -13,6 +13,8 @@
         public DateTime? UnbanDate { get; set; }
 
         public Guid BannedById { get; set; }
+        
+        public bool IsActive { get; set; } 
 
         public virtual UserDTO User { get; set; } = null!;
 
