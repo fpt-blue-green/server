@@ -411,7 +411,7 @@ namespace Service
             CollectionLinkRequest request = new CollectionLinkRequest();
             request.orderInfo = "UPDATE PREMIUM";
             request.partnerCode = "MOMO";
-            request.ipnUrl = _envService.GetEnv("Payment_URL") + "api/Payment/updatePremium/callback";
+            request.ipnUrl = _envService.GetEnv("Payment_URL") + "/api/Payment/updatePremium/callback";
             request.redirectUrl = updatePremiumRequestDTO.redirectUrl;
             request.amount = (long)totalAmount;
             request.orderId = myuuidAsString;
@@ -437,7 +437,7 @@ namespace Service
             CollectionLinkRequest request = new CollectionLinkRequest();
             request.orderInfo = "DEPOSIT";
             request.partnerCode = "MOMO";
-            request.ipnUrl = _envService.GetEnv("Payment_URL") + "api/Payment/deposit/callback";
+            request.ipnUrl = _envService.GetEnv("Payment_URL") + "/api/Payment/deposit/callback";
             request.redirectUrl = depositRequestDTO.redirectUrl;
             request.amount = depositRequestDTO.amount;
             request.orderId = myuuidAsString;
