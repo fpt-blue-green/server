@@ -235,6 +235,11 @@ namespace Service
                 throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đánh giấu hoàn thành Công việc có Id bị bất thường {userDto.Id}");
             }
 
+            if(job.Status != (int)EJobStatus.InProgress)
+            {
+                throw new InvalidOperationException("Chỉ những công việc đang triển khai mới có thể thực hiện hành động này");
+            }
+
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
@@ -282,6 +287,10 @@ namespace Service
             {
                 throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đang đánh giấu Công việc thất bại có Id bị bất thường {userDto.Id}");
             }
+            if (job.Status != (int)EJobStatus.InProgress)
+            {
+                throw new InvalidOperationException("Chỉ những công việc đang triển khai mới có thể thực hiện hành động này");
+            }
 
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -313,6 +322,11 @@ namespace Service
                 throw new AccessViolationException($"Nhãn hàng với Id {user.Id} đang đang đánh giấu Công việc Khởi động lại có Id bị bất thường {userDto.Id}");
             }
 
+            if (job.Status != (int)EJobStatus.InProgress)
+            {
+                throw new InvalidOperationException("Chỉ những công việc đã thất bại mới có thể thực hiện hành động này");
+            }
+
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
@@ -335,9 +349,6 @@ namespace Service
                     throw;
                 }
             }
-            //send mail
-            var resultMessage = "Lưu ý: Công việc của bạn đã bị đánh dấu là thất bại. Tuy nhiên, bạn vẫn có 3 ngày để phản hồi với Nhãn hàng nếu có bất kỳ sai sót hoặc vấn đề nào cần được xem xét lại. Đây là cơ hội để đảm bảo rằng mọi thông tin đều chính xác và minh bạch. Nếu cần hỗ trợ thêm hoặc có câu hỏi nào, vui lòng liên hệ với chúng tôi.";
-            await SendMailStatus(job, "Đã thất bại", resultMessage);
         }
 
 
