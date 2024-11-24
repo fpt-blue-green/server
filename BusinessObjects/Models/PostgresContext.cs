@@ -426,6 +426,9 @@ DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.UpdateDate).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
+            entity.Property(e => e.IsApprove)
+                .IsRequired()
+                .HasDefaultValueSql("true");
 
             entity.HasOne(d => d.Job).WithMany(p => p.JobDetails)
                 .HasForeignKey(d => d.JobId)

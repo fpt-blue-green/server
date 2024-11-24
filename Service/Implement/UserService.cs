@@ -196,8 +196,7 @@ namespace Service
             {
                 var userPayments = await _userRepository.GetUserPayments(userDTO.Id);
                 spendAmount += userPayments.Where(p => p.Type == EPaymentType.BrandPayment
-                                                                || p.Type == EPaymentType.BuyPremium
-                                                                || p.Type == EPaymentType.Deposit)
+                                                                || p.Type == EPaymentType.BuyPremium)
                                                            .Sum(p => p.Amount);
             }
             

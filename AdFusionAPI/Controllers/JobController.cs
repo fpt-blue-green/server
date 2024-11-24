@@ -74,6 +74,15 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
+        [BrandRequired]
+        [HttpPut("{id}/approveLink")]
+        public async Task<ActionResult> ApprovePostLink(Guid id, [FromBody] String link)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            await _jobService.ApprovePostLink(id, link);
+            return Ok();
+        }
+
         [AuthRequired]
         [HttpGet("{id}/link")]
         public async Task<ActionResult> GetLink(Guid id)

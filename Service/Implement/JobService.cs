@@ -351,7 +351,6 @@ namespace Service
             }
         }
 
-
         public async Task AttachPostLink(Guid jobId, UserDTO userDTO, JobLinkDTO linkDTO)
         {
             var job = await _jobRepository.GetJobInProgress(jobId);
@@ -380,6 +379,21 @@ namespace Service
                     await _jobDetailService.UpdateJobDetailData(job, item);
                 }
             }
+        }
+
+        public async Task ApprovePostLink(Guid jobId, string link)
+        {
+            var job = await _jobRepository.GetJobInProgress(jobId);
+
+            if (job == null)
+            {
+                throw new InvalidOperationException("Công việc này chưa bắt đầu hoặc đã kết thúc, không thể Phê duyệt liên kết");
+            }
+            var jobDetail = await _jobDetailRepository.GetByLinkAndJobId(link, jobId) ?? throw new KeyNotFoundException();
+
+            jobDetail.IsApprove = true;
+
+            await _jobDetailRepository.Update(jobDetail);
         }
 
         public async Task<List<string>> GetJobLink(Guid jobId)

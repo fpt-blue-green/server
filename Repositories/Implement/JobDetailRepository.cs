@@ -15,6 +15,15 @@ namespace Repositorie
             }
         }
 
+        public async Task Update(JobDetails detail)
+        {
+            using (var context = new PostgresContext())
+            {
+                context.Entry<JobDetails>(detail).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+            }
+        }
+
         public async Task<JobDetails> GetByDate(DateTime dateTime, Guid jobId)
         {
             using (var context = new PostgresContext())

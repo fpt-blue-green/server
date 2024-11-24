@@ -14,5 +14,6 @@ namespace Service
         Task<List<JobStatistical>> Statistical(UserDTO user);
         Task<List<string>> GetJobLink(Guid jobId);
         Task BrandReopenJob(Guid jobId, UserDTO userDto);
+        Task ApprovePostLink(Guid jobId, string link);
     }
 }
