@@ -69,7 +69,7 @@ namespace Service
             var jobDetail = _mapper.Map<JobDetails>(data);
             jobDetail.JobId = job.Id;
             jobDetail.Link = link;
-            if (isJobUpdate)
+            if (!isJobUpdate)
             {
                 jobDetail.IsApprove = false;
             }
