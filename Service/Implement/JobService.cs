@@ -387,7 +387,7 @@ namespace Service
             }
 
             // Lấy các liên kết đã tồn tại trong JobDetails
-            var existingLinks = await _jobDetailRepository.GetLinksByJobId(jobId);
+            var existingLinks = await _jobDetailRepository.GetJobDetailsByJobId(jobId);
 
             // Cập nhật hoặc tạo mới các liên kết
             foreach (var newLink in linkDTO.Link)

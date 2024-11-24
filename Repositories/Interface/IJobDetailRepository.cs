@@ -9,7 +9,7 @@ namespace Repositories
         Task<JobDetails> GetByLinkAndJobId(string link, Guid jobId);
         Task<IEnumerable<JobDetails>> GetLinkByJobId(Guid jobId);
         Task Update(JobDetails detail);
-        Task<IEnumerable<JobDetails>> GetLinksByJobId(Guid jobId);
+        Task<IEnumerable<JobDetails>> GetJobDetailsByJobId(Guid jobId);
         Task Delete(JobDetails detail);
     }
 }
