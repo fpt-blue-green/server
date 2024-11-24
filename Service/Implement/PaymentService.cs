@@ -214,19 +214,21 @@ namespace Service
                     }
                     else
                     {
+                        brand.IsPremium = true;
                         if (request.NumberMonthsRegis == 1)
                         {
-                            (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
+                            brand.PremiumValidTo = DateTime.UtcNow.AddMonths(1);
 
                         }
                         else if (request.NumberMonthsRegis == 3)
                         {
-                            (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
+                            brand.PremiumValidTo = DateTime.UtcNow.AddMonths(3);
+
                         }
+                        await _brandRepository.UpdateBrand(brand);
+                        scope.Complete();
+                        await SendMailResponseUpdatePremium(brand, paymentHistory, true, paymentHistory.AdminMessage);
                     }
-                    await _brandRepository.UpdateBrand(brand);
-                    scope.Complete();
-                    await SendMailResponseUpdatePremium(brand, paymentHistory, true, paymentHistory.AdminMessage);
                 }
             }
             catch
@@ -313,79 +315,7 @@ namespace Service
         }
         #endregion
 
-        public async Task ProcessUpdatePremiumApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
-        {
-            var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
-            var brand = await _brandRepository.GetByUserId(paymentHistory.UserId) ?? throw new Exception("Không tìm thấy người dùng.!");
-
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
-                    if (adminPaymentResponse.IsApprove)
-                    {
-                        paymentHistory.Status = (int)EPaymentStatus.Done;
-                        paymentHistory.AdminMessage = $"Yêu cầu trở thành nhãn hàng Premium đã được hoàn tất.";
-                        var premiumPrice = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Premium Price");
-                        try
-                        {
-                            if (brand.PremiumValidTo.HasValue)
-                            {
-                                if (decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
-                                {
-                                    brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
-                                }
-                                else
-                                {
-                                    brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
-                                }
-                            }
-                            else
-                            {
-                                if (decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
-                                {
-                                    (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
-                                }
-                                else
-                                {
-                                    (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            throw new InvalidOperationException("Có lỗi khi nâng cấp tài khoản này lên tài khoản Premium , hãy kiểm tra lại.");
-                        }
-
-                        await _brandRepository.UpdateBrand(brand);
-                    }
-                    else
-                    {
-                        paymentHistory.Status = (int)EPaymentStatus.Rejected;
-                        if (adminPaymentResponse.AdminMessage.IsNullOrEmpty())
-                        {
-                            throw new InvalidOperationException("Lý do từ chối không được để trống.");
-                        }
-                    }
-
-                    paymentHistory.ResponseAt = DateTime.Now;
-                    await _paymentRepository.UpdatePaymentHistory(paymentHistory);
-                    paymentHistory.User = null;
-                    await _adminActionNotificationHelper.CreateNotification<PaymentHistory>(userDto,
-                        (adminPaymentResponse.IsApprove ? EAdminActionType.ApproveUpdatePremium : EAdminActionType.RejectUpdatePremium)
-                        , paymentHistory, null);
-
-                    scope.Complete();
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-            await SendMailResponseUpdatePremium(brand, paymentHistory, adminPaymentResponse.IsApprove, adminPaymentResponse.AdminMessage);
-        }
-
+        
         public async Task<PaymentCollectionLinkResponse> UpdatePremium(UpdatePremiumRequestDTO updatePremiumRequestDTO, UserDTO userDto)
         {
             Guid myuuid = Guid.NewGuid();
