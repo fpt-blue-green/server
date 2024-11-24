@@ -59,7 +59,7 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("updatePremium/CreateCollectionLink")]
+        [HttpPost("updatePremium/createCollectionLink")]
         [BrandRequired]
         public async Task<ActionResult<PaymentCollectionLinkResponse>> UpdatePremiumCollectionLink(UpdatePremiumRequestDTO updatePremiumRequestDTO)
         {
@@ -75,7 +75,7 @@ namespace AdFusionAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("deposit/CreateCollectionLink")]
+        [HttpPost("deposit/createCollectionLink")]
         [BrandRequired]
         public async Task<ActionResult<PaymentCollectionLinkResponse>> DepositCollectionLink(DepositRequestDTO depositRequestDTO)
         {

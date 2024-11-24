@@ -45,7 +45,7 @@ namespace AdFusionAPI.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<string>> Register([FromBody] RegisterDTO userDTO)
         {
-            var result = await _authenService.Register(userDTO);
+            await _authenService.Register(userDTO);
             return Ok();
         }
 

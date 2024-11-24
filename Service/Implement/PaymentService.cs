@@ -27,7 +27,7 @@ namespace Service
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static readonly HttpClient client = new HttpClient();
-        private static readonly IEnvService _envService = new EnvService(); 
+        private static readonly IEnvService _envService = new EnvService();
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<AutoMapperProfile>();
@@ -83,6 +83,7 @@ namespace Service
                     throw;
                 }
             }
+
             await SendMailRequestWithDraw(user, withdrawRequestDTO);
         }
 
@@ -130,7 +131,7 @@ namespace Service
             {
                 try
                 {
-                  
+
                     if (adminPaymentResponse.IsApprove)
                     {
                         paymentHistory.Status = (int)EPaymentStatus.Done;
@@ -327,6 +328,7 @@ namespace Service
                             throw new InvalidOperationException("Lý do từ chối không được để trống.");
                         }
                     }
+
                     paymentHistory.ResponseAt = DateTime.Now;
                     await _paymentRepository.UpdatePaymentHistory(paymentHistory);
                     paymentHistory.User = null;
@@ -343,7 +345,7 @@ namespace Service
             }
             await SendMailResponseUpdatePremium(brand, paymentHistory, adminPaymentResponse.IsApprove, adminPaymentResponse.AdminMessage);
         }
-      
+
         public async Task<PaymentCollectionLinkResponse> UpdatePremium(UpdatePremiumRequestDTO updatePremiumRequestDTO, UserDTO userDto)
         {
             Guid myuuid = Guid.NewGuid();
@@ -352,27 +354,27 @@ namespace Service
 
             var amount = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Discount");
             var amountValue = decimal.Parse(amount.KeyValue!.ToString()!);
-            var totalAmount = amountValue * updatePremiumRequestDTO.NumberMonthsRegis ;
+            var totalAmount = amountValue * updatePremiumRequestDTO.NumberMonthsRegis;
             if (updatePremiumRequestDTO.NumberMonthsRegis >= 3)
             {
                 var discount = await _systemSettingRepository.GetSystemSetting(_configManager.UpdatePremiumDiscount) ?? throw new Exception("Has error when get Discount");
-                var discountValue = 1 - decimal.Parse(discount.KeyValue!.ToString()!)/100;
+                var discountValue = 1 - decimal.Parse(discount.KeyValue!.ToString()!) / 100;
                 totalAmount = totalAmount * discountValue;
             }
+
             var extraData = new ExtraDataDTO()
             {
                 BrandId = brandId,
                 TotalAmount = totalAmount
             };
+
             CollectionLinkRequest request = new CollectionLinkRequest();
             request.orderInfo = "UPDATE PREMIUM";
             request.partnerCode = "MOMO";
-            //TODO:
             request.ipnUrl = _envService.GetEnv("Payment_URL") + "api/Payment/updatePremium/callback";
-            //TODO:
             request.redirectUrl = updatePremiumRequestDTO.redirectUrl;
-            request.amount = (long) totalAmount;
-			request.orderId = myuuidAsString;
+            request.amount = (long)totalAmount;
+            request.orderId = myuuidAsString;
             request.requestId = myuuidAsString;
             request.requestType = "payWithMethod";
             request.extraData = JsonSerializer.Serialize(extraData);
@@ -395,8 +397,6 @@ namespace Service
             CollectionLinkRequest request = new CollectionLinkRequest();
             request.orderInfo = "DEPOSIT";
             request.partnerCode = "MOMO";
-            // su dung ngrok cua chinh ban than
-            //TODO:
             request.ipnUrl = _envService.GetEnv("Payment_URL") + "api/Payment/deposit/callback";
             request.redirectUrl = depositRequestDTO.redirectUrl;
             request.amount = depositRequestDTO.amount;
@@ -427,7 +427,7 @@ namespace Service
                 try
                 {
                     var user = await _userRepository.GetUserById(Guid.Parse(callbackDTO.extraData)) ?? throw new KeyNotFoundException();
-                    user.Wallet += callbackDTO.amount * 0.8m;
+                    user.Wallet += callbackDTO.amount;
 
 
                     var paymentHistory = new PaymentHistory()
@@ -435,7 +435,7 @@ namespace Service
                         UserId = user.Id,
                         Amount = callbackDTO.amount,
                         BankInformation = callbackDTO.partnerCode + " " + callbackDTO.payType,
-                        Type = (int)EPaymentType.BrandPayment,
+                        Type = (int)EPaymentType.Deposit,
                         Status = (int)EPaymentStatus.Done,
                     };
 
@@ -495,7 +495,5 @@ namespace Service
 
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
-
-      
     }
 }
