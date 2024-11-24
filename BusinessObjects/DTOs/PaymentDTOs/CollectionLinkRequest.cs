@@ -54,7 +54,8 @@ namespace BusinessObjects
 
     public class ExtraDataDTO
     {
-        public Guid BrandId { get; set; }
+        public UserDTO User { get; set; }
         public decimal TotalAmount { get; set; }
+        public int NumberMonthsRegis { get; set; }
     }
 }

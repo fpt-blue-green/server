@@ -7,6 +7,7 @@ using Serilog;
 using Service.Helper;
 using Service.Implement.UtilityServices;
 using Service.Interface.UtilityServices;
+using System.Drawing.Drawing2D;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -27,7 +28,7 @@ namespace Service
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static readonly HttpClient client = new HttpClient();
-        private static readonly IEnvService _envService = new EnvService(); 
+        private static readonly IEnvService _envService = new EnvService();
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<AutoMapperProfile>();
@@ -130,7 +131,7 @@ namespace Service
             {
                 try
                 {
-                  
+
                     if (adminPaymentResponse.IsApprove)
                     {
                         paymentHistory.Status = (int)EPaymentStatus.Done;
@@ -177,21 +178,60 @@ namespace Service
 
         public async Task UpdateVipPaymentRequest(string requestDto)
         {
-            var request = JsonSerializer.Deserialize<ExtraDataDTO>(requestDto);
-            var user = await _userRepository.GetUserById(request.BrandId) ?? throw new KeyNotFoundException();
-            //tren 3 thang thi discount 15%
-            var paymentHistory = new PaymentHistory()
+            try
             {
-                UserId = user.Id,
-                Amount = request.TotalAmount,
-                BankInformation = user.Email ?? "",
-                NetAmount = request.TotalAmount,
-                Type = (int)EPaymentType.BuyPremium,
-                Status = (int)EPaymentStatus.Pending,
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
 
-            };
-            await _paymentRepository.CreatePaymentHistory(paymentHistory);
+                    var request = JsonSerializer.Deserialize<ExtraDataDTO>(requestDto);
+                    //var user = await _userRepository.GetUserById(request.User.Id) ?? throw new KeyNotFoundException();
+                    var brand = await _brandRepository.GetByUserId(request.User.Id) ?? throw new KeyNotFoundException();
 
+                    var paymentHistory = new PaymentHistory()
+                    {
+                        UserId = brand.UserId,
+                        Amount = request.TotalAmount,
+                        BankInformation = brand.User.Email ?? "",
+                        NetAmount = request.TotalAmount,
+                        Type = (int)EPaymentType.BuyPremium,
+                        Status = (int)EPaymentStatus.Done,
+                        ResponseAt = DateTime.UtcNow,
+
+                        AdminMessage = $"Yêu cầu trở thành nhãn hàng Premium đã được hoàn tất."
+                    };
+                    await _paymentRepository.CreatePaymentHistory(paymentHistory);
+                    if (brand.PremiumValidTo.HasValue)
+                    {
+                        if (request.NumberMonthsRegis == 1)
+                        {
+                            brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
+                        }
+                        else if (request.NumberMonthsRegis == 3)
+                        {
+                            brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
+                        }
+                    }
+                    else
+                    {
+                        if (request.NumberMonthsRegis == 1)
+                        {
+                            (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
+
+                        }
+                        else if (request.NumberMonthsRegis == 3)
+                        {
+                            (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
+                        }
+                    }
+                    await _brandRepository.UpdateBrand(brand);
+                    scope.Complete();
+                    await SendMailResponseUpdatePremium(brand, paymentHistory, true, paymentHistory.AdminMessage);
+                }
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         #region SendMail
@@ -272,97 +312,25 @@ namespace Service
         }
         #endregion
 
-        public async Task ProcessUpdatePremiumApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
-        {
-            var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
-            var brand = await _brandRepository.GetByUserId(paymentHistory.UserId) ?? throw new Exception("Không tìm thấy người dùng.!");
-
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
-                    if (adminPaymentResponse.IsApprove)
-                    {
-                        paymentHistory.Status = (int)EPaymentStatus.Done;
-                        paymentHistory.AdminMessage = $"Yêu cầu trở thành nhãn hàng Premium đã được hoàn tất.";
-                        var premiumPrice = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Premium Price");
-                        try
-                        {
-                            if (brand.PremiumValidTo.HasValue)
-                            {
-                                if (decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
-                                {
-                                    brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
-                                }
-                                else
-                                {
-                                    brand.PremiumValidTo = (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
-                                }
-                            }
-                            else
-                            {
-                                if (decimal.Parse(premiumPrice.KeyValue!.ToString()!) == paymentHistory.Amount)
-                                {
-                                    (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(1);
-                                }
-                                else
-                                {
-                                    (brand.PremiumValidTo ?? DateTime.UtcNow).AddMonths(3);
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            throw new InvalidOperationException("Có lỗi khi nâng cấp tài khoản này lên tài khoản Premium , hãy kiểm tra lại.");
-                        }
-
-                        await _brandRepository.UpdateBrand(brand);
-                    }
-                    else
-                    {
-                        paymentHistory.Status = (int)EPaymentStatus.Rejected;
-                        if (adminPaymentResponse.AdminMessage.IsNullOrEmpty())
-                        {
-                            throw new InvalidOperationException("Lý do từ chối không được để trống.");
-                        }
-                    }
-                    paymentHistory.ResponseAt = DateTime.Now;
-                    await _paymentRepository.UpdatePaymentHistory(paymentHistory);
-                    paymentHistory.User = null;
-                    await _adminActionNotificationHelper.CreateNotification<PaymentHistory>(userDto,
-                        (adminPaymentResponse.IsApprove ? EAdminActionType.ApproveUpdatePremium : EAdminActionType.RejectUpdatePremium)
-                        , paymentHistory, null);
-
-                    scope.Complete();
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-            await SendMailResponseUpdatePremium(brand, paymentHistory, adminPaymentResponse.IsApprove, adminPaymentResponse.AdminMessage);
-        }
-      
         public async Task<PaymentCollectionLinkResponse> UpdatePremium(UpdatePremiumRequestDTO updatePremiumRequestDTO, UserDTO userDto)
         {
             Guid myuuid = Guid.NewGuid();
             string myuuidAsString = myuuid.ToString();
-            Guid brandId = userDto.Id;
 
             var amount = await _systemSettingRepository.GetSystemSetting(_configManager.PremiumPrice) ?? throw new Exception("Has error when get Discount");
             var amountValue = decimal.Parse(amount.KeyValue!.ToString()!);
-            var totalAmount = amountValue * updatePremiumRequestDTO.NumberMonthsRegis ;
+            var totalAmount = amountValue * updatePremiumRequestDTO.NumberMonthsRegis;
             if (updatePremiumRequestDTO.NumberMonthsRegis >= 3)
             {
                 var discount = await _systemSettingRepository.GetSystemSetting(_configManager.UpdatePremiumDiscount) ?? throw new Exception("Has error when get Discount");
-                var discountValue = 1 - decimal.Parse(discount.KeyValue!.ToString()!)/100;
+                var discountValue = 1 - decimal.Parse(discount.KeyValue!.ToString()!) / 100;
                 totalAmount = totalAmount * discountValue;
             }
             var extraData = new ExtraDataDTO()
             {
-                BrandId = brandId,
-                TotalAmount = totalAmount
+                User = userDto,
+                TotalAmount = totalAmount,
+                NumberMonthsRegis = updatePremiumRequestDTO.NumberMonthsRegis
             };
             CollectionLinkRequest request = new CollectionLinkRequest();
             request.orderInfo = "UPDATE PREMIUM";
@@ -371,8 +339,8 @@ namespace Service
             request.ipnUrl = _envService.GetEnv("Payment_URL") + "api/Payment/updatePremium/callback";
             //TODO:
             request.redirectUrl = updatePremiumRequestDTO.redirectUrl;
-            request.amount = (long) totalAmount;
-			request.orderId = myuuidAsString;
+            request.amount = (long)totalAmount;
+            request.orderId = myuuidAsString;
             request.requestId = myuuidAsString;
             request.requestType = "payWithMethod";
             request.extraData = JsonSerializer.Serialize(extraData);
@@ -496,6 +464,6 @@ namespace Service
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
 
-      
+
     }
 }
