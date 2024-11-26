@@ -18,7 +18,7 @@ namespace Service
 		}).CreateMapper();
 
 
-		public async Task CreateCampaignChatRoom(CampaignChatResDTO campaignChat, UserDTO brand)
+		public async Task<CampaignChatDTO> CreateCampaignChatRoom(CampaignChatResDTO campaignChat, UserDTO brand)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -31,16 +31,18 @@ namespace Service
                         CreatedAt = DateTime.UtcNow,
                         RoomName = campaign.Title
                     };
-                    var roomId = await _groupUserChatRepository.CreateCampaignChatRoom(room);
+                    var chatRoom = await _groupUserChatRepository.CreateCampaignChatRoom(room);
                     var chatAdmin = new ChatMember
                     {
-                        CampaignChatId = roomId,
+                        CampaignChatId = chatRoom.Id,
                         UserId = brand.Id,
                         JoinAt = DateTime.UtcNow,
                         Role = (int)EChatRole.Admin
                     };
                     await _chatMemberRepository.AddNewMember(chatAdmin);
                     scope.Complete();
+                    var chat = _mapper.Map<CampaignChatDTO>(chatRoom);
+			        return chat; 
                 }
                 catch
                 {
@@ -53,6 +55,13 @@ namespace Service
 		public async Task<CampaignChatDTO> GetCampaignChatById(Guid campaignChatId)
         {
 			var room = await _groupUserChatRepository.GetCampaignChatById(campaignChatId);
+			var campaignChat = _mapper.Map<CampaignChatDTO>(room);
+			return campaignChat;
+		}
+
+		public async Task<CampaignChatDTO> GetCampaignChatByCampaignId(Guid campaignChatId)
+        {
+			var room = await _groupUserChatRepository.GetCampaignChatByCampaignId(campaignChatId);
 			var campaignChat = _mapper.Map<CampaignChatDTO>(room);
 			return campaignChat;
 		}

@@ -16,14 +16,16 @@ namespace AdFusionAPI.Controllers
         private readonly IInfluencerService _influencerService;
         private readonly IJobDetailService _jobDetailService;
         private readonly ICampaignMeetingRoomService _campaignMeetingRoomService;
+        private readonly ICampaignChatService _campaignChatService;
         public CampaignsController(ICampaignService campaignService, ICampaignContentService campaignContentService,
-            IInfluencerService influencerService, IJobDetailService jobDetailService, ICampaignMeetingRoomService campaignMeetingRoomService)
+            IInfluencerService influencerService, IJobDetailService jobDetailService, ICampaignMeetingRoomService campaignMeetingRoomService, ICampaignChatService campaignChatService)
         {
             _campaignService = campaignService;
             _campaignContentService = campaignContentService;
             _influencerService = influencerService;
             _jobDetailService = jobDetailService;
             _campaignMeetingRoomService = campaignMeetingRoomService;
+            _campaignChatService = campaignChatService;
         }
         [HttpGet()]
         public async Task<ActionResult<FilterListResponse<CampaignDTO>>> GetCampaignsInProgress([FromQuery] CampaignFilterDTO filter)
@@ -209,6 +211,14 @@ namespace AdFusionAPI.Controllers
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
             var result = await _campaignContentService.GetCampaignContents(id, user);
+            return Ok(result);
+        }
+
+        [HttpGet("{id}/chat")]
+        [BrandRequired]
+        public async Task<ActionResult<CampaignChatDTO>> GetCampaignChatByCampaignId(Guid id)
+        {
+            var result = await _campaignChatService.GetCampaignChatByCampaignId(id);
             return Ok(result);
         }
         

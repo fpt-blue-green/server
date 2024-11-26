@@ -86,11 +86,11 @@ namespace AdFusionAPI.Controllers.ChatController
         #endregion
         [HttpPost("campaignChat/create")]
         [BrandRequired]
-        public async Task<IActionResult> CreateCampaignChatRoom([FromBody] CampaignChatResDTO campaignChat)
+        public async Task<ActionResult<CampaignChatDTO>> CreateCampaignChatRoom([FromBody] CampaignChatResDTO campaignChat)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            await _campaignChatService.CreateCampaignChatRoom(campaignChat, user);
-            return Ok("Campaign chat room created successfully.");
+            var chatId = await _campaignChatService.CreateCampaignChatRoom(campaignChat, user);
+            return Ok(chatId);
         }
         [HttpGet("chat/contacts")]
         [AuthRequired]
