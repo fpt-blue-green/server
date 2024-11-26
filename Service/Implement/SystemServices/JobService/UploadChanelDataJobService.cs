@@ -4,6 +4,7 @@ using Quartz;
 using Serilog;
 using Repositories;
 using BusinessObjects;
+using Service;
 
 namespace Service
 {

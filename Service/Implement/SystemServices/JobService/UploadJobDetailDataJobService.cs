@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Quartz;
 using Repositories;
 using Serilog;
+using Service;
 
 namespace Service
 {
