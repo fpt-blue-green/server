@@ -8,7 +8,7 @@ namespace Service
         Task<(byte[] fileContent, string fileName)> GetLogFile(string roomName);
         Task DeleteRoomAsync(string roomName);
         Task CreateFirstTimeRoom(Guid campaignId);
-        Task<IEnumerable<CampaignMeetingRoomDTO>> GetMeetingRooms(Guid campaignId);
+        Task<FilterListResponse<CampaignMeetingRoomDTO>> GetMeetingRooms(Guid campaignId);
         Task<string> GetAccessLinkByRole(string roomName, UserDTO userDTO);
         Task UpdateRoom(RoomDataUpdateRequest updateRequest, UserDTO user);
     }

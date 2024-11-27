@@ -21,10 +21,15 @@ namespace Service
             cfg.AddProfile<AutoMapperProfile>();
         }).CreateMapper();
 
-        public async Task<IEnumerable<CampaignMeetingRoomDTO>> GetMeetingRooms(Guid campaignId)
+        public async Task<FilterListResponse<CampaignMeetingRoomDTO>> GetMeetingRooms(Guid campaignId)
         {
             var meetingRooms = await _campaignMeetingRoomRepository.GetMeetingRoomsByCampaignId(campaignId);
-            return _mapper.Map<IEnumerable<CampaignMeetingRoomDTO>>(meetingRooms);
+            var result = _mapper.Map<IEnumerable<CampaignMeetingRoomDTO>>(meetingRooms);
+            return new FilterListResponse<CampaignMeetingRoomDTO>
+            {
+                TotalCount = result.Count(),
+                Items = result
+            };
         }
 
         public async Task CreateRoom(RoomDataRequest dataRequest, UserDTO user)
