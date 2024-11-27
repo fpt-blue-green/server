@@ -19,9 +19,17 @@ namespace AdFusionAPI.Controllers.AdminControllers
 
         [HttpGet("userActive")]
         [AdminRequired]
-        public async Task<ActionResult<Dictionary<string, int>>> GetUserActive(int year = 2024, ETimeFrame times = ETimeFrame.FullYear)
+        public async Task<ActionResult<List<CommomPieChartDTO>>> GetUserActive(int year = 2024, ETimeFrame times = ETimeFrame.FullYear)
         {
             var result = await _adminStatistic.GetLoginCountsByTimeFrame(year, times);
+            return Ok(result);
+        }
+
+        [HttpGet("revenue")]
+        [AdminRequired]
+        public async Task<ActionResult<List<CommomPieChartDTO>>> GetRevenue(int year = 2024, ETimeFrame times = ETimeFrame.FullYear)
+        {
+            var result = await _adminStatistic.GetRevenuesByTimeFrame(year, times);
             return Ok(result);
         }
 
