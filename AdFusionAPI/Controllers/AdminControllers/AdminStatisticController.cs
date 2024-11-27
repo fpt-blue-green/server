@@ -25,11 +25,11 @@ namespace AdFusionAPI.Controllers.AdminControllers
             return Ok(result);
         }
 
-        [HttpGet("userActive/availableYear")]
+        [HttpGet("availableYear")]
         [AdminRequired]
-        public async Task<ActionResult<List<int>>> GetAvailableYear()
+        public ActionResult<List<int>> GetAvailableYear()
         {
-            var result = await _adminStatistic.GetAvailableYearInActiveUser();
+            var result = _adminStatistic.GetAvailableYearInSystem();
             return Ok(result);
         }
 
