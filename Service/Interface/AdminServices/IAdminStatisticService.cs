@@ -5,7 +5,8 @@ namespace Service
 {
     public interface IAdminStatisticService
     {
-        Task<Dictionary<string, int>> GetLoginCountsByTimeFrame(int year, ETimeFrame timeFrame);
+        Task<List<CommomPieChartDTO>> GetLoginCountsByTimeFrame(int year, ETimeFrame timeFrame);
+        Task<List<CommomPieChartDTO>> GetRevenuesByTimeFrame(int year, ETimeFrame timeFrame);
         List<int> GetAvailableYearInSystem();
         Task<List<CommomPieChartDTO>> GetRoleData();
         Task<List<MonthlyMetricsTrendDTO>> GetMonthlyMetricsTrend();

@@ -1,10 +1,9 @@
 ﻿using BusinessObjects;
 using BusinessObjects.DTOs;
-using BusinessObjects.Models;
 using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
-using System.Linq;
+using System.Globalization;
 using static BusinessObjects.AuthEnumContainer;
 using static BusinessObjects.JobEnumContainer;
 
@@ -18,8 +17,8 @@ namespace Service
         private readonly ICampaignRepository _campaignRepository = new CampaignRepository();
         private readonly IJobRepository _jobRepository = new JobRepository();
 
-        #region GetLoginCountsByTimeFrame
-        public async Task<Dictionary<string, int>> GetLoginCountsByTimeFrame(int year, ETimeFrame timeFrame)
+        #region Get Data LineChart By TimeFrame
+        public async Task<List<CommomPieChartDTO>> GetLoginCountsByTimeFrame(int year, ETimeFrame timeFrame)
         {
             DateTime startDate;
             DateTime endDate;
@@ -89,13 +88,100 @@ namespace Service
                 }
             }
 
-            var finalCounts = monthsInTimeFrame.ToDictionary(
-                month => month,
-                month => loginCounts.ContainsKey(month) ? loginCounts[month] : 0
-            );
+            // Tạo danh sách CommonPieChartDTO
+            var finalCounts = monthsInTimeFrame
+                .Select(month => new CommomPieChartDTO
+                {
+                    Label = month,
+                    Value = loginCounts.ContainsKey(month) ? loginCounts[month] : 0
+                })
+                .ToList();
 
             return finalCounts;
         }
+
+        public async Task<List<CommomPieChartDTO>> GetRevenuesByTimeFrame(int year, ETimeFrame timeFrame)
+        {
+            DateTime startDate;
+            DateTime endDate;
+
+            // Xác định khoảng thời gian dựa trên enum
+            switch (timeFrame)
+            {
+                case ETimeFrame.FullYear:
+                    startDate = new DateTime(year, 1, 1); // Ngày đầu của năm
+                    endDate = new DateTime(year + 1, 1, 1); // Ngày đầu năm sau
+                    break;
+                case ETimeFrame.FirstHalf:
+                    startDate = new DateTime(year, 1, 1); // Ngày đầu của 6 tháng đầu
+                    endDate = new DateTime(year, 7, 1); // Ngày đầu của 6 tháng sau
+                    break;
+                case ETimeFrame.SecondHalf:
+                    startDate = new DateTime(year, 7, 1); // Ngày đầu của 6 tháng sau
+                    endDate = new DateTime(year + 1, 1, 1); // Ngày đầu năm sau
+                    break;
+                default:
+                    throw new Exception("Invalid time frame specified.");
+            }
+
+            var data = await _paymentRepository.GetAllProfitPaymentIgnoreFilter();
+
+            // Tính tổng doanh thu từ cơ sở dữ liệu
+            var results = data
+                .Where(ph => ph.CreatedAt >= startDate && ph.CreatedAt < endDate && ph.NetAmount.HasValue)
+                .GroupBy(ph => new { ph.CreatedAt.Year, ph.CreatedAt.Month }) // Nhóm theo năm và tháng
+                .Select(g => new
+                {
+                    Month = new DateTime(g.Key.Year, g.Key.Month, 1), // Tạo DateTime cho tháng
+                    TotalRevenue = g.Sum(ph => ph.NetAmount.Value) // Tổng doanh thu (NetAmount)
+                })
+                .ToList();
+
+            // Chuyển đổi kết quả sang tháng tiếng Việt
+            var revenuesByMonth = results.ToDictionary(
+                r => GetVietnameseMonthName(r.Month.Month),
+                r => r.TotalRevenue
+            );
+
+            // Tạo danh sách tháng trong khoảng thời gian
+            var monthsInTimeFrame = new List<string>();
+            if (timeFrame == ETimeFrame.FullYear)
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    var monthDate = new DateTime(year, i + 1, 1);
+                    monthsInTimeFrame.Add(GetVietnameseMonthName(monthDate.Month)); // Thêm tên tháng vào danh sách
+                }
+            }
+            else if (timeFrame == ETimeFrame.FirstHalf)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    var monthDate = new DateTime(year, i + 1, 1);
+                    monthsInTimeFrame.Add(GetVietnameseMonthName(monthDate.Month)); // Thêm tên tháng vào danh sách
+                }
+            }
+            else if (timeFrame == ETimeFrame.SecondHalf)
+            {
+                for (int i = 6; i < 12; i++)
+                {
+                    var monthDate = new DateTime(year, i + 1, 1);
+                    monthsInTimeFrame.Add(GetVietnameseMonthName(monthDate.Month)); // Thêm tên tháng vào danh sách
+                }
+            }
+
+            // Tạo danh sách CommonPieChartDTO
+            var finalRevenues = monthsInTimeFrame
+                .Select(month => new CommomPieChartDTO
+                {
+                    Label = month,
+                    Value = revenuesByMonth.ContainsKey(month) ? (long)revenuesByMonth[month] : 0
+                })
+                .ToList();
+
+            return finalRevenues;
+        }
+
 
         public List<int> GetAvailableYearInSystem()
         {
@@ -175,7 +261,7 @@ namespace Service
             return new MonthlyMetricsTrendDTO
             {
                 Comment = comment,
-                Data = totalRevenueNow.ToString("N2"),
+                Data = totalRevenueNow.ToString("N2", new CultureInfo("vi-VN")),
                 Type = "Revenue"
             };
         }
@@ -217,7 +303,7 @@ namespace Service
             return new MonthlyMetricsTrendDTO
             {
                 Comment = comment,
-                Data = currentMonthUserCount.ToString("N0"),
+                Data = currentMonthUserCount.ToString("N0", new CultureInfo("vi-VN")),
                 Type = "NewUsers"
             };
         }
@@ -261,7 +347,7 @@ namespace Service
             return new MonthlyMetricsTrendDTO
             {
                 Comment = comment,
-                Data = currentMonthUserCount.ToString("N0"),
+                Data = currentMonthUserCount.ToString("N0", new CultureInfo("vi-VN")),
                 Type = "ActiveUsers"
             };
         }
@@ -313,7 +399,7 @@ namespace Service
             return new MonthlyMetricsTrendDTO
             {
                 Comment = comment,
-                Data = currentMonthCampaignCount.ToString("N0"),
+                Data = currentMonthCampaignCount.ToString("N0", new CultureInfo("vi-VN")),
                 Type = "ActiveCampaigns"
             };
         }
