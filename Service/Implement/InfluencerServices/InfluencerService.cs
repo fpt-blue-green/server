@@ -10,6 +10,7 @@ using Service.Helper;
 using Supabase;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Transactions;
 using static BusinessObjects.JobEnumContainer;
 using static Supabase.Gotrue.Constants;
 
@@ -21,6 +22,7 @@ namespace Service
         private static readonly IInfluencerImageRepository _influencerImagesRepository = new InfluencerImageRepository();
         private static readonly IBrandRepository _brandRepository = new BrandRepository();
         private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
+        private static readonly IUserRepository _userRepository = new UserRepository();
         //private static readonly ITagRepository _tagRepository = new TagRepository();
 
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
@@ -172,37 +174,65 @@ namespace Service
 
         public async Task<string> CreateOrUpdateInfluencer(InfluencerRequestDTO influencerRequestDTO, UserDTO user)
         {
-            //Kiểm tra xem slug đã được sử dụng hay chưa
-            if (!Regex.IsMatch(influencerRequestDTO.Slug, _configManager.SlugRegex))
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                throw new InvalidOperationException("Tên người dùng không hợp lệ.");
-            }
-
-            //Kiểm tra regex có đúng định dạng hay không
-            var influencerDTO = await GetInfluencerByUserId(user.Id);
-
-            // Nếu chưa có, tạo mới
-            if (influencerDTO == null)
-            {
-                //Kiểm trả xem slug đã được sử dụng hay chưa
-                var result = await _influencerRepository.GetBySlug(influencerRequestDTO.Slug);
-                if (result != null)
+                try
                 {
-                    throw new InvalidOperationException("Tên người dùng đã được sử dụng. Vui lòng chọn tên người dùng khác.");
+                    //Kiểm tra xem slug đã được sử dụng hay chưa
+                    if (!Regex.IsMatch(influencerRequestDTO.Slug, _configManager.SlugRegex))
+                    {
+                        throw new InvalidOperationException("Tên người dùng không hợp lệ.");
+                    }
+
+                    //Kiểm tra regex có đúng định dạng hay không
+                    var influencerDTO = await GetInfluencerByUserId(user.Id);
+
+                    // Nếu chưa có, tạo mới
+                    if (influencerDTO == null)
+                    {
+                        //Kiểm trả xem slug đã được sử dụng hay chưa
+                        var result = await _influencerRepository.GetBySlug(influencerRequestDTO.Slug);
+                        if (result != null)
+                        {
+                            throw new InvalidOperationException("Tên người dùng đã được sử dụng. Vui lòng chọn tên người dùng khác.");
+                        }
+                        var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
+                        newInfluencer.UserId = user.Id;
+                        await _influencerRepository.Create(newInfluencer);
+                    }
+                    else
+                    {
+                        // Nếu đã có, cập nhật
+                        _mapper.Map(influencerRequestDTO, influencerDTO);
+                        var influencerUpdated = _mapper.Map<Influencer>(influencerDTO);
+                        await _influencerRepository.Update(influencerUpdated);
+                    }
+
+                    var currentUser = await _userRepository.GetUserById(user.Id);
+                    if (user == null)
+                    {
+                        throw new InvalidOperationException("Không tìm thấy user.");
+                    }
+
+                    currentUser.DisplayName = influencerRequestDTO.FullName;
+                    await _userRepository.UpdateUser(currentUser);
+                    scope.Complete();
+
+                    if (influencerDTO == null)
+                    {
+                        return "Tạo tài khoản influencer thành công.";
+                    }
+                    else
+                    {
+                        return "Cập nhật influencer thành công.";
+                    }
                 }
-                var newInfluencer = _mapper.Map<Influencer>(influencerRequestDTO);
-                newInfluencer.UserId = user.Id;
-                await _influencerRepository.Create(newInfluencer);
-                return "Tạo tài khoản influencer thành công.";
+                catch
+                {
+                    throw;
+                }
             }
-            else
-            {
-                // Nếu đã có, cập nhật
-                _mapper.Map(influencerRequestDTO, influencerDTO);
-                var influencerUpdated = _mapper.Map<Influencer>(influencerDTO);
-                await _influencerRepository.Update(influencerUpdated);
-                return "Cập nhật influencer thành công.";
-            }
+
         }
 
         public async Task DeleteInfluencer(Guid id)
