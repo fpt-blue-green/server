@@ -85,7 +85,7 @@ namespace AdFusionAPI.Controllers.JobControllers
 
         [AuthRequired]
         [HttpGet("{id}/link")]
-        public async Task<ActionResult> GetLink(Guid id)
+        public async Task<ActionResult<List<JobLinkResponseDTO>>> GetLink(Guid id)
         {
             var result = await _jobService.GetJobLink(id);
             return Ok(result);

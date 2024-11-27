@@ -429,10 +429,17 @@ namespace Service
             await _jobDetailRepository.Update(jobDetail);
         }
 
-        public async Task<List<string>> GetJobLink(Guid jobId)
+        public async Task<List<JobLinkResponseDTO>> GetJobLink(Guid jobId)
         {
             var jobDetail = await _jobDetailRepository.GetLinkByJobId(jobId);
-            return jobDetail.Select(j => j.Link).ToList()!;
+            var jobLinkResponseList = jobDetail
+                .Select(j => new JobLinkResponseDTO
+                {
+                    Link = j.Link!, 
+                    IsApprove = j.IsApprove,
+                })
+                .ToList();
+            return jobLinkResponseList;
         }
 
         public async Task SendMail(Job job, Offer offer, string title, string status, string endQuote)

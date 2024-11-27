@@ -53,4 +53,9 @@ namespace BusinessObjects
 
     }
 
+    public class JobLinkResponseDTO
+    {
+        public string Link { get; set; }
+        public bool  IsApprove { get; set; }
+    }
 }
