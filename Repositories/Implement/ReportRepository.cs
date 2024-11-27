@@ -38,7 +38,9 @@ namespace Repositories.Implement
         {
             using (var context = new PostgresContext())
             {
-                var result = await context.InfluencerReports.IgnoreQueryFilters().ToListAsync();
+                var result = await context.InfluencerReports
+                    .Include(j => j.Influencer)
+                    .Include(j =>j.Reporter).IgnoreQueryFilters().ToListAsync();
                 return result;
             }
         }

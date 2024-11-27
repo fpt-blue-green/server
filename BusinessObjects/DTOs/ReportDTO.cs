@@ -6,7 +6,11 @@
 
         public Guid ReporterId { get; set; }
 
+        public string ReporterName { get; set; }
+
         public Guid InfluencerId { get; set; }
+
+        public string InfluencerName { get; set; }
 
         public int? Reason { get; set; }
 

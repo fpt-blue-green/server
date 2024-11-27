@@ -7,7 +7,6 @@ using Repositories.Interface;
 using Serilog;
 using Service.Helper;
 using System.Transactions;
-using static Quartz.Logging.OperationName;
 
 namespace Service
 {
@@ -103,9 +102,19 @@ namespace Service
                          .OrderBy(r => r.InfluencerId)
                          .ThenByDescending(r => r.CreatedAt)
                          .ToList();
+
+            var result = _mapper.Map<IEnumerable<ReportDTO>>(reports)
+                         .Select(dto =>
+                         {
+                             dto.ReporterName = reports.FirstOrDefault(r => r.Id == dto.Id)?.Reporter?.DisplayName;
+                             dto.InfluencerName = reports.FirstOrDefault(r => r.Id == dto.Id)?.Influencer?.FullName;
+                             return dto;
+                         });
+
+
             return new FilterListResponse<ReportDTO>
             {
-                Items = _mapper.Map<IEnumerable<ReportDTO>>(reports),
+                Items = result,
                 TotalCount = totalCount,
             };
         }
