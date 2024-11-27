@@ -97,12 +97,16 @@ namespace Service
             return finalCounts;
         }
 
-        public async Task<List<int>> GetAvailableYearInActiveUser()
+        public List<int> GetAvailableYearInSystem()
         {
-            var data = await _userDeviceRepository.GetAllIgnoreFilter();
-            var year = data.Select(u => u.RefreshTokenTime.Year).Distinct().ToList();
-            return year;
+            var currentYear = DateTime.Now.Year;
+
+            // Tạo danh sách các năm từ 2023 đến năm hiện tại
+            var years = Enumerable.Range(2023, currentYear - 2023 + 1).ToList();
+
+            return years;
         }
+
         #endregion
 
         private static string GetVietnameseMonthName(int month)

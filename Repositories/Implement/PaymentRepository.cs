@@ -110,7 +110,7 @@ namespace Repositories
             using (var context = new PostgresContext())
             {
                 var paymentHistories = await context.PaymentHistories
-                    .Where(i => i.Type == (int)EPaymentType.BuyPremium || i.Type == (int)EPaymentType.WithDraw)
+                    .Where(i => (i.Type == (int)EPaymentType.BuyPremium || i.Type == (int)EPaymentType.WithDraw) && i.Status == (int)EPaymentStatus.Done)
                     .IgnoreQueryFilters()
                     .ToListAsync();
                 return paymentHistories;

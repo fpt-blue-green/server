@@ -67,6 +67,9 @@ namespace Service
                         throw new InvalidOperationException("Số tiền phải từ 100 nghìn đến dưới 50 triệu!");
                     }
 
+                    user.Wallet = user.Wallet - withdrawRequestDTO.Amount;
+                    await _userRepository.UpdateUser(user);
+
                     var paymentHistory = new PaymentHistory()
                     {
                         UserId = userDto.Id,
@@ -132,27 +135,28 @@ namespace Service
             {
                 try
                 {
-
                     if (adminPaymentResponse.IsApprove)
                     {
-
                         paymentHistory.Status = (int)EPaymentStatus.Done;
                         var fee = await GetWithDrawFee();
-                        paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee}% trên tổng số tiền rút." +
+                        paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee * 100}% trên tổng số tiền rút." +
                             $" Điều này nhằm đảm bảo cho các hoạt động vận hành và duy trì dịch vụ chất lượng." +
                             $" Vì vậy, với yêu cầu rút {paymentHistory.Amount!.ToString("N2")} VND của bạn. " +
-                            $" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - paymentHistory.Amount * fee / 100).ToString("N2")} VND";
-                        paymentHistory.NetAmount = paymentHistory.Amount * fee / 100;
-                        user.Wallet = user.Wallet - paymentHistory.Amount;
+                            $" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - paymentHistory.Amount * fee).ToString("N2")} VND";
+                        paymentHistory.NetAmount = paymentHistory.Amount * fee;
                         await _userRepository.UpdateUser(user);
                     }
                     else
                     {
-                        paymentHistory.Status = (int)EPaymentStatus.Rejected;
                         if (adminPaymentResponse.AdminMessage.IsNullOrEmpty())
                         {
                             throw new InvalidOperationException("Lý do từ chối không được để trống.");
                         }
+
+                        user.Wallet = user.Wallet + paymentHistory.Amount;
+                        await _userRepository.UpdateUser(user);
+
+                        paymentHistory.Status = (int)EPaymentStatus.Rejected;
                     }
 
                     paymentHistory.ResponseAt = DateTime.Now;
