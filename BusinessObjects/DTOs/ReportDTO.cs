@@ -12,7 +12,7 @@
 
         public string InfluencerName { get; set; }
 
-        public int? Reason { get; set; }
+        public EReportStatus? Reason { get; set; }
 
         public string Description { get; set; } = null!;
 

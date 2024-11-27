@@ -94,8 +94,8 @@ namespace Repositories
             {
                 var participants = await context.Jobs
                     .Where(job => job.CampaignId == campaignId && 
-										(job.Status == (int)EJobStatus.Approved ||
-										job.Status == (int)EJobStatus.InProgress))
+										(job.Status != (int)EJobStatus.Pending ||
+										job.Status != (int)EJobStatus.NotCreated))
                     .Select(job => job.Influencer.User)
                     .Distinct()
                     .ToListAsync();
