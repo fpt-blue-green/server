@@ -8,6 +8,7 @@ namespace Service
 	public interface ICampaignChatService
 	{
         Task<CampaignChatDTO> GetCampaignChatById(Guid campaignChatId);
-        Task CreateCampaignChatRoom(CampaignChatResDTO campaignChat,UserDTO brand);
+        Task<CampaignChatDTO> GetCampaignChatByCampaignId(Guid campaignId);
+        Task<CampaignChatDTO> CreateCampaignChatRoom(CampaignChatResDTO campaignChat,UserDTO brand);
     }
 }

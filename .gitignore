@@ -41,3 +41,6 @@ _ReSharper*/
 
 # Docker files
 docker-compose.override.yml
+
+#Enviroment files
+*.env

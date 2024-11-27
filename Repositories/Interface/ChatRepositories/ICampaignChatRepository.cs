@@ -7,6 +7,7 @@ namespace Repositories
 	public interface ICampaignChatRepository
 	{
 		Task<CampaignChat> GetCampaignChatById(Guid campaignChatId);
-		Task<Guid> CreateCampaignChatRoom(CampaignChat campaignChat);
+		Task<CampaignChat> GetCampaignChatByCampaignId(Guid campaignId);
+		Task<CampaignChat> CreateCampaignChatRoom(CampaignChat campaignChat);
 	}
 }

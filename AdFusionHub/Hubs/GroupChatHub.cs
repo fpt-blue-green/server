@@ -6,7 +6,7 @@ using Service;
 
 namespace Server.Hubs
 {
-	public class GroupChatHub : Hub<IGroupChatClient>
+    public class GroupChatHub : Hub<IGroupChatClient>
 	{
 		private readonly IDictionary<string, GroupUserConnection> _connections;
 		private readonly ICampaignChatService _campaignChatService;
