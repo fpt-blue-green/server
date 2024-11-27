@@ -16,7 +16,7 @@
 
         public string Description { get; set; } = null!;
 
-        public int? ReportStatus { get; set; }
+        public EReportStatus? ReportStatus { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
