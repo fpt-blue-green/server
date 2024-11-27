@@ -3,7 +3,6 @@ using BusinessObjects;
 using BusinessObjects.Models;
 using Repositories;
 using Service.Helper;
-using System;
 using System.Text.RegularExpressions;
 
 namespace Service
@@ -14,6 +13,7 @@ namespace Service
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
         private static ISystemSettingRepository _systemSettingRepository = new SystemSettingRepository();
+        private static ICampaignRepository _campaignRepository = new CampaignRepository();
         private static ICampaignMeetingRoomRepository _campaignMeetingRoomRepository = new CampaignMeetingRoomRepository();
         private static IBrandRepository _brandRepository = new BrandRepository();
         private static readonly IMapper _mapper = new MapperConfiguration(cfg =>
@@ -69,7 +69,7 @@ namespace Service
             };
             await _campaignMeetingRoomRepository.CreateMeetingRoom(meetingRoom);
 
-            await SendMail(meetingRoom, dataRequest.CampaignName);
+            await SendMail(meetingRoom);
         }
 
         public async Task CreateFirstTimeRoom(Guid campaignId)
@@ -149,7 +149,7 @@ namespace Service
 
             await dailyVideoCall.CreateRoomAsync(roomData);
 
-            await SendMail(curRoom, curRoom.Campaign.Name);
+            await SendMail(curRoom);
         }
 
         public async Task<(byte[] fileContent, string fileName)> GetLogFile(string roomName)
@@ -262,10 +262,11 @@ namespace Service
             return $"{name}_{formattedDate}_{formattedTime}_{randomNumber}";
         }
 
-        public async Task SendMail(CampaignMeetingRoom campaignMeeting, string campaginName)
+        public async Task SendMail(CampaignMeetingRoom campaignMeeting)
         {
             try
             {
+                var campaign = await _campaignRepository.GetById(campaignMeeting.CampaignId);
                 string subject = " Thông Báo Cuộc Họp Sắp Diễn Ra";
                 var emails = campaignMeeting.Participants.Split(',')
                          .Select(email => email.Trim())
@@ -274,7 +275,7 @@ namespace Service
 
                 var body = _emailTemplate.meetingNotificationTemplate
                     .Replace("{BrandName}", campaignMeeting.CreatedBy)
-                    .Replace("{CampaignName}", campaginName)
+                    .Replace("{CampaignName}", campaign.Name)
                     .Replace("{StartTime}", campaignMeeting.StartAt.ToString("dd-MM-yyyy HH:mm:ss"))
                     .Replace("{EndTime}", campaignMeeting.EndAt!.Value.ToString("dd-MM-yyyy HH:mm:ss"))
                     .Replace("{Description}", campaignMeeting.Description)

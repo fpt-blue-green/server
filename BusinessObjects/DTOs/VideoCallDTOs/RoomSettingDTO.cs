@@ -24,7 +24,6 @@ namespace BusinessObjects
     public class RoomDataRequest
     {
         public Guid? CampaignId { get; set; }
-        public string CampaignName { get; set; }
         public string RoomName { get; set; }
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
