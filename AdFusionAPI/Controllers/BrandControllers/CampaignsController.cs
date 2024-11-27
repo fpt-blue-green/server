@@ -92,7 +92,7 @@ namespace AdFusionAPI.Controllers.BrandControllers
 
         [HttpGet("{id}/meetingRoom")]
         [AuthRequired]
-        public async Task<ActionResult<IEnumerable<CampaignMeetingRoomDTO>>> GetCampaignMeetingRoom(Guid id)
+        public async Task<ActionResult<FilterListResponse<CampaignMeetingRoomDTO>>> GetCampaignMeetingRoom(Guid id)
         {
             var result = await _campaignMeetingRoomService.GetMeetingRooms(id);
             return Ok(result);

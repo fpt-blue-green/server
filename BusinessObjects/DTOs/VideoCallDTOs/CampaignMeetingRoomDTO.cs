@@ -10,7 +10,7 @@
 
         public DateTime? EndAt { get; set; }
 
-        public string? Participants { get; set; }
+        public List<string> Participants { get; set; }
 
         public string? Description { get; set; }
 

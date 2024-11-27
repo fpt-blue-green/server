@@ -17,7 +17,7 @@ public partial class CampaignMeetingRoom
 
     public string RoomLink { get; set; } = null!;
 
-    public string? Participants { get; set; }
+    public string Participants { get; set; }
 
     public string? Description { get; set; }
 
