@@ -88,7 +88,7 @@ namespace Repositorie
             using (var context = new PostgresContext())
             {
                 var result = await context.JobDetails
-                                        .Where(j => j.Link == link && j.JobId == jobId)
+                                        .Where(j => j.Link == link && j.JobId == jobId && j.IsApprove == true)
                                         .GroupBy(j => new { j.Link, j.JobId })
                                         .Select(g => new
                                         {

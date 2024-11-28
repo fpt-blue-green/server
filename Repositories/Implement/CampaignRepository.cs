@@ -197,7 +197,7 @@ namespace Repositories
             using (var context = new PostgresContext())
             {
                 var result = await context.JobDetails
-										.Where(j => j.JobId == jobId && j.Link == link)
+										.Where(j => j.JobId == jobId && j.Link == link && j.IsApprove == true)
 										.Include(j => j.Job)
 										.ToListAsync();
 				return result;
@@ -209,7 +209,7 @@ namespace Repositories
             using (var context = new PostgresContext())
             {
                 var result = await context.JobDetails
-                                        .Where(j => j.JobId == jobId)
+                                        .Where(j => j.JobId == jobId && j.IsApprove == true)
                                         .Include(j => j.Job)
                                         .ToListAsync();
                 return result;

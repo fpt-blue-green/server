@@ -378,6 +378,11 @@ namespace Service
                 throw new AccessViolationException();
             }
 
+            if(linkDTO.Link.GroupBy(x => x).Any(g => g.Count() > 1))
+            {
+                throw new InvalidOperationException("Đã phát hiện đường dẫn trùng lập. Vui lòng kiểm tra lại.");
+            }
+
             var offer = job.Offers.FirstOrDefault(o => o.Status == (int)EOfferStatus.Done)
                         ?? throw new KeyNotFoundException();
 
