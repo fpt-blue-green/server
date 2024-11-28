@@ -2,12 +2,14 @@
 using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using Repositories;
 using Serilog;
 using Service.Helper;
 using Service.Implement.UtilityServices;
 using Service.Interface.UtilityServices;
 using System.Drawing.Drawing2D;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -130,21 +132,54 @@ namespace Service
             var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
             paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
             var user = paymentHistory.User ?? throw new Exception("Không tìm thấy người dùng.!");
-
+            bool isPaid = false;
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
                     if (adminPaymentResponse.IsApprove)
                     {
-                        paymentHistory.Status = (int)EPaymentStatus.Done;
-                        var fee = await GetWithDrawFee();
-                        paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee * 100}% trên tổng số tiền rút." +
-                            $" Điều này nhằm đảm bảo cho các hoạt động vận hành và duy trì dịch vụ chất lượng." +
-                            $" Vì vậy, với yêu cầu rút {paymentHistory.Amount!.ToString("N2")} VND của bạn. " +
-                            $" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - paymentHistory.Amount * fee).ToString("N2")} VND";
-                        paymentHistory.NetAmount = paymentHistory.Amount * fee;
-                        await _userRepository.UpdateUser(user);
+						var ApiKey = _envService.GetEnv("cassoApiKey");
+						var ApiUri = "https://oauth.casso.vn/v2/transactions";
+						using (HttpClient client = new HttpClient())
+						{
+							// Thêm header Authorization và Content-Type
+							client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Apikey", ApiKey);
+							client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+							try
+							{
+                                var paymentCode = paymentId.ToString().Replace("-","");
+								HttpResponseMessage response = await client.GetAsync(ApiUri);
+								if (response.IsSuccessStatusCode)
+								{
+									string responseData = await response.Content.ReadAsStringAsync();
+									JObject parsedJson = JObject.Parse(responseData);
+									var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r["description"]?.ToString() == paymentCode);
+									if (records != null && records.HasValues)
+									{
+                                        //đã chuyển tiền thành công
+                                        isPaid = true;
+									}
+								}
+							}
+							catch (Exception ex)
+							{
+								Console.WriteLine("An error occurred:");
+								Console.WriteLine(ex.Message);
+							}
+						}
+                        if (isPaid)
+                        {
+							paymentHistory.Status = (int)EPaymentStatus.Done;
+							var fee = await GetWithDrawFee();
+							paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee * 100}% trên tổng số tiền rút." +
+								$" Điều này nhằm đảm bảo cho các hoạt động vận hành và duy trì dịch vụ chất lượng." +
+								$" Vì vậy, với yêu cầu rút {paymentHistory.Amount!.ToString("N2")} VND của bạn. " +
+								$" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - paymentHistory.Amount * fee).ToString("N2")} VND";
+							paymentHistory.NetAmount = paymentHistory.Amount * fee;
+							await _userRepository.UpdateUser(user);
+						}
                     }
                     else
                     {

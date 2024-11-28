@@ -25,7 +25,7 @@ namespace AdFusionAPI.Controllers.UserControllers
             return Ok();
         }
 
-        [HttpPost("responseWithdraw/{id}")]
+        [HttpPost("responseWithdraw/{paymentId}")]
         [AdminRequired]
         public async Task<ActionResult> ResponseWithDraw(Guid paymentId, AdminPaymentResponse adminPaymentResponse)
         {
