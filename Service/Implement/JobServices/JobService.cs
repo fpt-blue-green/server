@@ -412,8 +412,6 @@ namespace Service
             }
         }
 
-
-
         public async Task ApprovePostLink(Guid jobId, string link)
         {
             var job = await _jobRepository.GetJobInProgress(jobId);
