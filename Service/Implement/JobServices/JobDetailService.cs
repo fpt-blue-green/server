@@ -59,19 +59,21 @@ namespace Service
             data.CommentCount = Math.Max(0, data.CommentCount - oldData.totalComments);
             data.LikesCount = Math.Max(0, data.LikesCount - oldData.totalLikes);
 
-            if (offer.TargetReaction <= data.ViewCount + data.LikesCount + data.CommentCount)
-            {
-                job.Status = (int)EJobStatus.Completed;
-                job.CompleteAt = DateTime.Now;
-                await _jobRepository.UpdateJobAndOffer(job);
-            }
-
             var jobDetail = _mapper.Map<JobDetails>(data);
             jobDetail.JobId = job.Id;
             jobDetail.Link = link;
-            if (!isJobUpdate)
+            if (isJobUpdate == false)
             {
                 jobDetail.IsApprove = false;
+            }
+            else
+            {
+                if (offer.TargetReaction <= data.ViewCount + data.LikesCount + data.CommentCount)
+                {
+                    job.Status = (int)EJobStatus.Completed;
+                    job.CompleteAt = DateTime.Now;
+                    await _jobRepository.UpdateJobAndOffer(job);
+                }
             }
             await _jobDetailRepository.Create(jobDetail);
         }

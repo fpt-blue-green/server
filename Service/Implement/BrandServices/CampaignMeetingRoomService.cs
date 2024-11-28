@@ -235,7 +235,7 @@ namespace Service
                 throw new InvalidOperationException("Tên phòng không hợp lệ! Chỉ cho phép chữ cái, số, dấu gạch dưới _ và dấu gạch nối - .");
             }
 
-            if (participators.Count > 1)
+            if (participators.Count < 1)
             {
                 throw new InvalidOperationException("Để tạo cuộc họp, ít nhất cần phải có một người tham gia (ngoại trừ chủ phòng).");
             }
