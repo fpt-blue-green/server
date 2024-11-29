@@ -216,9 +216,8 @@ namespace Service
         {
             try
             {
-                var curDate = DateTime.Now.ToString("yyyy-MM-dd");
                 var ApiKey = _envService.GetEnv("cassoApiKey");
-                var ApiUri = "https://oauth.casso.vn/v2/transactions?pageSize=50&fromDate=" + curDate;
+                var ApiUri = "https://oauth.casso.vn/v2/transactions?sort=DESC";
 
                 using (HttpClient client = new HttpClient())
                 {
