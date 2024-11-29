@@ -8,13 +8,13 @@ using Serilog;
 using Service.Helper;
 using Service.Implement.UtilityServices;
 using Service.Interface.UtilityServices;
-using System.Drawing.Drawing2D;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Transactions;
+using System.Web;
 
 namespace Service
 {
@@ -43,13 +43,14 @@ namespace Service
             string vietQR = @"https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<DESCRIPTION>&accountName=<ACCOUNT_NAME>";
             var request = await _paymentRepository.GetPaymentHistoryById(requestId);
             var bankInfor = request.BankInformation.Split(' ') ?? throw new Exception("Bank Information are null or not correct!");
-            
+            var accountName = HttpUtility.UrlEncode(request?.User?.DisplayName ?? "");
+
             vietQR = vietQR.Replace("<ACCOUNT_NO>", bankInfor[1])
                 .Replace("<BANK_ID>", bankInfor[0])
                 .Replace("<TEMPLATE>", "compact2")
-                .Replace("<AMOUNT>", request.Amount.ToString())
+                .Replace("<AMOUNT>", request?.Amount.ToString())
                 .Replace("<DESCRIPTION>", requestId.ToString())
-                .Replace("<ACCOUNT_NAME>", request.User.DisplayName);
+                .Replace("<ACCOUNT_NAME>", accountName);
 
             return vietQR;
         }
@@ -155,25 +156,25 @@ namespace Service
                 {
                     if (adminPaymentResponse.IsApprove)
                     {
-						var ApiKey = _envService.GetEnv("cassoApiKey");
-						var ApiUri = "https://oauth.casso.vn/v2/transactions";
-						using (HttpClient client = new HttpClient())
-						{
-							// Thêm header Authorization và Content-Type
-							client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Apikey", ApiKey);
-							client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        var ApiKey = _envService.GetEnv("cassoApiKey");
+                        var ApiUri = "https://oauth.casso.vn/v2/transactions";
+                        using (HttpClient client = new HttpClient())
+                        {
+                            // Thêm header Authorization và Content-Type
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Apikey", ApiKey);
+                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-							try
-							{
-                                var paymentCode = paymentId.ToString().Replace("-","");
-								HttpResponseMessage response = await client.GetAsync(ApiUri);
-								if (response.IsSuccessStatusCode)
-								{
-									string responseData = await response.Content.ReadAsStringAsync();
-									JObject parsedJson = JObject.Parse(responseData);
-									var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r["description"]?.ToString() == paymentCode);
-									if (records != null && records.HasValues)
-									{
+                            try
+                            {
+                                var paymentCode = paymentId.ToString().Replace("-", "");
+                                HttpResponseMessage response = await client.GetAsync(ApiUri);
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    string responseData = await response.Content.ReadAsStringAsync();
+                                    JObject parsedJson = JObject.Parse(responseData);
+                                    var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r["description"]?.ToString() == paymentCode);
+                                    if (records != null && records.HasValues)
+                                    {
                                         //đã chuyển tiền thành công
                                         paymentHistory.Status = (int)EPaymentStatus.Done;
                                         var fee = await GetWithDrawFee();
@@ -188,14 +189,14 @@ namespace Service
                                     {
                                         return false;
                                     }
-								}
-							}
-							catch (Exception ex)
-							{
+                                }
+                            }
+                            catch (Exception ex)
+                            {
                                 _loggerService.Error("Has error while process ProcessWithdrawalApproval. Exception: " + ex);
                                 return false;
-							}
-						}
+                            }
+                        }
                     }
                     else
                     {
@@ -219,7 +220,7 @@ namespace Service
                                                                         , paymentHistory, null);
                     scope.Complete();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _loggerService.Error("Has error while process ProcessWithdrawalApproval. Exception: " + ex);
                     return false;
