@@ -10,6 +10,7 @@ using Service.Implement.UtilityServices;
 using Service.Interface.UtilityServices;
 using System.Drawing.Drawing2D;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -37,15 +38,16 @@ namespace Service
         }).CreateMapper();
         #endregion
 
-        public async Task<string> CreateWithDrawQR(WithdrawRequestDTO withdrawRequestDTO, Guid requestId)
+        public async Task<string> CreateWithDrawQR(Guid requestId)
         {
             string vietQR = @"https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<DESCRIPTION>&accountName=<ACCOUNT_NAME>";
             var request = await _paymentRepository.GetPaymentHistoryById(requestId);
-
-            vietQR = vietQR.Replace("<ACCOUNT_NO>", withdrawRequestDTO.AccountNo)
-                .Replace("<BANK_ID>", withdrawRequestDTO.BankId)
+            var bankInfor = request.BankInformation.Split(' ') ?? throw new Exception("Bank Information are null or not correct!");
+            
+            vietQR = vietQR.Replace("<ACCOUNT_NO>", bankInfor[1])
+                .Replace("<BANK_ID>", bankInfor[0])
                 .Replace("<TEMPLATE>", "compact2")
-                .Replace("<AMOUNT>", withdrawRequestDTO.Amount.ToString())
+                .Replace("<AMOUNT>", request.Amount.ToString())
                 .Replace("<DESCRIPTION>", requestId.ToString())
                 .Replace("<ACCOUNT_NAME>", request.User.DisplayName);
 
@@ -101,7 +103,7 @@ namespace Service
             #region Filter
             if (filter.PaymentType != null && filter.PaymentType.Any())
             {
-                allPaymentHistories = allPaymentHistories.Where(i => filter.PaymentType.Contains((EPaymentType)i.Status!)).ToList();
+                allPaymentHistories = allPaymentHistories.Where(i => filter.PaymentType.Contains((EPaymentType)i.Type!)).ToList();
             }
 
             if (filter.PaymentStatus != null && filter.PaymentStatus.Any())
@@ -112,6 +114,21 @@ namespace Service
             #endregion
 
             int totalCount = allPaymentHistories.Count();
+
+            #region Sort
+            if (!string.IsNullOrEmpty(filter.SortBy))
+            {
+                var propertyInfo = typeof(PaymentHistory).GetProperty(filter.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (propertyInfo != null)
+                {
+                    allPaymentHistories = filter.IsAscending.HasValue && filter.IsAscending.Value
+                        ? allPaymentHistories.OrderBy(i => propertyInfo.GetValue(i, null))
+                        : allPaymentHistories.OrderByDescending(i => propertyInfo.GetValue(i, null));
+                }
+            }
+            #endregion
+
+
             #region Paging
             int pageSize = filter.PageSize;
             allPaymentHistories = allPaymentHistories
@@ -127,12 +144,11 @@ namespace Service
             };
         }
 
-        public async Task ProcessWithdrawalApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
+        public async Task<bool> ProcessWithdrawalApproval(Guid paymentId, AdminPaymentResponse adminPaymentResponse, UserDTO userDto)
         {
             var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
             paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
-            var user = paymentHistory.User ?? throw new Exception("Không tìm thấy người dùng.!");
-            bool isPaid = false;
+            var user = paymentHistory.User ?? throw new KeyNotFoundException("Không tìm thấy người dùng.!");
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
@@ -159,26 +175,26 @@ namespace Service
 									if (records != null && records.HasValues)
 									{
                                         //đã chuyển tiền thành công
-                                        isPaid = true;
-									}
+                                        paymentHistory.Status = (int)EPaymentStatus.Done;
+                                        var fee = await GetWithDrawFee();
+                                        paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee * 100}% trên tổng số tiền rút." +
+                                            $" Điều này nhằm đảm bảo cho các hoạt động vận hành và duy trì dịch vụ chất lượng." +
+                                            $" Vì vậy, với yêu cầu rút {paymentHistory.Amount!.ToString("N2")} VND của bạn. " +
+                                            $" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - paymentHistory.Amount * fee).ToString("N2")} VND";
+                                        paymentHistory.NetAmount = paymentHistory.Amount * fee;
+                                        await _userRepository.UpdateUser(user);
+                                    }
+                                    else
+                                    {
+                                        return false;
+                                    }
 								}
 							}
 							catch (Exception ex)
 							{
-								Console.WriteLine("An error occurred:");
-								Console.WriteLine(ex.Message);
+                                _loggerService.Error("Has error while process ProcessWithdrawalApproval. Exception: " + ex);
+                                return false;
 							}
-						}
-                        if (isPaid)
-                        {
-							paymentHistory.Status = (int)EPaymentStatus.Done;
-							var fee = await GetWithDrawFee();
-							paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee * 100}% trên tổng số tiền rút." +
-								$" Điều này nhằm đảm bảo cho các hoạt động vận hành và duy trì dịch vụ chất lượng." +
-								$" Vì vậy, với yêu cầu rút {paymentHistory.Amount!.ToString("N2")} VND của bạn. " +
-								$" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - paymentHistory.Amount * fee).ToString("N2")} VND";
-							paymentHistory.NetAmount = paymentHistory.Amount * fee;
-							await _userRepository.UpdateUser(user);
 						}
                     }
                     else
@@ -198,17 +214,19 @@ namespace Service
                     await _paymentRepository.UpdatePaymentHistory(paymentHistory);
 
                     paymentHistory.User = null;
-                    await _adminActionNotificationHelper.CreateNotification(userDto,
-                        adminPaymentResponse.IsApprove ? EAdminActionType.ApproveWithDraw : EAdminActionType.RejectWithDraw
-                        , paymentHistory, null);
+                    await _adminActionNotificationHelper.CreateNotification(userDto
+                                                                        , adminPaymentResponse.IsApprove ? EAdminActionType.ApproveWithDraw : EAdminActionType.RejectWithDraw
+                                                                        , paymentHistory, null);
                     scope.Complete();
                 }
-                catch
+                catch(Exception ex)
                 {
-                    throw;
+                    _loggerService.Error("Has error while process ProcessWithdrawalApproval. Exception: " + ex);
+                    return false;
                 }
             }
             await SendMailResponseWithDraw(user, paymentHistory);
+            return true;
         }
 
         protected async Task<decimal> GetWithDrawFee()
@@ -231,7 +249,7 @@ namespace Service
                     {
                         UserId = brand.UserId,
                         Amount = request.TotalAmount,
-                        BankInformation = brand.User.Email ?? "",
+                        BankInformation = null,
                         NetAmount = request.TotalAmount,
                         Type = (int)EPaymentType.BuyPremium,
                         Status = (int)EPaymentStatus.Done,

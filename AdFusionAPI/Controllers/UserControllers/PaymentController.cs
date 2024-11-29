@@ -27,11 +27,11 @@ namespace AdFusionAPI.Controllers.UserControllers
 
         [HttpPost("responseWithdraw/{paymentId}")]
         [AdminRequired]
-        public async Task<ActionResult> ResponseWithDraw(Guid paymentId, AdminPaymentResponse adminPaymentResponse)
+        public async Task<ActionResult<bool>> ResponseWithDraw(Guid paymentId, AdminPaymentResponse adminPaymentResponse)
         {
             var user = (UserDTO)HttpContext.Items["user"]!;
-            await _paymentService.ProcessWithdrawalApproval(paymentId, adminPaymentResponse, user);
-            return Ok();
+            var result = await _paymentService.ProcessWithdrawalApproval(paymentId, adminPaymentResponse, user);
+            return Ok(result);
         }
 
         [HttpGet]
@@ -44,9 +44,9 @@ namespace AdFusionAPI.Controllers.UserControllers
 
         [HttpPost("vietQR/requestId")]
         [AdminRequired]
-        public async Task<ActionResult<string>> GetVietQr(WithdrawRequestDTO withdrawRequestDTO, Guid requestId)
+        public async Task<ActionResult<string>> GetVietQr(Guid requestId)
         {
-            var result = await _paymentService.CreateWithDrawQR(withdrawRequestDTO, requestId);
+            var result = await _paymentService.CreateWithDrawQR(requestId);
             return Ok(result);
         }
 

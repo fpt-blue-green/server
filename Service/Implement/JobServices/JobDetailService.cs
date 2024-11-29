@@ -176,29 +176,38 @@ namespace Service
             // Lấy dữ liệu từ repository
             var data = await _campaignRepository.GetCampaignJobDetails(campaignId);
 
+            if (data == null || data.Jobs == null)
+            {
+                // Nếu không có dữ liệu, trả về danh sách rỗng
+                return new List<JobPlatFormPieChartDTO>();
+            }
+
             // Khởi tạo dictionary với tất cả các nền tảng có giá trị mặc định là 0
             var platformStats = Enum.GetValues(typeof(EPlatform))
                 .Cast<EPlatform>()
-                .ToDictionary(platform => platform, platform => 0L); // Sử dụng 0L để chỉ định kiểu long
+                .ToDictionary(platform => platform, platform => 0L); // Giá trị mặc định là 0L (long)
 
-            // Nhóm dữ liệu từ campaign và tính tổng TotalReaction theo Platform
-            var calculatedStats = data.Jobs
-                .SelectMany(j => j.Offers)
-                .GroupBy(o => o.Platform) // Nhóm theo Platform
+            // Lấy danh sách tất cả các Offers có liên kết đến Job
+            var offers = data.Jobs
+                .Where(job => job.Offers != null) // Loại bỏ các Job không có Offers
+                .SelectMany(job => job.Offers)
+                .Where(offer => offer.Job?.JobDetails != null && offer.Status == (int)EOfferStatus.Done); // Loại bỏ các Offer không có JobDetails
+
+            // Nhóm dữ liệu theo Platform và tính tổng ViewCount, LikesCount và CommentCount
+            var calculatedStats = offers
+                .GroupBy(o => o.Platform)
                 .ToDictionary(
-                    g => (EPlatform)g.Key,
-                    g =>
-                    {
-                        // Tính tổng ViewCount, LikesCount và CommentCount
-                        long totalReaction = g.Sum(o => o.Job.JobDetails.Sum(jd => jd.ViewCount + jd.LikesCount + jd.CommentCount));
-                        return totalReaction;
-                    }
+                    g => g.Key, // Platform
+                    g => g.Sum(o => o.Job.JobDetails.Sum(jd => jd.ViewCount + jd.LikesCount + jd.CommentCount)) // Tổng tương tác
                 );
 
             // Gộp dữ liệu từ `calculatedStats` vào `platformStats`
             foreach (var stat in calculatedStats)
             {
-                platformStats[stat.Key] = stat.Value;
+                if (platformStats.ContainsKey((EPlatform)stat.Key))
+                {
+                    platformStats[(EPlatform)stat.Key] = stat.Value;
+                }
             }
 
             // Chuyển đổi dictionary thành danh sách JobPlatFormPieChartDTO
@@ -208,6 +217,7 @@ namespace Service
                     Platform = ps.Key,
                     Value = ps.Value
                 })
+                .OrderBy(dto => dto.Platform) // Sắp xếp theo Platform (tùy ý)
                 .ToList();
 
             return result;
