@@ -67,9 +67,9 @@ namespace Service
                         throw new InvalidOperationException("Số tiền vượt mức cho phép!");
                     }
 
-                    if (withdrawRequestDTO.Amount < 100000 || withdrawRequestDTO.Amount > 50000000)
+                    if (withdrawRequestDTO.Amount < 10000 || withdrawRequestDTO.Amount > 50000000)
                     {
-                        throw new InvalidOperationException("Số tiền phải từ 100 nghìn đến dưới 50 triệu!");
+                        throw new InvalidOperationException("Số tiền phải từ 10 nghìn đến dưới 50 triệu!");
                     }
 
                     user.Wallet = user.Wallet - withdrawRequestDTO.Amount;
@@ -150,52 +150,33 @@ namespace Service
             var paymentHistory = await _paymentRepository.GetPaymentHistoryPedingById(paymentId) ?? throw new InvalidOperationException("Giao dịch đã được xử lý!");
             paymentHistory.AdminMessage = adminPaymentResponse.AdminMessage;
             var user = paymentHistory.User ?? throw new KeyNotFoundException("Không tìm thấy người dùng.!");
+            var isPaymentSuccess = false;
+
+            if (adminPaymentResponse.IsApprove)
+            {
+                isPaymentSuccess = await CheckPaymentStatus(paymentId);
+            }
+
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
                     if (adminPaymentResponse.IsApprove)
                     {
-                        var ApiKey = _envService.GetEnv("cassoApiKey");
-                        var ApiUri = "https://oauth.casso.vn/v2/transactions";
-                        using (HttpClient client = new HttpClient())
+                        if (isPaymentSuccess)
                         {
-                            // Thêm header Authorization và Content-Type
-                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Apikey", ApiKey);
-                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                            try
-                            {
-                                var paymentCode = paymentId.ToString().Replace("-", "");
-                                HttpResponseMessage response = await client.GetAsync(ApiUri);
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    string responseData = await response.Content.ReadAsStringAsync();
-                                    JObject parsedJson = JObject.Parse(responseData);
-                                    var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r["description"]?.ToString() == paymentCode);
-                                    if (records != null && records.HasValues)
-                                    {
-                                        //đã chuyển tiền thành công
-                                        paymentHistory.Status = (int)EPaymentStatus.Done;
-                                        var fee = await GetWithDrawFee();
-                                        paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee * 100}% trên tổng số tiền rút." +
-                                            $" Điều này nhằm đảm bảo cho các hoạt động vận hành và duy trì dịch vụ chất lượng." +
-                                            $" Vì vậy, với yêu cầu rút {paymentHistory.Amount!.ToString("N2")} VND của bạn. " +
-                                            $" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - paymentHistory.Amount * fee).ToString("N2")} VND";
-                                        paymentHistory.NetAmount = paymentHistory.Amount * fee;
-                                        await _userRepository.UpdateUser(user);
-                                    }
-                                    else
-                                    {
-                                        return false;
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                _loggerService.Error("Has error while process ProcessWithdrawalApproval. Exception: " + ex);
-                                return false;
-                            }
+                            //đã chuyển tiền thành công
+                            paymentHistory.Status = (int)EPaymentStatus.Done;
+                            var fee = await GetWithDrawFee();
+                            paymentHistory.AdminMessage = $"Do chính sách của trang web, mỗi giao dịch rút tiền sẽ chịu một khoản phí dịch vụ {fee * 100}% trên tổng số tiền rút." +
+                                $" Điều này nhằm đảm bảo cho các hoạt động vận hành và duy trì dịch vụ chất lượng." +
+                                $" Vì vậy, với yêu cầu rút {paymentHistory.Amount!.ToString("N2")} VND của bạn. " +
+                                $" Sau khi trừ phí, số tiền bạn sẽ nhận được thực tế là {(paymentHistory.Amount - paymentHistory.Amount * fee).ToString("N2")} VND";
+                            paymentHistory.NetAmount = paymentHistory.Amount * fee;
+                        }
+                        else
+                        {
+                            return false;
                         }
                     }
                     else
@@ -209,6 +190,7 @@ namespace Service
                         await _userRepository.UpdateUser(user);
 
                         paymentHistory.Status = (int)EPaymentStatus.Rejected;
+                        paymentHistory.NetAmount = 0;
                     }
 
                     paymentHistory.ResponseAt = DateTime.Now;
@@ -229,6 +211,40 @@ namespace Service
             await SendMailResponseWithDraw(user, paymentHistory);
             return true;
         }
+
+        private async Task<bool> CheckPaymentStatus(Guid paymentId)
+        {
+            try
+            {
+                var ApiKey = _envService.GetEnv("cassoApiKey");
+                var ApiUri = "https://oauth.casso.vn/v2/transactions";
+
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Apikey", ApiKey);
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var paymentCode = paymentId.ToString().Replace("-", "");
+                    HttpResponseMessage response = await client.GetAsync(ApiUri);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseData = await response.Content.ReadAsStringAsync();
+                        JObject parsedJson = JObject.Parse(responseData);
+                        var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r["description"]?.ToString() == paymentCode);
+                        return records != null && records.HasValues;
+                    }
+
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Has error while checking payment status. Exception: " + ex);
+                throw;
+            }
+        }
+
 
         protected async Task<decimal> GetWithDrawFee()
         {
