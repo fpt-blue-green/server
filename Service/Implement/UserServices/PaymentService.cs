@@ -216,8 +216,9 @@ namespace Service
         {
             try
             {
+                var curDate = DateTime.Now.ToString("yyyy-MM-dd");
                 var ApiKey = _envService.GetEnv("cassoApiKey");
-                var ApiUri = "https://oauth.casso.vn/v2/transactions";
+                var ApiUri = "https://oauth.casso.vn/v2/transactions?pageSize=50&fromDate=" + curDate;
 
                 using (HttpClient client = new HttpClient())
                 {
@@ -231,7 +232,8 @@ namespace Service
                     {
                         string responseData = await response.Content.ReadAsStringAsync();
                         JObject parsedJson = JObject.Parse(responseData);
-                        var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r["description"]?.ToString() == paymentCode);
+                        var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r?["description"]?.ToString()?.Contains(paymentCode) == true);
+
                         return records != null && records.HasValues;
                     }
 
