@@ -86,19 +86,19 @@ namespace Service
         public async Task<List<ChatPartnerDTO>> GetChatContactsAsync(Guid userId, string? searchValue)
         {
             var messages = await _messageRepository.GetMessagesByUserIdAsync(userId);
-            var campaignChats = await _chatMemberRepository.GetMyGroupChat(userId);
+            var campaignContacts = await _chatMemberRepository.GetMyGroupChat(userId);
 
             var userContacts = messages
                  .Where(m => !m.CampaignChatId.HasValue)
                  .Select(m => m.SenderId == userId ? m.ReceiverId : m.SenderId)
                  .Distinct()
                  .ToList();
-            var campaignContacts = messages
+            /*var campaignContacts = messages
                  .Where(m => m.CampaignChatId.HasValue)
                  .Select(m => m.CampaignChatId.Value)
                  .Distinct()
                  .ToList();
-            campaignContacts.AddRange(campaignChats);
+            campaignContacts.AddRange(campaignChats);*/
             var contacts = new List<ChatPartnerDTO>();
 
             // Load thông tin của từng user contact
