@@ -42,7 +42,7 @@ namespace AdFusionAPI.Controllers.UserControllers
             return Ok(result);
         }
 
-        [HttpPost("vietQR/requestId")]
+        [HttpPost("vietQR/{requestId}")]
         [AdminRequired]
         public async Task<ActionResult<string>> GetVietQr(Guid requestId)
         {
