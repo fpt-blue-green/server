@@ -19,6 +19,6 @@ namespace Repositories
         Task<IEnumerable<User>> GetBrandUsersWithPaymentHistory();
         Task<IEnumerable<UserPaymentDTO>> GetUserPayments(Guid userID);
         Task<List<User>> GetUserByNameOrEmail(string nameOrEmail);
-
+        Task<IEnumerable<UserPaymentDTO>> GetAllUserPayments(Guid userID);
     }
 }
