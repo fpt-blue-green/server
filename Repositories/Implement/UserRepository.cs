@@ -25,6 +25,68 @@ namespace Repositories
             }
         }
 
+        public async Task<IEnumerable<UserPaymentDTO>> GetAllUserPayments(Guid userID)
+        {
+            using (var context = new PostgresContext())
+            {
+                // First query: Get payment histories associated with the user
+                var userPaymentHistories = await context.Users
+                    .Where(u => u.Id == userID)
+                    .SelectMany(user => user.PaymentHistories
+                        .Where(u => u.Status != (int)EPaymentStatus.Error)
+                        .Select(ph => new UserPaymentDTO
+                        {
+                            Created = ph.CreatedAt,
+                            Amount = ph.Amount,
+                            Status = ph.Status.HasValue ? (EPaymentStatus)ph.Status : EPaymentStatus.Pending,
+                            Type = (EPaymentType)ph.Type
+                        })
+                    )
+                    .ToListAsync();
+
+                // Second query: Get payment bookings associated with the user's brand 
+                var brandPaymentBookings = await context.Users
+                    .Where(u => u.Id == userID && u.Brand != null)
+                    .SelectMany(user => user.Brand!.Campaigns
+                        .SelectMany(campaign => campaign.Jobs)
+                        .SelectMany(job => job.PaymentBookings
+                            .Where(pb => pb.Type != (int)EPaymentType.InfluencerPayment)
+                            .Select(pb => new UserPaymentDTO
+                            {
+                                Created = pb.PaymentDate ?? DateTime.MinValue,
+                                Amount = pb.Amount ?? 0,
+                                Status = EPaymentStatus.Done,
+                                Type = (EPaymentType)pb.Type!
+                            })
+                        )
+                    )
+                    .ToListAsync();
+
+                // Third query: Get payment bookings associated with the user's influencer
+                var influencerPaymentBookings = await context.Users
+                    .Where(u => u.Id == userID && u.Influencer != null)
+                    .SelectMany(user => user.Influencer!.Jobs
+                        .SelectMany(job => job.PaymentBookings
+                            .Where(pb => pb.Type == (int)EPaymentType.InfluencerPayment)
+                            .Select(pb => new UserPaymentDTO
+                            {
+                                Created = pb.PaymentDate ?? DateTime.MinValue,
+                                Amount = pb.Amount ?? 0,
+                                Status = EPaymentStatus.Done,
+                                Type = (EPaymentType)pb.Type!
+                            })
+                        )
+                    )
+                    .ToListAsync();
+
+
+                // Concatenate the three results
+                var combinedUserPayments = userPaymentHistories.Concat(brandPaymentBookings).Concat(influencerPaymentBookings);
+
+                return combinedUserPayments;
+            }
+        }
+
         public async Task<IEnumerable<UserPaymentDTO>> GetUserPayments(Guid userID)
         {
             using (var context = new PostgresContext())
@@ -86,7 +148,6 @@ namespace Repositories
                 return combinedUserPayments;
             }
         }
-
 
         public async Task<IEnumerable<User>> GetInfluencerUsersWithPaymentHistory()
         {

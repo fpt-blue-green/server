@@ -155,7 +155,7 @@ namespace Service
 
         public async Task<FilterListResponse<UserPaymentDTO>> GetUserPayments(UserDTO userDTO, FilterDTO filter)
         {
-            var userPayments = await _userRepository.GetUserPayments(userDTO.Id);
+            var userPayments = await _userRepository.GetAllUserPayments(userDTO.Id);
 
             #region Sort
             if (!string.IsNullOrEmpty(filter.SortBy))
