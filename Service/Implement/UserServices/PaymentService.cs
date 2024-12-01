@@ -223,15 +223,15 @@ namespace Service
                 {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Apikey", ApiKey);
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
                     var paymentCode = paymentId.ToString().Replace("-", "");
                     HttpResponseMessage response = await client.GetAsync(ApiUri);
 
                     if (response.IsSuccessStatusCode)
                     {
-                        string responseData = await response.Content.ReadAsStringAsync();
+						var payment = await _paymentRepository.GetPaymentHistoryById(paymentId);
+						string responseData = await response.Content.ReadAsStringAsync();
                         JObject parsedJson = JObject.Parse(responseData);
-                        var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r?["description"]?.ToString()?.Contains(paymentCode) == true);
+                        var records = parsedJson["data"]?["records"]?.FirstOrDefault(r => r?["description"]?.ToString()?.Contains(paymentCode) == true && Math.Abs(decimal.Parse(r?["amount"].ToString())) == Math.Abs(payment.Amount));
 
                         return records != null && records.HasValues;
                     }
