@@ -249,8 +249,8 @@ namespace Service
             {
                 try
                 {
-                    var isPayment = await _paymentBookingRepository.GetInfluencerPaymentByJobId(jobId) == null;
-                    if (!isPayment)
+                    var isPayment = await _paymentBookingRepository.GetInfluencerPaymentByJobId(jobId) != null;
+                    if (isPayment == false)
                     {
                         var offer = job.Offers.FirstOrDefault(o => o.Status == (int)EOfferStatus.Done);
                         var userGet = await _userRepository.GetUserByInfluencerId(job.InfluencerId) ?? throw new KeyNotFoundException();
