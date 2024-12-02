@@ -255,7 +255,7 @@ namespace Service
                         var offer = job.Offers.FirstOrDefault(o => o.Status == (int)EOfferStatus.Done);
                         var userGet = await _userRepository.GetUserByInfluencerId(job.InfluencerId) ?? throw new KeyNotFoundException();
                         userGet.Wallet += offer!.Price;
-                        await _userRepository.UpdateUser(user);
+                        await _userRepository.UpdateUser(userGet);
 
                         var paymentBooking = new PaymentBooking
                         {
