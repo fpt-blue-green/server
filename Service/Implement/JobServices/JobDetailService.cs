@@ -68,6 +68,7 @@ namespace Service
             }
             else
             {
+                jobDetail.IsApprove = true;
                 if (offer.TargetReaction <= data.ViewCount + data.LikesCount + data.CommentCount)
                 {
                     job.Status = (int)EJobStatus.Completed;
@@ -398,7 +399,7 @@ namespace Service
             // Lấy danh sách công việc
             var jobs = allJobDetails.Select(jd => jd.Job).Distinct().ToList();
 
-            int targetReaction = jobs.Sum(j => j.Offers.Sum(o => o.TargetReaction));
+            int targetReaction = jobs.Sum(j => j.Offers.Where(o => o.Status == (int)EOfferStatus.Done).Sum(o => o.TargetReaction));
             decimal totalFee = jobs.Sum(j => j.Offers.Sum(o => o.Price));
 
             return new CampaignJobDetailBaseDTO

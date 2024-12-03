@@ -110,7 +110,7 @@ namespace AdFusionAPI.Controllers.JobControllers
 
         [AuthRequired]
         [HttpGet("{jobId}/JobDetails")]
-        public async Task<ActionResult<List<CampaignDailyStatsDTO>>> JobDailyStatistical(Guid jobId, [FromQuery] string? link = null)
+        public async Task<ActionResult<CampaignJobDetailBaseDTO>> JobDailyStatistical(Guid jobId, [FromQuery] string? link = null)
         {
             var result = await _jobDetailService.GetJobDailyStats(jobId, link);
             return Ok(result);
@@ -118,7 +118,7 @@ namespace AdFusionAPI.Controllers.JobControllers
 
         [AuthRequired]
         [HttpGet("{jobId}/JobDetailBaseData")]
-        public async Task<ActionResult<List<CampaignDailyStatsDTO>>> GetJobDetailBaseData(Guid jobId, [FromQuery] string? link = null)
+        public async Task<ActionResult<CampaignJobDetailBaseDTO>> GetJobDetailBaseData(Guid jobId, [FromQuery] string? link = null)
         {
             var result = await _jobDetailService.GetJobDetailBaseData(jobId, link);
             return Ok(result);
