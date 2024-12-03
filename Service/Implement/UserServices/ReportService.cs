@@ -6,6 +6,7 @@ using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
 using Service.Helper;
+using Supabase.Gotrue;
 using System.Transactions;
 
 namespace Service
@@ -30,7 +31,7 @@ namespace Service
             var influReportList = await _reportRepository.GetInfluencerReportsByInfluencerId(influencerId);
             if (influReportList != null)
             {
-                if (influReportList.FirstOrDefault(x => x.ReporterId == userDTO.Id) != null)
+                if (influReportList.FirstOrDefault(x => x.ReporterId == userDTO.Id && x.ReportStatus == (int)EReportStatus.Pending) != null)
                 {
                     throw new InvalidOperationException("Không được báo cáo 1 nhà sáng tạo nội dung quá 2 lần.");
                 }
@@ -53,13 +54,29 @@ namespace Service
             await SendEmailToAdmin(influencerReport.Id);
         }
 
+        public async Task<bool> CheckIsReported(Guid influencerId, UserDTO user)
+        {
+            var influReportList = await _reportRepository.GetInfluencerReportsByInfluencerId(influencerId);
+            if (influReportList != null)
+            {
+                if (influReportList.FirstOrDefault(x => x.ReporterId == user.Id && x.ReportStatus == (int)EReportStatus.Pending) != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public async Task DeleteInfluencerReport(Guid id, UserDTO userDTO)
         {
-            var influencerReport = await _reportRepository.GetById(id);
-            if (influencerReport == null)
+            var influReportList = await _reportRepository.GetInfluencerReportsByInfluencerIdAndReporterId(id, userDTO.Id);
+            var influencerReport = influReportList.FirstOrDefault(r => r.ReportStatus == (int)EReportStatus.Pending);
+
+            if(influencerReport == null)
             {
                 throw new KeyNotFoundException();
             }
+
             if (userDTO.Role != AuthEnumContainer.ERole.Admin && userDTO.Id != influencerReport.ReporterId)
             {
                 throw new AccessViolationException();
@@ -70,7 +87,7 @@ namespace Service
 
         public async Task<InfluencerReport> GetReportById(Guid id)
         {
-            return await _reportRepository.GetById(id);
+            return await _reportRepository.GetAllById(id);
         }
 
         public async Task<FilterListResponse<ReportDTO>> GetReports(ReportFilterDTO reportFilter)

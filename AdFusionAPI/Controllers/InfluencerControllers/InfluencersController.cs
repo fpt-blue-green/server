@@ -81,6 +81,15 @@ namespace AdFusionAPI.Controllers.InfluencerControllers
             return Ok();
         }
 
+        [HttpGet("{id}/isReported")]
+        [AuthRequired]
+        public async Task<ActionResult<bool>> CheckIsReported(Guid id)
+        {
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _reportService.CheckIsReported(id, user);
+            return Ok(result);
+        }
+
         [HttpDelete("{id}/reports")]
         [AuthRequired]
         public async Task<ActionResult> DeleteInfluencerReport(Guid id)

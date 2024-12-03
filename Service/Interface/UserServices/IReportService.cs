@@ -12,5 +12,6 @@ namespace Service
         Task DeleteInfluencerReport(Guid id, UserDTO userDTO);
         Task ApproveReport(Guid id, UserDTO user, BannedUserRequestDTO userRequestDTO);
         Task RejectReport(Guid id);
+        Task<bool> CheckIsReported(Guid influencerId, UserDTO user);
     }
 }
