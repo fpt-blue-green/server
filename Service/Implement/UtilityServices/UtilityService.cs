@@ -4,7 +4,6 @@ using BusinessObjects.Helper;
 using HtmlAgilityPack;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using Serilog;
 using System.Net;
 using System.Web;
@@ -87,6 +86,12 @@ namespace Service
                 default:
                     throw new Exception("GetVideoInformation: Invalid input!");
             }
+        }
+
+        public async Task<string> GetWithDrawFee()
+        {
+            var withDrawFee = await _systemSettingService.GetSystemSetting(_configManager.WithDrawFeeKey);
+            return (decimal.Parse(withDrawFee.KeyValue) * 100).ToString();
         }
 
         #region TikTok
