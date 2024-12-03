@@ -157,7 +157,7 @@ namespace Service
             int totalLike = data.Jobs.Sum(j => j.JobDetails.Sum(jd => jd.LikesCount));
             int totalComment = data.Jobs.Sum(j => j.JobDetails.Sum(jd => jd.CommentCount));
             int totalReaction = totalView + totalLike + totalComment; // Tổng tương tác
-            int targetReaction = data.Jobs.Sum(j => j.Offers.Sum(o => o.TargetReaction)); // Tổng mục tiêu tương tác
+            int targetReaction = data.Jobs.Sum(j => j.Offers.Where(o => o.Status == (int)EOfferStatus.Done).Sum(o => o.TargetReaction)); // Tổng mục tiêu tương tác
             decimal totalFee = data.Jobs.Sum(j => j.Offers.Sum(o => o.Price)); // Tổng chi phí
 
             return new CampaignJobDetailBaseDTO

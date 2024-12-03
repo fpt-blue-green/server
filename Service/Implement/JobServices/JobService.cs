@@ -304,6 +304,19 @@ namespace Service
             {
                 try
                 {
+                    var offer = job.Offers.FirstOrDefault(o => o.Status == (int)EOfferStatus.Done);
+                    user.Wallet += offer!.Price;
+                    await _userRepository.UpdateUser(user);
+
+                    var paymentBooking = new PaymentBooking
+                    {
+                        Amount = offer!.Price,
+                        JobId = job.Id,
+                        PaymentDate = DateTime.Now,
+                        Type = (int)EPaymentType.Refund,
+                    };
+                    await _paymentBookingRepository.CreatePaymentBooking(paymentBooking);
+
                     job.Status = (int)EJobStatus.Failed;
                     await _jobRepository.UpdateJobAndOffer(job);
 
