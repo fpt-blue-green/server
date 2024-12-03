@@ -116,5 +116,13 @@ namespace AdFusionAPI.Controllers.JobControllers
             return Ok(result);
         }
 
+        [AuthRequired]
+        [HttpGet("{jobId}/JobDetailBaseData")]
+        public async Task<ActionResult<List<CampaignDailyStatsDTO>>> GetJobDetailBaseData(Guid jobId, [FromQuery] string? link = null)
+        {
+            var result = await _jobDetailService.GetJobDetailBaseData(jobId, link);
+            return Ok(result);
+        }
+
     }
 }

@@ -205,7 +205,7 @@ namespace Repositories
             {
                 var result = await context.JobDetails
 										.Where(j => j.JobId == jobId && j.Link == link && j.IsApprove == true)
-										.Include(j => j.Job)
+										.Include(j => j.Job).ThenInclude(j => j.Offers)
 										.ToListAsync();
 				return result;
             }
@@ -217,7 +217,7 @@ namespace Repositories
             {
                 var result = await context.JobDetails
                                         .Where(j => j.JobId == jobId && j.IsApprove == true)
-                                        .Include(j => j.Job)
+                                        .Include(j => j.Job).ThenInclude(j => j.Offers)
                                         .ToListAsync();
                 return result;
             }

@@ -375,6 +375,42 @@ namespace Service
 
             return dailyStats!;
         }
+
+        public async Task<CampaignJobDetailBaseDTO> GetJobDetailBaseData(Guid jobId, string? link)
+        {
+            var allJobDetails = new List<JobDetails>();
+
+            if (link != null)
+            {
+                link = HttpUtility.UrlDecode(link);
+                allJobDetails = await _campaignRepository.GetDailyJobStatus(jobId, link);
+            }
+            else
+            {
+                allJobDetails = await _campaignRepository.GetAllDailyJobStatus(jobId);
+            }
+
+            int totalView = allJobDetails.Sum(jd => jd.ViewCount);
+            int totalLike = allJobDetails.Sum(jd => jd.LikesCount);
+            int totalComment = allJobDetails.Sum(jd => jd.CommentCount);
+            int totalReaction = totalView + totalLike + totalComment;
+
+            // Lấy danh sách công việc
+            var jobs = allJobDetails.Select(jd => jd.Job).Distinct().ToList();
+
+            int targetReaction = jobs.Sum(j => j.Offers.Sum(o => o.TargetReaction));
+            decimal totalFee = jobs.Sum(j => j.Offers.Sum(o => o.Price));
+
+            return new CampaignJobDetailBaseDTO
+            {
+                TotalView = totalView,
+                TotalLike = totalLike,
+                TotalComment = totalComment,
+                TotalReaction = totalReaction,
+                TargetReaction = targetReaction,
+                TotalFee = totalFee
+            };
+        }
         #endregion
     }
 }

@@ -259,7 +259,6 @@ namespace Service
 			}
 		}
 
-
 		protected async Task<decimal> GetWithDrawFee()
 		{
 			var fee = await _systemSettingRepository.GetSystemSetting(_configManager.WithDrawFeeKey) ?? throw new Exception("Has error when get WithDraw Fee");
@@ -402,7 +401,6 @@ namespace Service
 			}
 		}
 		#endregion
-
 
 		public async Task<PaymentCollectionLinkResponse> UpdatePremium(UpdatePremiumRequestDTO updatePremiumRequestDTO, UserDTO userDto)
 		{
