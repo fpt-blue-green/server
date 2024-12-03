@@ -45,7 +45,7 @@ namespace Repositories.Implement
             }
         }
 
-        public async Task<InfluencerReport> GetById(Guid id)
+        public async Task<InfluencerReport> GetAllById(Guid id)
         {
             using (var context = new PostgresContext())
             {
@@ -57,6 +57,18 @@ namespace Repositories.Implement
             }
         }
 
+        public async Task<InfluencerReport> GetById(Guid id)
+        {
+            using (var context = new PostgresContext())
+            {
+                var influencerReport = await context.InfluencerReports
+                    .Where(x => x.ReportStatus == (int)EReportStatus.Pending)
+                    .Include(x => x.Influencer)
+                    .Include(x => x.Reporter)
+                    .SingleOrDefaultAsync(i => i.Id == id);
+                return influencerReport!;
+            }
+        }
         public async Task<IEnumerable<InfluencerReport>> GetReportWithSameType(Guid id)
         {
             using (var context = new PostgresContext())
@@ -80,6 +92,17 @@ namespace Repositories.Implement
             {
                 var influencerReports = await context.InfluencerReports
                     .Where(i => i.InfluencerId == id)
+                    .ToListAsync();
+                return influencerReports;
+            }
+        }
+
+        public async Task<IEnumerable<InfluencerReport>> GetInfluencerReportsByInfluencerIdAndReporterId(Guid id, Guid reporterId)
+        {
+            using (var context = new PostgresContext())
+            {
+                var influencerReports = await context.InfluencerReports
+                    .Where(i => i.InfluencerId == id && i.ReporterId == reporterId)
                     .ToListAsync();
                 return influencerReports;
             }
