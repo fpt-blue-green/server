@@ -17,7 +17,8 @@ namespace Service
     {
         private static IUserDeviceRepository _userDeviceRepository = new UserDeviceRepository();
         private static readonly IUserRepository _userRepository = new UserRepository();
-        private static readonly IPaymentRepository _paymentRepository = new PaymentRepository();
+		private static readonly IBrandRepository _brandRepository = new BrandRepository();
+		private static readonly IPaymentRepository _paymentRepository = new PaymentRepository();
         private static ILogger _loggerService = new LoggerService().GetDbLogger();
         private static ISecurityService _securityService = new SecurityService();
         private static ConfigManager _configManager = new ConfigManager();
@@ -191,20 +192,23 @@ namespace Service
             var currentAmount = (await _userRepository.GetUserById(userDTO.Id)).Wallet;
             var paymentWithDraw = await _paymentRepository.GetWithDrawPaymentHistoryByUserId(userDTO.Id);
             var spendAmount = paymentWithDraw.Sum(p => p.NetAmount) ?? 0;
-
+            var result = new UserWalletDTO();
             if (userDTO.Role == ERole.Brand)
             {
                 var userPayments = await _userRepository.GetUserPayments(userDTO.Id);
                 spendAmount += userPayments.Where(p => p.Type == EPaymentType.BrandPayment
                                                                 || p.Type == EPaymentType.BuyPremium)
                                                            .Sum(p => p.Amount);
-            }
 
-            return new UserWalletDTO
-            {
-                CurrentAmount = currentAmount,
-                SpendAmount = spendAmount
-            };
+				var brand = await _brandRepository.GetByUserId(userDTO.Id);
+                if(brand != null && brand.IsPremium)
+                {
+                    result.PremiumTimeExpired = brand.PremiumValidTo;
+				}
+            }
+			result.CurrentAmount = currentAmount;
+            result.SpendAmount = spendAmount;
+			return result;
         }
         public async Task<List<UserDTO>> GetUserToContact(string searchContent)
         {
