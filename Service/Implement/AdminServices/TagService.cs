@@ -125,10 +125,10 @@ namespace Service
             }
         }
 
-        public async Task<IEnumerable<TagDTO>> GetTagById(Guid Id)
+        public async Task<TagDTO> GetTagById(Guid Id)
         {
             var tags = await _tagRepository.GetById(Id);
-            return _mapper.Map<IEnumerable<TagDTO>>(tags);
+            return _mapper.Map<TagDTO>(tags);
         }
 
     }

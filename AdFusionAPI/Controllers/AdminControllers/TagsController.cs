@@ -29,7 +29,7 @@ namespace AdFusionAPI.Controllers.AdminControllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<TagDTO>>> GetTagById(Guid id)
+        public async Task<ActionResult<TagDTO>> GetTagById(Guid id)
         {
             var result = await _tagService.GetTagById(id);
             return Ok(result);

@@ -7,5 +7,7 @@ namespace Service
 
 		Task<ChannelStatDTO> GetChannelProfile(int platform, string channelId);
 		Task<ChannelVideoStatDTO> GetVideoInformation(int platform, string url);
-	}
+		Task<string> GetWithDrawFee();
+
+    }
 }

@@ -19,7 +19,7 @@ public class LoggerService
     private void ConfigureLogger()
     {
         var configuration = new ConfigurationBuilder()
-            .AddJsonFile("Resources/appsettings.json")
+            .AddJsonFile("appsettings.json")
             .Build();
 
         // Logger cho console

@@ -86,5 +86,13 @@ namespace AdFusionAPI.Controllers.SystemControllers
             var link = await _videoCallService.GetAccessLinkByRole(name, user);
             return Ok(link);
         }
+
+
+        [HttpGet("withDrawFee")]
+        public async Task<ActionResult<string>> GetWithDrawFee()
+        {
+            var result = await _utilityService.GetWithDrawFee();
+            return Ok(result);
+        }
     }
 }
