@@ -4,7 +4,8 @@ namespace BusinessObjects
     {
         public decimal CurrentAmount { get; set; }
         public decimal? SpendAmount { get; set; }
-    }
+        public DateTime? PremiumTimeExpired { get; set; }
+	}
 
     public class UserPaymentDTO
     {
