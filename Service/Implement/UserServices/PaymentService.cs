@@ -44,11 +44,13 @@ namespace Service
 			var request = await _paymentRepository.GetPaymentHistoryById(requestId);
 			var bankInfor = request.BankInformation.Split(' ') ?? throw new Exception("Bank Information are null or not correct!");
 			var accountName = HttpUtility.UrlEncode(request?.User?.DisplayName ?? "");
+			var fee = await _systemSettingRepository.GetSystemSetting(_configManager.WithDrawFeeKey);
+			var totalAmount = request?.Amount - (request?.Amount * decimal.Parse(fee.KeyValue!)) ?? throw new InvalidOperationException("Số tiền không hợp lệ.");
 
-			vietQR = vietQR.Replace("<ACCOUNT_NO>", bankInfor[1])
+            vietQR = vietQR.Replace("<ACCOUNT_NO>", bankInfor[1])
 				.Replace("<BANK_ID>", bankInfor[0])
 				.Replace("<TEMPLATE>", "compact2")
-				.Replace("<AMOUNT>", request?.Amount.ToString())
+				.Replace("<AMOUNT>", totalAmount.ToString())
 				.Replace("<DESCRIPTION>", requestId.ToString())
 				.Replace("<ACCOUNT_NAME>", accountName);
 

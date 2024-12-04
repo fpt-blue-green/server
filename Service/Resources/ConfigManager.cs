@@ -33,7 +33,7 @@
         public readonly string DailyVideoCallKey = "VideoCallAPIKey";
         public readonly string DailyVideoNameRegex= @"[^A-Za-z0-9_-]";
 
-        public readonly string WithDrawFeeKey= @"WithDrawPee";
+        public readonly string WithDrawFeeKey= @"WithDrawFee";
         public readonly string UpdatePremiumDiscount = "UpdatePremiumDiscount";
         public readonly string PremiumPrice = "PremiumPrice";
     }
