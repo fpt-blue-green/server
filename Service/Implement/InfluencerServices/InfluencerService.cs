@@ -9,6 +9,7 @@ using Serilog;
 using Service.Helper;
 using Supabase;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Transactions;
 using static BusinessObjects.JobEnumContainer;
@@ -30,6 +31,7 @@ namespace Service
         private static ConfigManager _configManager = new ConfigManager();
         private readonly IMapper _mapper;
         private readonly Client _supabase;
+        private readonly OpenAIEmbeddingService _openAIEmbeddingService = new OpenAIEmbeddingService();
 
         public InfluencerService(IMapper mapper, Client supabase)
         {
@@ -206,6 +208,7 @@ namespace Service
                         _mapper.Map(influencerRequestDTO, influencerDTO);
                         var influencerUpdated = _mapper.Map<Influencer>(influencerDTO);
                         await _influencerRepository.Update(influencerUpdated);
+                        UpdateEmbedding(influencerUpdated.Id);
                     }
 
                     var currentUser = await _userRepository.GetUserById(user.Id);
@@ -320,7 +323,7 @@ namespace Service
                         await _influencerRepository.RemoveTagOfInfluencer(influencerId, tag.Id);
                     }
                 }
-
+                UpdateEmbedding(influencerId);
             }
             return "Cập nhật tag thành công.";
         }
@@ -437,6 +440,7 @@ namespace Service
                 influencer.IsPublish = true;
                 var influencerUpdated = _mapper.Map<Influencer>(influencer);
                 await _influencerRepository.Update(influencerUpdated);
+                UpdateEmbedding(influencer.Id);
             }
             catch
             {
@@ -500,6 +504,69 @@ namespace Service
             };
         }
 
+        private string CreateInfluencerPrompt(Influencer influencer)
+        {
+            StringBuilder sb = new StringBuilder();
 
+            // Thêm thông tin chính
+            sb.Append($"{influencer.FullName} là một nhà sáng tạo nội dung nổi bật chuyên về {influencer.Summarise}. ");
+            sb.Append($"Họ tự mô tả mình là: \"{influencer.Description}\". ");
+
+            if (!string.IsNullOrWhiteSpace(influencer.Address))
+            {
+                sb.Append($"Địa chỉ chính hiện tại: {influencer.Address}. ");
+            }
+
+            if (influencer.Tags?.Any() == true)
+            {
+                sb.Append("Các lĩnh vực nội dung chính bao gồm: ");
+                var tagStr = string.Join(", ", influencer.Tags.Select(tag => tag.Name));
+                sb.Append($"{tagStr}. ");
+            }
+
+            if (influencer.Channels?.Any() == true)
+            {
+                sb.Append("Hoạt động trên các kênh: ");
+                foreach (var channel in influencer.Channels)
+                {
+                    var platform = "";
+                    switch ((EPlatform)channel.Platform)
+                    {
+                        case EPlatform.Tiktok:
+                            platform = "TikTok";
+                            break;
+                        case EPlatform.Instagram:
+                            platform = "Instagram";
+                            break;
+                        case EPlatform.Youtube:
+                            platform = "YouTube";
+                            break;
+                        default:
+                            break;
+                    }
+                    sb.Append($"{platform} với {channel.FollowersCount:N0} người theo dõi, ");
+                }
+                sb.Length -= 2; // Loại bỏ dấu phẩy cuối cùng
+                sb.Append(". ");
+            }
+            if (influencer.AveragePrice.HasValue)
+            {
+                sb.Append($"Giá trung bình cho mỗi công việc là {influencer.AveragePrice.Value:C0}đ. ");
+            }
+
+            return sb.ToString();
+        }
+
+        private async void UpdateEmbedding(Guid influencerId)
+        {
+            var influencer = await _influencerRepository.GetById(influencerId);
+
+            if (influencer != null && influencer.IsPublish) 
+            {
+                var prompt = CreateInfluencerPrompt(influencer);
+                influencer.Embedding = await _openAIEmbeddingService.GetEmbeddingAsync(prompt);
+                await _influencerRepository.Update(influencer);
+            }
+        }
     }
 }

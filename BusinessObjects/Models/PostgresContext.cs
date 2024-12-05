@@ -356,6 +356,7 @@ DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.RateAverage).HasDefaultValueSql("'0'::numeric");
+            entity.Property(e => e.Embedding).HasColumnType("vector(1536)");
 
             entity.HasOne(d => d.User).WithOne(p => p.Influencer)
                 .HasForeignKey<Influencer>(d => d.UserId)
