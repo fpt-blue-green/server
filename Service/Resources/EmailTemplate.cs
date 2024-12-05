@@ -310,9 +310,6 @@
                                 <p>
                                   Vui lòng xem xét và phản hồi để xác nhận sự tham gia của Nhà sáng tạo nội dung.
                                 </p>
-                                <div class=""button-container"">
-                                  <a href=""{JobLink}"" class=""button"">Xem Chi Tiết</a>
-                                </div>
                               </div>
                               <div class=""email-footer"">
                                 <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
@@ -413,9 +410,6 @@
                                             <li>Mô tả: {JobDescription}</li>
                                         </ul>
                                         <p>Vui lòng nhấn vào nút bên dưới để xem thêm chi tiết và chấp nhận công việc:</p>
-                                        <div class=""button-container"">
-                                            <a href=""{JobLink}"" class=""button"">Xem Chi Tiết</a>
-                                        </div>
                                     </div>
                                     <div class=""email-footer"">
                                         <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
@@ -517,9 +511,6 @@
                                             <li>Mô tả: {Description}</li>
                                         </ul>
                                         <p>Để biết thêm chi tiết, vui lòng truy cập vào:</p>
-                                        <div class=""button-container"">
-                                            <a href=""{DetailsLink}"" class=""button"">Xem Chi Tiết</a>
-                                        </div>
                                     </div>
                                     <div class=""email-footer"">
                                         <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
@@ -618,9 +609,6 @@
                                                         <li>Thời gian phản hồi: {ResponseAt}</li>
                                                     </ul>
                                                     <p>{EndQuote}</p>
-                                                    <div class=""button-container"">
-                                                        <a href=""{ReportLink}"" class=""button"">Xem Chi Tiết</a>
-                                                    </div>
                                                 </div>
                                                 <div class=""email-footer"">
                                                     <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
@@ -697,8 +685,7 @@
                             </div>
                             <div class=""email-body"">
                                 <h2>Xin chào Admin,</h2>
-                                <p>Chúng tôi xin thông báo rằng Nhà sáng tạo nội dung <strong>{InfluencerName}</strong> đã vi phạm chính sách của trang web:</p>
-                                <p><strong>{Reason}</strong></p>
+                                <p>Chúng tôi xin thông báo rằng Nhà sáng tạo nội dung <strong>{InfluencerName}</strong> đã vi phạm chính sách của trang web: <strong>{Reason}</strong></p>
                                 <p>Thông tin chi tiết về sai phạm của Nhà sáng tạo nội dung:</p>
                                 <ul>
                                     <li>Người báo cáo: {Reporter}</li>
@@ -1040,9 +1027,6 @@
                                                         <li>Thời gian bắt đầu: {StartDate}</li>
                                                         <li>Thời gian dự kiến kết thúc: {EndDate}</li>
                                                     </ul>
-                                                    <div class=""button-container"">
-                                                        <a href=""{CampaignLink}"" class=""button"">Xem Chi Tiết</a>
-                                                    </div>
                                                 </div>
                                                 <div class=""email-footer"">
 	                                            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
@@ -1264,9 +1248,6 @@
                                                     <p>
                                                         Vui lòng xem xét và xử lý yêu cầu này theo quy trình để đảm bảo giao dịch được thực hiện chính xác và kịp thời.
                                                     </p>
-                                                    <div class=""button-container"">
-                                                        <a href=""{Link}"" class=""button"">Xem Chi Tiết</a>
-                                                    </div>
                                                 </div>
                                                 <div class=""email-footer"">
                                                     <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
@@ -1379,9 +1360,6 @@
  		                                    <li>Thời gian phản hồi: {ResponseAt}</li>
                                                     <li>Phản hồi từ quản trị viên: {Description}</li>
                                                 </ul>
-                                                <div class=""button-container"">
-                                                    <a href=""{Link}"" class=""button"">Xem Chi Tiết</a>
-                                                </div>
  	                                      <p>Các yêu cầu đã được xem xét rất kỹ dựa trên điều khoản dịch vụ của hệ thống. Tuy nhiên, nếu cảm thấy quyết định này chưa thỏa đáng, vui lòng liên hệ ngay với quản trị viên.</p>
                                             </div>
                                             <div class=""email-footer"">
@@ -1396,6 +1374,7 @@
 
                                     </html>";
 		#endregion
+
 		#region updatePremium
 		public string ApproveUpdatePremium = @"
         <!DOCTYPE html>
@@ -1486,9 +1465,6 @@
                   của bạn sẽ trở thành Premium đến hết ngày {validDate}
                 </p>
                 <p>Hãy tận hưởng những đặc quyền của Premium .</p>
-                <div class=""button-container"">
-                  <a href=""{Link}"" class=""button"">Xem Chi Tiết</a>
-                </div>
               </div>
               <div class=""email-footer"">
                 <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
@@ -1693,9 +1669,6 @@
                                                             <li>Mô tả: {Description}</li>
                                                         </ul>
                                                         <p>{ResultMessage}</p>
-                                                        <div class=""button-container"">
-                                                            <a href=""{JobDetailsLink}"" class=""button"">Xem Chi Tiết</a>
-                                                        </div>
                                                     </div>
                                                     <div class=""email-footer"">
                                                         <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>

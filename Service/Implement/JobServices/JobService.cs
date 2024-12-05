@@ -279,7 +279,7 @@ namespace Service
             }
 
             //send mail
-            var resultMessage = "Lưu ý: Khoản tiền công của bạn sẽ được chuyển khoản sau 3 ngày làm việc, trừ khi có phản hồi từ phía Nhãn hàng trong thời gian này. Điều này nhằm đảm bảo rằng mọi công việc và thanh toán đều được xử lý nhanh chóng và minh bạch. Chúng tôi rất mong nhận được sự hợp tác của bạn và luôn sẵn sàng hỗ trợ nếu bạn có bất kỳ thắc mắc nào liên quan đến quá trình thanh toán.";
+            var resultMessage = "Lưu ý: Khoản tiền sẽ được chuyển đến ví của bạn. Tuy nhiên nếu trong vòng 24h mà vẫn không nhận được tiền, vui lòng liên hệ ngay cho chúng tôi. Chúng tôi rất mong nhận được sự hợp tác của bạn và luôn sẵn sàng hỗ trợ nếu bạn có bất kỳ thắc mắc nào liên quan đến quá trình thanh toán.";
             await SendMailStatus(job, "Đã hoàn thành", resultMessage);
         }
 
@@ -328,7 +328,7 @@ namespace Service
                 }
             }
             //send mail
-            var resultMessage = "Lưu ý: Công việc của bạn đã bị đánh dấu là thất bại. Tuy nhiên, bạn vẫn có 3 ngày để phản hồi với Nhãn hàng nếu có bất kỳ sai sót hoặc vấn đề nào cần được xem xét lại. Đây là cơ hội để đảm bảo rằng mọi thông tin đều chính xác và minh bạch. Nếu cần hỗ trợ thêm hoặc có câu hỏi nào, vui lòng liên hệ với chúng tôi.";
+            var resultMessage = "Lưu ý: Công việc của bạn đã bị đánh dấu là thất bại. Tuy nhiên, bạn vẫn có phản hồi với Nhãn hàng nếu có bất kỳ sai sót hoặc vấn đề nào cần được xem xét lại. Nếu cần hỗ trợ thêm hoặc có câu hỏi nào, vui lòng liên hệ với chúng tôi.";
             await SendMailStatus(job, "Đã thất bại", resultMessage);
         }
 
@@ -497,7 +497,7 @@ namespace Service
                 var brandUser = job.Campaign.Brand.User;
                 var offer = job.Offers.FirstOrDefault(f => f.Status == (int)EOfferStatus.Done);
 
-                var body = _emailTemplate.brandPaymentOffer
+                var body = _emailTemplate.jobStatusTemplate
                     .Replace("{InfluencerName}", influencerUser.DisplayName)
                     .Replace("{CampaignName}", job.Campaign.Name)
                     .Replace("{JobStatus}", status)
