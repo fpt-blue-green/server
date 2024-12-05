@@ -33,6 +33,8 @@ public partial class Influencer
 
     public decimal? AveragePrice { get; set; }
 
+    public float[]? Embedding { get; set; }
+
     public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
