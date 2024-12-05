@@ -32,11 +32,11 @@ namespace Service
             var user = new User();
             if (loginDTO.Password == null)
             {
-                user = await _userRepository.GetUserByEmail(loginDTO.Email);
-                if (user.Provider == (int)EAccountProvider.AdFusionAccount)
+                if (loginDTO.Provider == null && loginDTO.Provider!.Value == EAccountProvider.AdFusionAccount)
                 {
-                    throw new Exception();
+                    throw new AccessViolationException();
                 }
+                user = await _userRepository.GetUserByEmail(loginDTO.Email);
             }
             else
             {
