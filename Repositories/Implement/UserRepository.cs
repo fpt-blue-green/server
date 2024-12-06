@@ -194,6 +194,7 @@ namespace Repositories
                 var user = await context.Users
                     .Include(u => u.Influencer)
                     .Include(u => u.BannedUserUsers)
+                    .Include(u => u.UserDevices)
                     .FirstOrDefaultAsync(u => u.Email == email);
                 return user!;
             }

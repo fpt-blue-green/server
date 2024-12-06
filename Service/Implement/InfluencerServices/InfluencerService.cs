@@ -187,7 +187,7 @@ namespace Service
                     }
 
                     //Kiểm tra regex có đúng định dạng hay không
-                    var influencerDTO = await GetInfluencerByUserId(user.Id);
+                    var influencerDTO = await _influencerRepository.GetByUserId(user.Id);
 
                     // Nếu chưa có, tạo mới
                     if (influencerDTO == null)
@@ -208,7 +208,7 @@ namespace Service
                         _mapper.Map(influencerRequestDTO, influencerDTO);
                         var influencerUpdated = _mapper.Map<Influencer>(influencerDTO);
                         await _influencerRepository.Update(influencerUpdated);
-                        UpdateEmbedding(influencerUpdated.Id);
+                        await UpdateEmbedding(influencerUpdated.Id);
                     }
 
                     var currentUser = await _userRepository.GetUserById(user.Id);
@@ -323,7 +323,7 @@ namespace Service
                         await _influencerRepository.RemoveTagOfInfluencer(influencerId, tag.Id);
                     }
                 }
-                UpdateEmbedding(influencerId);
+                await UpdateEmbedding(influencerId);
             }
             return "Cập nhật tag thành công.";
         }
@@ -557,11 +557,11 @@ namespace Service
             return sb.ToString();
         }
 
-        private async void UpdateEmbedding(Guid influencerId)
+        private async Task UpdateEmbedding(Guid influencerId)
         {
             var influencer = await _influencerRepository.GetById(influencerId);
 
-            if (influencer != null && influencer.IsPublish) 
+            if (influencer != null && influencer.IsPublish)
             {
                 var prompt = CreateInfluencerPrompt(influencer);
                 influencer.Embedding = await _openAIEmbeddingService.GetEmbeddingAsync(prompt);
