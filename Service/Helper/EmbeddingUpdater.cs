@@ -18,7 +18,19 @@ namespace Service.Helper
       StringBuilder sb = new StringBuilder();
 
       // Thêm thông tin chính
-      sb.Append($"{influencer.FullName} là một nhà sáng tạo nội dung nổi bật chuyên về {influencer.Summarise}. ");
+      sb.Append($"{influencer.FullName} là một nhà sáng tạo nội dung ");
+      switch ((EGender)influencer.Gender)
+      {
+        case EGender.Male:
+          sb.Append("nam ");
+          break;
+        case EGender.Female:
+          sb.Append("nữ ");
+          break;
+        default:
+          break;
+      }
+      sb.Append($"nổi bật chuyên về {influencer.Summarise}. ");
       sb.Append($"Họ tự mô tả mình là: \"{influencer.Description}\". ");
 
       if (!string.IsNullOrWhiteSpace(influencer.Address))
