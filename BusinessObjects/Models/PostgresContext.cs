@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BusinessObjects.Helper;
 using Microsoft.EntityFrameworkCore;
+using Pgvector.EntityFrameworkCore;
 
 namespace BusinessObjects.Models;
 
@@ -15,7 +16,7 @@ public partial class PostgresContext : DbContext
         : base(options)
     {
     }
-// Override SaveChangesAsync
+    // Override SaveChangesAsync
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // Gọi hàm tùy chỉnh để cập nhật ModifiedAt trước khi lưu thay đổi
@@ -118,14 +119,14 @@ public partial class PostgresContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("User Id=postgres.umpnoqjoitnafyrqqcoq;Password=Wn5n3WVMGnk98UKj;Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;");
+        => optionsBuilder.UseNpgsql("User Id=postgres.umpnoqjoitnafyrqqcoq;Password=Wn5n3WVMGnk98UKj;Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;", o => o.UseVector());
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
+        DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
         modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
         modelBuilder.Entity<Campaign>().HasQueryFilter(u => u.IsDeleted == false);
-        modelBuilder.Entity<InfluencerReport>().HasQueryFilter(u => u.ReportStatus == (int)EReportStatus.Pending); 
+        modelBuilder.Entity<InfluencerReport>().HasQueryFilter(u => u.ReportStatus == (int)EReportStatus.Pending);
         modelBuilder
             .HasPostgresEnum("auth", "aal_level", new[] { "aal1", "aal2", "aal3" })
             .HasPostgresEnum("auth", "code_challenge_method", new[] { "s256", "plain" })
@@ -140,6 +141,7 @@ DateTimeConverter.ConfigureDateTimeConversion(modelBuilder);
             .HasPostgresExtension("extensions", "pgcrypto")
             .HasPostgresExtension("extensions", "pgjwt")
             .HasPostgresExtension("extensions", "uuid-ossp")
+            .HasPostgresExtension("vector")
             .HasPostgresExtension("graphql", "pg_graphql")
             .HasPostgresExtension("pgsodium", "pgsodium")
             .HasPostgresExtension("vault", "supabase_vault");

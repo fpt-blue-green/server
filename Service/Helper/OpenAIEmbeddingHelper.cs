@@ -1,18 +1,16 @@
 ﻿using Service.Implement.UtilityServices;
 using Service.Interface.UtilityServices;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
-public class OpenAIEmbeddingService
+public class OpenAIEmbeddingHelper
 {
     private readonly HttpClient _httpClient;
     private static readonly IEnvService _envService = new EnvService();
     private const string ApiUrl = "https://api.openai.com/v1/embeddings";
     private string ApiKey = "YOUR_API_KEY"; // Thay bằng API Key của bạn
 
-    public OpenAIEmbeddingService()
+    public OpenAIEmbeddingHelper()
     {
         ApiKey = _envService.GetEnv("OPENAI_KEY");
         _httpClient = new HttpClient();
