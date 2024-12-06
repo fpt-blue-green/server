@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Pgvector;
 
 namespace BusinessObjects.Models;
 
@@ -33,7 +33,8 @@ public partial class Influencer
 
     public decimal? AveragePrice { get; set; }
 
-    public float[]? Embedding { get; set; }
+    [Column(TypeName = "vector(1536)")]
+    public Vector? Embedding { get; set; }
 
     public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
