@@ -500,5 +500,36 @@ namespace Service
                 Items = influencerJobDTOs
             };
         }
+
+        public async Task<List<InfluencerDTO>> GetSimilarInfluencers(Guid id)
+        {
+            var influencer = await _influencerRepository.GetById(id);
+            if (influencer == null || influencer.Embedding == null)
+            {
+                return new List<InfluencerDTO>();
+            }
+            var influencers = await _influencerRepository.GetSimilarInfluencers(influencer.Embedding);
+            var influencersDTO = _mapper.Map<List<InfluencerDTO>>(influencers.Where(i => i.Id != id).Take(10).ToList());
+            return influencersDTO;
+        }
+
+        public async Task<FilterListResponse<InfluencerDTO>> GetInfluencersByAISearch(string prompt, int pageIndex, int pageSize)
+        {
+            var openAiHelper = new OpenAIEmbeddingHelper();
+            var embedding = await openAiHelper.GetEmbeddingAsync(prompt);
+            var influencers = await _influencerRepository.GetSimilarInfluencers(new Pgvector.Vector(embedding));
+
+            var pagedInfluencers = influencers
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new FilterListResponse<InfluencerDTO>
+            {
+                TotalCount = influencers.Count(),
+                Items = _mapper.Map<List<InfluencerDTO>>(pagedInfluencers)
+            };
+
+        }
     }
 }

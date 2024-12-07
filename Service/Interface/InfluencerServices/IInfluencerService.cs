@@ -22,5 +22,7 @@ namespace Service
         Task DeleteInfluencer(Guid id);
         Task<List<string>> UploadContentImages(List<Guid> imageIds, List<IFormFile> contentFiles, UserDTO user, string folder);
         Task<FilterListResponse<InfluencerJobDTO>> GetInfluencerWithJobByCampaginId(Guid campaignId, InfluencerJobFilterDTO filter, UserDTO user);
+        Task<List<InfluencerDTO>> GetSimilarInfluencers(Guid id);
+        Task<FilterListResponse<InfluencerDTO>> GetInfluencersByAISearch(string prompt, int pageIndex, int pageSize);
     }
 }

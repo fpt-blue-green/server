@@ -1,5 +1,6 @@
 ﻿
 using BusinessObjects.Models;
+using Pgvector;
 
 namespace Repositories
 {
@@ -17,5 +18,6 @@ namespace Repositories
 		Task Create(Influencer influencer);
         Task Update(Influencer influencer);
         Task Delete(Guid id);
+        Task<IEnumerable<Influencer>> GetSimilarInfluencers(Vector embedding);
     }
 }

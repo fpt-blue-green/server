@@ -68,6 +68,20 @@ namespace AdFusionAPI.Controllers.InfluencerControllers
             var result = await _influencerService.GetInfluencerBySlug(slug);
             return Ok(result);
         }
+
+        [HttpGet("{id}/similar")]
+        public async Task<ActionResult<List<InfluencerDTO>>> GetSimilarInfluencers(Guid id)
+        {
+            var result = await _influencerService.GetSimilarInfluencers(id);
+            return Ok(result);
+        }
+
+        [HttpGet("aiSearch")]
+        public async Task<ActionResult<List<InfluencerDTO>>> GetInfluencersByAISearch(string prompt, int pageIndex = 1, int pageSize = 50)
+        {
+            var result = await _influencerService.GetInfluencersByAISearch(prompt, pageIndex, pageSize);
+            return Ok(result);
+        }
         #endregion
 
         #region Report
