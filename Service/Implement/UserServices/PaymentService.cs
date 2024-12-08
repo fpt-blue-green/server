@@ -237,10 +237,10 @@ namespace Service
 
 						if (matchingRecord != null)
 						{
+							var fee = await GetWithDrawFee();
 							// Kiểm tra giá trị tuyệt đối của amount
 							var recordAmount = Math.Abs(decimal.Parse(matchingRecord["amount"]?.ToString()));
-							var paymentAmount = Math.Abs(payment.Amount);
-
+							var paymentAmount = Math.Abs(payment.Amount - payment.Amount * (fee/1000));
 							if (recordAmount == paymentAmount)
 							{
 								return true;
