@@ -97,6 +97,8 @@ public partial class PostgresContext : DbContext
 
     public virtual DbSet<Job> Jobs { get; set; }
 
+    public virtual DbSet<Embedding> Embeddings { get; set; }
+
     public virtual DbSet<JobDetails> JobDetails { get; set; }
 
     public virtual DbSet<Message> Messages { get; set; }
@@ -258,6 +260,28 @@ public partial class PostgresContext : DbContext
                 .HasConstraintName("CampaignContents_CampaignId_fkey");
         });
 
+
+        modelBuilder.Entity<Embedding>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("Embedding_pkey");
+
+            entity.ToTable("Embedding");
+
+            entity.HasIndex(e => e.CampaignId, "Embedding_CampaignId_key").IsUnique();
+
+            entity.HasIndex(e => e.InfluencerId, "Embedding_InfluencerId_key").IsUnique();
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+
+            entity.HasOne(d => d.Campaign).WithOne(p => p.Embedding)
+                .HasForeignKey<Embedding>(d => d.CampaignId)
+                .HasConstraintName("embedding_campaignid_fkey");
+
+            entity.HasOne(d => d.Influencer).WithOne(p => p.Embedding)
+                .HasForeignKey<Embedding>(d => d.InfluencerId)
+                .HasConstraintName("embedding_influencerid_fkey");
+        });
+
         modelBuilder.Entity<CampaignImage>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("images1_pkey");
@@ -358,7 +382,6 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(now() AT TIME ZONE 'utc'::text)");
             entity.Property(e => e.RateAverage).HasDefaultValueSql("'0'::numeric");
-            entity.Property(e => e.Embedding).HasColumnType("vector(1536)");
 
             entity.HasOne(d => d.User).WithOne(p => p.Influencer)
                 .HasForeignKey<Influencer>(d => d.UserId)
