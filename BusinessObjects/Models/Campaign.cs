@@ -41,5 +41,7 @@ public partial class Campaign
 
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
 
+    public virtual Embedding? Embedding { get; set; }
+
     public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
 }

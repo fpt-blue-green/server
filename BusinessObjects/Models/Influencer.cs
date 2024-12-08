@@ -33,14 +33,13 @@ public partial class Influencer
 
     public decimal? AveragePrice { get; set; }
 
-    [Column(TypeName = "vector(1536)")]
-    public Vector? Embedding { get; set; }
-
     public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+
+    public virtual Embedding? Embedding { get; set; }
 
     public virtual ICollection<InfluencerImage> InfluencerImages { get; set; } = new List<InfluencerImage>();
 

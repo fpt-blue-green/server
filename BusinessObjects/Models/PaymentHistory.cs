@@ -13,7 +13,7 @@ public partial class PaymentHistory
 
     public decimal? NetAmount { get; set; }
 
-    public string BankInformation { get; set; }
+    public string? BankInformation { get; set; }
 
     public int? Status { get; set; }
 

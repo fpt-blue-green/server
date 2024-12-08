@@ -45,7 +45,19 @@ namespace Repositories
         {
             using (var context = new PostgresContext())
             {
-                var influencer = await context.Influencers.FirstOrDefaultAsync(i => i.Id == id);
+                var influencer = await context.Influencers
+                    .Include(i => i.Tags)
+                    .Include(i => i.Channels)
+                    .FirstOrDefaultAsync(i => i.Id == id);
+                return influencer!;
+            }
+        }
+
+        public async Task<Influencer> GetInfluencerWithEmbeddingById(Guid id)
+        {
+            using (var context = new PostgresContext())
+            {
+                var influencer = await context.Influencers.Include(i => i.Embedding).FirstOrDefaultAsync(i => i.Id == id);
                 return influencer!;
             }
         }
@@ -180,13 +192,15 @@ namespace Repositories
             using (var context = new PostgresContext())
             {
                 var influencers = await context.Influencers
-                    .Where(i => i.Embedding!.L2Distance(embedding) < 5)
                     .Include(i => i.Channels)
                     .Include(i => i.Tags)
                     .Include(i => i.Packages)
                     .Include(i => i.InfluencerImages)
                     .Include(i => i.User)
-                    .OrderBy(i => i.Embedding!.L2Distance(embedding))
+                    .Include(i => i.Embedding)
+                    .Where(i => i.Embedding != null && i.Embedding.EmbeddingValue != null)
+                    .Where(i => i.Embedding.EmbeddingValue.L2Distance(embedding) < 5)
+                    .OrderBy(i => i.Embedding!.EmbeddingValue!.L2Distance(embedding))
                     .ToListAsync();
                 return influencers;
             }

@@ -503,14 +503,14 @@ namespace Service
 
         public async Task<List<InfluencerDTO>> GetSimilarInfluencers(Guid id)
         {
-            var influencer = await _influencerRepository.GetById(id);
+            var influencer = await _influencerRepository.GetInfluencerWithEmbeddingById(id);
             if (influencer == null || influencer.Embedding == null)
             {
                 return new List<InfluencerDTO>();
             }
-            var influencers = await _influencerRepository.GetSimilarInfluencers(influencer.Embedding);
+            var influencers = await _influencerRepository.GetSimilarInfluencers(influencer.Embedding.EmbeddingValue!);
             var influencersDTO = _mapper.Map<List<InfluencerDTO>>(influencers.Where(i => i.Id != id).Take(10).ToList());
-            return influencersDTO;
+            return null;
         }
 
         public async Task<FilterListResponse<InfluencerDTO>> GetInfluencersByAISearch(string prompt, int pageIndex, int pageSize)
