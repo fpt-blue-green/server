@@ -516,7 +516,8 @@ namespace Service
         public async Task<FilterListResponse<InfluencerDTO>> GetInfluencersByAISearch(string prompt, int pageIndex, int pageSize)
         {
             var openAiHelper = new OpenAIEmbeddingHelper();
-            var embedding = await openAiHelper.GetEmbeddingAsync(prompt);
+            var normalizedPrompt = await openAiHelper.NormalizePromptAsync(prompt);
+            var embedding = await openAiHelper.GetEmbeddingAsync(normalizedPrompt);
             var influencers = await _influencerRepository.GetSimilarInfluencers(new Pgvector.Vector(embedding));
 
             var pagedInfluencers = influencers

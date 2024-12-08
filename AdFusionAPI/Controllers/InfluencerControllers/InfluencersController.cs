@@ -77,6 +77,7 @@ namespace AdFusionAPI.Controllers.InfluencerControllers
         }
 
         [HttpGet("aiSearch")]
+        [BrandRequired]
         public async Task<ActionResult<List<InfluencerDTO>>> GetInfluencersByAISearch(string prompt, int pageIndex = 1, int pageSize = 50)
         {
             var result = await _influencerService.GetInfluencersByAISearch(prompt, pageIndex, pageSize);
