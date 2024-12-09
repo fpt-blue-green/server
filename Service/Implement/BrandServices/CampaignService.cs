@@ -16,8 +16,6 @@ namespace Service
     {
         private static readonly IBrandRepository _brandRepository = new BrandRepository();
         private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
-        private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
-        private static readonly IEmbeddingRepository _embeddingRepository = new EmbeddingRepository();
         private static readonly ICampaignImageRepository _campaignImagesRepository = new CampaignImageRepository();
         private static readonly ICampaignMeetingRoomService _campaignMeetingRoomService = new CampaignMeetingRoomService();
         private static readonly IJobRepository _jobRepository = new JobRepository();
@@ -26,7 +24,6 @@ namespace Service
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
-        private static readonly EmbeddingUpdater embeddingUpdater = new EmbeddingUpdater();
 
         public CampaignService(IMapper mapper)
         {
@@ -46,9 +43,9 @@ namespace Service
                     var brand = await _brandRepository.GetByUserId(userId);
                     var campaigns = await _campaignRepository.GetByBrandId(brand.Id);
 
-                    if (brand.IsPremium == false && campaigns.Count > 1)
+                    if (brand.IsPremium == false && campaigns.Count >= 1 )
                     {
-                        throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 2 chiến dịch. Vui lòng nâng cấp để tiếp tục sử dụng.");
+                        throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 1 chiến dịch. Vui lòng nâng cấp để tiếp tục sử dụng.");
                     }
 
                     if (campaigns.Where(s => string.Equals(s.Name, campaignDto.Name, StringComparison.OrdinalIgnoreCase)).Any())
@@ -163,7 +160,6 @@ namespace Service
             {
                 _mapper.Map(campaignDto, campaign);
                 await _campaignRepository.Update(campaign);
-                await embeddingUpdater.UpdateCampaignEmbedding(campaign.Id);
                 _loggerService.Information("Cập nhật chiến dịch thành công");
                 return campaign.Id;
             }
@@ -221,7 +217,7 @@ namespace Service
                                                 (!filter.PriceFrom.HasValue || i.Budget >= filter.PriceFrom) &&
                                                 (!filter.PriceTo.HasValue || i.Budget <= filter.PriceTo));
                     }
-                    catch { }
+                    catch (Exception e) { }
 
                 }
                 if (!string.IsNullOrEmpty(filter.Search))
@@ -313,7 +309,7 @@ namespace Service
                         await _campaignRepository.RemoveTagOfCampaign(campaignId, tag.Id);
                     }
                 }
-                await embeddingUpdater.UpdateCampaignEmbedding(campaignId);
+
             }
         }
 
@@ -410,7 +406,6 @@ namespace Service
             }
             campaign.Status = (int)ECampaignStatus.Published;
             await _campaignRepository.Update(campaign);
-            await embeddingUpdater.UpdateCampaignEmbedding(campaignId);
         }
 
         public async Task StartCampaign(Guid campaignId, UserDTO userDTO)

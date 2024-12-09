@@ -400,7 +400,7 @@ namespace Service
             var jobs = allJobDetails.Select(jd => jd.Job).Distinct().ToList();
 
             int targetReaction = jobs.Sum(j => j.Offers.Where(o => o.Status == (int)EOfferStatus.Done).Sum(o => o.TargetReaction));
-            decimal totalFee = jobs.Sum(j => j.Offers.Sum(o => o.Price));
+            decimal totalFee = jobs.Sum(j => j.Offers.Where(o => o.Status == (int)EOfferStatus.Done).Sum(o => o.Price));
 
             return new CampaignJobDetailBaseDTO
             {
