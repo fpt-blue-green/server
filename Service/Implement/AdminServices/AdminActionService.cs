@@ -19,7 +19,7 @@ namespace Service
         {
             var result = new List<AdminActionDTO>();
             var totalCount = 0;
-            var adminActions = (await _adminActionRepository.GetAdminActions()).Take(100).ToList();
+            var adminActions = (await _adminActionRepository.GetAdminActions()).ToList();
 
             totalCount = adminActions.Count();
             #region Paging

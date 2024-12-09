@@ -26,7 +26,7 @@ namespace Service
         {
             var result = new List<BannedUserDTO>();
             var totalCount = 0;
-            var bannedUsers = (await _bannedUserRepository.GetBannedUsers()).Take(100).ToList();
+            var bannedUsers = (await _bannedUserRepository.GetBannedUsers()).ToList();
 
             totalCount = bannedUsers.Count();
 
