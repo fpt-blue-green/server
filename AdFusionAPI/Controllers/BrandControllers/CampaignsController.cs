@@ -213,7 +213,7 @@ namespace AdFusionAPI.Controllers.BrandControllers
             var result = await _campaignContentService.GetCampaignContents(id, user);
             return Ok(result);
         }
-        
+
         [HttpGet("{id}/chat")]
         [BrandRequired]
         public async Task<ActionResult<CampaignChatDTO>> GetCampaignChatByCampaignId(Guid id)
@@ -221,7 +221,14 @@ namespace AdFusionAPI.Controllers.BrandControllers
             var result = await _campaignChatService.GetCampaignChatByCampaignId(id);
             return Ok(result);
         }
-        
+
+        [HttpGet("{id}/recommend/influencers")]
+        public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetRecommendInfluencers(Guid id)
+        {
+            var result = await _campaignService.GetRecommendInfluencers(id);
+            return Ok(result);
+        }
+
         /*[HttpGet("contents/{contentId}")]
 		[AuthRequired]
 		public async Task<ActionResult<PackageDTO>> GetCampaignContent(Guid contentId)

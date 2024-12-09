@@ -6,6 +6,7 @@ namespace Repositories
     {
         Task Create(Embedding embedding);
         Task<Embedding> GetEmbeddingByInfluencerId(Guid id);
+        Task<Embedding> GetEmbeddingByCampaignId(Guid id);
         Task Update(Embedding embedding);
     }
 }

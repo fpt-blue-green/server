@@ -11,6 +11,7 @@ namespace Service.Helper
     public class EmbeddingUpdater
     {
         private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
+        private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
         private static readonly OpenAIEmbeddingHelper _openAIEmbeddingHelper = new OpenAIEmbeddingHelper();
         private static readonly IEmbeddingRepository _embeddingRepository = new EmbeddingRepository();
 
@@ -24,7 +25,7 @@ namespace Service.Helper
                         - Địa chỉ: {diachi}.
                         - Lĩnh vực chính: {the}.
                         - Kênh hoạt động: {kenh}.
-                        - Giá trung bình: {gia}
+                        - Giá trung bình: {gia}.
                         ";
             StringBuilder sb = new StringBuilder(prompt);
 
@@ -78,7 +79,7 @@ namespace Service.Helper
                         default:
                             break;
                     }
-                    channelStr += ($"{platform} ({channel.FollowersCount:N0} người theo dõi), ");
+                    channelStr += $"{platform} ({channel.FollowersCount:N0} người theo dõi), ";
                 }
                 sb.Replace("{kenh}", channelStr);
 
@@ -115,6 +116,87 @@ namespace Service.Helper
                     {
                         InfluencerId = influencerId,
                         CampaignId = null,
+                        EmbeddingValue = new Vector(embedding),
+                    };
+                    await _embeddingRepository.Create(newEmbedding);
+                }
+            }
+        }
+
+        private string CreateCampaignPrompt(Campaign campaign)
+        {
+            var prompt = @"  - Tên và lĩnh vực: {ten}.
+                        - Mô tả: {mota}.
+                        - Lĩnh vực chính: {the}.
+                        - Kênh hoạt động: {kenh}.
+                        - Giá trung bình: {gia}.
+                        ";
+            StringBuilder sb = new StringBuilder(prompt);
+
+            sb.Replace("{ten}", campaign.Title);
+
+            sb.Replace("{mota}", campaign.Description);
+
+            if (campaign.Tags?.Any() == true)
+            {
+                var tagStr = string.Join(", ", campaign.Tags.Select(tag => tag.Name));
+                sb.Replace("{the}", tagStr);
+            }
+
+            if (campaign.CampaignContents?.Any() == true)
+            {
+                var price = campaign.CampaignContents.Average(c => c.Price);
+                sb.Replace("{gia}", price.Value.ToString("C0", new CultureInfo("vi-VN")));
+
+                var channelStr = "";
+                foreach (var platform in campaign.CampaignContents.Select(channel => channel.Platform).Distinct())
+                {
+                    var platformStr = "";
+                    switch ((EPlatform)platform)
+                    {
+                        case EPlatform.Tiktok:
+                            platformStr = "TikTok";
+                            break;
+                        case EPlatform.Instagram:
+                            platformStr = "Instagram";
+                            break;
+                        case EPlatform.Youtube:
+                            platformStr = "YouTube";
+                            break;
+                        default:
+                            break;
+                    }
+                    channelStr += $"{platformStr}, ";
+                }
+                sb.Replace("{kenh}", channelStr);
+            }
+
+            return sb.ToString();
+        }
+
+        public async Task UpdateCampaignEmbedding(Guid campaignId)
+        {
+            var campaign = await _campaignRepository.GetById(campaignId);
+
+            if (campaign != null && (ECampaignStatus)campaign.Status == ECampaignStatus.Published)
+            {
+                var prompt = CreateCampaignPrompt(campaign);
+                Console.WriteLine(prompt);
+                var embedding = await _openAIEmbeddingHelper.GetEmbeddingAsync(prompt);
+                var embeddingCam = await _embeddingRepository.GetEmbeddingByCampaignId(campaignId);
+
+                if (embeddingCam != null)
+                {
+                    //update new
+                    embeddingCam.EmbeddingValue = new Vector(embedding);
+                    await _embeddingRepository.Update(embeddingCam);
+                }
+                else
+                {
+                    var newEmbedding = new Embedding
+                    {
+                        InfluencerId = null,
+                        CampaignId = campaignId,
                         EmbeddingValue = new Vector(embedding),
                     };
                     await _embeddingRepository.Create(newEmbedding);

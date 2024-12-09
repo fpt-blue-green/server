@@ -16,6 +16,8 @@ namespace Service
     {
         private static readonly IBrandRepository _brandRepository = new BrandRepository();
         private static readonly ICampaignRepository _campaignRepository = new CampaignRepository();
+        private static readonly IInfluencerRepository _influencerRepository = new InfluencerRepository();
+        private static readonly IEmbeddingRepository _embeddingRepository = new EmbeddingRepository();
         private static readonly ICampaignImageRepository _campaignImagesRepository = new CampaignImageRepository();
         private static readonly ICampaignMeetingRoomService _campaignMeetingRoomService = new CampaignMeetingRoomService();
         private static readonly IJobRepository _jobRepository = new JobRepository();
@@ -24,6 +26,7 @@ namespace Service
         private static readonly ConfigManager _configManager = new ConfigManager();
         private static readonly EmailTemplate _emailTemplate = new EmailTemplate();
         private static readonly IEmailService _emailService = new EmailService();
+        private static readonly EmbeddingUpdater embeddingUpdater = new EmbeddingUpdater();
 
         public CampaignService(IMapper mapper)
         {
@@ -43,7 +46,7 @@ namespace Service
                     var brand = await _brandRepository.GetByUserId(userId);
                     var campaigns = await _campaignRepository.GetByBrandId(brand.Id);
 
-                    if (brand.IsPremium == false && campaigns.Count > 2)
+                    if (brand.IsPremium == false && campaigns.Count > 1)
                     {
                         throw new InvalidOperationException("Tài khoản hiện tại chỉ có thể tạo 2 chiến dịch. Vui lòng nâng cấp để tiếp tục sử dụng.");
                     }
@@ -160,6 +163,7 @@ namespace Service
             {
                 _mapper.Map(campaignDto, campaign);
                 await _campaignRepository.Update(campaign);
+                await embeddingUpdater.UpdateCampaignEmbedding(campaign.Id);
                 _loggerService.Information("Cập nhật chiến dịch thành công");
                 return campaign.Id;
             }
@@ -217,7 +221,7 @@ namespace Service
                                                 (!filter.PriceFrom.HasValue || i.Budget >= filter.PriceFrom) &&
                                                 (!filter.PriceTo.HasValue || i.Budget <= filter.PriceTo));
                     }
-                    catch (Exception e) { }
+                    catch { }
 
                 }
                 if (!string.IsNullOrEmpty(filter.Search))
@@ -309,7 +313,7 @@ namespace Service
                         await _campaignRepository.RemoveTagOfCampaign(campaignId, tag.Id);
                     }
                 }
-
+                await embeddingUpdater.UpdateCampaignEmbedding(campaignId);
             }
         }
 
@@ -406,6 +410,7 @@ namespace Service
             }
             campaign.Status = (int)ECampaignStatus.Published;
             await _campaignRepository.Update(campaign);
+            await embeddingUpdater.UpdateCampaignEmbedding(campaignId);
         }
 
         public async Task StartCampaign(Guid campaignId, UserDTO userDTO)
@@ -514,6 +519,19 @@ namespace Service
         {
             var user = await _campaignRepository.GetInfluencerParticipant(campaignId);
             return _mapper.Map<List<UserDTO>>(user);
+        }
+
+        public async Task<List<InfluencerDTO>> GetRecommendInfluencers(Guid id)
+        {
+            var embedding = await _embeddingRepository.GetEmbeddingByCampaignId(id);
+            if (embedding == null || embedding.EmbeddingValue == null)
+            {
+                return new List<InfluencerDTO>();
+            }
+
+            var influencers = await _influencerRepository.GetSimilarInfluencers(embedding.EmbeddingValue);
+            var influencersDTO = _mapper.Map<List<InfluencerDTO>>(influencers);
+            return influencersDTO;
         }
     }
 }

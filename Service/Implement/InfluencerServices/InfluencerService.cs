@@ -510,7 +510,7 @@ namespace Service
             }
             var influencers = await _influencerRepository.GetSimilarInfluencers(influencer.Embedding.EmbeddingValue!);
             var influencersDTO = _mapper.Map<List<InfluencerDTO>>(influencers.Where(i => i.Id != id).Take(10).ToList());
-            return null;
+            return influencersDTO;
         }
 
         public async Task<FilterListResponse<InfluencerDTO>> GetInfluencersByAISearch(string prompt, int pageIndex, int pageSize)
