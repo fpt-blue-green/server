@@ -533,5 +533,18 @@ namespace Service
             var influencersDTO = _mapper.Map<List<InfluencerDTO>>(influencers);
             return influencersDTO;
         }
+
+        public async Task<List<CampaignDTO>> GetRecommendCampaigns(Guid userId)
+        {
+            var influencer = await _influencerRepository.GetByUserId(userId);
+            var embedding = await _embeddingRepository.GetEmbeddingByInfluencerId(influencer.Id);
+            if (embedding == null || embedding.EmbeddingValue == null)
+            {
+                return new List<CampaignDTO>();
+            }
+            var campaigns = await _campaignRepository.GetSimilarCampaigns(embedding.EmbeddingValue);
+            var campaignsDTO = _mapper.Map<List<CampaignDTO>>(campaigns);
+            return campaignsDTO;
+        }
     }
 }

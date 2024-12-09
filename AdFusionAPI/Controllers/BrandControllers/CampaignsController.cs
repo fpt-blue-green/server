@@ -222,10 +222,12 @@ namespace AdFusionAPI.Controllers.BrandControllers
             return Ok(result);
         }
 
-        [HttpGet("{id}/recommend/influencers")]
-        public async Task<ActionResult<IEnumerable<InfluencerDTO>>> GetRecommendInfluencers(Guid id)
+        [HttpGet("recommended")]
+        [InfluencerRequired]
+        public async Task<ActionResult<IEnumerable<CampaignDTO>>> GetRecommendInfluencers()
         {
-            var result = await _campaignService.GetRecommendInfluencers(id);
+            var user = (UserDTO)HttpContext.Items["user"]!;
+            var result = await _campaignService.GetRecommendCampaigns(user.Id);
             return Ok(result);
         }
 

@@ -21,5 +21,6 @@ namespace Service
         Task<List<UserDTO>> GetCampaignParticipantInfluencer(Guid campaignId);
         Task EndCampaign(Guid campaignId, UserDTO userDTO);
         Task<List<InfluencerDTO>> GetRecommendInfluencers(Guid id);
+        Task<List<CampaignDTO>> GetRecommendCampaigns(Guid userId);
     }
 }

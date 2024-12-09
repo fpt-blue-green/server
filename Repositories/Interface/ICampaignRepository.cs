@@ -1,5 +1,6 @@
 ﻿
 using BusinessObjects.Models;
+using Pgvector;
 
 namespace Repositories
 {
@@ -12,7 +13,7 @@ namespace Repositories
 		Task AddTagToCampaign(Guid campaignId, Guid tagId);
 		Task RemoveTagOfCampaign(Guid campaignId, Guid tagId);
 		Task<Campaign> GetFullDetailCampaignJobById(Guid id);
-        Task Create(Campaign campaign);
+		Task Create(Campaign campaign);
 		Task Update(Campaign campaign);
 		Task Delete(Campaign campaign);
 		Task<Campaign> GetCampaignJobDetails(Guid campaignId);
@@ -22,5 +23,6 @@ namespace Repositories
 		Task<List<User>> GetInfluencerParticipant(Guid campaignId);
 		Task<List<JobDetails>> GetDailyJobStatus(Guid jobId, string link);
 		Task<List<JobDetails>> GetAllDailyJobStatus(Guid jobId);
-    }
+		Task<List<Campaign>> GetSimilarCampaigns(Vector embedding);
+	}
 }

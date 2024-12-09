@@ -1,6 +1,8 @@
 ﻿using BusinessObjects;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
+using Pgvector;
+using Pgvector.EntityFrameworkCore;
 using static BusinessObjects.JobEnumContainer;
 
 namespace Repositories
@@ -255,5 +257,24 @@ namespace Repositories
 				return campaignChat?.Campaign; // Trả về Campaign từ CampaignChat, hoặc null nếu không tìm thấy
 			}
 		}
-	}
+
+        public async Task<List<Campaign>> GetSimilarCampaigns(Vector embedding)
+        {
+            using (var _context = new PostgresContext())
+						{
+							var campaigns = await _context.Campaigns
+														.Include(s => s.Brand).ThenInclude(s => s.User)
+														.Include(s => s.Tags)
+														.Include(s => s.CampaignImages)
+														.Include(s => s.CampaignMeetingRooms)
+														.Include(s => s.CampaignContents)
+														.Where(c => (ECampaignStatus)c.Status == ECampaignStatus.Published || (ECampaignStatus)c.Status == ECampaignStatus.Active)
+														.Where(i => i.Embedding != null && i.Embedding.EmbeddingValue != null)
+														.Where(i => i.Embedding.EmbeddingValue.L2Distance(embedding) < 5)
+														.OrderBy(i => i.Embedding!.EmbeddingValue!.L2Distance(embedding))
+														.ToListAsync();
+													return campaigns!;				
+						}
+        }
+    }
 }
