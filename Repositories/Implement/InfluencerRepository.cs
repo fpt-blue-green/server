@@ -187,7 +187,7 @@ namespace Repositories
             }
         }
 
-        public async Task<IEnumerable<Influencer>> GetSimilarInfluencers(Vector embedding)
+        public async Task<IEnumerable<Influencer>> GetSimilarInfluencers(Vector embedding, int pageSize = 10, int page = 1)
         {
             using (var context = new PostgresContext())
             {
@@ -201,6 +201,8 @@ namespace Repositories
                     .Where(i => i.Embedding != null && i.Embedding.EmbeddingValue != null)
                     .Where(i => i.Embedding.EmbeddingValue.L2Distance(embedding) < 5)
                     .OrderBy(i => i.Embedding!.EmbeddingValue!.L2Distance(embedding))
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
                 return influencers;
             }

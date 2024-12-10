@@ -233,12 +233,12 @@ namespace Service
                 }
                 if (!string.IsNullOrEmpty(filter.SortBy))
                 {
-                    var propertyInfo = typeof(Influencer).GetProperty(filter.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var propertyInfo = typeof(Campaign).GetProperty(filter.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                     if (propertyInfo != null)
                     {
                         campaignInprogres = filter.IsAscending.HasValue && filter.IsAscending.Value
-                            ? (List<Campaign>)campaignInprogres.OrderBy(i => propertyInfo.GetValue(i, null))
-                            : (List<Campaign>)campaignInprogres.OrderByDescending(i => propertyInfo.GetValue(i, null));
+                            ? campaignInprogres.OrderBy(i => propertyInfo.GetValue(i, null))
+                            : campaignInprogres.OrderByDescending(i => propertyInfo.GetValue(i, null));
                     }
                 }
                 totalCount = campaignInprogres.Count();
@@ -246,7 +246,8 @@ namespace Service
                 int pageSize = filter.PageSize;
                 campaignInprogres = campaignInprogres
                     .Skip((filter.PageIndex - 1) * pageSize)
-                    .Take(pageSize);
+                    .Take(pageSize)
+                    .ToList();
                 #endregion
                 result = _mapper.Map<List<CampaignDTO>>(campaignInprogres);
             }
@@ -529,7 +530,7 @@ namespace Service
                 return new List<InfluencerDTO>();
             }
 
-            var influencers = await _influencerRepository.GetSimilarInfluencers(embedding.EmbeddingValue);
+            var influencers = await _influencerRepository.GetSimilarInfluencers(embedding.EmbeddingValue, 10, 1);
             var influencersDTO = _mapper.Map<List<InfluencerDTO>>(influencers);
             return influencersDTO;
         }

@@ -508,8 +508,8 @@ namespace Service
             {
                 return new List<InfluencerDTO>();
             }
-            var influencers = await _influencerRepository.GetSimilarInfluencers(influencer.Embedding.EmbeddingValue!);
-            var influencersDTO = _mapper.Map<List<InfluencerDTO>>(influencers.Where(i => i.Id != id).Take(10).ToList());
+            var influencers = await _influencerRepository.GetSimilarInfluencers(influencer.Embedding.EmbeddingValue!, 10, 1);
+            var influencersDTO = _mapper.Map<List<InfluencerDTO>>(influencers.Where(i => i.Id != id).ToList());
             return influencersDTO;
         }
 
@@ -518,17 +518,13 @@ namespace Service
             var openAiHelper = new OpenAIEmbeddingHelper();
             var normalizedPrompt = await openAiHelper.NormalizePromptAsync(prompt);
             var embedding = await openAiHelper.GetEmbeddingAsync(normalizedPrompt);
-            var influencers = await _influencerRepository.GetSimilarInfluencers(new Pgvector.Vector(embedding));
-
-            var pagedInfluencers = influencers
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+            var influencers = await _influencerRepository.GetSimilarInfluencers(new Pgvector.Vector(embedding), pageSize, pageIndex);
+            var count = await _influencerRepository.GetAlls();
 
             return new FilterListResponse<InfluencerDTO>
             {
-                TotalCount = influencers.Count(),
-                Items = _mapper.Map<List<InfluencerDTO>>(pagedInfluencers)
+                TotalCount = count.Count(),
+                Items = _mapper.Map<List<InfluencerDTO>>(influencers)
             };
 
         }

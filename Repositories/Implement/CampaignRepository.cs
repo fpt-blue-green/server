@@ -272,6 +272,7 @@ namespace Repositories
 														.Where(i => i.Embedding != null && i.Embedding.EmbeddingValue != null)
 														.Where(i => i.Embedding.EmbeddingValue.L2Distance(embedding) < 5)
 														.OrderBy(i => i.Embedding!.EmbeddingValue!.L2Distance(embedding))
+														.Take(10)
 														.ToListAsync();
 													return campaigns!;				
 						}

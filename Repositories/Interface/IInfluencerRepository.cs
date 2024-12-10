@@ -18,7 +18,7 @@ namespace Repositories
 		Task Create(Influencer influencer);
         Task Update(Influencer influencer);
         Task Delete(Guid id);
-        Task<IEnumerable<Influencer>> GetSimilarInfluencers(Vector embedding);
+        Task<IEnumerable<Influencer>> GetSimilarInfluencers(Vector embedding, int pageSize, int page);
         Task<Influencer> GetInfluencerWithEmbeddingById(Guid id);
     }
 }
