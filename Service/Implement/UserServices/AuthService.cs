@@ -6,6 +6,8 @@ using Repositories;
 using Repositories.Implement;
 using Repositories.Interface;
 using Serilog;
+using Service.Implement.UtilityServices;
+using Service.Interface.UtilityServices;
 using System.Transactions;
 using UAParser;
 using static BusinessObjects.AuthEnumContainer;
@@ -21,6 +23,8 @@ namespace Service
         private static IEmailService _emailService = new EmailService();
         private static ConfigManager _configManager = new ConfigManager();
         private static EmailTemplate _emailTemplate = new EmailTemplate();
+        private static readonly IEnvService _envService = new EnvService();
+
         private readonly IMapper _mapper;
         public AuthService(IMapper mapper)
         {
@@ -251,7 +255,7 @@ namespace Service
             }
 
             var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(registerDTO));
-            var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.Register}&token={token}";
+            var confirmationUrl = $"{_envService.GetEnv("FRONTEND_URL")}/verify?action={(int)EAuthAction.Register}&token={token}";
             var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Đăng ký tài khoản mới").Replace("{confirmLink}", confirmationUrl);
             // Gửi mail thông báo trong một tác vụ nền
             _ = Task.Run(async () => await _emailService.SendEmail(new List<string> { registerDTO.Email }, "Xác nhận đăng ký tài khoản mới", body));
@@ -292,7 +296,7 @@ namespace Service
 
             var tokenChangePass = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO, settings));
 
-            var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
+            var confirmationUrl = $"{_envService.GetEnv("FRONTEND_URL")}/verify?action={(int)EAuthAction.ChangePass}&token={tokenChangePass}";
 
             var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Thay đổi mật khẩu").Replace("{confirmLink}", confirmationUrl);
 
@@ -325,7 +329,7 @@ namespace Service
             var token = await _securityService.GenerateAuthenToken(JsonConvert.SerializeObject(userDTO, settings));
 
 
-            var confirmationUrl = $"{_configManager.WebBaseUrl}/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
+            var confirmationUrl = $"{_envService.GetEnv("FRONTEND_URL")}/verify?action={(int)EAuthAction.ForgotPassword}&token={token}";
 
             var body = _emailTemplate.authenTemplate.Replace("{projectName}", _configManager.ProjectName).Replace("{Action}", "Quên mật khẩu").Replace("{confirmLink}", confirmationUrl);
 
