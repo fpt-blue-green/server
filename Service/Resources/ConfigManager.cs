@@ -26,7 +26,7 @@
         public readonly string InstagramUrl = "https://www.instagram.com/";
         public readonly string YoutubeUrl = "https://www.youtube.com/@";
 
-        public readonly string SlugRegex = @"^[a-z0-9]+(?:-[a-z0-9]+)*$";
+        public readonly string SlugRegex = @"^[a-z0-9]+(?:[-._][a-z0-9]+)*$";
 
         public readonly string DailyVideoCallEnpoint = @"https://api.daily.co/v1/rooms";
         public readonly string DailyVideoCallTokenEnpoint = @"https://api.daily.co/v1/meeting-tokens";
